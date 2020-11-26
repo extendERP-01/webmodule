@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 144px;
+	position: absolute;
+	z-index: 999;
+	height: 100px; 
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #3f4444;
+	color: #fff;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+	color: #000;
+}
+
+.table td:last-child {
+	width: 80px;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+    //Method for listing of all the Vendor Records
+
+    $('#vendorList').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'view-vendors-through-ajax',
+            'data': function(d) {
+                d.param1 = $('#param1').val();
+                /* d.param2 = $('#param2').val(); */
+            }
+        },
+        'dataSrc': "",
+        'columns': [
+			{
+                'data': 'vendorName'
+            }, {
+                'data': 'vendorAddress'
+            }, {
+                'data': 'vendorGSTNO'
+            }, {
+                'data': 'vendorTINNO'
+            }, {
+                'data': 'vendorBankAc'
+            }, {
+                'data': 'vendorIFSC'
+            }, {
+                'data': 'vendorEmail'
+            }, {
+                'data': 'vendorPhone'
+            }, {
+                'data': 'vendorMobile'
+            },
+            {
+                'data': 'vendorPaymentDays'
+            },  {
+                'data': 'action'
+            }
+        ]
+    });
+    
+    $("#submitBLVendor").click(function(){
+    	item = {};
+    	
+    	item.vendor = $("#blackListVendor").val();
+    	item.causeOfInactive = $("#blackListComment").val();
+    	
+    	if (!blankValidation("blackListComment", "TextArea", "Please Enter Comment"))
+            return false;
+    	
+    	submitblacklistvendor(item);
+    })
+});
+
+function submitblacklistvendor(dataset) {
+	$(".blBtn").prop('disabled', true);
+	console.log(dataset)
+	$.ajax({
+        type: "POST",
+        url: "view-vendors-blacklisted",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(dataset),
+        success: function(response) {
+            if (response.message == "Success") {
+                swal({
+                    title: "Vendor Blacklisted Successfully.",
+                    type: "success",
+                }).then(function() {
+                    window.location.href = "/inventory/view-vendors";
+                })
+            } else {
+                swal({
+                    title: response.code,
+                    text: response.message,
+                    type: "warning"
+                })
+            }
+        },
+        error: function(response) {
+            console.log(response);
+        }
+    }) 
+}
+
+//Method For Searching Records In The List
+function searchData() {
+    $('#vendorList').DataTable().draw();
+}
+// Method For View Details In Model
+
+function viewInModelData(index) {
+    var id = window.atob(index);
+    $('#vendorModel').empty();
+    $.ajax({
+        type: "POST",
+        url: "view-vendors-model",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: id,
+        success: function(response) {
+            if (response.message == "success") {
+                var vendorActive = "";
+               	if (response.body.vendorActive) {
+                    vendorActive = "Active";
+                } else {
+                    vendorActive = "InActive";
+                }
+                if (response.body.vendorActive) {
+
+                    table = '<tr><td>Item Category Name :</td>' + '<td>' +
+                        response.body.vendorName + '</td></tr><tr><td> Vendor Description :</td>' + '<td>' +
+                        response.body.vendorDescription + '</td></tr><tr><td>Vendor Address 1:</td>' + '<td>' +
+                        response.body.vendorAddress + '</td></tr><tr><tr><td>Vendor Address 2:</td>' + '<td>' +
+                        response.body.vendorAddress2 + '</td></tr><tr><tr><td>Vendor Address 3:</td>' + '<td>' +
+                        response.body.vendorAddress3 + '</td></tr><tr><tr><td>Vendor City:</td>' + '<td>' +
+                        response.body.vendorCity + '</td></tr><tr><tr><td>Vendor State:</td>' + '<td>' +
+                        response.body.vendorState + '</td></tr><tr><tr><td>Vendor Country:</td>' + '<td>' +
+                        response.body.vendorCountry + '</td></tr><tr><tr><td>Vendor GSTNO:</td>' + '<td>' +
+                        response.body.vendorGSTNO + '</td></tr><tr><tr><td>Vendor TINNO:</td>' + '<td>' +
+                        response.body.vendorTINNO + '</td></tr><tr><tr><td>Vendor PAN:</td>' + '<td>' +
+                        response.body.vendorPAN + '</td></tr><tr><tr><td>Vendor BankAc:</td>' + '<td>' +
+                        response.body.vendorBankAc + '</td></tr><tr><tr><td>Vendor IFSC:</td>' + '<td>' +
+                        response.body.vendorIFSC + '</td></tr><tr><tr><td>Contact Person:</td>' + '<td>' +
+                        response.body.vendorContactPerson + '</td></tr><tr><tr><td>Vendor Email:</td>' + '<td>' +
+                        response.body.vendorEmail + '</td></tr><tr><tr><td>Vendor Phone:</td>' + '<td>' +
+                        response.body.vendorPhone + '</td></tr><tr><tr><td>Vendor Mobile:</td>' + '<td>' +
+                        response.body.vendorMobile + '</td></tr><tr><tr><td>Service Tax:</td>' + '<td>' +
+                        response.body.vendorServiceTax + '</td></tr><tr><tr><td>Payment Days:</td>' + '<td>' +
+                        response.body.vendorPaymentDays + '</td></tr><tr><tr><td>Vendor Status:</td>' + '<td>' +
+                        vendorActive + '</td></tr>';
+                    $('#myModal').modal('show');
+                    $('#vendorModel').append(table);
+                } else {
+                    table = '<tr><td>itemCategory Name :</td>' + '<td>' +
+                        response.body.vendorName + '</td></tr><tr><td> Vendor Description :</td>' + '<td>' +
+                        response.body.vendorDescription + '</td></tr><tr><td>Vendor Address:</td>' + '<td>' +
+                        response.body.vendorAddress + '</td></tr><tr><tr><td>Vendor GSTNO:</td>' + '<td>' +
+                        response.body.vendorGSTNO + '</td></tr><tr><tr><td>Vendor TINNO:</td>' + '<td>' +
+                        response.body.vendorTINNO + '</td></tr><tr><tr><td>Vendor BankAc:</td>' + '<td>' +
+                        response.body.vendorBankAc + '</td></tr><tr><tr><td>Vendor IFSC:</td>' + '<td>' +
+                        response.body.vendorIFSC + '</td></tr><tr><tr><td>Vendor Email:</td>' + '<td>' +
+                        response.body.vendorEmail + '</td></tr><tr><tr><td>Vendor Phone:</td>' + '<td>' +
+                        response.body.vendorPhone + '</td></tr><tr><tr><td>Vendor Mobile:</td>' + '<td>' +
+                        response.body.vendorMobile + '</td></tr><tr><tr><td>Payment Days:</td>' + '<td>' +
+                        response.body.vendorPaymentDays + '</td></tr><tr><tr><td>Vendor Status :</td>' + '<td>' +
+                        vendorActive + '</td></tr><tr><tr><td>Cause Of Inactive:</td>' + '<td>' +
+                        response.body.causeOfInactive + '</td></tr>';
+                    $('#myModal').modal('show');
+                    $('#vendorModel').append(table);
+                }
+            }
+        },
+        error: function(data) {
+			console.log(data)
+        }
+    })
+}
+
+function blackListVendor(index) {
+    var id = window.atob(index);
+    $("#myModal1").modal("show");
+    $("#blackListVendor").val(id);
+    $("#blackListComment").val("");
+    $(".blBtn").prop('disabled', false);
+}
+
+//Deleting the Vendor
+
+function deleteVendor(id) {
+    swal.fire({
+        title: "Are you sure want to Delete?",
+        text: "Once Deleted,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#e7b63a',
+        confirmButtonText: 'Delete',
+        reverseButtons: true
+
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "GET",
+                url: "/inventory/delete-vendors?id=" + id,
+                success: function(response) {
+                    if (response.message == "success") {
+                        swal({
+                            title: "Record Deleted Successfully.",
+                            type: "success"
+                        }).then(function() {
+                            location.reload();
+                        })
+
+                    } else {
+                        swal({
+                            title: 'Unsuccess',
+                            text: response.code
+                        })
+                    }
+                },
+                error: function(data) {
+
+                }
+            })
+        }
+    });
+}
+
+function vendorAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "view-vendors-getVendorList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#vendor").val(),
+        success: function(response) {
+            if (response.message == "success") {
+
+                if (response.body.length != 0) {
+                    $("#vendor").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) {
+                        content += '<li onClick="selectQAutocomplete(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].name + '</li>';
+                    }
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+
+                } else {
+                    $("#vendor").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectQAutocomplete(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+            $("#vendor").css("background", "#FFF");
+            var content = '<ul id="autocomplete-list">';
+            content += '<li onClick="selectQAutocomplete(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+            content += '</ul>';
+            $("#suggesstion-box1").show();
+            $("#suggesstion-box1").html(content);
+        }
+    })
+}
+
+function selectQAutocomplete(key, name) {
+    if (key) {
+        $("#param1").val(key);
+        $("#vendor").val(name);
+        $("#vendor").attr('data-procat', key);
+        $("#suggesstion-box1").hide();
+    } else {
+        $("#param1").val("");
+        $("#vendor").val("");
+        $("#vendor").attr('data-procat', "");
+        $("#suggesstion-box1").hide();
+    }
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="add-vendors">Add Vendor</a></li>
+					<li class="active"><span>View Vendor</span></li>
+				</ol>
+			</div>
+			
+			<div class="container-fluid">
+				
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-vendors">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Vendor Name</label>
+								
+									<input class="form-control" type=hidden placeholder="" name=""
+										id="param1">
+									<input class="form-control" type="text" placeholder="" name=""
+										id="vendor" onkeyup="vendorAutoComplete();">
+										<div id="suggesstion-box1"></div>
+								</div>
+
+								<div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<button class="btn btn-info" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+				
+						<div class="table-responsive" style="width: 100%;">
+							<table id="vendorList" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Vendor Name</th> 
+										<th>Address</th>
+										<th>GST No.</th>
+										<th>TIN No.</th>
+										<th>Bank A/C No.</th>
+										<th>IFSC Code</th>
+										<th>Email</th>
+										<th>Phone</th>
+										<th>Mobile</th>
+										<th>Payment Days</th> 
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+
+						</div>
+						<div style="clear: both;"></div>
+					
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Vendor</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="vendorModel">
+							
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title"><b>Black List Vendor</b></h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="col-md-12">
+							<div class="form-group">
+								<input type="hidden" id="blackListVendor">
+								<label>Comment</label>
+								<textarea class="form-control textarea" id="blackListComment"></textarea>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-info blBtn" id="submitBLVendor">Submit</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+	</div>
+</div>
+</html>

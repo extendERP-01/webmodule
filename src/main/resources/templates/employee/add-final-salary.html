@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 325px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 170px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.money {
+	text-align: right;
+}
+
+.first-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 100px;
+}
+
+.second-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 130px;
+}
+
+.text-heading {
+	background-color: #d1e3f5;
+	padding: 1px;
+	text-align: center;
+	margin-bottom: 14px;
+}
+
+.text-heading h4 {
+	font-size: 16px;
+	font-weight: 600;
+	color: #2c61e0;
+	padding-top: 7px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	border: 1px solid #FFF;
+	text-align: center;
+	font-weight: bold;
+}
+
+td input {
+	width: 70px;
+}
+
+.wmd-view-topscroll, .wmd-view {
+	overflow-x: scroll;
+	overflow-y: hidden;
+	width: 1045px;
+}
+
+.wmd-view-topscroll {
+	height: 20px;
+}
+/*.wmd-view { height: 100vh; }*/
+.scroll-div1 {
+	width: 3000px;
+	overflow-x: scroll;
+	overflow-y: hidden;
+	height: 20px;
+}
+
+.icon-search {
+	position: relative;
+	bottom: 28px;
+	left: 307px;
+	font-size: 16px;
+}
+</style>
+<script type="text/javascript">
+         $(function(){
+    $(".wmd-view-topscroll").scroll(function(){
+        $(".wmd-view")
+            .scrollLeft($(".wmd-view-topscroll").scrollLeft());
+    });
+    $(".wmd-view").scroll(function(){
+        $(".wmd-view-topscroll")
+            .scrollLeft($(".wmd-view").scrollLeft());
+    });
+});
+
+
+      </script>
+<script>
+	$(document).ready(function() {
+		
+		document.getElementById('generateExcel').style.visibility = 'hidden';
+		 
+	    $("#fromDate").datetimepicker({
+	        format: 'd-m-Y',
+	        closeOnDateSelect: true,
+	        timepicker: false,
+	        maxDate: new Date(),
+	    });
+		$("#toDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		});
+		 
+		getSalaryAllDetails();
+		//submit button function through ajax 
+		
+		$("#submit").click(function(){
+			
+			var dataset = [];
+			$("#tblid > tr").each(function(){
+				assign = {};  
+				assign['fromDate']		=	$("#fromDate").val();
+				assign['toDate']		=	$("#toDate").val();
+				assign['employeeId']		=	$(this).find(".employeeId").val();
+				assign['workingDays']		=	$(this).find(".workingDays").val();
+				assign['empWorkDays']   =	    $(this).find(".empWorkDays").val();
+				assign['leavDays']     =   $(this).find(".leavDays").val();
+				assign['extraWorkDays']     =   $(this).find(".extraWorkDays").val();
+				assign['paidDays']     =   $(this).find(".paidDays").val();
+				assign['monthlyGross']     =   $(this).find(".totalGrossSalary").val();
+				assign['basic']     =   $(this).find(".basic").val(); 
+				assign['hra']     =   $(this).find(".hra").val();
+				assign['other']     =   $(this).find(".other").val();
+				assign['totalTrip']     =   $(this).find(".totalTrip").val();
+				assign['totalTripAmount']     =   $(this).find(".totalTripAmount").val(); 
+				assign['foodConsumed']     =   $(this).find(".foodConsumed").val();
+				
+				assign['foodAvail']     =   $(this).find(".foodAvail").val();
+				assign['foodAmount']     =   $(this).find(".foodAmount").val();
+				assign['foodAllowAmount']     =   $(this).find(".foodAllowAmount").val();
+				assign['extraSalary']     =   $(this).find(".extraSalary").val();
+				assign['advanceAmount']     =   $(this).find(".advanceAmount").val();
+				assign['empEpf']     =   $(this).find(".empEpf").val();
+				assign['employerEpf']     =   $(this).find(".employerEpf").val();
+				
+				assign['empEsic']     =   $(this).find(".empEsic").val();
+				assign['employerEsic']     =   $(this).find(".employerEsic").val();
+				assign['incomeTax']     =   $(this).find(".incomeTax").val();
+				assign['netSalary']     =   $(this).find(".netSalary").val();
+				 
+       
+				dataset.push(assign);
+			 
+			});//table tbody tr loop ends  
+			console.log(dataset);
+				submitAddPlanning(dataset);
+			 							
+				
+		})
+		
+
+	}) 
+
+
+	function submitAddPlanning(dataset){
+	console.log("ther data are "+dataset)
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "add-salary-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){ 
+					console.log(response)
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/employee/salary-approval" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+</script>
+<script type="text/javascript">
+	//For Getting The purchase OrderList in table
+	function getSalaryAllDetails() {
+		$('#tblid').empty();
+		$('#tbdy').empty();
+		document.getElementById("submit").disabled = false;
+		var fromDate = $("#fromDate").val();
+		var toDate = $("#toDate").val();
+		var status = $("#status").val();
+		
+		if (fromDate && toDate) { 
+			$.ajax({
+						type : 'GET',
+						url : 'add-salary-get-salary-details?fromDate='
+								+ fromDate + '&toDate=' + toDate +'&status='+status,
+						contentType : 'application/json',
+						success : function(response) {
+							if (response.message == "success") {
+                                   if(response.body != null){ 
+                                	   for (var i = 0; i < response.body.length; i++) {
+       									var table = '<tr><td bgcolor="#F5F5F5" ><input type="text" class="employeeId" readonly value='+response.body[i].employeeId+' id="employeeId'+i+'"> </td>  '
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  class="employeeName" readonly value="'+response.body[i].employeeName+'" id="employeeName'+i+'"></td> '
+       								 			+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="workingDays" value='+response.body[i].workingDays+' id="workingDays'+i+'"></td>  '
+       											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="empWorkDays" value='+response.body[i].empWorkDays+' id="empWorkDays'+i+'"></td>  '
+       											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="leavDays" value='+response.body[i].leavDays+' id="leavDays'+i+'">  </td> '
+       											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="extraWorkDays" value='+response.body[i].extraWorkDays+' id="extraWorkDays'+i+'"></td> '
+       											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="paidDays" value='+response.body[i].paidDays+' id="paidDays'+i+'"></td> '
+       											
+       											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="totalGrossSalary" value='+response.body[i].monthlyGross+' id="monthlyGross'+i+'"></td>'
+       											
+       											+ '<td bgcolor="#F5F5F5" > <input type="text" readonly style="text-align:right" class="basic"  value='+response.body[i].basic+' id="basic'+i+'">  </td> '
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly style="text-align:right" class="hra" value='+response.body[i].hra+' id="hra'+i+'"></td>'
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly style="text-align:right" class="other" value='+response.body[i].other+' id="other'+i+'"></td>'
+       											+ '<td bgcolor="#F5F5F5"><input type="text"   readonly class="totalTrip" value='+response.body[i].totalTrip+' id="totalTrip'+i+'">  </td>  '
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly style="text-align:right" class="totalTripAmount" value='+response.body[i].totalTripAmount+' id="totalTripAmount'+i+'"></td> '
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly class="foodConsumed" value='+response.body[i].foodConsumed +' id="foodConsumed'+i+'"></td> '
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly class="foodAvail" value='+response.body[i].foodAvail+' id="foodAvail'+i+'"></td>'
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly style="text-align:right" class="foodAllowAmount" value='+response.body[i].foodAllowAmount+' id="foodAllowAmount'+i+'"></td>'
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly style="text-align:right"  class="foodAmount" value='+response.body[i].foodAmount+' id="foodAmount'+i+'"></td>'
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly style="text-align:right" class="extraSalary" value='+response.body[i].extraSalary+' id="extraSalary'+i+'"></td>' 
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly style="text-align:right" class="advanceAmount" value='+response.body[i].advanceAmount+' id="advanceAmount'+i+'"></td>' 
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"   readonly style="text-align:right" class="empEpf" value='+response.body[i].empEpf+' id="empEpf'+i+'"></td>'
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly  style="text-align:right" class="employerEpf" value='+response.body[i].employerEpf+' id="employerEpf'+i+'"></td>'
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly style="text-align:right" class="empEsic" value='+response.body[i].empEsic+' id="empEsic'+i+'"></td>'
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly style="text-align:right"  class="employerEsic" value='+response.body[i].employerEsic+' id="employerEsic'+i+'"></td>'
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly style="text-align:right"  class="incomeTax" value='+response.body[i].incomeTax+' id="incomeTax'+i+'"></td>'
+       											+ '<td bgcolor="#F5F5F5" ><input type="text"  readonly style="text-align:right"  class="netSalary" value='+response.body[i].netSalary+' id="netSalary'+i+'"></td>'
+       											+  '</tr> '; 
+       									$('#tblid').append(table);
+       									if(status !=0){
+       										document.getElementById('generateExcel').style.visibility = 'visible';
+       										document.getElementById('submit').style.visibility = 'hidden';
+       									}else{
+       										document.getElementById('generateExcel').style.visibility = 'hidden';
+       										document.getElementById('submit').style.visibility = 'visible';
+       									}
+       								}
+                                   }else{
+                                	  
+                           			var noData = '<tr> <td colspan="21"><div class="norecord">No Record Found</div></td> </tr>';
+                           			$('#tblid').append(noData);
+                                   }
+								
+							} else { 
+								var noData = '<tr> <td colspan="21"><div class="norecord">No Record Found</div></td> </tr>';
+								$('#tblid').append(noData);
+							}
+						},
+						error : function(e) {
+							console.log("error");
+						}
+					});
+		} else {
+			
+			var noData = '<tr> <td colspan="21"><div class="norecord">No Record Found</div></td> </tr>';
+			$('#tblid').append(noData);
+			 
+			 
+		}
+	}
+	
+	function searchByEmpName(){
+		var employeeName = $("#employeeName").val();
+		if(employeeName){ 
+			document.getElementById("submit").disabled = true;
+		}else{ 
+			document.getElementById("submit").disabled = false;
+		}
+		
+		
+		$('#tblid').empty();
+		$('#tbdy').empty();
+	 
+		var fromDate = $("#fromDate").val();
+		var toDate = $("#toDate").val();
+		
+		if (fromDate && toDate) { 
+			$.ajax({
+						type : 'POST',
+						url : 'add-salary-search-by-emp?fromDate='
+								+ fromDate + '&toDate=' + toDate +'&employeeName='+employeeName,
+						contentType : 'application/json',
+						success : function(response) {
+							if (response.message == "success") {
+                                   if(response.body != null){ 
+                                	   for (var i = 0; i < response.body.length; i++) {
+                                		   var table = '  <tr>  <td bgcolor="#F5F5F5" ><input type="text" readonly class="employeeId" value='+response.body[i].employeeId+' id="employeeId'+i+'"> </td>  '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="employeeName" value="'+response.body[i].employeeName+'" id="employeeName'+i+'"></td> '
+  								 
+													 
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="workingDays" value='+response.body[i].workingDays+' id="workingDays'+i+'"></td>  '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="empWorkDays" value='+response.body[i].empWorkDays+' id="empWorkDays'+i+'"></td>  '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="leavDays" value='+response.body[i].leavDays+' id="leavDays'+i+'">  </td> '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="extraWorkDays" value='+response.body[i].extraWorkDays+' id="extraWorkDays'+i+'"></td> '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="paidDays" value='+response.body[i].paidDays+' id="paidDays'+i+'"></td> '
+  											
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="totalGrossSalary" value='+response.body[i].monthlyGross+' id="monthlyGross'+i+'"></td>'
+  											
+  											+ '<td bgcolor="#F5F5F5" > <input type="text" readonly style="text-align:right"class="basic" value='+response.body[i].basic+' id="basic'+i+'">  </td> '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="hra"   value='+response.body[i].hra+' id="hra'+i+'"></td>'
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="other" value='+response.body[i].other+' id="other'+i+'"></td>'
+  											+ '<td bgcolor="#F5F5F5"><input type="text"  readonly class="totalTrip" value='+response.body[i].totalTrip+' id="totalTrip'+i+'">  </td>  '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="totalTripAmount" value='+response.body[i].totalTripAmount+' id="totalTripAmount'+i+'"></td> '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="foodConsumed" value='+response.body[i].foodConsumed +' id="foodConsumed'+i+'"></td> '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="foodAvail" value='+response.body[i].foodAvail+' id="foodAvail'+i+'"></td>'
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="foodAllowAmount"   value='+response.body[i].foodAllowAmount+' id="foodAllowAmount'+i+'"></td>'
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="foodAmount" value='+response.body[i].foodAmount+' id="foodAmount'+i+'"></td>'
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="extraSalary" value='+response.body[i].extraSalary+' id="extraSalary'+i+'"></td>' 
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="advanceAmount" value='+response.body[i].advanceAmount+' id="advanceAmount'+i+'"></td>' 
+  											
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="empEpf" value='+response.body[i].empEpf+' id="empEpf'+i+'"></td>'
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="employerEpf" value='+response.body[i].employerEpf+' id="employerEpf'+i+'"></td>'
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="empEsic" value='+response.body[i].empEsic+' id="empEsic'+i+'"></td>'
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="employerEsic" value='+response.body[i].employerEsic+' id="employerEsic'+i+'"></td>'
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="incomeTax" value='+response.body[i].incomeTax+' id="incomeTax'+i+'"></td>'
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly style="text-align:right" class="netSalary" value='+response.body[i].netSalary+' id="netSalary'+i+'"></td>'
+  											+  '</tr> '; 
+       									$('#tblid').append(table);
+       								}
+                                   }else{
+                                	  
+                           			var noData = '<tr> <td colspan="21"><div class="norecord">No Record Found</div></td> </tr>';
+                           			$('#tblid').append(noData);
+                                   }
+								
+							} else { 
+								var noData = '<tr> <td colspan="21"><div class="norecord">No Record Found</div></td> </tr>';
+								$('#tblid').append(noData);
+							}
+						},
+						error : function(e) {
+							console.log("error");
+						}
+					});
+		} else {
+			
+			var noData = '<tr> <td colspan="21"><div class="norecord">No Record Found</div></td> </tr>';
+			$('#tblid').append(noData);
+			 
+			 
+		}
+	}
+	
+	
+	function generateFinalExcel(){
+		if($('#fromDate').val() && $('#toDate').val()){
+			window.open("/download/generate-salary-final-report?param2="
+					+ window.btoa($('#fromDate').val()) + "&param3="
+					+ window.btoa($('#toDate').val()));
+		}
+		
+	}
+</script>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Salary</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Salary</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form>
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-4">
+										<div class="form-group">
+
+
+											<label>From Date</label> <input type="text" readonly
+												id="fromDate" class="form-control" th:value="${fromDate}"
+												onchange="getSalaryAllDetails()">
+
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>To Date</label> <input type="text" readonly
+												id="toDate" class="form-control" th:value="${toDate}"
+												onchange="getSalaryAllDetails()"> <input
+												type="hidden" id="status" th:value="${status}">
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>Employee ID / Employee Name</label> <input type="text"
+												id="employeeName" class="form-control"
+												onkeyUp="searchByEmpName()"><span
+												class="icon-search"><i class="fa fa-search"></i></span>
+										</div>
+									</div>
+
+								</div>
+								<!-- <div class="row">
+									<div class="col-md-4"></div>
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>Employee Name</label> <input type="text"
+												id="employeeName" class="form-control"
+												onkeyUp="searchByEmpName()"><span
+												class="icon-search"><i class="fa fa-search"></i></span>
+										</div>
+									</div>
+
+								</div> -->
+								<div>
+									<Strong>Employees Details</Strong>
+									<div class="wmd-view-topscroll">
+										<div class="scroll-div1"></div>
+									</div>
+									<div class="wmd-view">
+										<div class="scroll-div2">
+											<table class="main-table" id="myTable1" width="1000px"
+												border="0" cellspacing="1" cellpadding="0">
+
+												<tr>
+													<th class="tableheader" align="center" width="70">Employee
+														Id</th>
+													<th class="tableheader" align="center" width="70">
+														Employee Name</th>
+
+													<th class="tableheader" align="center" width="70">T/D</th>
+													<th class="tableheader" align="center" width="70">W/D</th>
+													<th class="tableheader" align="center" width="70">L/D</th>
+													<th class="tableheader" align="center" width="70">E/D</th>
+													<th class="tableheader" align="center" width="70">P/D</th>
+													<th class="tableheader" align="center" width="70">Monthly
+														Gross Salary</th>
+
+													<th class="tableheader" align="center" width="70">
+														Basic Salary</th>
+													<th class="tableheader" align="center" width="70">HRA</th>
+													<th class="tableheader" align="center" width="70">Other</th>
+													<th class="tableheader" align="center" width="70">
+														Total Trip</th>
+													<th class="tableheader" align="center" width="70">Trip
+														Bonus Amount</th>
+													<th class="tableheader" align="center" width="70">Food
+														Taken</th>
+													<th class="tableheader" align="center" width="70">Food
+														Avail</th>
+													<th class="tableheader" align="center" width="70">Food
+														Allow Amount</th>
+													<th class="tableheader" align="center" width="70">Food
+														Amount</th>
+													<th class="tableheader" align="center" width="70">Extra
+														Salary</th>
+													<th class="tableheader" align="center" width="70">
+														Advance Amount</th>
+													<th class="tableheader" align="center" width="70">EPF
+														Employees Cont.</th>
+													<th class="tableheader" align="center" width="70">EPF
+														Employers Cont.</th>
+													<th class="tableheader" align="center" width="70">ESIC
+														Employees Cont.</th>
+													<th class="tableheader" align="center" width="70">ESIC
+														Employers Cont.</th>
+													<th class="tableheader" align="center" width="70">Income
+														Tax</th>
+													<th class="tableheader" align="center" width="70">Net
+														Salary</th>
+												</tr>
+												<tbody id="tblid"></tbody>
+
+												<tbody id="tblid" th:if="${planningList !=null}">
+													<tr class="tr_clone" th:if="${Edit}"
+														th:each="a,iter:${planningList}">
+														<td bgcolor="#F5F5F5"><input type="text"
+															class="employeeId" th:value="${a.employeeId}"> <input
+															type="hidden" class="sizeId" th:value="${a.sizeId}"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.slitGrade09}" class="slitGrade09"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.mcoilGrade09}" class="mcoilGrade09"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.planGrade09}" class="planGrade09">
+															<input type="hidden" th:value="${a.salesGrade09}"
+															class="salesGrade09"> <input type="hidden"
+															th:value="${a.wipGrade09}" class="wipGrade09"> <input
+															type="hidden" th:value="${a.fpGrade09}" class="fpGrade09"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.slitGrade115}" class="slitGrade115"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.mcoilGrade115}" class="mcoilGrade115"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.planGrade115}" class="planGrade115">
+															<input type="hidden" th:value="${a.salesGrade115}"
+															class="salesGrade115"> <input type="hidden"
+															th:value="${a.wipGrade115}" class="wipGrade115">
+															<input type="hidden" th:value="${a.fpGrade115}"
+															class="fpGrade115"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.slitGrade145}" class="slitGrade145"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.mcoilGrade145}" class="mcoilGrade145"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.planGrade145}" class="planGrade145">
+															<input type="hidden" th:value="${a.salesGrade145}"
+															class="salesGrade145"> <input type="hidden"
+															th:value="${a.wipGrade145}" class="wipGrade145">
+															<input type="hidden" th:value="${a.fpGrade145}"
+															class="fpGrade145"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.slitGrade12}" class="slitGrade12"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.mcoilGrade12}" class="mcoilGrade12"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.planGrade12}" class="planGrade12">
+															<input type="hidden" th:value="${a.salesGrade12}"
+															class="salesGrade12"> <input type="hidden"
+															th:value="${a.wipGrade12}" class="wipGrade12"> <input
+															type="hidden" th:value="${a.fpGrade12}" class="fpGrade12">
+														</td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.slitGrade15}" class="slitGrade15"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.mcoilGrade15}" class="mcoilGrade15"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.planGrade15}" class="planGrade15">
+															<input type="hidden" th:value="${a.salesGrade15}"
+															class="salesGrade15"> <input type="hidden"
+															th:value="${a.wipGrade15}" class="wipGrade15"> <input
+															type="hidden" th:value="${a.fpGrade15}" class="fpGrade15">
+
+														</td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.totalslit}" class="totalslit"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.totalPlan}" class="totalPlan"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.totalMcoil}" class="totalMcoil"></td>
+														<td bgcolor="#F5F5F5"><input type="text"
+															th:value="${a.total}" class="total"></td>
+
+
+													</tr>
+
+												</tbody>
+
+
+
+											</table>
+										</div>
+									</div>
+								</div>
+								<div class="row" id="submitDiv">
+									<div class="col-md-12">
+										<div class="form-group">
+											<button type="button" id="submit" class="btn btn-success">Submit</button>
+											<button type="button" id="generateExcel"
+												onclick="generateFinalExcel()" class="btn btn-success">Download
+												Excel</button>
+											<input type="reset" value="Cancel" class="btn btn-warning"
+												onclick="window.location.reload();" />
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

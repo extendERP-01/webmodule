@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 490px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+       
+     function validateForm(){
+    	 
+	  if (!blankValidation("departmentName","TextField", "Deoartment Name can not be left blank"))
+          return false;
+      if (!blankValidation("departmentDesc","TextField", "Description can not be left blank"))
+          return false;
+      if (!blankValidation("departmentStatus","TextField", "Status can not be left blank"))
+          return false;
+      
+     }  
+     
+     /*
+      * for auto complete user 
+      */
+     function employeeAutoComplete() {
+     	$.ajax({
+     		type : "POST",
+     		url : "add-supervisor-master-employeeAutoComplete",
+     		dataType : 'json',
+     		contentType : 'application/json',
+     		data : $("#empName").val(),
+     		success : function(response) {
+     			if (response.message == "success") {
+     				
+     			if(response.body.length!=0)	{
+     				
+     				$("#empName").css("background","#FFF");
+     				var content = '<ul id="autocomplete-list">';
+     				for (var i = 0; i < response.body.length; i++) {
+     						content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'</li>';
+     				} 
+     				content += '</ul>';
+     				$("#suggesstion-box").show();
+     				$("#suggesstion-box").html(content);
+     				
+     			}
+     			else {
+     				
+     				$("#empName").css("background","#FFF");
+     				var content = '<ul id="autocomplete-list">';
+     				content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+     				content += '</ul>';
+     				$("#suggesstion-box").show();
+     				$("#suggesstion-box").html(content);
+     			}
+     			}
+     		},
+     		error : function(data) {
+     		
+     		}
+     	})
+     }
+     function selectAutocompleteValue(key,name) {
+     	if (key) {
+	     		$("#empName").val(name);
+	     		$("#empid").val(key);
+	     		
+	     		$("#empName").attr('data-procat', key);
+	     		
+	     	
+	     		$("#suggesstion-box").hide();
+	     		
+     		}
+     	else {
+	     		$("#empid").val("");
+	     		$("#empName").val("");
+	     		$("#empName").attr('data-procat', "");
+	     		
+	     		
+	     		$("#suggesstion-box").hide();
+	     		$("#myTable tbody tr:not(:first)").remove();
+	     		$("#myTable tbody tr:last").find('td:last').remove();
+	     		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	     		$("#myTable tbody tr:last").append('<td>'+ add+'</td>');
+     	}
+     }
+ 
+    </script>
+</head>
+<div layout:fragment="content">
+
+        <div class="main mrt_20">
+            <!--Alert Box-->
+                <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+             <span th:text="${message}"></span>
+          </div>
+              <!--Alert Box-->
+ 
+       <ol class="breadcrumb breadcrumb-arrow">
+             <li><a href="index.html">Home</a></li>
+             <li class="active"><span>Add Supervisor</span></li>
+            <!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+        </ol>
+        <div class="card-title">
+                <h4>Add Supervisor</h4>
+            </div>  
+                <div class="card"> 
+                    <div class="card-body">
+                        <div class="basic-elements">
+                            <form th:action="@{/employee/add-supervisor-master}"th:object="${supervisor}" method="post" onsubmit="return validateForm();" autocomplete="off">
+                               <input type="hidden" th:field="*{spId}" />
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Employee Name</label>
+                                             <input type="text" class="form-control" id="empName"  th:field="*{empName}" onkeyup="employeeAutoComplete();">
+                                              <input type="hidden" class="form-control" th:field="*{empid}" >
+                                              <div id="suggesstion-box">
+                                              </div>
+                                        </div>
+                                        <div class="form-group" >
+											<label>Department Name</label> <select
+												class="form-control" th:field="*{deptId}">
+												<option value="">--Select--</option>
+												<option th:each="c:${DeptList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==supervisor.deptId}'></option>
+												
+											</select>
+										</div>
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <textarea class="form-control textarea" th:field="*{desc}" ></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Status</label>
+                                               <select class="form-control"  th:field="*{status}">
+                                                <option th:value=null>--select--</option>
+                                                <option th:value=true>Active</option>
+                                                <option th:value=false>Inactive</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-success">submit</button>
+                           				<button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+                                    </div>
+                                  </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</html>

@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.theadCls>tr>th {
+	text-align: center;
+}
+
+.second-section-out{
+	background-color:#fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin:10px 0px;
+	padding:0px;
+	height:265px;
+}
+
+.first-section-out{
+	background-color:#fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin:10px 0px;
+	padding:0px;
+	height:265px;
+}
+
+#autocomplete-list2 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 205px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list2 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list2 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.trCls {
+	background: #d1e3f5;
+}
+
+.trCls>th {
+	color: #2c61e1;
+	font-size: 14px;
+}
+
+.tbll {
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin-bottom: 20px;
+}
+</style>
+<script>
+	//ADD MORE FUNCTION
+
+	function addMore() {
+
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+		$("#myTable tbody tr td:last").html("");
+		var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+
+		var editTr = 0;
+
+		if (lengthOfTableRow > editTr) {
+			$("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last')
+					.append(removeMore);
+		}
+
+		$("#myTable tbody tr:last").find(".itemCategoryId").val("");
+		$("#myTable tbody tr:last").find(".itemCategory").val("");
+		$("#myTable tbody tr:last").find(".subCatId").val("");
+		$("#myTable tbody tr:last").find(".subCat").val("");
+		$("#myTable tbody tr:last").find(".itemName").val("");
+		$("#myTable tbody tr:last").find(".itemCode").val("");
+		$("#myTable tbody tr:last").find(".weight").val("");
+		$("#myTable tbody tr:last").find(".actualNetQty").val("");
+		$("#myTable tbody tr:last").find(".serveTypeId").val("");
+		$("#myTable tbody tr:last").find(".serveType").val("");
+
+		$("#myTable > tbody > tr").each(function(i) {
+
+			var textInput = $(this).find('input');
+			var divInput = $(this).find('div');
+
+			textInput.eq(0).attr('id', "inputItemCategoryId_" + i);
+			textInput.eq(1).attr('id', "inputItemCategory_" + i);
+			textInput.eq(2).attr('id', "inputItemSubCatId_" + i);
+			textInput.eq(3).attr('id', "inputSubCat_" + i);
+			textInput.eq(4).attr('id', "inputItemCode_" + i);
+			textInput.eq(5).attr('id', "inputItemName_" + i);
+			textInput.eq(6).attr('id', "inputActualNetQty_" + i);
+			textInput.eq(7).attr('id', "inputWeight_" + i);
+			textInput.eq(8).attr('id', "inputItemServeTypeId_" + i);
+			textInput.eq(9).attr('id', "inputItemServeType_" + i);
+			
+			divInput.eq(0).attr('id', "categoryDiv_" + i);
+			divInput.eq(1).attr('id', "subCatDiv_" + i);
+			divInput.eq(2).attr('id', "suggesstion-box1_" + i);
+		})
+	}
+$(document).ready(function (){
+	$("#outDate").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	});
+	$("#returnDate").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	});
+	
+	$("#outTime").datetimepicker({
+		format:'H:i',
+		closeOnDateSelect: true,
+		datepicker : false,
+	});
+	
+	
+	$("#returnTime").datetimepicker({
+		format:'H:i',
+		closeOnDateSelect: true,
+		datepicker : false,
+	});
+	var id = $("#gatePassIdOut").val();
+	if(id) {
+		$('#btnCancel').click(function () {
+			window.location.href = "/gatepass/view-gatepass";
+		})
+		
+		$(".hideCls").hide();
+		/* var weightType = $("#weightType").val();
+		if(weightType=="2") {
+			$(".tblHideCls").show();
+			$("#grossDiv").hide();
+			$("#tareDiv").hide();
+		} else {
+			$(".tblHideCls").hide();
+			$("#grossDiv").show();
+			$("#tareDiv").show();
+		} */
+		
+	} else {
+		$('#btnCancel').click(function () {
+			location.reload();
+		})
+		var fullDate = new Date();
+		var twoDigitMonth=((fullDate.getMonth()+1)>=10)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+		var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+		var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+		$("#outDate").val(currentDate);
+		
+		var d = new Date();
+		var hours = d.getHours();
+		var minutes = d.getMinutes(); 
+		hours=((d.getHours())>=10)? (d.getHours()) : '0' + (d.getHours());
+		minutes=((d.getMinutes())>=10)? (d.getMinutes()) : '0' + (d.getMinutes()); 
+		var time = hours + ":" + minutes;
+		$("#outTime").val(time);
+	}
+	
+	
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		
+	});
+	
+	/* $("#weightType").change(function(){
+		var weightType = $(this).val();
+		$(".itemCode").val("");
+		$(".itemName").val("");
+		$(".clientNetQty").val("");
+		$(".actualNetQty").val("");
+		$(".serveTypeId").val("");
+		$(".serveType").val("");
+		$(".itemCategory").val("");
+		$(".subCategory").val("");
+		if(weightType=="2") {
+			$(".tblHideCls").show();
+			$("#grossDiv").hide();
+			$("#tareDiv").hide();
+			$("#supplyDiv").hide();
+			$("#purchaseOrder").removeAttr("disabled");
+			document.getElementById("supplyByClient").checked = false;
+		} else {
+			$(".tblHideCls").hide();
+			$("#grossDiv").show();
+			$("#tareDiv").show();
+			$("#supplyDiv").show();
+			$("#myTable tbody tr:not(:first)").remove();
+			$("#myTable tbody tr:last").find('td:last').remove();
+		}
+	}) */
+	
+	
+	$("#submit").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			item = {};
+			
+			item['gatePassOut']		=	$('#gatePassIdOut').val();
+			item['weightType']		=	$('#weightType').val(); 
+			item['refGatePassNo']	=	$('#refGatePassNo').val();
+			item['store']			=	$('#store').val();
+			item['passType']		=	$('#passType').val();
+			item['delChallanId']	=	$('#delChallanId').val();
+			item['vehicleNo']		=	$('#vehicleNo').val();
+			item['rstNo']			=	$('#rstNo').val(); 
+			item['driverName']		=	$('#driverName').val();
+			if($('#gross').val()!="") {
+				item['gross']			=	parseFloat($('#gross').val());
+			}
+			if($('#tare').val()!="") {
+				item['tare']			=	parseFloat($('#tare').val());
+			}
+			item['outDate']		=	$('#outDate').val();
+			item['outTime']		=	$('#outTime').val();
+			item['returnDate']		=	$('#returnDate').val();
+			item['returnTime']		=	$('#returnTime').val();
+			item['remarks']			=	$('#remarks').val();
+			
+			item['itemCode']		=	$(this).find(".itemCode").val();
+			item['itemCategoryId']	=	$(this).find(".itemCategoryId").val();
+			item['subCatId']		=	$(this).find(".subCatId").val();
+			item['actualNetQty']	=	parseFloat($(this).find(".actualNetQty").val());
+			item['weight']	=	parseFloat($(this).find(".weight").val());
+			item['serveTypeId']		=	$(this).find(".serveTypeId").val();
+			item['customerId']		=	$("#customerId").val();
+			item['fileUpload']		=	$("#fileUpload").val();
+			
+			dataset.push(item);
+		});
+		console.log(dataset)
+		
+		/* if (!blankValidation("challanNo","TextField" ,"Please Enter Challan Number"))
+		      return false; */
+		if (!blankValidation("vehicleNo","TextField" ,"Please Enter Vehicle Number"))
+		      return false;
+		/* if (!blankValidation("driverName","TextField" ,"Please Enter Driver Name"))
+		      return false; */
+		submitGatePass(dataset);
+	});
+})
+function submitGatePass(dataset) {
+	swal.fire({
+		title					: "Are you sure want to Submit?",
+		text					: "Once Submited,Can't revert back !",
+		type 					: "warning",
+		showCancelButton		: true,
+		confirmButtonColor		: "#DD6BB5",
+		confirmButtonText		: "Submit",
+		showLoaderOnConfirm		: true,
+		reverseButtons 			: true,
+		confirmButtonAriaLabel 	: 'Thumbs up, great!',
+		cancelButtonText 		: 'Cancel',
+		cancelButtonAriaLabel 	: 'Thumbs down',	
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "gatepass-out-save",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					if(response.message=="Success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							window.location.href = "/gatepass/view-gatepass-out" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			}) //ajax ends
+		}
+	})
+}
+
+function saveFile() {
+	$("#upload_prev").empty();
+	var uFile = $('#fileUpload')[0].files[0]; 
+	var fileName = $('#fileUpload').val();
+	
+	var lastIndex = fileName.lastIndexOf("\\");
+	if(lastIndex >= 0) {
+		fileName = fileName.substring(lastIndex + 1);
+	}
+	var iURL = URL.createObjectURL(uFile);
+	$("#uploadedImgDiv").html("");
+	
+	var LightImg =  "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' target='_blank'>Preview</a>";
+	$("#uploadedImgDiv").html(LightImg);
+	
+	var fileData = new FormData();
+	fileData.append('file',uFile);
+	fileData.append('path','none');
+	
+	$.ajax({
+		type        : "POST",
+		url         : "gatepass-out-uploadFile",
+		enctype     : "multipart/form-data",
+		contentType : false,
+		data        : fileData,
+		processData : false,
+		cache       : false,
+		success     : function(response){
+						
+					},			  
+		error       : function(e) {
+			
+			  		}
+	});
+}
+
+function getChallanAutoSearch() {
+	var value = $('#delChallan').val();
+	if(value) {
+		$.ajax({
+			type : "POST",
+			url : "gatepass-out-get-challan",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : value,
+			success : function(response) {
+				if(response.body.length!=0)	{
+					$("#delChallan").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue30(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+					} 
+					content += '</ul>';
+					$("#pordersuggestion").show();
+					$("#pordersuggestion").html(content);
+				} else {
+					$("#delChallan").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue30(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#pordersuggestion").show();
+					$("#pordersuggestion").html(content);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$("#delChallan").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue30(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#pordersuggestion").show();
+				$("#pordersuggestion").html(content);
+			}
+		});
+	} else {
+		$("#delChallan").css("background","#FFF");
+		var content = '<ul id="autocomplete-list">';
+		content += '<li onClick="selectAutocompleteValue30(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#pordersuggestion").show();
+		$("#pordersuggestion").html(content);	
+	}
+}
+function selectAutocompleteValue30(key,name) {
+	if (key) {
+ 		$("#delChallanId").val(key);
+    	$("#delChallan").val(key);
+    	$("#delChallan").attr('data-procat', key);
+    	$("#pordersuggestion").hide();
+    	getItemDetails(key);
+	} else {
+		$("#delChallanId").val("");
+    	$("#delChallan").val("");
+    	$("#delChallan").attr('data-procat', "");
+    	$("#pordersuggestion").hide();
+    	getItemDetails("");
+	}
+}
+
+function getItemDetails(key) {
+	$("#tbodyData").empty();
+	if(key) {
+		$.ajax({
+			type : "POST",
+			url : "gatepass-out-get-challan-details",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : key,
+			success : function(response) {
+				if (response.message == "success") {
+					if(response.body.length!=0)	{
+						console.log(response.body)
+						$("#tbodyData").empty();
+						var c = 0;
+						for(var i=0; i<response.body.length;i++) {
+							c = c + 1;
+							if(c!=response.body.length) {
+								var table = '<tr>'
+									+'<td><input type="hidden" id="inputItemCategoryId_'+i+'" class="form-control itemCategoryId" value="'+response.body[i].itemCategoryId+'"><input type="text" id="inputItemCategory_'+i+'" class="form-control itemCategory" value="'+response.body[i].itemCategory+'" onkeyup="getItemCategoryAutoSearch(event);"><div id="categoryDiv_'+i+'"></div></td>'
+									+'<td><input type="hidden" id="inputItemSubCatId_'+i+'" class="form-control subCatId" value="'+response.body[i].subCatId+'"><input type="text" id="inputSubCat_'+i+'" class="form-control subCat" value="'+response.body[i].subCat+'" onkeyup="getItemSubCatAutoSearch(event);"><div id="subCatDiv_'+i+'"></div></td>'
+									+'<td><input type="hidden" id="inputItemCode_'+i+'" class="form-control itemCode" value="'+response.body[i].itemCode+'"> <input type="text" id="inputItemName_'+i+'" class="form-control itemName" value="'+response.body[i].itemName+'" onkeyup="getItemAutoSearch(event);"><div id="suggesstion-box1_'+i+'"></div></td>'
+									+'<td><input type="text" id="inputActualNetQty_'+i+'" class="form-control actualNetQty" value="'+response.body[i].actualNetQty+'"></td>'
+									+'<td><input type="text" id="inputWeight_'+i+'" class="form-control weight" value="'+response.body[i].weight+'"></td>'
+									+'<td><input type="hidden" id="inputItemServeTypeId_'+i+'" class="form-control serveTypeId" value="'+response.body[i].serveTypeId+'" readonly=""><input type="text" id="inputItemServeType_'+i+'" class="form-control serveType" value="'+response.body[i].serveType+'" readonly=""></td>'
+									+'<td class="tblHideCls"><button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>&nbsp;</td>'
+									+'</tr>';
+								$("#tbodyData").append(table);
+							}
+							if(c==response.body.length) {
+								if(c!=1) {
+									var table = '<tr>'
+										+'<td><input type="hidden" id="inputItemCategoryId_'+i+'" class="form-control itemCategoryId" value="'+response.body[i].itemCategoryId+'"><input type="text" id="inputItemCategory_'+i+'" class="form-control itemCategory" value="'+response.body[i].itemCategory+'" onkeyup="getItemCategoryAutoSearch(event);"><div id="categoryDiv_'+i+'"></div></td>'
+										+'<td><input type="hidden" id="inputItemSubCatId_'+i+'" class="form-control subCatId" value="'+response.body[i].subCatId+'"><input type="text" id="inputSubCat_'+i+'" class="form-control subCat" value="'+response.body[i].subCat+'" onkeyup="getItemSubCatAutoSearch(event);"><div id="subCatDiv_'+i+'"></div></td>'
+										+'<td><input type="hidden" id="inputItemCode_'+i+'" class="form-control itemCode" value="'+response.body[i].itemCode+'"> <input type="text" id="inputItemName_'+i+'" class="form-control itemName" value="'+response.body[i].itemName+'" onkeyup="getItemAutoSearch(event);"><div id="suggesstion-box1_'+i+'"></div></td>'
+										+'<td><input type="text" id="inputActualNetQty_'+i+'" class="form-control actualNetQty" value="'+response.body[i].actualNetQty+'"></td>'
+										+'<td><input type="text" id="inputWeight_'+i+'" class="form-control weight" value="'+response.body[i].weight+'"></td>'
+										+'<td><input type="hidden" id="inputItemServeTypeId_'+i+'" class="form-control serveTypeId" value="'+response.body[i].serveTypeId+'" readonly=""><input type="text" id="inputItemServeType_'+i+'" class="form-control serveType" value="'+response.body[i].serveType+'" readonly=""></td>'
+										+'<td class="tblHideCls"><button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>&nbsp;</td>'
+										+'</tr>';
+									$("#tbodyData").append(table);
+								} else {
+									var table = '<tr>'
+										+'<td><input type="hidden" id="inputItemCategoryId_'+i+'" class="form-control itemCategoryId" value="'+response.body[i].itemCategoryId+'"><input type="text" id="inputItemCategory_'+i+'" class="form-control itemCategory" value="'+response.body[i].itemCategory+'" onkeyup="getItemCategoryAutoSearch(event);"><div id="categoryDiv_'+i+'"></div></td>'
+										+'<td><input type="hidden" id="inputItemSubCatId_'+i+'" class="form-control subCatId" value="'+response.body[i].subCatId+'"><input type="text" id="inputSubCat_'+i+'" class="form-control subCat" value="'+response.body[i].subCat+'" onkeyup="getItemSubCatAutoSearch(event);"><div id="subCatDiv_'+i+'"></div></td>'
+										+'<td><input type="hidden" id="inputItemCode_'+i+'" class="form-control itemCode" value="'+response.body[i].itemCode+'"> <input type="text" id="inputItemName_'+i+'" class="form-control itemName" value="'+response.body[i].itemName+'" onkeyup="getItemAutoSearch(event);"><div id="suggesstion-box1_'+i+'"></div></td>'
+										+'<td><input type="text" id="inputActualNetQty_'+i+'" class="form-control actualNetQty" value="'+response.body[i].actualNetQty+'"></td>'
+										+'<td><input type="text" id="inputWeight_'+i+'" class="form-control weight" value="'+response.body[i].weight+'"></td>'
+										+'<td><input type="hidden" id="inputItemServeTypeId_'+i+'" class="form-control serveTypeId" value="'+response.body[i].serveTypeId+'" readonly=""><input type="text" id="inputItemServeType_'+i+'" class="form-control serveType" value="'+response.body[i].serveType+'" readonly=""></td>'
+										+'<td class="tblHideCls"><button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;</td>'
+										+'</tr>';
+									$("#tbodyData").append(table);
+								}
+							}
+						}
+					} else {
+						var table = '<tr>'
+									+'<td><input type="hidden" id="inputItemCategoryId_0" class="form-control itemCategoryId" value=""><input type="text" id="inputItemCategory_0" class="form-control itemCategory" value="" onkeyup="getItemCategoryAutoSearch(event);"><div id="categoryDiv_0"></div></td>'
+									+'<td><input type="hidden" id="inputItemSubCatId_0" class="form-control subCatId" value=""><input type="text" id="inputSubCat_0" class="form-control subCat" value="" onkeyup="getItemSubCatAutoSearch(event);"><div id="subCatDiv_0"></div></td>'
+									+'<td><input type="hidden" id="inputItemCode_0" class="form-control itemCode" value=""> <input type="text" id="inputItemName_0" class="form-control itemName" value="" onkeyup="getItemAutoSearch(event);"><div id="suggesstion-box1_0"></div></td>'
+									+'<td><input type="text" id="inputActualNetQty_0" class="form-control actualNetQty" value=""></td>'
+									+'<td><input type="text" id="inputWeight_0" class="form-control weight" value=""></td>'
+									+'<td><input type="hidden" id="inputItemServeTypeId_0" class="form-control serveTypeId" value="" readonly=""><input type="text" id="inputItemServeType_0" class="form-control serveType" value="" readonly=""></td>'
+									+'<td class="tblHideCls"><button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;</td>'
+									+'</tr>';
+						$("#tbodyData").append(table);
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+				var table = '<tr>'
+					+'<td><input type="hidden" id="inputItemCategoryId_0" class="form-control itemCategoryId" value=""><input type="text" id="inputItemCategory_0" class="form-control itemCategory" value="" onkeyup="getItemCategoryAutoSearch(event);"><div id="categoryDiv_0"></div></td>'
+					+'<td><input type="hidden" id="inputItemSubCatId_0" class="form-control subCatId" value=""><input type="text" id="inputSubCat_0" class="form-control subCat" value="" onkeyup="getItemSubCatAutoSearch(event);"><div id="subCatDiv_0"></div></td>'
+					+'<td><input type="hidden" id="inputItemCode_0" class="form-control itemCode" value=""> <input type="text" id="inputItemName_0" class="form-control itemName" value="" onkeyup="getItemAutoSearch(event);"><div id="suggesstion-box1_0"></div></td>'
+					+'<td><input type="text" id="inputActualNetQty_0" class="form-control actualNetQty" value=""></td>'
+					+'<td><input type="text" id="inputWeight_0" class="form-control weight" value=""></td>'
+					+'<td><input type="hidden" id="inputItemServeTypeId_0" class="form-control serveTypeId" value="" readonly=""><input type="text" id="inputItemServeType_0" class="form-control serveType" value="" readonly=""></td>'
+					+'<td class="tblHideCls"><button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;</td>'
+					+'</tr>';
+				$("#tbodyData").append(table);
+			}
+		})
+	} else {
+		var table = '<tr>'
+			+'<td><input type="hidden" id="inputItemCategoryId_0" class="form-control itemCategoryId" value=""><input type="text" id="inputItemCategory_0" class="form-control itemCategory" value="" onkeyup="getItemCategoryAutoSearch(event);"><div id="categoryDiv_0"></div></td>'
+			+'<td><input type="hidden" id="inputItemSubCatId_0" class="form-control subCatId" value=""><input type="text" id="inputSubCat_0" class="form-control subCat" value="" onkeyup="getItemSubCatAutoSearch(event);"><div id="subCatDiv_0"></div></td>'
+			+'<td><input type="hidden" id="inputItemCode_0" class="form-control itemCode" value=""> <input type="text" id="inputItemName_0" class="form-control itemName" value="" onkeyup="getItemAutoSearch(event);"><div id="suggesstion-box1_0"></div></td>'
+			+'<td><input type="text" id="inputActualNetQty_0" class="form-control actualNetQty" value=""></td>'
+			+'<td><input type="text" id="inputWeight_0" class="form-control weight" value=""></td>'
+			+'<td><input type="hidden" id="inputItemServeTypeId_0" class="form-control serveTypeId" value="" readonly=""><input type="text" id="inputItemServeType_0" class="form-control serveType" value="" readonly=""></td>'
+			+'<td class="tblHideCls"><button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;</td>'
+			+'</tr>';
+		$("#tbodyData").append(table);
+	}
+}
+
+function getCustomerAutoSearch() {
+	var value = $('#customer').val();
+	if(value) {
+		$.ajax({
+			type : "POST",
+			url : "gatepass-out-get-customer",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : value,
+			success : function(response) {
+				if(response.body.length!=0)	{
+					$("#customer").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue3(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'('+response.body[i].key+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#customersuggestion").show();
+					$("#customersuggestion").html(content);
+				} else {
+					$("#customer").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue3(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#customersuggestion").show();
+					$("#customersuggestion").html(content);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$("#customer").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue3(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#customersuggestion").show();
+				$("#customersuggestion").html(content);
+			}
+		});
+	} else {
+		$("#customer").css("background","#FFF");
+		var content = '<ul id="autocomplete-list">';
+		content += '<li onClick="selectAutocompleteValue3(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#customersuggestion").show();
+		$("#customersuggestion").html(content);	
+	}
+}
+function selectAutocompleteValue3(key,name) {
+	if (key) {
+ 		$("#customerId").val(key);
+    	$("#customer").val(name);
+    	$("#customer").attr('data-procat', key);
+    	$("#customersuggestion").hide();
+	} else {
+		$("#customerId").val("");
+    	$("#customer").val("");
+    	$("#customer").attr('data-procat', "");
+    	$("#customersuggestion").hide();
+	}
+}
+
+function getItemCategoryAutoSearch(e) {
+	var id = e.currentTarget.id;
+	var value = e.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+	
+	if(value) {
+		
+		$.ajax({
+			type : "POST",
+			url : "gatepass-out-get-item-category",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : value,
+			success : function(response) {
+				if(response.body.length!=0)	{
+					$(id).css("background","#FFF");
+					var content = '<ul id="autocomplete-list1">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValueCat(\''+response.body[i].key+'\',\''+response.body[i].name+'\','+counter+')">'+response.body[i].name+'('+ response.body[i].key+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#categoryDiv_"+counter).show();
+					$("#categoryDiv_"+counter).html(content);
+				} else {
+					$(id).css("background","#FFF");
+					var content = '<ul id="autocomplete-list1">';
+					content += '<li onClick="selectAutocompleteValueCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#categoryDiv_"+counter).show();
+					$("#categoryDiv_"+counter).html(content);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$(id).css("background","#FFF");
+				var content = '<ul id="autocomplete-list1">';
+				content += '<li onClick="selectAutocompleteValueCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#categoryDiv_"+counter).show();
+				$("#categoryDiv_"+counter).html(content);
+			}
+		});
+	} else {
+		$(id).css("background","#FFF");
+		var content = '<ul id="autocomplete-list1">';
+		content += '<li onClick="selectAutocompleteValueCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#categoryDiv_"+counter).show();
+		$("#categoryDiv_"+counter).html(content);
+	}
+}
+function selectAutocompleteValueCat(key,name,counter) {
+	if (key) {
+ 		$("#inputItemCategoryId_"+counter).val(key);
+    	$("#inputItemCategory_"+counter).val(name+"("+key+")");
+    	$("#inputItemCategory_"+counter).attr('data-procat', key);
+    	$("#categoryDiv_"+counter).hide();
+	} else {
+		$("#inputItemCategoryId_"+counter).val("");
+    	$("#inputItemCategory_"+counter).val("");
+    	$("#inputItemCategory_"+counter).attr('data-procat', "");
+    	$("#categoryDiv_"+counter).hide();
+	}
+}
+
+function getItemSubCatAutoSearch(e) {
+	var id = e.currentTarget.id;
+	var value = e.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+	var category = $("#inputItemCategoryId_"+counter).val();
+	if(category) {
+		if(value) {
+			obj = {};
+			obj['key']	= category;
+			obj['name']	= value;
+			$.ajax({
+				type : "POST",
+				url : "gatepass-out-get-item-subcategory",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : JSON.stringify(obj),
+				success : function(response) {
+					if(response.body.length!=0)	{
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValueSubCat(\''+response.body[i].key+'\',\''+response.body[i].name+'\','+counter+')">'+response.body[i].name+'('+ response.body[i].key+')'+'</li>';
+						} 
+						content += '</ul>';
+						$("#subCatDiv_"+counter).show();
+						$("#subCatDiv_"+counter).html(content);
+					} else {
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						content += '<li onClick="selectAutocompleteValueSubCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#subCatDiv_"+counter).show();
+						$("#subCatDiv_"+counter).html(content);
+					}
+				}, error : function(data) {
+					console.log(data)
+					$(id).css("background","#FFF");
+					var content = '<ul id="autocomplete-list1">';
+					content += '<li onClick="selectAutocompleteValueSubCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#subCatDiv_"+counter).show();
+					$("#subCatDiv_"+counter).html(content);
+				}
+			});
+		} else {
+			$(id).css("background","#FFF");
+			var content = '<ul id="autocomplete-list1">';
+			content += '<li onClick="selectAutocompleteValueSubCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+			content += '</ul>';
+			$("#subCatDiv_"+counter).show();
+			$("#subCatDiv_"+counter).html(content);
+		}
+	} else {
+		
+		swal({
+			title	:	"Please Enter Category",
+			type	:	'warning',
+		})
+		$("#"+id).val("");
+		$("#"+value).val("");
+		$("#subCatDiv_"+counter).hide();
+	}
+}
+function selectAutocompleteValueSubCat(key,name,counter) {
+	if (key) {
+ 		$("#inputItemSubCatId_"+counter).val(key);
+    	$("#inputSubCat_"+counter).val(name+"("+key+")");
+    	$("#inputSubCat_"+counter).attr('data-procat', key);
+    	$("#subCatDiv_"+counter).hide();
+	} else {
+		$("#inputItemSubCatId_"+counter).val("");
+    	$("#inputSubCat_"+counter).val("");
+    	$("#inputSubCat_"+counter).attr('data-procat', "");
+    	$("#subCatDiv_"+counter).hide();
+	}
+}
+function getItemAutoSearch(e) {
+	var id = e.currentTarget.id;
+	var value = e.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+	var subcat = $("#inputItemSubCatId_"+counter).val();
+	if(subcat) {
+		if(value) {
+			obj = {};
+			obj['key']	= subcat;
+			obj['name']	= value;
+			$.ajax({
+				type : "POST",
+				url : "gatepass-out-get-item",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : JSON.stringify(obj),
+				success : function(response) {
+					if(response.body.length!=0)	{
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue1(\''+response.body[i].key+'\',\''+response.body[i].name+'\','+counter+')">'+response.body[i].name+'('+ response.body[i].key+')'+'</li>';
+						} 
+						content += '</ul>';
+						$("#suggesstion-box1_"+counter).show();
+						$("#suggesstion-box1_"+counter).html(content);
+					} else {
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#suggesstion-box1_"+counter).show();
+						$("#suggesstion-box1_"+counter).html(content);
+					}
+				}, error : function(data) {
+					console.log(data)
+					$(id).css("background","#FFF");
+					var content = '<ul id="autocomplete-list1">';
+					content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box1_"+counter).show();
+					$("#suggesstion-box1_"+counter).html(content);
+				}
+			});
+		} else {
+			$(id).css("background","#FFF");
+			var content = '<ul id="autocomplete-list1">';
+			content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+			content += '</ul>';
+			$("#suggesstion-box1_"+counter).show();
+			$("#suggesstion-box1_"+counter).html(content);
+		}
+	} else {
+		
+		swal({
+			title	:	"Please Enter Sub-Category",
+			type	:	'warning',
+		})
+		$("#"+id).val("");
+		$("#"+value).val("");
+		$("#suggesstion-box1_"+counter).hide();
+	}
+}
+function selectAutocompleteValue1(key,name,counter) {
+	if (key) {
+ 		$("#inputItemCode_"+counter).val(key);
+    	$("#inputItemName_"+counter).val(name+"("+key+")");
+    	$("#inputItemName_"+counter).attr('data-procat', key);
+    	$("#suggesstion-box1_"+counter).hide();
+    	getServeType(counter);
+	} else {
+		$("#inputItemCode_"+counter).val("");
+    	$("#inputItemName_"+counter).val("");
+    	$("#inputItemName_"+counter).attr('data-procat', "");
+    	$("#suggesstion-box1_"+counter).hide();
+	}
+}
+
+function getServeType(counter) {
+	var key = $('#inputItemCode_'+counter).val();
+	if(key) {
+		$.ajax({
+			type : "POST",
+			url : "gatepass-out-get-servetype",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : key,
+			success : function(response) {
+				if (response.message == "success") {
+					if(response.body.length!=0)	{
+						console.log(response.body)
+						$("#inputItemServeTypeId_"+counter).val(response.body[0].serveTypeId);
+						$("#inputItemServeType_"+counter).val(response.body[0].serveType);
+					} else {
+						$("#inputItemServeTypeId_"+counter).val("");
+						$("#inputItemServeType_"+counter).val("");
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+				$("#inputItemServeTypeId_"+counter).val("");
+				$("#inputItemServeType_"+counter).val("");
+			}
+		})
+	} else {
+		$("#inputItemServeTypeId_"+counter).val("");
+		$("#inputItemServeType_"+counter).val("");
+	}
+}
+
+function getActualQty() {
+		var weightType = $("#weightType").val();
+		if(weightType=="1") {
+			var gross = $("#gross").val();
+			var tare = $("#tare").val();
+			if(parseFloat(gross) && parseFloat(tare)) {
+				if(parseFloat(gross) > parseFloat(tare)) {
+					var netQty = parseFloat(gross) - parseFloat(tare);
+					$("#inputActualNetQty_0").val(parseFloat(netQty));
+				} else {
+					swal({
+						title	:	"Tare Can't Be Greater Than Gross",
+						type	:	"warning",
+					})
+					$("#gross").val("");
+					$("#tare").val("");
+					$("#inputActualNetQty_0").val("");
+				}
+			}
+		}
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Gate Pass Out</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Gate Pass Out</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<input type="hidden" id="gatePassIdOut"
+									th:value="${gatePassIdOut}">
+								<!-- <div class="col-lg-12"> -->
+								<div class="col-lg-3">
+									<div class="form-group">
+										<label>Delivery Challan</label> <input type="hidden" id="delChallanId"
+											th:value="${gatePass[0].delChallanId}" class="form-control"
+											th:if="${gatePassIdOut}"> <input type="text"
+											id="delChallan" th:value="${gatePass[0].delChallanId}"
+											onkeyup="getChallanAutoSearch();" class="form-control"
+											th:if="${gatePassIdOut}" disabled> <input
+											type="hidden" id="delChallanId" class="form-control"
+											th:unless="${gatePassIdOut}"> <input type="text"
+											id="delChallan" class="form-control"
+											th:unless="${gatePassIdOut}"
+											onkeyup="getChallanAutoSearch();">
+										<div id="pordersuggestion"></div>
+										<!-- <select th:if="${gatePassIdOut}" id="pOrder" class="form-control"><option value="">Select</option>
+												<option th:each="c,iter:${poList}" th:selected="${c.key==gatePass[0].pOrder}" th:value="${c.key}" th:text="${c.key}"></select>
+												<select th:unless="${gatePassIdOut}" id="pOrder" class="form-control"><option value="">Select</option>
+												<option th:each="c,iter:${poList}" th:value="${c.key}" th:text="${c.key}"></select> -->
+									</div>
+								</div>
+								<div class="col-lg-3">
+									<div class="form-group">
+										<label>Branch/Store</label> <select class="form-control"
+											id="store" th:if="${gatePassIdOut}" disabled>
+											<option value="">Select Store</option>
+											<option th:each="c,iter:${storeList}" th:value="${c.key}"
+												th:text="${c.name}"
+												th:selected="${gatePass[0].store==c.key}"></option>
+										</select> <select class="form-control" id="store"
+											th:unless="${gatePassIdOut}">
+											<option value="">Select Store</option>
+											<option th:each="c,iter:${storeList}" th:value="${c.key}"
+												th:text="${c.name}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-3">
+									<div class="form-group">
+										<label>Pass Type</label> <select disabled class="form-control"
+											id="passType" th:if="${gatePassIdOut}">
+											<option value=2>Gate Out</option>
+										</select> <select class="form-control" id="passType"
+											th:unless="${gatePassIdOut}">
+											<option value=2>Gate Out</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-3">
+									<div class="form-group">
+										<label>Item Weight Type</label> <select disabled
+											class="form-control" id="weightType" th:if="${gatePassIdOut}">
+											<option value=1 th:selected="${gatePass[0].weightType==1}">Container
+												Wise</option>
+											<option value=2 th:selected="${gatePass[0].weightType!=1}">Unit
+												Wise</option>
+										</select> <select class="form-control" id="weightType"
+											th:unless="${gatePassIdOut}">
+											<option value=1>Container Wise</option>
+											<option value=2>Unit Wise</option>
+										</select>
+									</div>
+								</div>
+
+								<!-- </div> -->
+								<div class="row">
+									<div class="col-md-6">
+										<div class="first-section-out">
+											<div class="text-heading">
+												<h4>Challan Details</h4>
+											</div>
+											<div class="row">
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Reference Gate Pass No.</label> <input type="text"
+															th:value="${gatePass[0].refGatePassNo}"
+															class="form-control" id="refGatePassNo"
+															th:if="${gatePassIdOut}"> <input type="text"
+															class="form-control" id="refGatePassNo"
+															th:unless="${gatePassIdOut}">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>RST No.</label> <input type="text" id="rstNo"
+															th:value="${gatePass[0].rstNo}" class="form-control"
+															th:if="${gatePassIdOut}"> <input type="text"
+															id="rstNo" class="form-control"
+															th:unless="${gatePassIdOut}">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Vehicle No.</label> <input type="text" id="vehicleNo" th:value="${gatePass[0].vehicleNo}"
+															class="form-control" th:if="${gatePassIdOut}"> <input type="text" id="vehicleNo"
+															class="form-control" th:unless="${gatePassIdOut}">
+													</div>
+												</div>
+												<div class="col-lg-6" id="driverDiv">
+													<div class="form-group">
+														<label>Driver Name</label> <input type="text" id="driverName" th:value="${gatePass[0].driverName}"
+															class="form-control" th:if="${gatePassIdOut}"> <input type="text" id="driverName"
+															class="form-control" th:unless="${gatePassIdOut}">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Customer Name</label> <input type="hidden"
+															id="customerId" th:value="${gatePass[0].customerId}"
+															class="form-control" th:if="${gatePassIdOut}"> <input
+															type="text" id="customer"
+															th:value="${gatePass[0].customer}" class="form-control"
+															th:if="${gatePassIdOut}" disabled
+															onkeyup="getCustomerAutoSearch();"> <input
+															type="hidden" id="customerId" class="form-control"
+															th:unless="${gatePassIdOut}"> <input type="text"
+															id="customer" class="form-control"
+															th:unless="${gatePassIdOut}"
+															onkeyup="getCustomerAutoSearch();">
+														<div id="customersuggestion"></div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6">
+										<div class="second-section-out">
+											<div class="text-heading">
+												<h4>Vehicle Details</h4>
+											</div>
+											<div class="row">
+												<div class="col-lg-6" id="grossDiv">
+													<div class="form-group">
+														<label>Gross Wt</label> <input type="text" id="gross"
+															th:value="${gatePass[0].gross}" class="form-control"
+															th:if="${gatePassIdOut}"
+															onkeyup="getActualQty();checkNum('gross');"> <input
+															type="text" id="gross" class="form-control"
+															th:unless="${gatePassIdOut}"
+															onkeyup="getActualQty();checkNum('gross');">
+													</div>
+												</div>
+												<div class="col-lg-6" id="tareDiv">
+													<div class="form-group">
+														<label>Tare Wt</label> <input type="text" id="tare"
+															th:value="${gatePass[0].tare}" class="form-control"
+															th:if="${gatePassIdOut}"
+															onkeyup="getActualQty();checkNum('tare');"> <input
+															type="text" id="tare" class="form-control"
+															th:unless="${gatePassIdOut}"
+															onkeyup="getActualQty();checkNum('tare');">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Out Date</label> <input type="text"
+															th:if="${gatePassIdOut}"
+															th:value="${gatePass[0].outDate}" id="outDate"
+															class="form-control" readonly> <input type="text"
+															th:unless="${gatePassIdOut}" id="outDate"
+															class="form-control" readonly>
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Out Time</label> <input type="text"
+															th:value="${gatePass[0].outTime}" id="outTime"
+															class="form-control" th:if="${gatePassIdOut}" >
+														<input type="text" id="outTime"
+															th:unless="${gatePassIdOut}" class="form-control"
+															>
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Upload</label> <input type="file" id="fileUpload" style="display: block;"
+															onchange="saveFile()"> <div id="uploadedImgDiv"><a class='example-image-link' th:if="${gatePassIdOut}" th:href="${'/document/gatepass/'+ gatePass[0].fileUpload}" th:title="${gatePass[0].fileUpload}" target="_blank">Preview</a></div>
+													</div>
+												</div>
+												<!-- <div class="col-lg-6">
+													<div class="form-group">
+														<label>Return Date</label> <input type="text"
+															th:if="${gatePassIdOut}"
+															th:value="${gatePass[0].returnDate}" id="returnDate"
+															class="form-control" readonly> <input type="text"
+															th:unless="${gatePassIdOut}" id="returnDate"
+															class="form-control" readonly>
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Return Time</label> <input type="text"
+															id="returnTime" th:value="${gatePass[0].returnTime}"
+															class="form-control"  th:if="${gatePassIdOut}">
+														<input type="text" id="returnTime" class="form-control"
+															 th:unless="${gatePassIdOut}">
+													</div>
+												</div> -->
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- <div class="row">
+								<div class="col-lg-12">
+									<h4><b style="color:#2c61e1;">Purchase Order Details</b></h4>
+								</div>
+							</div> -->
+							<!-- <div class="row" id="divShowId">
+								th:if="${not #lists.isEmpty(itemList)}"
+								<div class="col-lg-12">
+									id="table-data"
+									<table class="tbll table table-bordered" id="myTable1"
+										width="100%" border="0" cellspacing="1" cellpadding="5">
+										<thead>
+											<tr class="trCls">
+												<th colspan="5"><b>Purchase Order Details</b></th>
+											</tr>
+										</thead>
+										<thead class="theadCls">
+											<tr>
+												<th>Category</th>
+												<th>Sub Category</th>
+												<th>Item</th>
+												<th>Quantity</th>
+												<th>Serve Type</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyShow" th:unless="${gatePassIdOut}">
+											<tr class="hideCls" th:unless="${gatePassIdOut}">
+												<td colspan="5"
+													style="text-align: center; color: red; border-top: 1px solid #333;"><b>No
+														Data Found<br>(To see item details, please select
+														purchase order)
+												</b></td>
+											</tr>
+										</tbody>
+										<tbody id="tbodyShow" th:if="${gatePassIdOut}">
+											<tr th:each="a,iter:${itemList}">
+												<td align="center" th:text="${a.itemCategory}"></td>
+												<td align="center" th:text="${a.subCategory}"></td>
+												<td align="center" th:text="${a.itemName}"></td>
+												<td align="center" th:text="${a.quantity}"></td>
+												<td align="center" th:text="${a.serveType}"></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div> -->
+							<div class="row">
+								<div class="col-lg-12">
+									<h4>
+										<b style="color: #2c61e1;">Item Details</b>
+									</h4>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<!-- id="table-data" -->
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Category</th>
+												<th>Sub-Category</th>
+												<th>Item</th>
+												<th>Net Qty</th>
+												<th>Weight</th>
+												<th>Serve Type</th>
+												<th class="tblHideCls">Action</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<!-- <tr class="hideCls" th:unless="${gatePassIdOut}"><td colspan="4" style="text-align:center;color:red;border-top:1px solid #333;"><b>No Data Found</b></td></tr>
+											<tr class="hideCls" th:unless="${gatePassIdOut}"><td colspan="4" style="text-align:center;"><b>(To see item details, please select purchase order.)</b></td></tr> -->
+											<tr class="tr_clone" th:if="${gatePassIdOut}"
+												th:each="a,iter:${gatePass}">
+												<td><input type="hidden" th:id="inputItemCategoryId_+${iter.index}" th:value="${a.itemCategoryId}"
+													class="form-control itemCategoryId" value=''> <input
+													type="text" th:id="inputItemCategory_+${iter.index}" th:value="${a.itemCategory}"
+													class="form-control itemCategory" value=''
+													onkeyup="getItemCategoryAutoSearch(event);">
+													<div th:id="categoryDiv_+${iter.index}"></div></td>
+												<td><input type="hidden" th:id="inputItemSubCatId_+${iter.index}" th:value="${a.subCatId}"
+													class="form-control subCatId" value=''> <input
+													type="text" th:id="inputSubCat_+${iter.index}" th:value="${a.subCat}"
+													class="form-control subCat" value=''
+													onkeyup="getItemSubCatAutoSearch(event);">
+													<div th:id="subCatDiv_+${iter.index}"></div></td>
+												<td><input type="hidden" th:id="inputItemCode_+${iter.index}" th:value="${a.itemCode}"
+													class="form-control itemCode" value=''> <input
+													type="text" th:id="inputItemName_+${iter.index}" th:value="${a.itemName}"
+													class="form-control itemName" value=''
+													onkeyup="getItemAutoSearch(event);">
+													<div th:id="suggesstion-box1_+${iter.index}"></div></td>
+												<td><input type="text" th:id="inputActualNetQty_+${iter.index}" th:value="${a.actualNetQty}"
+													class="form-control actualNetQty" value=''></td>
+												<td><input type="text" th:id="inputWeight_+${iter.index}"
+													class="form-control weight" value='' th:value="${a.weight}"></td>
+												<td><input type="hidden" th:id="inputItemServeTypeId_+${iter.index}" th:value="${a.serveTypeId}"
+													class="form-control serveTypeId" value='' readonly>
+													<input type="text" th:id="inputItemServeType_+${iter.index}" th:value="${a.serveType}"
+													class="form-control serveType" value='' readonly></td>
+												<td class="tblHideCls"><button
+														th:if="${iter.size == iter.index+1}" type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>
+													<button th:if="${iter.size != 1}" type="button"
+														class="btn btn-warning rmv" name="Remove">
+														<span class="ti-minus"></span>
+													</button></td>
+											</tr>
+											<tr class="tr_clone" th:unless="${gatePassIdOut}">
+												<td><input type="hidden" id="inputItemCategoryId_0"
+													class="form-control itemCategoryId" value=''> <input
+													type="text" id="inputItemCategory_0"
+													class="form-control itemCategory" value=''
+													onkeyup="getItemCategoryAutoSearch(event);">
+													<div id="categoryDiv_0"></div></td>
+												<td><input type="hidden" id="inputItemSubCatId_0"
+													class="form-control subCatId" value=''> <input
+													type="text" id="inputSubCat_0"
+													class="form-control subCat" value=''
+													onkeyup="getItemSubCatAutoSearch(event);">
+													<div id="subCatDiv_0"></div></td>
+												<td><input type="hidden" id="inputItemCode_0"
+													class="form-control itemCode" value=''> <input
+													type="text" id="inputItemName_0"
+													class="form-control itemName" value=''
+													onkeyup="getItemAutoSearch(event);">
+													<div id="suggesstion-box1_0"></div></td>
+												<td><input type="text" id="inputActualNetQty_0"
+													class="form-control actualNetQty" value=''></td>
+												<td><input type="text" id="inputWeight_0"
+													class="form-control weight" value=''></td>
+												<td><input type="hidden" id="inputItemServeTypeId_0"
+													class="form-control serveTypeId" value='' readonly>
+													<input type="text" id="inputItemServeType_0"
+													class="form-control serveType" value='' readonly></td>
+												<td class="tblHideCls"><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Remarks</label>
+										<textarea th:if="${gatePassIdOut}"
+											class="form-control textarea" id="remarks"
+											th:text="${gatePass[0].remarks}"></textarea>
+										<textarea th:unless="${gatePassIdOut}"
+											class="form-control textarea" id="remarks"></textarea>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

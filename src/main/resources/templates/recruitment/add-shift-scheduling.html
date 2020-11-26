@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.autocomplete {
+	position: relative;
+	display: inline-block;
+}
+
+.autocomplete-items {
+	position: absolute;
+	border: 1px solid #d4d4d4;
+	border-bottom: none;
+	border-top: none;
+	z-index: 99;
+	/*position the autocomplete items to be the same width as the container:*/
+	top: 100%;
+	left: 0;
+	right: 0;
+}
+
+.autocomplete-items div {
+	padding: 10px;
+	cursor: pointer;
+	background-color: #fff;
+	border-bottom: 1px solid #d4d4d4;
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+	background-color: #e9e9e9;
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+	background-color: DodgerBlue !important;
+	color: #ffffff;
+}
+
+.brd-btm {
+	border-bottom: 1px solid #ccc;
+	padding: 4px 2px;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 96%;
+	position: absolute;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.amount_align_right {
+	width: 40%;
+	text-align: right;
+}
+
+.noBorder {
+	border: none !important;
+}
+</style>
+
+
+<script>
+function addMore(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	//$("#myTable tbody tr:last").find(".qualifCls").append(new Option("--Select--","")); 
+	$("#myTable tbody tr:last").find(".reimTypeCls").val("");
+	$("#myTable tbody tr:last").find(".policyCls").val("");
+	$("#myTable tbody tr:last").find(".startCls").val("");
+	
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+	
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		var fileInput = $(this).find('file');
+		var divInput = $(this).find('div');
+		selectInput.eq(0).attr('id', "selectReimType_" + i);
+		selectInput.eq(1).attr('id', "selectPolicy_" + i);
+		textInput.eq(0).attr('id',"selectStart_"+i);
+		
+		
+		
+	})
+	
+}
+$(document).ready(function() {
+//autocomplete start
+		
+//autocomplete end
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		
+		displayTable();
+		});
+	
+	
+	
+	
+	
+	
+	$("#invDate").datetimepicker({
+		format : 'm-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	$("#payDueDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+/* 	var fullDate = new Date();
+	var twoDigitMonth = ((fullDate.getMonth() + 1) >= 10) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
+	var twoDigitDate = ((fullDate.getDate()) >= 10) ? (fullDate.getDate()) : '0' + (fullDate.getDate());
+	var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+	$("#invDate").val(currentDate); */
+	
+	$("#submit").click(function(){
+
+		window.location.href = "/recruitment/view-shift-scheduling" ;
+		/* if (!blankValidation("invNo","TextField" ,"Please Enter Invoice Number"))
+		      return false;
+		if (!blankValidation("payDueDate","TextField" ,"Please Enter Payment Due Date"))
+		      return false;
+		
+		obj = {};
+		//obj['vendorId']		=	$("#vendorId").val();
+		//obj['pOrder']		=	$("#pOrder").val();
+		obj['invNo']		=	$("#invNo").val();
+		obj['invDate']		=	$("#invDate").val();
+		obj['payDueDate']	=	$("#payDueDate").val();
+		obj['storeId']	    =	$("#storeId").val();
+		/* obj['amount']		=	$("#subTotal").text();
+		obj['totalCGST']	=	$("#sCGST").text();
+		obj['grandTotal']	=	$("#grandTotal").text();
+		
+		console.log(obj)
+		submitMultipleInvoice(obj); */
+	})
+})
+
+function submitMultipleInvoice(obj){
+	
+	swal.fire({
+		title				: "Are you sure want to Submit?",
+		text				: "Once Submited,Can't revert back !",
+		type 				: "warning",
+				
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+			
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		swal({
+			title	: "Data Saved Successfully.",
+			type	: "success",
+		}).then(function(){
+			window.location.href = "/inventory/view-physical-varification-warehouse" ;
+		})
+/* 		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "add-multiple-grn-invoice-submit",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(obj),
+				success		: function(response){
+					
+					//if(response.message=="Success"){
+						console.log(response.body);
+						swal({
+							title	: "Data Saved Successfully.",
+							type	: "success",
+						}).then(function(){
+							window.location.href = "/inventory/view-physical-varification-warehouse" ;
+						})
+						/* } else {
+						swal({
+							title	: response.code,
+							text	: response.message,
+							type	: "warning"
+						})
+					} 
+				}, error		: function(response){
+					swal(response.code);	
+				}
+			}) //ajax ends
+		} */
+	})//swal function block ends
+}
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".qualifCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".qualifCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Shift Scheduling</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Shift Scheduling</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+							
+							<div class="col-md-6">
+									<div class="form-group">
+										<label> From Date</label> <input type="text" class="form-control"
+											id="invDate" readonly>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label> To Date</label> <input type="text" class="form-control"
+											id="invDate" readonly>
+									</div>
+								</div>
+								
+								<!-- <div class="col-md-6">
+									<div class="form-group">
+										<label> Shift</label> <input type="text" class="form-control"
+											id="invDate">
+									</div>
+								</div> -->
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Schedule</label> <select class="org-name form-control ">
+											<option th:value="1">Monthly</option>
+											<option th:value="2">Weekly</option>
+											<option th:value="3">Daily</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group" id="">
+										<label>Department</label> <select
+											class="org-name form-control " id="departmentId">
+											<option th:value="1">All</option>
+											<option th:value="2">Account</option>
+											<option th:value="3">HR</option>
+											<option th:value="3">Development</option>
+										</select>
+									</div>
+
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Section</label><select class="org-name form-control "
+											id="section">
+											<option th:value="1">All</option>
+											<option th:value="2">Section 1</option>
+											<option th:value="3">Section 2</option>
+										</select>
+									</div>
+								</div>
+
+
+								
+								
+								<!-- <div class="col-md-6">
+									<div class="form-group">
+										<label> Name</label> <input type="text" class="form-control"
+											id="invDate" onclick="nameAutoComplete();">
+										<div id="suggesstion-box1"></div>
+									</div>
+								</div> -->
+
+
+							</div>
+
+							<div class="row">
+								<div class="col-md-12" style="padding-top: 10px;">
+									<table class="tbll" id="myTable"
+										width="100%" border="0" cellspacing="1" cellpadding="5">
+										<thead>
+											<tr class="trCls">
+												<th colspan="5" style="font-size: 18px;"><b>Details</b></th>
+											</tr>
+										</thead>
+										<thead class="theadCls">
+											<tr>
+												<th>Shift</th>
+												<th>Employee Name</th>
+												<th>Remark</th>
+												<th>Action</th>
+
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<tr class="tr_clone">
+											<td><select id="selectPolicy_"
+													class="form-control policyCls">
+														<option th:value="null">--select--</option>
+														<option th:value="1">Shift A</option>
+														<option th:value="2">Shift B</option>
+														<option th:value="3">Shift C</option>
+												</select></td>
+												<td><select id="selectReimType_"
+													class="form-control reimTypeCls">
+														<option th:value="null">--select--</option>
+														<option th:value="EMP001">Ramesh</option>
+														<option th:value="EMP002">Suresh</option>
+														<option th:value="EMP003">Dinesh</option>
+
+
+												</select></td>
+												
+												<td><input type="text" class="form-control startCls"
+													id="selectStart_" readonly /></td>
+
+
+
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+											<!-- 	 <tr>
+												<td width="200"><select class="form-control">
+													<option value="">--Select--</option>
+													<option value="employee1">Suresh</option>
+													<option value="employee2">Ramesh</option>
+													<option value="employee3">Dipesh</option>
+
+													</select></td>
+												<td th:text=Description1></td>
+												<td>
+													<div class="brd-btm"> Bar Code 1</div>
+													<div class="brd-btm"> Bar Code 2</div>
+													<div class="brd-btm"> Bar Code 3</div>
+													<div class="brd-btm"> Bar Code 4</div>
+														<div class="brd-btm"> Bar Code 5</div>
+														</td>
+												<td align="center"><div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div></td>
+												
+											</tr> 
+											 <tr>
+												<td th:text=Item2></td>
+												<td th:text=Description2></td>
+													<td>
+													<div class="brd-btm"> Bar Code 1</div>
+													<div class="brd-btm"> Bar Code 2</div>
+													<div class="brd-btm"> Bar Code 3</div>
+													<div class="brd-btm"> Bar Code 4</div>
+														<div class="brd-btm"> Bar Code 5</div>
+														</td>
+												<td align="center">
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+														</td>
+											</tr> 
+											 <tr>
+												<td th:text=Item3></td>
+												<td th:text=Description3></td>
+													<td>
+													<div class="brd-btm"> Bar Code 1</div>
+													<div class="brd-btm"> Bar Code 2</div>
+													<div class="brd-btm"> Bar Code 3</div>
+													<div class="brd-btm"> Bar Code 4</div>
+														<div class="brd-btm"> Bar Code 5</div>
+														</td>
+												<td align="center">
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+														</td>
+											</tr>  -->
+											<!-- 					<tr>
+												<td colspan="5"
+													style="border: 1px solid #FFF; margin-left: 2px; padding: 0; padding-top:10px;">
+													<table
+														width="350" align="right" class="noBorder" >
+														<tbody>
+															<tr>
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label>Sub
+																		Total</label></td>
+																<td class="amount_align_right noBorder" style="padding:0;"><label
+																	id="subTotal" class="form-control subTotal money"
+																	th:text="${#numbers.formatDecimal(GRNList[0].subTotal, 0, 'COMMA', 2, 'POINT')}"></label></td>
+
+															</tr>
+															<tr id="CgstTR">
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label
+																	id="labelCgst">CGST</label></td>
+																<td class="amount_align_right noBorder" style="padding:0;"
+																	th:if="${GRNList[0].totalCGST!=0.0}"><label
+																	id="sCGST" class="form-control cgst money"
+																	th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+																<td th:unless="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
+																	id="sCGST" class="form-control cgst money noBorder">0.00</label></td>
+
+															</tr>
+															<tr id="SgstTR">
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label
+																	id="labelSgst">SGST</label></td>
+																<td class="amount_align_right noBorder noBorder"
+																	th:if="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
+																	id="sSGST" class="form-control sgst money  "
+																	th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+																<td th:unless="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
+																	id="sSGST" class="form-control sgst money noBorder">0.00</label></td>
+
+															</tr>
+															<tr>
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label>Grand
+																		Total</label></td>
+																<td class="amount_align_right noBorder" style="padding:0;"><label
+																	id="grandTotal" class="form-control total money"
+																	th:text="${#numbers.formatDecimal(GRNList[0].grandTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+
+															</tr>
+														</tbody>
+													</table></td>
+
+
+											</tr> -->
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<!-- <div class="row">
+								<div class="col-lg-6"></div>
+								<div class="col-lg-6">
+									<table width="450" style="margin-left: 140px;">
+										<tbody>
+											<tr>
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label>Sub Total</label></td>
+												<td class="amount_align_right"><label id="subTotal"
+													class="form-control subTotal money"
+													th:text="${#numbers.formatDecimal(GRNList[0].subTotal, 0, 'COMMA', 2, 'POINT')}"></label></td>
+												<td width="20%"></td>
+											</tr>
+											<tr id="CgstTR">
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label id="labelCgst">CGST</label></td>
+												<td class="amount_align_right" width="40%"
+													th:if="${GRNList[0].totalCGST!=0.0}"><label id="sCGST"
+													class="form-control cgst money"
+													th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+												<td width="40%" th:unless="${GRNList[0].totalCGST!=0.0}"><label
+													id="sCGST" class="form-control cgst money">0.00</label></td>
+												<td width="20%"></td>
+											</tr>
+											<tr id="SgstTR">
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label id="labelSgst">SGST</label></td>
+												<td class="amount_align_right"
+													th:if="${GRNList[0].totalCGST!=0.0}"><label id="sSGST"
+													class="form-control sgst money"
+													th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+												<td width="40%" th:unless="${GRNList[0].totalCGST!=0.0}"><label
+													id="sSGST" class="form-control sgst money">0.00</label></td>
+												<td width="20%"></td>
+											</tr>
+											<tr>
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label>Grand
+														Total</label></td>
+												<td class="amount_align_right"><label id="grandTotal"
+													class="form-control total money"
+													th:text="${#numbers.formatDecimal(GRNList[0].grandTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+												<td width="20%"></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div> -->
+							<div class="col-md-12">
+								<div class="form-group">
+									<button type="button" id="submit" class="btn btn-success">Submit</button>
+									<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</div>
+</html>

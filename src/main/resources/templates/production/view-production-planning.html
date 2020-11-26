@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	function viewInModel(index) {
+		$('#table1').empty();
+		$
+				.ajax({
+					type : "POST",
+					url : "view-employee-education-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							table = '<tr><td><b>Employee Name :</b></td>'
+									+ '<td align="left">'
+									+ response.body[0].emplName + '</td>'
+									+ '</tr><tr></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+							table = '<tr><th><b>Qualification Name</b></th><th><b>Institute Name</b></th><th><b>Start Name</b></th><th><b>End Year</b></th>';
+
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+							for (var i = 0; i < response.body.length; i++) {
+								table = '<tr><td>'
+										+ response.body[i].qualifName
+										+ '</td><td>' + response.body[i].insti
+										+ '</td><td>'
+										+ response.body[i].startDate
+										+ '</td><td>'
+										+ response.body[i].endDate
+										+ '</td></tr>';
+								$('#myModal').modal('show');
+								$('#table1').append(table);
+							}
+
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-production-planning-throughajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'ppId'
+			}, {
+				'data' : 'fromDate'
+			},  {
+				'data' : 'productionStatusName'
+			}/* , {
+				'data' : 'approveStatusName'
+			} *//* , {
+				'data' : 'action'
+			} */ ]
+		});
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/production/add-production-planning}">View
+							Production Planning</a></li>
+					<li class="active"><span>View Production Planning </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Production Planning</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-production-planning">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>From Date</label> <input class="form-control"
+										type="text" readonly placeholder="" name="" id="param1">
+								</div>
+							</div>
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>To Date</label> <input class="form-control" type="text"
+										readonly placeholder="" name="" id="param2">
+								</div>
+							</div>
+							<div class="col-md-2" style="margin-top: auto;">
+								<div class="form-group">
+									<button class="btn btn-primary" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblTheme" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Production Planning No.</th>
+									<th>Date</th>
+									<th>Production Status</th>
+									 
+									<!-- <th align="center">Action</th> -->
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Production Planning</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

@@ -1,0 +1,353 @@
+
+<!DOCTYPE html>
+<html lang="en"  xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 316px;
+	height: 300px;
+	overflow-y: auto;
+	position: absolute;
+	z-index: 9999;
+}
+
+.sidebar.sidebar-shrink ~.content-wrap {
+	margin-left: 250px;
+	-webkit-transition: margin-left 300ms ease-in-out;
+	transition: margin-left 300ms ease-in-out;
+	height: 100vh !important;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#param3").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false
+		});
+		$("#param2").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false
+		});
+
+		//Method for listing of all the Item Records
+		$('#itemList').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				//'url' : 'view-items-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'itemCategory'
+			}, {
+				'data' : 'itemSubCategory'
+			}, {
+				'data' : 'serveType'
+			}, {
+				'data' : 'itemName'
+			}, {
+				'data' : 'itemMinStock'
+			}, {
+				'data' : 'itemMaxStock'
+			}, {
+				'data' : 'serviceType'
+			}, {
+				'data' : 'status'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+
+	//Method to generate Report
+	function createPdf() {
+		//console.log("hello create pdf");
+		window.open("/inventory/view-purchase-order-download-report?param1="
+				+ window.btoa($('#param1').val()) + "&param2="
+				+ window.btoa($('#param2').val()) + "&param3="
+				+ window.btoa($('#param3').val()) + "&param4="
+				+ window.btoa($('#param4').val()) + "&param5="
+				+ window.btoa($('#param5').val()) + "&param6="
+				+ window.btoa($('#param6').val()), '_blank');
+	}
+	//Method to restict creation of report when no field is selected
+	function validate() {
+		if (($('#param1').val() == "")) {
+			swal({
+				title : "Select Category"
+			})
+		} else {
+			createPdf();
+		}
+	}
+	function funcLoad() {
+		location.reload();
+	}
+
+	function callMyfunction3(event) {
+		var itemCategoryList = event.currentTarget.value;
+		var currentId = event.currentTarget.id;
+		var l = currentId.split("_");
+		var counter = l[1];
+		if (itemCategoryList != "") {
+			$("#param6").empty();
+			$("#param6").append(new Option("--Select--", ""))
+			$
+					.ajax({
+						type : "POST",
+						url : "/inventory/add-purchase-order-getVendorName-throughAjax",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : JSON.stringify(itemCategoryList),
+						success : function(response) {
+							var items = response.body;
+							console.log('data for vendor == ', response);
+							if (response.message == "success") {
+								if (items.length > 0) {
+									for (var i = 0; i < items.length; i++) {
+										var option = i.toString();
+										option = new Option(items[i].name,
+												items[i].key)
+										$(option).html(items[i].name);
+										$("#param6").append(option);
+
+									}
+								}
+							} else {
+								swal("Please Try Again");
+							}
+						},
+						error : function(data) {
+							swal(data);
+						}
+					})
+		}
+	}
+
+	function callMyfunctionSub(event) {
+		var itemCategoryList = event.currentTarget.value;
+		if (itemCategoryList != "") {
+			$(".itemSubCategoryClsSub").empty();
+			$(".itemSubCategoryClsSub").append(new Option("--Select--", ""));
+			$(".itemClsSub").empty();
+			$(".itemClsSub").append(new Option("--Select--", ""));
+			$
+					.ajax({
+						type : "POST",
+						url : "/inventory/add-purchase-order-getItemCategory-throughAjax",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : JSON.stringify(itemCategoryList),
+						success : function(response) {
+							var items = response.body;
+							if (response.message == "success") {
+								if (items.length > 0) {
+
+									for (var i = 0; i < items.length; i++) {
+										var option = i.toString();
+										option = new Option(items[i].name,
+												items[i].key)
+										$(option).html(items[i].name);
+										$(".itemSubCategoryClsSub").append(
+												option);
+									}
+								}
+							} else {
+								swal("Please Try Again");
+							}
+						},
+						error : function(data) {
+							swal(data);
+						}
+					})
+		} else {
+			$(".itemSubCategoryClsSub").empty();
+			$(".itemSubCategoryClsSub").append(new Option("--Select--", ""));
+			$(".itemClsSub").empty();
+			$(".itemClsSub").append(new Option("--Select--", ""));
+		}
+	}
+
+	function callMyfunction2Sub(event) {
+		var itemNameList = event.currentTarget.value;
+		if (itemNameList != "") {
+			$(".itemClsSub").empty();
+			$(".itemClsSub").append(new Option("--Select--", ""));
+			$
+					.ajax({
+
+						type : "POST",
+						url : "/inventory/add-purchase-order-getItemName-throughAjax",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : JSON.stringify(itemNameList),
+						success : function(response) {
+							var items = response.body;
+							console.log(response);
+							if (response.message == "success") {
+								if (items.length > 0) {
+									for (var i = 0; i < items.length; i++) {
+										var option = i.toString();
+										option = new Option(items[i].name,
+												items[i].key)
+										$(option).html(items[i].name);
+										$(".itemClsSub").append(option);
+									}
+								}
+							} else {
+								swal("Please Try Again");
+							}
+						},
+						error : function(data) {
+							swal(data);
+						}
+					})
+		} else {
+			$(".itemClsSub").empty();
+			$(".itemClsSub").append(new Option("--Select--", ""));
+		}
+	}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+
+				<div class="card-title">
+					<h4>Purchase Order Report</h4>
+				</div>
+				<div class="container-fluid">
+
+					<div class="card">
+
+						<div class="card-body">
+							<div class="basic-elements">
+
+								<div class="row">
+									<div class="col-md-2">
+										<div class="org-name">Category</div>
+									</div>
+									<div class="col-md-2">
+										<select class="org-name form-control search"
+											onchange="callMyfunction3(event);callMyfunctionSub(event);"
+											id="param1">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${itemCategoryList}" th:value='${c.key}'
+												th:text="${c.name}"></option>
+										</select>
+									</div>
+
+									<div class="col-md-2">
+										<div class="org-name ">Sub Category</div>
+									</div>
+									<div class="col-md-2">
+										<select
+											class="org-name form-control itemSubCategoryClsSub search"
+											onchange="callMyfunction2Sub(event);" id="param4">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${subCatlists}" th:value='${c.key}'
+												th:text="${c.name}"></option>
+										</select>
+									</div>
+
+									<div class="col-md-2">
+										<div class="org-name">Item Name</div>
+									</div>
+
+									<div class="col-md-2">
+										<select class="org-name form-control itemClsSub search"
+											id="param5">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${itemLists}" th:value='${c.key}'
+												th:text="${c.name}"></option>
+										</select>
+									</div>
+
+									<div class="col-md-2">
+										<div class="org-name">Vendor Name</div>
+									</div>
+
+									<div class="col-md-2">
+										<select id="param6" class="form-control vendorCls">
+											<option value="">--Select--</option>
+											<option th:unless="${purchase}" th:each="c:${vendorLists}"
+												th:value='${c.key}' th:text="${c.name}"></option>
+										</select>
+									</div>
+
+
+									<div class="col-md-2">
+										<div class="org-name">From Date</div>
+									</div>
+									<div class="col-md-2">
+										<input class="form-control" readonly id="param2" type="text">
+									</div>
+
+
+									<div class="col-md-2">
+										<div class="org-name">To Date</div>
+									</div>
+									<div class="col-md-2">
+										<input class="form-control" readonly id="param3" type="text">
+									</div>
+
+
+								</div>
+								<div class="row">
+									<div class="col-md-12">
+										<div class="form-group">
+											<button class="btn btn-primary" onclick="funcLoad();">
+												Reset</button>
+											<button type="button" class="btn btn-primary"
+												onclick="validate()">Print Preview</button>
+											<button type="button" class="btn btn-primary"
+												onclick="validate()">Print</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</div>
+</html>

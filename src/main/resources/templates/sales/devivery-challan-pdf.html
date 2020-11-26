@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Delivery Challan</title>
+<!-- responsive meta -->
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+}
+
+.maintbl tr td {
+	/*border: 1px solid black;*/
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.theader-padding {
+	padding: 10px 5px;
+	background: #f5f5f5;
+}
+
+.mainheading {
+	font-size: 16px;
+	padding: 20px;
+	color: #0095c6;
+}
+
+.subheading {
+	font-size: 14px;
+	padding: 10px 0px;
+	font-style: serif;
+	color: #0095c6;
+}
+
+.label-td {
+	color: #000;
+}
+
+.maintable tr td {
+	padding: 10px 5px;
+}
+
+.maintable1 tr td {
+	padding: 5px 5px;
+}
+
+.maintbl1 tr td {
+	/*border: 1px solid black;*/
+	border-collapse: collapse;
+	padding: 4px 5px;
+}
+
+.bill {
+	font-size: 18px;
+}
+
+.tableheader {
+	padding: 10px 5px;
+	color: #418AB3;
+	font-weight: 600;
+	background: #f5f5f5;
+	border-bottom: 1px solid #ccc;
+	border-top: 10px solid #FFF;
+	text-align: center;
+}
+
+.td-border {
+	border-bottom: 1px solid #BABABA;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.maintbl tr td:last-child {
+	border-right: 1px solid #BABABA;
+}
+</style>
+</head>
+<body>
+	<table class="maintable" width="680">
+		<tr>
+			<td width="200"><img
+				th:src="@{classpath:static/assets/images/logo.png}" height="150"
+				width="150" /></td>
+			<td class="bill"><div>AB DINESH CONCRETE INDIA PVT LTD</div>
+				<div>1170,Hanspal,po-Naharkanta ,Bhubaneswar ,ODISHA</div>
+				<div>Contact No.:9238033102 ,EmailId:sales@abdinesh.com</div></td>
+		</tr>
+		<tr>
+			<td colspan="2"><hr></hr></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<table width="680">
+					<tr>
+						<td colspan="4" align="center" class="mainheading">Delivery
+							Challan</td>
+					</tr>
+					<tr>
+						<td class="label-td">Customer Name :</td>
+						<td><span th:text="${deliveryChalanModel.clientName}"></span>
+						</td>
+						<td class="label-td">Site/project Name :</td>
+						<td><span th:text="${deliveryChalanModel.deliverySite}"></span></td>
+					</tr>
+					<tr>
+						<td class="label-td">Customer GST IN:</td>
+						<td><span th:text="${deliveryChalanModel.tin}"></span></td>
+						<td class="label-td">Sales Order Number :</td>
+						<td><span th:text="${deliveryChalanModel.saleOrder}"></span></td>
+					</tr>
+					<tr>
+						<td class="label-td">Challan Number:</td>
+						<td><span th:text="${deliveryChalanModel.challanNo}"></span></td>
+						<td class="label-td">Challan Date :</td>
+						<td><span th:text="${deliveryChalanModel.entryDate}"></span>
+						</td>
+					</tr>
+					<tr>
+						<td class="label-td">Docket Number :</td>
+						<td>2997</td>
+						<td class="label-td">Trip Number :</td>
+						<td><span th:text="${deliveryChalanModel.noOfTm}"></span></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr></tr>
+		<tr></tr>
+		<tr>
+			<td colspan="2">
+				<table width="680">
+					<tr>
+						<td colspan="4" align="center" class="mainheading">Product
+							Details</td>
+					</tr>
+					<tr>
+						<td class="label-td">PO Number :</td>
+						<td><span th:text="${deliveryChalanModel.refPoId}"></span></td>
+						<td class="label-td">Grade of Concrete:</td>
+						<td><span th:text="${deliveryChalanModel.rmcGrade}"></span></td>
+					</tr>
+					<tr>
+						<td class="label-td">Pump:</td>
+						<td><span th:text="${deliveryChalanModel.pumpList}"></span></td>
+						<td class="label-td">Slump:</td>
+						<td><span th:text="${deliveryChalanModel.slumpMM}"></span></td>
+					</tr>
+					<tr>
+						<td class="label-td">Supervisor Name:</td>
+						<td><span th:text="${deliveryChalanModel.siteSupervisor}"></span></td>
+						<td class="label-td">Cement Brand:</td>
+						<td><span th:text="${deliveryChalanModel.cementBrand}"></span></td>
+					</tr>
+					<tr>
+						<td class="label-td">Remarks:</td>
+						<td><span th:text="${deliveryChalanModel.remarks}"></span></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<table width="680">
+					<tr>
+						<td colspan="4" align="center" class="mainheading">Transportation
+							Details</td>
+					</tr>
+					<tr>
+						<td class="label-td">Producing Plant :</td>
+						<td><span th:text="${deliveryChalanModel.batchPlant}"></span></td>
+						<td class="label-td">Vehicle Number :</td>
+						<td><span th:text="${deliveryChalanModel.vechileNo}"></span></td>
+					</tr>
+					<tr>
+						<td class="label-td">Departure From Plant :</td>
+						<td><span th:text="${deliveryChalanModel.outTime}"></span></td>
+						<td class="label-td">Arrival at Site :</td>
+						<td><span th:text="${deliveryChalanModel.siteInTime}"></span></td>
+					</tr>
+					<tr>
+						<td class="label-td">Departure From Site :</td>
+						<td><span th:text="${deliveryChalanModel.siteOutTime}"></span></td>
+						<td class="label-td">Arrival at Plant :</td>
+						<td><span th:text="${deliveryChalanModel.rstNo}"></span></td>
+					</tr>
+					<tr>
+						<td class="label-td">Opening Km :</td>
+						<td><span th:text="${deliveryChalanModel.okm}"></span></td>
+						<td class="label-td">Closing Km :</td>
+						<td><span th:text="${deliveryChalanModel.rKm}"></span></td>
+					</tr>
+					<tr>
+						<td class="label-td">Opening Hours (Back Engg):</td>
+						<td><span th:text="${deliveryChalanModel.obhr}"></span></td>
+						<td class="label-td">Closing Hours (Back Engg):</td>
+						<td><span th:text="${deliveryChalanModel.rBhr}"></span></td>
+					</tr>
+					<tr>
+						<td class="label-td">RST Number:</td>
+						<td><span th:text="${deliveryChalanModel.rstNo}"></span></td>
+						<td class="label-td">Gross Weight :</td>
+						<td><span th:text="${deliveryChalanModel.grossWt}"></span></td>
+
+					</tr>
+					<tr>
+						<td class="label-td">Tare Weight :</td>
+						<td><span th:text="${deliveryChalanModel.tareWt}"></span></td>
+						<td class="label-td">Net Weight:</td>
+						<td><span th:text="${deliveryChalanModel.netWt}"></span></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center" class="mainheading">Sales Invoice
+				Details</td>
+		</tr>
+		<tr>
+
+			<td colspan="3">
+
+				<table id="id_td" class="maintbl" cellpadding="0" cellspacing="0"
+					style="width: 690px;">
+					<thead>
+						<tr>
+							<th class="tableheader" width="50" align="left">SL NO.</th>
+							<th class="tableheader" width="100" align="left">ITEM NAME</th>
+							<th class="tableheader" width="100" align="left">ITEM CODE</th>
+							<th class="tableheader" width="100" align="left">PRICE</th>
+							<th class="tableheader" width="100" align="left">QUANTITY</th>
+							<th class="tableheader" width="100" align="left">DISCOUNT</th>
+							<th class="tableheader" width="100" align="left">SERVE TYPE</th>
+							<th class="tableheader" width="100" align="left">AMOUNT</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="other,iter : ${salesInvoice}">
+							<td class="td-border td-border-right" th:text=" ${iter.index+1}"></td>
+							<td class="td-border td-border-right" th:text="${other.saleItem}"></td>
+							<td class="td-border td-border-right"
+								th:text="${other.saleItemCode}"></td>
+							<td class="td-border td-border-right"
+								th:text="${#numbers.formatDecimal(other.salePrice, 0, 'COMMA', 2, 'POINT')} "></td>
+							<td class="td-border td-border-right"
+								th:text="${other.saleQuantity}"></td>
+							<td class="td-border td-border-right"
+								th:unless="${other.saleDiscount!=0.00}">0.00</td>
+							<td class="td-border td-border-right"
+								th:if="${other.saleDiscount!=0.00}"
+								th:text="${#numbers.formatDecimal(other.saleDiscount, 0, 'COMMA', 2, 'POINT')} "></td>
+							<td class="td-border td-border-right"
+								th:text="${other.sServeType}"></td>
+							<td class="td-border td-border-right"
+								th:text="${#numbers.formatDecimal(other.saleAmount, 0, 'COMMA', 2, 'POINT')}"></td>
+						</tr>
+					</tbody>
+				</table>
+		</td>
+
+
+		</tr>
+		<tr bgcolor="#F2F2F2">
+			<td colspan="3">
+
+				<table class="maintbl1" style="width: 730px; margin-bottom: 60px;">
+					<tr>
+						<td width="300">
+							<div style="color: #418AB3; padding: 8px 0px;"></div>
+
+						</td>
+						<td align="center" width="100"></td>
+						<td width="250">
+							<table cellpadding="0" cellspacing="0" width="310">
+								<tr th:if="${salesInvoice[0].subTotal!=0.0}">
+									<td width="115" style="color: #418AB3;"><b>SUB TOTAL</b></td>
+
+									<td width="130"><span style="border: none"
+										id="subtotalamount"
+										th:text="${#numbers.formatDecimal(salesInvoice[0].subTotal, 0, 'COMMA', 2, 'POINT')} "></span></td>
+								</tr>
+								<tr th:unless="${salesInvoice[0].subTotal!=0.0}">
+									<td width="115" style="color: #418AB3;"><b>SUB TOTAL</b></td>
+
+									<td width="130"><span style="border: none"
+										id="subtotalamount">0.00</span></td>
+								</tr>
+
+								<tr id="CgstTR"
+									th:if="${!salesInvoice[0].gstType && salesInvoice[0].sCGST!=0.0}">
+									<td width="115" style="color: #418AB3;"><b
+										th:text="'CGST ('+${#numbers.formatInteger(salesInvoice[0].gstRate,2,'POINT')}/2+'%)'"></b></td>
+
+									<td width="130"><span style="border: none" id="cgst"
+										th:text="${#numbers.formatDecimal(salesInvoice[0].sCGST, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+								<tr id="CgstTR"
+									th:if="${!salesInvoice[0].gstType && salesInvoice[0].sCGST==0.0}">
+									<td width="115" style="color: #418AB3;"><b
+										th:text="'CGST ('+${#numbers.formatInteger(salesInvoice[0].gstRate,2,'POINT')}/2+'%)'"></b></td>
+
+									<td width="130"><span style="border: none" id="cgst">0.00</span></td>
+								</tr>
+
+								<tr id="SgstTR"
+									th:if="${!salesInvoice[0].gstType  && salesInvoice[0].sSGST!=0.0}">
+									<td width="115" style="color: #418AB3;"><b
+										th:text="'SGST ('+${#numbers.formatInteger(salesInvoice[0].gstRate,2,'POINT')}/2+'%)'"></b></td>
+
+									<td width="130"><span style="border: none" id="sgst"
+										th:text="${#numbers.formatDecimal(salesInvoice[0].sSGST, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+								<tr id="SgstTR"
+									th:if="${!salesInvoice[0].gstType  && salesInvoice[0].sSGST==0.0}">
+									<td width="115" style="color: #418AB3;"><b
+										th:text="'SGST ('+${#numbers.formatInteger(salesInvoice[0].gstRate,2,'POINT')}/2+'%)'"></b></td>
+
+									<td width="130"><span style="border: none" id="sgst">0.00</span></td>
+								</tr>
+
+								<tr id="IgstTR"
+									th:if="${salesInvoice[0].gstType && salesInvoice[0].sIGST!=0.0}">
+									<td width="115" style="color: #418AB3;"><b
+										th:text="'IGST ('+${#numbers.formatInteger(salesInvoice[0].gstRate,2,'POINT')}+'%)'"></b></td>
+
+									<td width="130"><span style="border: none" id="igst"
+										th:text="${#numbers.formatDecimal(salesInvoice[0].sIGST, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+								<tr id="IgstTR"
+									th:if="${salesInvoice[0].gstType && salesInvoice[0].sIGST==0.0}">
+									<td width="115" style="color: #418AB3;"><b
+										th:text="'IGST ('+${#numbers.formatInteger(salesInvoice[0].gstRate,2,'POINT')}+'%)'"></b></td>
+
+									<td width="130"><span style="border: none" id="igst">0.00</span></td>
+								</tr>
+								<tr th:if="${salesInvoice[0].payableAmt!=0.0}">
+									<td width="115" style="color: #418AB3;"><b>TOTAL
+											PAYABLE AMOUNT</b></td>
+
+									<td width="130"><span style="border: none" id="grandtamt"
+										th:text="${#numbers.formatDecimal(salesInvoice[0].payableAmt, 0, 'COMMA', 2, 'POINT')}"></span></td>
+
+								</tr>
+								<tr th:unless="${salesInvoice[0].payableAmt!=0.0}">
+									<td width="115" style="color: #418AB3;"><b> PAYABLE
+											AMOUNT</b></td>
+
+									<td width="130"><span style="border: none" id="grandtamt">0.00</span></td>
+
+								</tr>
+								<tr th:if="${salesInvoice[0].advanceAmt!=0.0}">
+									<td width="115" style="color: #418AB3;"><b>ADVANCE
+											PAYMENT</b></td>
+
+									<td width="130"><span style="border: none" id="grandtamt"
+										th:text="${#numbers.formatDecimal(salesInvoice[0].advanceAmt, 0, 'COMMA', 2, 'POINT')}"></span></td>
+
+								</tr>
+								<tr th:unless="${salesInvoice[0].advanceAmt!=0.0}">
+									<td width="115" style="color: #418AB3;"><b>ADVANCE
+											PAYMENT</b></td>
+
+									<td width="130"><span style="border: none" id="grandtamt">0.00</span></td>
+
+								</tr>
+								<tr>
+									<td width="115" style="color: #418AB3;"><b>GRAND TOTAL</b></td>
+
+									<td width="130"><span style="border: none" id="grandtamt"
+										th:text="${#numbers.formatDecimal(salesInvoice[0].grandTotal, 0, 'COMMA', 2, 'POINT')}"></span></td>
+
+								</tr>
+							</table>
+						</td>
+					</tr>
+
+
+				</table>
+		</td>
+		</tr>
+		<tr style="margine-top: 20px">
+			<td colspan="2">
+				<table width="680">
+					<tr>
+						<td>Receiver's Signature</td>
+						<td>Site Supervisor</td>
+						<td style="text-align: right;">Security Signature</td>
+						<td style="text-align: right;">For AB DINESH CONCRETE INDIA</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

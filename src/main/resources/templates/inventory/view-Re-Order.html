@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head> 
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+					<li class="active"><span>View Re-Order</span></li>
+				</ol>
+			</div>
+
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="table-responsive" style="width: 100%;">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Item</th>
+									<th>Name</th>
+									<th>Quantity</th>
+									<th>Min</th>
+									<th>Vendor</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>Item 1</td>
+									<td>Ashish Ram</td>
+									<td>6</td>
+									<td>6</td>
+									<td>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												1</span>
+										</div>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												2</span>
+										</div>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												3</span>
+										</div>
+									</td>
+									<td><a title='View' class="btn btn-warning"
+										href='view-order'>Re-Order</a></td>
+								</tr>
+								<tr>
+									<td>Item 2</td>
+									<td>Sagar Anchal</td>
+									<td>6</td>
+									<td>6</td>
+									<td>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												1</span>
+										</div>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												2</span>
+										</div>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												3</span>
+										</div>
+									</td>
+									<td><a title='View' class="btn btn-warning"
+										href='view-order'>Re-Order</a></td>
+								</tr>
+								<tr>
+									<td>Item 3</td>
+									<td>Subham Sekhar</td>
+									<td>7</td>
+									<td>7</td>
+									<td>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												1</span>
+										</div>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												2</span>
+										</div>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												3</span>
+										</div>
+									</td>
+									<td><a title='View' class="btn btn-warning"
+										href='view-order'>Re-Order</a></td>
+								</tr>
+								<tr>
+									<td>Item 4</td>
+									<td>Sanjay Das</td>
+									<td>7</td>
+									<td>7</td>
+									<td>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												1</span>
+										</div>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												2</span>
+										</div>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												3</span>
+										</div>
+									</td>
+									<td><a title='View' class="btn btn-warning"
+										href='view-order'>Re-Order</a></td>
+								</tr>
+								<tr>
+									<td>Item 5</td>
+									<td>Manoj Tiwary</td>
+									<td>6</td>
+									<td>7</td>
+									<td>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												1</span>
+										</div>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												2</span>
+										</div>
+										<div>
+											<input type="checkbox" />&nbsp;&nbsp;<span class="chkboxtxt">Vendor
+												3</span>
+										</div>
+									</td>
+									<td><a title='View' class="btn btn-warning"
+										href='view-vendor-order'>Re-Order</a></td>
+								</tr>
+
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+
+				</div>
+			</div>
+		</div>
+
+		<!-- /# row -->
+	</div>
+</div>
+</html>

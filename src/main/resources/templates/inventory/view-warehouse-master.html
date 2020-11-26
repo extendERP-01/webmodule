@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+$(document).ready(function() {
+	
+	$('#listWarehouse').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'view-warehouse-master-through-ajax',
+			'data' : function(d) {
+				d.param1 	= 	$('#param1').val();
+				d.param2 	= 	$('#param2').val();
+				d.param3 	= 	$('#param3').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [{
+			'data' : 'warehouseName'
+		}, {
+			'data' : 'store'
+		}, {
+			'data' : 'subInventory'
+		}, {
+			'data' : 'whDesc'
+		}, {
+			'data' : 'whActive'
+		}, {
+			'data' : 'action'
+		}]
+	});
+	
+});
+
+function searchData() {
+	$('#listWarehouse').DataTable().draw();
+}
+
+function viewInModel(index) {
+	$("#tdWarehouse").text("");
+	$("#tdSubInv").text("");
+	$("#tdStore").text("");
+	$("#tdStatus").text("");
+    $.ajax({
+        type: "POST",
+        url: "view-warehouse-master-modal",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: index,
+        success: function(response) {
+            if (response.message == "success") {
+                var subInvActive = "";
+                if (response.body.whActive) {
+                	subInvActive = "Active";
+                } else {
+                	subInvActive = "Inactive";
+                }
+                $("#tdWarehouse").text(response.body.warehouseName);
+                $("#tdSubInv").text(response.body.subInventory);
+            	$("#tdStore").text(response.body.store);
+            	$("#tdStatus").text(subInvActive);
+            	
+                $('#myModal').modal('show');
+
+            }
+        },
+        error: function(data) {
+        	console.log(data)
+        	$("#tdWarehouse").text("--");
+        	$("#tdSubInv").text("--");
+        	$("#tdStore").text("--");
+        	$("#tdStatus").text("--");
+        }
+    })
+}
+
+function deleteWarehouse(id) {
+    swal.fire({
+        title: "Are you sure want to Delete?",
+        text: "Once Deleted,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#e7b63a',
+        confirmButtonText: 'Delete',
+        //closeOnConfirm: false,
+        reverseButtons: true
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "GET",
+                url: "/inventory/view-warehouse-master-delete?id=" + id,
+                success: function(response) {
+                    if (response.message == "success") {
+                        swal({
+                            title: "Record Deleted Successfully.",
+                            type: "success"
+                        }).then(function() {
+                            location.reload();
+                        })
+                    } else {
+                        swal({
+                            title: 'Unsuccess',
+                            text: response.code
+                        })
+                    }
+                },
+                error: function(data) {
+					console.log(data)
+                }
+            })
+        }
+
+    });
+}
+</script> 
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+					<li><a href=add-warehouse-master>Add Warehouse</a></li>
+					<li class="active"><span>View Warehouse</span></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-warehouse-master">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Warehouse</label> <input class="form-control" type="text"
+									placeholder="" name="" id="param1">
+							</div>
+							<div class="col-md-2">
+								<label>Store</label> <select class="form-control"
+									id="param2">
+									<option value="">Select</option>
+									<option th:each="c,iter:${storeList}" th:value="${c.key}" th:text="${c.name}"></option>
+								</select>
+							</div>
+							<div class="col-md-2" style="display:none;">
+								<label>Sub-Inventory</label> <select class="form-control"
+									id="param3">
+									<option value="">Select</option>
+								</select>
+							</div>
+							
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table class="table table-bordered" id="listWarehouse">
+							<thead>
+								<tr>
+									<th>Warehouse</th>
+									<th>Store</th>
+									<th>Sub-Inventory</th>
+									<th>Description</th>
+									<th>Status</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Rack Master</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+							<tbody>
+								<tr class="rackName">
+									<td><b>Warehouse :</b></td>
+									<td align="left" id="tdWarehouse"></td>
+								</tr>
+								<tr class="subInventoryName">
+									<td><b>Sub-Inventory :</b></td>
+									<td align="left" id="tdSubInv"></td>
+								</tr>
+								<tr class="storeName">
+									<td><b>Store :</b></td>
+									<td align="left" id="tdStore"></td>
+								</tr>
+								<tr class="rackActive">
+									<td><b>Status :</b></td>
+									<td align="left" id="tdStatus"></td>
+								</tr>
+							</tbody>
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+	</div>
+</div>
+</html>

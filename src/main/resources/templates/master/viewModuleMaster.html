@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblModule').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-module-master-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val()
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [
+
+			{
+				'data' : 'tModlName'
+			}, {
+				'data' : 'tModuleLogo'
+			},{
+				'data' : 'status'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+	function searchData() {
+		$('#tblModule').DataTable().draw();
+	}
+
+	function viewInModel(index) {
+
+		var modlName = '';
+		var modlDesc = '';
+		var modlStatus = '';
+		$("#moduleTable").find('tbody > tr').each(function() {
+			$(this).find("td").eq(1).remove();
+		})
+		$.ajax({
+			type : "POST",
+			url : "view-module-master-model",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : index,
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response.body.tModlStatus);
+
+					var tModlStatus = "";
+					if (response.body.tModlStatus) {
+						tModlStatus = "Active";
+					} else {
+						tModlStatus = "InActive";
+					}
+					modlName = '<td>' + response.body.tModlName + '</td>'
+					modlStatus = '<td>' + tModlStatus + '</td>'
+					modlDesc = '<td>' + response.body.tModlDescription
+							+ '</td>'
+
+					$(".modlName").append(modlName);
+
+					$(".modlStatus").append(modlStatus);
+					$(".modlDesc").append(modlDesc);
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+
+	}
+</script>
+
+<script>
+
+function viewInModelImage(index) {
+	$('#myModalImage').modal('show');
+console.log(index);
+$("#moduleId").val(index);
+}
+
+
+function saveFile() {
+		 $("#upload_prev").empty();
+			var uFile = $('#fileUpload')[0].files[0]; 
+			var fileName = $('#fileUpload').val();
+			
+			var lastIndex = fileName.lastIndexOf("\\");
+			if(lastIndex >= 0) {
+				fileName = fileName.substring(lastIndex + 1);
+			}
+			var iURL = URL.createObjectURL(uFile);
+			$("#uploadedImgDiv").html("");
+			var LightImg =  "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' data-lightbox='"+fileName+"'>Preview Image</a>";
+			$("#uploadedImgDiv").html(LightImg);
+			
+			var fileData = new FormData();
+			fileData.append('file',uFile);
+			fileData.append('path','none');
+			
+			$.ajax({
+				type        : "POST",
+				url         : "view-module-master-uploadfile",
+				enctype     : "multipart/form-data",
+				contentType : false,
+				data        : fileData,
+				processData : false,
+				cache       : false,
+				success     : function(response){
+								
+							},			  
+				error       : function(e) {
+					
+					  		}
+			});
+			
+		}
+		
+function saveImage() {
+	 $("#upload_prev").empty();
+		var uFile = $('#fileUpload')[0].files[0]; 
+		var fileName = $('#fileUpload').val();
+		var moduleId = $("#moduleId").val();
+		
+		var lastIndex = fileName.lastIndexOf("\\");
+		if(lastIndex >= 0) {
+			fileName = fileName.substring(lastIndex + 1);
+		}
+		if(fileName)
+			{
+		$.ajax({
+			type        : "POST",
+			url         :"/master/view-module-master-saveImage?fileName="+fileName+"&moduleId="+moduleId,
+			enctype     : "multipart/form-data",
+			contentType : false,
+			dataType    :'json',
+			processData : false,
+			cache       : false,
+			success     : function(response){
+							swal({
+								title:"Module Logo Updated Successfully",
+							}).then(function(){
+								location.reload(); 
+							})
+						},			  
+			error       : function(e) {
+				
+				  		}
+		});
+			}
+		else
+			{
+			swal({
+				title:"Module Logo Not Selected..",
+			}).then(function(){
+				location.reload(); 
+			})
+			}
+	}
+	
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20 col-md-12">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>View Module Details</span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>View Module Details</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+				<!-- <div id="newdemo" class="collapse"> -->
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-2">
+								<label>Module Name</label>
+						
+								<input class="form-control" type="text" placeholder="" name=""
+									id="param1">
+							</div>
+
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<!-- <button class="btn btn-primary" onclick="searchData()">Search</button> -->
+									<input type="button" class="btn btn-info" value="Search"
+											onclick="searchData()" />
+								</div>
+							</div>
+						</div>
+					</div>
+				<!-- </div>
+				<a data-toggle="collapse" data-target="#newdemo"
+					class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+				</a> -->
+				<!-- <div class="row"> -->
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblModule" class="table  table-bordered">
+							<thead>
+								<tr>
+									<th>Module Name</th>
+									<th>Module Logo</th>
+									<th>Status</th>
+									<th>Action</th>
+
+								</tr>
+							</thead>
+
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				<!-- </div> -->
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Module</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="moduleTable">
+							<tbody>
+
+								<tr class="modlName">
+									<td><b>Module Name :</b></td>
+								</tr>
+								<tr class="modlDesc">
+									<td><b>Description :</b></td>
+								</tr>
+								<tr class="modlStatus">
+									<td><b>Status :</b></td>
+								</tr>
+							</tbody>
+							<tbody id="tModelBody"></tbody>
+						</table>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+
+		<div id="myModalImage" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">Module Logo</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					
+					<div class="modal-body">
+					
+						<div class="form-group">
+                   						 <input type="hidden" value="" id="moduleId">
+                 						    <label for="user_photo" style="font-size:16px;">Edit Module Logo </label>
+                       
+                       					 
+                       					    <input type="file" id="fileUpload"  name="file" style="display:block" onchange="saveFile()"/>
+                        
+                       					      <div id="uploadedImgDiv">
+												<span th:if="*{action !=null}">
+												 <a class="example-image-link" th:href="*{action}" data-lightbox="hsdjas" >Preview Image</a>
+											    </span>
+										    </div>
+										    
+                       		 </div>
+
+					</div>
+					<div class="modal-footer"> 
+					   <button type="button" class="btn btn-default" data-dismiss="modal" onclick="saveImage()">Upload</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div> 
+
+	</div>
+</div>
+</html>

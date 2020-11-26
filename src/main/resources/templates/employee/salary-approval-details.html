@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<!-- Chart Section Start -->
+<style>
+.small-box {
+	border-radius: 10px;
+	position: relative;
+	display: block;
+	margin-bottom: 0px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.pc {
+	cursor: pointer;
+}
+
+.bg-aqua {
+	background-color: #a9dce9 !important;
+}
+
+.bg-lightred {
+	background-color: #dbbbb7 !important;
+}
+
+.bg-ltblue {
+	background-color: #b697e4 !important;
+}
+
+.bg-green {
+	background-color: #78e7b4 !important;
+}
+
+.bg-yellow {
+	background-color: #e7ca74 !important;
+}
+
+.bg-red {
+	background-color: #ed8477 !important;
+}
+
+.bg-pink {
+	background-color: #df97e4 !important;
+}
+
+.bg-lightblue {
+	background-color: #a7beea !important;
+}
+
+.bg-lightbrown {
+	background-color: #d4d0c6 !important;
+}
+
+.bg-lightyellow {
+	background-color: #d8ea8f !important;
+}
+
+.small-box>.small-box-footer {
+	position: relative;
+	text-align: center;
+	padding: 3px 0;
+	color: #fff;
+	color: rgba(255, 255, 255, 0.8);
+	display: block;
+	z-index: 10;
+	background: rgba(0, 0, 0, 0.1);
+	text-decoration: none;
+}
+
+.small-box p {
+	font-size: 15px;
+	color: #000;
+	font-weight: bold;
+	padding-top:10px;
+}
+
+.small-box>.inner {
+	padding: 10px;
+}
+
+.small-box>.inner>h3 {
+	color: #000;
+}
+
+.mt--15 {
+	margin-top: -20px;
+}
+
+.mt {
+	margin-top: 5px;
+}
+
+.icon {
+	
+}
+
+.dbth {
+	color: white;
+	padding: 5px;
+	font-size: 14px;
+	background: #6b6880;
+}
+
+.dashboardbox {
+	background: #FFF;
+	border-radius: 5px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0
+		rgba(0, 0, 0, 0.19);
+}
+
+.ht {
+	height: 432px;
+	overflow-y: scroll;
+}
+
+.ht2 {
+	height: 432px;
+}
+
+.pd-20 td {
+	padding: 10px 10px;
+}
+
+.dashboardbox h4 {
+	padding: 10px 15px;
+	font-size: 16px;
+}
+
+.SimpleChart {
+	position: relative;
+}
+
+.SimpleChart #tip {
+	background-color: #f0f0f0;
+	border: 1px solid #d0d0d0;
+	position: absolute;
+	left: -200px;
+	top: 30px;
+}
+
+.down-triangle {
+	width: 0;
+	height: 0;
+	border-top: 10px solid #d0d0d0;
+	border-left: 6px solid transparent;
+	border-right: 6px solid transparent;
+	position: absolute;
+	left: -200px;
+}
+
+.SimpleChart #highlighter {
+	position: absolute;
+	left: -200px;
+}
+
+.-simple-chart-holder {
+	/* float: left;*/
+	position: relative;
+	width: 100%;
+	background-color: #fff;
+	border: 1px solid #cecece;
+	/*padding: 6px;*/
+}
+
+.SimpleChart .legendsli {
+	list-style: none;
+}
+
+.SimpleChart .legendsli span {
+	float: left;
+	vertical-align: middle;
+}
+
+.SimpleChart .legendsli span.legendindicator {
+	position: relative;
+	top: 5px;
+	display: none;
+}
+
+.SimpleChart .legendsli span.legendindicator .line {
+	width: 12px;
+	/*height: 3px;*/
+	display: none;
+}
+
+.simple-chart-legends ul li:last-child {
+	border-right: 0px;
+}
+
+.simple-chart-legends.vertical {
+	margin: 0px 10px;
+}
+
+.simple-chart-legends.vertical ul li {
+	display: none;
+	border: 0px;
+	border-bottom: 1px solid #d6d7dd;
+}
+
+.simple-chart-legends.vertical ul li:last-child {
+	border-bottom: 0px;
+}
+
+.simple-chart-legends .legendvalue {
+	padding-left: 2px;
+	background: #fff;
+}
+
+/******Starts::Horizontal Alignment of Legends******/
+.simple-chart-Header {
+	position: absolute;
+	font-size: 16px;
+}
+
+.fa-snowflake:hover {
+	color: black !important;
+}
+
+.fa-snowflake-o:hover {
+	color: black !important;
+}
+
+.fa-archive:hover {
+	color: black !important;
+}
+
+.fa-archive-o:hover {
+	color: black !important;
+}
+
+.fa-users:hover {
+	color: black !important;
+}
+
+.fa-users-o:hover {
+	color: black !important;
+}
+
+.fa-inr:hover {
+	color: black !important;
+}
+
+.fa-inr-o:hover {
+	color: black !important;
+}
+
+.fa-line-chart:hover {
+	color: black !important;
+}
+
+.fa-line-chart-o:hover {
+	color: black !important;
+}
+
+.fa-database:hover {
+	color: black !important;
+}
+
+.fa-database:hover {
+	color: black !important;
+}
+
+.fa-truck:hover {
+	color: black !important;
+}
+
+.fa-truck:hover {
+	color: black !important;
+}
+
+.ds-heading {
+	font-size: 22px;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: #00429c;
+	margin-top: 10px;
+}
+
+.btn-db {
+	background: #749398;
+	border-color: #dee5e9;
+	color: #ffffff;
+}
+
+.mt-8 {
+	margin-top: 10px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	border: 1px solid #FFF;
+	text-align: center;
+	font-weight: bold;
+	color: #fff;
+}
+
+.table td, .table th {
+	padding: 3px !important;
+}
+</style>
+<script>
+$(document).ready(function() {
+
+    $("#fromDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false,
+        maxDate: new Date(),
+    });
+    
+    $("#toDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false, 
+    });
+    
+    
+    
+	var fullDate = new Date();
+	var twoDigitMonth=((fullDate.getMonth()+1)>=10)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+	var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+	var monthStartDate = '01' + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+	var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+	$("#fromDate").val(monthStartDate);
+	$("#toDate").val(currentDate);
+	
+	getSalaryCountData();
+/*     $("#submitAdvance").click(function() { 
+        var dataset = [];
+        $("#tblid > tr").each(function() {
+            item = {}; 
+            item['fromDate'] = $("#fromDate").val();
+            item['toDate'] = $("#employeeId").val();
+            item['employeeId'] = $(this).find(".employeeId").val();
+            item['amount'] =  $(this).find(".amount").val();
+             
+            dataset.push(item);
+        });
+        submitAdvanceData(dataset);
+    }); */
+    
+/*     $("#submitTrip").click(function() {
+        var dataset = [];
+        $("#tblid > tr").each(function() {
+            item = {}; 
+            item['fromDate'] = $("#fromDate").val();
+            item['toDate'] = $("#toDate").val();
+            item['employeeId'] = $(this).find(".employeeId").val();
+            item['totalTrip'] = parseFloat($(this).find(".totalTrip").val());
+            item['attendance'] = parseFloat($(this).find(".attendance").val());
+            item['totalBonous'] = parseFloat($(this).find(".totalBonous").val());
+             
+            dataset.push(item);
+        });
+        submitTripData(dataset);
+    });
+     */
+    
+/*     $("#submitFood").click(function() {
+        var dataset = [];
+        $("#tblid > tr").each(function() {
+            item = {}; 
+            item['fromDate'] = $("#fromDate").val();
+            item['toDate'] = $("#toDate").val();
+            item['employeeId'] = $(this).find(".employeeId").val();
+            item['dayMeal'] = parseFloat($(this).find(".dayMeal").val());
+            item['nightMeal'] = parseFloat($(this).find(".nightMeal").val());
+            item['totalMeal'] = parseFloat($(this).find(".totalMeal").val());
+             
+            dataset.push(item);
+        });
+        submitFoodData(dataset);
+    }); */
+    
+/*     $("#submitExtra").click(function() {
+        var dataset = [];
+        $("#tblid > tr").each(function() {
+            item = {}; 
+            item['fromDate'] = $("#fromDate").val();
+            item['toDate'] = $("#toDate").val();
+            item['employeeId'] = $(this).find(".employeeId").val();
+            item['workingDay'] = parseFloat($(this).find(".workingDay").val());
+            item['workDay'] = parseFloat($(this).find(".workDay").val());
+            item['extraDay'] = parseFloat($(this).find(".extraDay").val());
+             
+            dataset.push(item);
+        });
+        submitExtraSalaryData(dataset);
+    }); */
+    
+/*     $("#submitAttendance").click(function() {
+        var dataset = [];
+        $("#tblid > tr").each(function() {
+            item = {}; 
+            item['fromDate'] = $("#fromDate").val();
+            item['toDate'] = $("#toDate").val();
+            item['employeeId'] = $(this).find(".employeeId").val();
+            item['workingDay'] = parseFloat($(this).find(".workingDay").val());
+            item['workDay'] = parseFloat($(this).find(".workDay").val()); 
+             
+            dataset.push(item);
+        });
+        submitAttendanceData(dataset);
+    }); */
+    
+})
+
+	function tripBonusExcelCreation() {
+		if($('#fromDate').val() && $('#toDate').val()){
+			window.open("/download/generate-excel-trip-report?param2="
+					+ window.btoa($('#fromDate').val()) + "&param3="
+					+ window.btoa($('#toDate').val()));
+		}
+		
+	}
+
+
+function generateAdvanceExcel(){
+	if($('#fromDate').val() && $('#toDate').val()){
+		window.open("/download/generate-excel-trip-report?param2="
+				+ window.btoa($('#fromDate').val()) + "&param3="
+				+ window.btoa($('#toDate').val()));
+	}
+	
+}
+
+
+function generateAttendanceExcel(){
+	if($('#fromDate').val() && $('#toDate').val()){
+		window.open("/download/generate-attendence-report?param2="
+				+ window.btoa($('#fromDate').val()) + "&param3="
+				+ window.btoa($('#toDate').val()));
+	}
+	
+}
+function generateLeaveExcel(){
+	if($('#fromDate').val() && $('#toDate').val()){
+		window.open("/download/generate-leave-report?param2="
+				+ window.btoa($('#fromDate').val()) + "&param3="
+				+ window.btoa($('#toDate').val()));
+	}
+	
+}
+
+
+
+function generateTripExcel(){
+	if($('#fromDate').val() && $('#toDate').val()){
+		window.open("/download/generate-excel-trip-report?param2="
+				+ window.btoa($('#fromDate').val()) + "&param3="
+				+ window.btoa($('#toDate').val()));
+	}
+	
+}
+function generateFoodExcel(){
+	if($('#fromDate').val() && $('#toDate').val()){
+		window.open("/download/generate-food-excel-report?param2="
+				+ window.btoa($('#fromDate').val()) + "&param3="
+				+ window.btoa($('#toDate').val()));
+	}
+	
+}
+function generateExtraSalaryExcel(){
+	if($('#fromDate').val() && $('#toDate').val()){
+		window.open("/download/generate-extra-sal-excel-report?param2="
+				+ window.btoa($('#fromDate').val()) + "&param3="
+				+ window.btoa($('#toDate').val()));
+	}
+	
+}
+function generateIncomeTaxExcel(){
+	if($('#fromDate').val() && $('#toDate').val()){
+		window.open("/download/generate-income-tax-excel-report?param2="
+				+ window.btoa($('#fromDate').val()) + "&param3="
+				+ window.btoa($('#toDate').val()));
+	}
+	
+}
+
+function submitAdvanceData(dataset) { 
+    swal.fire({
+        title: "Are you sure want to Submit Advance Details?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "salary-approval-save-advance-data",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload();
+                            
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            }) //ajax ends
+        }
+    })
+}
+
+
+
+function submitIncomeData(dataset) { 
+    swal.fire({
+        title: "Are you sure want to Submit Income tax Details?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "salary-approval-save-income-tax-data",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload();
+                            
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            }) //ajax ends
+        }
+    })
+}
+
+
+
+function submitTripData(dataset) {
+    console.log(dataset)
+    swal.fire({
+        title: "Are you sure want to Submit Trip Details?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "salary-approval-save-trip-data",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload(); 
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            }) //ajax ends
+        }
+    })
+}
+
+function submitFoodData(dataset) {
+    console.log(dataset)
+    swal.fire({
+        title: "Are you sure want to Submit Food Details?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "salary-approval-save-food-data",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload();
+                            //window.location.href = "/employee/view-food-tracking-data" ;
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            }) //ajax ends
+        }
+    })
+}
+
+function submitAttendanceData(dataset) {
+    console.log(dataset)
+    swal.fire({
+        title: "Are you sure want to Submit Attendance Details?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "salary-approval-save-attendance-data",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload();
+                            //window.location.href = "/employee/view-food-tracking-data" ;
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            }) //ajax ends
+        }
+    })
+}
+function submitLeaveData(dataset) {
+    console.log(dataset)
+    swal.fire({
+        title: "Are you sure want to Submit Attendance Details?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "salary-approval-save-leave-data",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload();
+                            //window.location.href = "/employee/view-food-tracking-data" ;
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            }) //ajax ends
+        }
+    })
+}
+
+function submitExtraSalaryData(dataset) {
+    console.log(dataset)
+    swal.fire({
+        title: "Are you sure want to Submit Extra Salary Details?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "salary-approval-save-extra-salary-data",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload();
+                            //window.location.href = "/employee/view-food-tracking-data" ;
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            }) //ajax ends
+        }
+    })
+}
+
+
+function numberOnly(e) {
+    id = e.currentTarget.id;
+    checkNum(id);
+    var value =  $("#"+id).val();
+    if(value == "" || value == null) {
+    	$("#"+id).val("0");
+    }
+}
+ 
+
+ function onClickSaveIncomeTax(){ 
+	 var dataset = [];
+     $("#tblid > tr").each(function() {
+         item = {}; 
+         item['fromDate'] = $("#fromDate").val();
+         item['toDate'] = $("#toDate").val();
+         item['employeeId'] = $(this).find(".employeeId").val();
+         item['taxAmount'] =  $(this).find(".taxAmount").val();
+          
+         dataset.push(item);
+     });
+     submitIncomeData(dataset);
+ }
+ 
+ // save income tax data
+ function onClickSaveAdvance(){ 
+	 var dataset = [];
+     $("#tblid > tr").each(function() {
+         item = {}; 
+         item['fromDate'] = $("#fromDate").val();
+         item['toDate'] = $("#toDate").val();
+         item['employee'] = $(this).find(".employeeId").val();
+         item['amount'] =  $(this).find(".amount").val();
+          
+         dataset.push(item);
+     });
+     submitAdvanceData(dataset);
+ }
+ 
+ //save attendance data
+ function onClickSaveAttendance(){ 
+	   var dataset = [];
+       $("#tblid > tr").each(function() {
+           item = {}; 
+           item['fromDate'] = $("#fromDate").val();
+           item['toDate'] = $("#toDate").val();
+           item['employeeId'] = $(this).find(".employeeId").val();
+           item['workingDay'] = parseFloat($(this).find(".workingDay").val());
+           item['workDay'] = parseFloat($(this).find(".workDay").val()); 
+            
+           dataset.push(item);
+       });
+       submitAttendanceData(dataset);
+ }
+ //save attendance data
+ function onClickSaveLeave(){ 
+	   var dataset = [];
+       $("#tblid > tr").each(function() {
+           item = {}; 
+           item['fromDate'] = $("#fromDate").val();
+           item['toDate'] = $("#toDate").val();
+           item['employeeId'] = $(this).find(".employeeId").val();
+           item['workingDay'] = parseFloat($(this).find(".workingDay").val());
+           item['paidleave'] = parseFloat($(this).find(".paidleave").val()); 
+           item['unpaidleave'] = parseFloat($(this).find(".unpaidleave").val()); 
+            
+           dataset.push(item);
+       });
+       submitLeaveData(dataset);
+ }
+ 
+ // save trip data
+ function onClickSaveTrip(){ 
+	 var dataset = [];
+     $("#tblid > tr").each(function() {
+         item = {}; 
+         item['fromDate'] = $("#fromDate").val();
+         item['toDate'] = $("#toDate").val();
+         item['employeeId'] = $(this).find(".employeeId").val();
+         item['totalTrip'] = parseFloat($(this).find(".totalTrip").val());
+         item['attendance'] = parseFloat($(this).find(".attendance").val());
+         item['totalBonous'] = parseFloat($(this).find(".totalBonous").val());
+          
+         dataset.push(item);
+     });
+     submitTripData(dataset);
+ }
+ 
+ 
+ // save trip data
+ function onClickSaveFood(){ 
+	  var dataset = [];
+      $("#tblid > tr").each(function() {
+          item = {}; 
+          item['fromDate'] = $("#fromDate").val();
+          item['toDate'] = $("#toDate").val();
+          item['employeeId'] = $(this).find(".employeeId").val();
+          item['dayMeal'] = parseFloat($(this).find(".dayMeal").val());
+          item['nightMeal'] = parseFloat($(this).find(".nightMeal").val());
+          item['totalMeal'] = parseFloat($(this).find(".totalMeal").val());
+           
+          dataset.push(item);
+      });
+      submitFoodData(dataset);
+ }
+ // save extra salary data
+ function onClickSaveExtraSal(){ 
+	  var dataset = [];
+      $("#tblid > tr").each(function() {
+          item = {}; 
+          item['fromDate'] = $("#fromDate").val();
+          item['toDate'] = $("#toDate").val();
+          item['employeeId'] = $(this).find(".employeeId").val();
+          item['workingDay'] = parseFloat($(this).find(".workingDay").val());
+          item['workDay'] = parseFloat($(this).find(".workDay").val());
+          item['extraDay'] = parseFloat($(this).find(".extraDay").val());
+           
+          dataset.push(item);
+      });
+      submitExtraSalaryData(dataset);
+ }
+</script>
+<script>
+ function getTripData() {
+	$('#tblid').empty();
+	$('#tbdy').empty();
+	$('#titleId').empty();
+	$('#headId').empty();
+	$('#buttonId').empty();
+ 
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val();
+	var status = $("#tripCount").val();
+	if (fromDate && toDate) {
+		
+	 
+		$.ajax({
+					type : 'POST',
+					url : 'salary-approval-get-trip-dtls?fromDate='
+							+ fromDate + '&toDate=' + toDate+"&status="+status,
+					contentType : 'application/json',
+					success : function(response) {
+						if (response.message == "success") {
+							console.log("response " + response);
+                               if(response.body != null){ 
+                                   var title='<th colspan="5" align="center" style="text-align: center;"><strong>Trip Details</strong></th>'
+                            	   $('#titleId').append(title);
+                            	   var head = '<th  class="tableheader" align="center" >Employee Id</th><th  class="tableheader" align="center" >Employee Name</th> <th  class="tableheader" align="center" >Total Trip</th><th  class="tableheader" align="center" >Total Attendance</th> <th  class="tableheader" align="center" >Total Bonus</th>' ;
+                         		  $('#headId').append(head);
+                         		 
+                            	   for (var i = 0; i < response.body.length; i++) {
+                            		   
+                            		  
+                            		  var table = '<tr><td bgcolor="#F5F5F5" ><input type="text" class="form-control employeeId" value='+response.body[i].employeeId+' id="employeeId'+i+'" readonly> </td>  '
+   											+ '<td bgcolor="#F5F5F5" ><input type="text"  class="form-control empName" value="'+response.body[i].empName+'" id="empName'+i+'" readonly></td> '
+   								 	 
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control totalTrip" value='+response.body[i].totalTrip+' id="totalTrip'+i+'"  ></td>  '
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control attendance" value='+response.body[i].attendance+' id="attendance'+i+'" readonly></td>  ' 
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control totalBonous" value='+response.body[i].totalBonous+' id="totalBonous'+i+'"></td> '
+   											
+   											 +  '</tr> '; 
+   									$('#tblid').append(table);
+   								}
+                            	   if(status != null && status != '' && status != 0){
+	                         			
+                             			var buttonId='<th colspan="5" style="text-align: right;"><button onclick="tripBonusExcelCreation()" class="btn btn-success">Download Excel</button> &nbsp; <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                      	   $('#buttonId').append(buttonId);
+                             			
+                             		 }else{
+                            	   var buttonId='<th colspan="5" style="text-align: right;"><button type="button" onclick="onClickSaveTrip()" class="btn btn-success">Verify</button><input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                	   $('#buttonId').append(buttonId);
+                             		 }
+                               }else{
+                            	  
+                       			var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+                       			$('#tblid').append(noData);
+                               }
+							
+						} else { 
+							var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+							$('#tblid').append(noData);
+						}
+					},
+					error : function(e) {
+						console.log("error");
+					}
+				});
+	} else {
+		
+		var noData = '<tr> <td colspan="6"><div class="norecord">No Record Found</div></td> </tr>';
+		$('#tblid').append(noData);
+		 
+		 
+	}
+}
+
+
+function getFoodData() {
+	$('#tblid').empty();
+	$('#tbdy').empty();
+	$('#titleId').empty();
+	$('#headId').empty();
+	$('#buttonId').empty();
+ 
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val();
+	var empId = $("#empId").val();
+	var status = $("#foodCount").val();
+	if (fromDate && toDate) { 
+		$.ajax({
+					type : 'POST',
+					url : 'salary-approval-get-food-dtls?fromDate='
+							+ fromDate + '&toDate=' + toDate +'&empId='+empId+"&status="+status,
+					contentType : 'application/json',
+					success : function(response) {
+						if (response.message == "success") { 
+                               if(response.body != null){ 
+                                   var title='<th colspan="5" align="center" style="text-align: center;"><strong>Food Details</strong></th>'
+                            	   $('#titleId').append(title);
+                            	   var head = '<th  class="tableheader" align="center" >Employee Id</th><th  class="tableheader" align="center" >Employee Name</th> <th  class="tableheader" align="center" >Day Meal</th><th  class="tableheader" align="center" >Night Meal</th> <th  class="tableheader" align="center" >Total Meal</th>' ;
+                         		  $('#headId').append(head);
+                         		 console.log(response.body)
+                            	   for (var i = 0; i < response.body.length; i++) { 
+                            		  
+                            		  var table = '<tr><td bgcolor="#F5F5F5" ><input type="text" class="form-control employeeId" value='+response.body[i].employeeId+' id="employeeId'+i+'" readonly> </td>  '
+   											+ '<td bgcolor="#F5F5F5" ><input type="text"  class="form-control employeeName" value="'+response.body[i].employeeName+'" id="employeeName'+i+'" readonly></td> '
+   								 	 
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control dayMeal" value='+response.body[i].dayMeal+' id="dayMeal'+i+'"  ></td>  '
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control nightMeal" value='+response.body[i].nightMeal+' id="nightMeal'+i+'"  ></td>  ' 
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control totalMeal" value='+response.body[i].totalMeal+' id="totalMeal'+i+'"></td> '
+   											
+   										 +  '</tr> '; 
+   									$('#tblid').append(table);
+   								}
+                         		 if(status != null && status != '' && status != 0){
+	                         			
+                          			var buttonId='<th colspan="5" style="text-align: right;"><button onclick="generateFoodExcel()" class="btn btn-success">Download Excel</button>  <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                   	   $('#buttonId').append(buttonId);
+                          			
+                          		 }else{
+                          			var buttonId='<th colspan="5" style="text-align: right;"><button type="button" onclick="onClickSaveFood()" class="btn btn-success">Verify</button> <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                 	   $('#buttonId').append(buttonId); 
+                          		 }
+                            	   
+                               }else{
+                            	  
+                       			var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+                       			$('#tblid').append(noData);
+                               }
+							
+						} else { 
+							var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+							$('#tblid').append(noData);
+						}
+					},
+					error : function(e) {
+						console.log("error");
+					}
+				});
+	} else {
+		
+		var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+		$('#tblid').append(noData);
+		 
+		 
+	}
+}
+
+function getExtraSalaryData(){
+	$('#tblid').empty();
+	$('#tbdy').empty();
+	$('#titleId').empty();
+	$('#headId').empty();
+	$('#buttonId').empty();
+ 
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val();
+	var empId = $("#empId").val();
+	var status = $("#extraSalCount").val();
+	if (fromDate && toDate) { 
+		$.ajax({
+					type : 'POST',
+					url : 'salary-approval-get-extra-salary-dtls?fromDate='
+							+ fromDate + '&toDate=' + toDate +'&empId='+empId+"&status="+status,
+					contentType : 'application/json',
+					success : function(response) {
+						if (response.message == "success") { 
+                               if(response.body != null){ 
+                                   var title='<th colspan="5" align="center" style="text-align: center;"><strong>Extra Salary Details</strong></th>'
+                            	   $('#titleId').append(title);
+                            	   var head = '<th  class="tableheader" align="center" >Employee Id</th><th  class="tableheader" align="center" >Employee Name</th> <th  class="tableheader" align="center" >Working Day</th><th  class="tableheader" align="center" >Work Day</th> <th  class="tableheader" align="center" >Extra Day</th>' ;
+                         		  $('#headId').append(head);
+                         		 console.log(response.body)
+                            	   for (var i = 0; i < response.body.length; i++) { 
+                            		  
+                            		  var table = '<tr><td bgcolor="#F5F5F5" ><input type="text" class="form-control employeeId" value='+response.body[i].employeeId+' id="employeeId'+i+'" readonly> </td>  '
+   											+ '<td bgcolor="#F5F5F5" ><input type="text"  class="form-control employeeName" value="'+response.body[i].employeeName+'" id="employeeName'+i+'" readonly></td> '
+   								 	 
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control workingDay" value='+response.body[i].workingDay+' id="workingDay'+i+'"  ></td>  '
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control workDay" value='+response.body[i].workDay+' id="workDay'+i+'"  ></td>  ' 
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control extraDay" value='+response.body[i].extraDay+' id="extraDay'+i+'"></td> '
+   											
+   										 +  '</tr> '; 
+   									$('#tblid').append(table);
+   								}
+                         		 if(status != null && status != '' && status != 0){
+	                         			
+                          			var buttonId='<th colspan="5" style="text-align: right;"><button onclick="generateExtraSalaryExcel()" class="btn btn-success">Download Excel</button>  <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                   	   $('#buttonId').append(buttonId);
+                          			
+                          		 }else{
+                            	   var buttonId='<th colspan="5" style="text-align: right;"><button type="button"  onclick="onClickSaveExtraSal()" class="btn btn-success">Verify</button> <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                	   $('#buttonId').append(buttonId);
+                          		 }
+                               }else{
+                            	  
+                       			var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+                       			$('#tblid').append(noData);
+                               }
+							
+						} else { 
+							var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+							$('#tblid').append(noData);
+						}
+					},
+					error : function(e) {
+						console.log("error");
+					}
+				});
+	} else {
+		
+		var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+		$('#tblid').append(noData);
+		 
+		 
+	}
+}
+
+function getAttendanceData(){
+	$('#tblid').empty();
+	$('#tbdy').empty();
+	$('#titleId').empty();
+	$('#headId').empty();
+	$('#buttonId').empty();
+ 
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val();
+	var empId = $("#empId").val();
+	var status = $("#attCount").val();
+	//alert(status)
+	if (fromDate && toDate) { 
+		$.ajax({
+					type : 'POST',
+					url : 'salary-approval-get-attendance-dtls?fromDate='
+							+ fromDate + '&toDate=' + toDate +'&empId='+empId+"&status="+status,
+					contentType : 'application/json',
+					success : function(response) {
+						if (response.message == "success") { 
+                               if(response.body != null){ 
+                                   var title='<th colspan="5" align="center" style="text-align: center;"><strong>Attendance Details</strong></th>'
+                            	   $('#titleId').append(title);
+                            	   var head = '<th  class="tableheader" align="center" >Employee Id</th><th  class="tableheader" align="center" >Employee Name</th> <th  class="tableheader" align="center" >Total Working Day</th> <th  class="tableheader" align="center" >Work Days</th>' ;
+                         		  $('#headId').append(head);
+                         		 console.log(response.body)
+                            	   for (var i = 0; i < response.body.length; i++) { 
+                            		  
+                            		  var table = '<tr><td bgcolor="#F5F5F5" ><input type="text" class="form-control employeeId" value='+response.body[i].employeeId+' id="employeeId'+i+'" readonly> </td>  '
+   											+ '<td bgcolor="#F5F5F5" ><input type="text"  class="form-control employeeName" value="'+response.body[i].employeeName+'" id="employeeName'+i+'" readonly></td> '
+   								 	        + ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control workingDay" value='+response.body[i].workingDay+' id="workingDay'+i+'"  ></td>  ' 
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control workDay" value='+response.body[i].workDay+' id="workDay'+i+'"></td> '
+   											+  '</tr> '; 
+   									$('#tblid').append(table);
+   								}
+                         		 if(status != null && status != '' && status != 0){
+	                         			
+                          			var buttonId='<th colspan="5" style="text-align: right;"><button onclick="generateAttendanceExcel()" class="btn btn-success">Download Excel</button>  <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                   	   $('#buttonId').append(buttonId);
+                          			
+                          		 }else{ 
+                          			 var buttonId='<th colspan="5" style="text-align: right;"><button onclick="onClickSaveAttendance()" class="btn btn-success">Verify</button> <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                	   $('#buttonId').append(buttonId);
+                          		 }
+                               }else{
+                            	  
+                       			var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+                       			$('#tblid').append(noData);
+                               }
+							
+						} else { 
+							var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+							$('#tblid').append(noData);
+						}
+					},
+					error : function(e) {
+						console.log("error");
+					}
+				});
+	} else {
+		
+		var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+		$('#tblid').append(noData);
+		 
+		 
+	}
+}
+
+function getAdvanceData(){
+	$('#tblid').empty();
+	$('#tbdy').empty();
+	$('#titleId').empty();
+	$('#headId').empty();
+	$('#buttonId').empty();
+ 
+	var status = $("#advCount").val(); 
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val();
+	var empId = $("#empId").val();
+	
+	if (fromDate && toDate) { 
+		$.ajax({
+					type : 'POST',
+					url : 'salary-approval-get-advance-dtls?fromDate='
+							+ fromDate + '&toDate=' + toDate +'&empId='+empId +'&status='+status,
+					contentType : 'application/json',
+					success : function(response) {
+						if (response.message == "success") { 
+                               if(response.body != null){ 
+                                   var title='<th colspan="5" align="center" style="text-align: center;"><strong>Advance Amount Details</strong></th>'
+                            	   $('#titleId').append(title);
+                            	   var head = '<th  class="tableheader" align="center" >Employee Id</th><th  class="tableheader" align="center" >Employee Name</th> <th  class="tableheader" align="center" >Advance Taken</th>' ;
+                         		  $('#headId').append(head);
+                         		 console.log(response.body)
+                            	   for (var i = 0; i < response.body.length; i++) { 
+                            		  
+                            		  var table = '<tr><td bgcolor="#F5F5F5" ><input type="text" class="form-control employeeId" value='+response.body[i].employee+' id="employeeId'+i+'" readonly> </td>  '
+   											+ '<td bgcolor="#F5F5F5" ><input type="text"  class="form-control employeeName" value="'+response.body[i].employeeName+'" id="employeeName'+i+'" readonly></td> '
+   								 	        + ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control amount" value='+response.body[i].amount+' id="amount'+i+'"  ></td>  ' 
+   											+  '</tr> '; 
+   									$('#tblid').append(table);
+   								}
+                         		 if(status != null && status != '' && status != 0){
+                         			                         			
+                         			var buttonId='<th colspan="5" style="text-align: right;"><button onclick="generateAdvanceExcel()" class="btn btn-success">Download Excel</button>  <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                  	   $('#buttonId').append(buttonId);
+                         			
+                         		 }else{
+                         			var buttonId='<th colspan="5" style="text-align: right;"><button onclick="onClickSaveAdvance()" class="btn btn-success">Verify</button>  <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                  	   $('#buttonId').append(buttonId);
+                         		 }
+                            	   
+                               }else{
+                            	  
+                       			var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+                       			$('#tblid').append(noData);
+                               }
+							
+						} else { 
+							var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+							$('#tblid').append(noData);
+						}
+					},
+					error : function(e) {
+						console.log("error");
+					}
+				});
+	} else {
+		
+		var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+		$('#tblid').append(noData);
+		 
+		 
+	}
+}
+function getIncomeeData(){
+	$('#tblid').empty();
+	$('#tbdy').empty();
+	$('#titleId').empty();
+	$('#headId').empty();
+	$('#buttonId').empty();
+ 
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val();
+	var empId = $("#empId").val();
+	var status = $("#IncomeTaxCount").val();
+	if (fromDate && toDate) { 
+		$.ajax({
+					type : 'POST',
+					url : 'salary-approval-get-income-tax-dtls?fromDate='
+							+ fromDate + '&toDate=' + toDate +'&empId='+empId +"&status="+status,
+					contentType : 'application/json',
+					success : function(response) {
+						if (response.message == "success") { 
+                               if(response.body != null){ 
+                                   var title='<th colspan="5" align="center" style="text-align: center;"><strong>Income Tax Details</strong></th>'
+                            	   $('#titleId').append(title);
+                            	   var head = '<th  class="tableheader" align="center" >Employee Id</th><th  class="tableheader" align="center" >Employee Name</th> <th  class="tableheader" align="center" >Tax Amount</th>' ;
+                         		  $('#headId').append(head);
+                         		 console.log(response.body)
+                            	   for (var i = 0; i < response.body.length; i++) { 
+                            		  
+                            		  var table = '<tr><td bgcolor="#F5F5F5" ><input type="text" class="form-control employeeId" value='+response.body[i].employeeId+' id="employeeId'+i+'" readonly> </td>  '
+   											+ '<td bgcolor="#F5F5F5" ><input type="text"  class="form-control employeeName" value="'+response.body[i].employeeName+'" id="employeeName'+i+'" readonly></td> '
+   								 	        + '<td bgcolor="#F5F5F5" ><input type="text" class="form-control taxAmount" value='+response.body[i].taxAmount+' id="taxAmount'+i+'"  ></td>  ' 
+   											+  '</tr> '; 
+   									$('#tblid').append(table);
+   								}	 if(status != null && status != '' && status != 0){
+                         			                         			
+                         			var buttonId='<th colspan="5" style="text-align: right;"><button onclick="generateIncomeTaxExcel()" class="btn btn-success">Download Excel</button>  <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                  	   $('#buttonId').append(buttonId);
+                         			
+                         		 }else{
+                         			 var buttonId='<th colspan="4" style="text-align: right;"><button onclick="onClickSaveIncomeTax()" class="btn btn-success">Verify</button>  <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                  	   $('#buttonId').append(buttonId); 
+                         		 }
+                            	  
+                               }else{
+                            	  
+                       			var noData = '<tr> <td colspan="4"><div class="norecord">No Record Found</div></td> </tr>';
+                       			$('#tblid').append(noData);
+                               }
+							
+						} else { 
+							var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+							$('#tblid').append(noData);
+						}
+					},
+					error : function(e) {
+						console.log("error");
+					}
+				});
+	} else {
+		
+		var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+		$('#tblid').append(noData);
+		 
+		 
+	}
+}
+
+
+function onCllickFinalSalary(){
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val();
+	var status = $("#finalCount").val();
+	
+	$.ajax({
+		type: 'GET',
+		url: 'salary-approval-get-count-dtls?fromDate=' +
+			fromDate + '&toDate=' + toDate +"&status="+status,
+		contentType: 'application/json',
+		success: function (response) {
+			if (response.message == "success") {
+				
+				if (response.body != null) {
+					console.log(response.body);
+					if (response.body[0].attVal > 0 && response.body[0].extraVal > 0 && response.body[0].foodVal > 0 && response.body[0].advanceVal && response.body[0].tripVal > 0) {
+						window.open("salary-approval-final-salary?fromDate=" + window.btoa(fromDate) +"&toDate=" + window.btoa(toDate) +"&status="+ window.btoa(status) ,'_self');
+					} else {
+						swal("Approve All Details ..") 
+					}
+					 
+					 
+				} else {
+
+
+				}
+
+			} else {
+
+			}
+		},
+		error: function (e) {
+			console.log("error");
+		}
+	});
+	
+	
+	
+}
+
+function getSalaryCountData() { 
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val(); 
+	
+	if (fromDate && toDate) {
+		$.ajax({
+			type: 'GET',
+			url: 'salary-approval-get-count-dtls?fromDate=' +
+				fromDate + '&toDate=' + toDate,
+			contentType: 'application/json',
+			success: function (response) {
+				if (response.message == "success") {
+					if (response.body != null) {
+						console.log(response.body); 
+						$("#attCount").val(response.body[0].attVal);
+						$("#foodCount").val(response.body[0].foodVal);
+						$("#advCount").val(response.body[0].advanceVal);
+						$("#extraSalCount").val(response.body[0].extraVal);
+						$("#tripCount").val(response.body[0].tripVal);
+						$("#IncomeTaxCount").val(response.body[0].incomeVal);
+						$("#finalCount").val(response.body[0].finalVal);
+						$("#leaveCount").val(response.body[0].leaveVal);
+						
+						if (response.body[0].attVal > 0) {
+						 $("#att").show();
+						 
+						 attCount
+						} else {
+							 $("#att").hide();
+						}
+                       
+						if (response.body[0].extraVal > 0) {
+							 $("#trip").show();
+						} else {
+							 $("#trip").hide();
+						}
+						if (response.body[0].foodVal > 0) {
+
+						} else {
+
+						}
+						if (response.body[0].advanceVal > 0) {
+
+						} else {
+
+						}
+						if (response.body[0].tripVal > 0) {
+                            $("#finalSal").add("<i class='fa fa-check fa-3x'></i>");
+						} else {
+							  $("#finalSal").add("<i class='fa fa-remove fa-3x'></i>");
+						}
+					} else {
+
+
+					}
+
+				} else {
+
+				}
+			},
+			error: function (e) {
+				console.log("error");
+			}
+		});
+	} else {
+
+	}
+}
+
+function getLeaveData(){
+	$('#tblid').empty();
+	$('#tbdy').empty();
+	$('#titleId').empty();
+	$('#headId').empty();
+	$('#buttonId').empty();
+ 
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val();
+	var empId = $("#empId").val();
+	var status = $("#leaveCount").val();
+	//alert(status)
+	if (fromDate && toDate) { 
+		$.ajax({
+					type : 'POST',
+					url : 'salary-approval-get-leave-dtls?fromDate='
+							+ fromDate + '&toDate=' + toDate +'&empId='+empId+"&status="+status,
+					contentType : 'application/json',
+					success : function(response) {
+						if (response.message == "success") { 
+                               if(response.body != null){ 
+                                   var title='<th colspan="5" align="center" style="text-align: center;"><strong>Leave Details</strong></th>'
+                            	   $('#titleId').append(title);
+                            	   var head = '<th  class="tableheader" align="center" >Employee Id</th><th  class="tableheader" align="center" >Employee Name</th> <th  class="tableheader" align="center" >Total Working Day</th> <th  class="tableheader" align="center" >Paid Leave</th><th  class="tableheader" align="center" >UnPaid Leave</th>' ;
+                         		  $('#headId').append(head);
+                         		 console.log(response.body)
+                            	   for (var i = 0; i < response.body.length; i++) { 
+                            		  
+                            		  var table = '<tr><td bgcolor="#F5F5F5" ><input type="text" class="form-control employeeId" value='+response.body[i].employeeId+' id="employeeId'+i+'" readonly> </td>  '
+   											+ '<td bgcolor="#F5F5F5" ><input type="text"  class="form-control employeeName" value="'+response.body[i].employeeName+'" id="employeeName'+i+'" readonly></td> '
+   								 	        + ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control workingDay" value='+response.body[i].workingDay+' id="workingDay'+i+'"  ></td>  ' 
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control paidleave" value='+response.body[i].paidleave+' id="paidleave'+i+'"></td> '
+   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control unpaidleave" value='+response.body[i].unpaidleave+' id="unpaidleave'+i+'"></td> '
+   											+  '</tr> '; 
+   									$('#tblid').append(table);
+   								}
+                         		 if(status != null && status != '' && status != 0){
+	                         			
+                          			var buttonId='<th colspan="5" style="text-align: right;"><button onclick="generateLeaveExcel()" class="btn btn-success">Download Excel</button>  <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                   	   $('#buttonId').append(buttonId);
+                          			
+                          		 }else{ 
+                          			 var buttonId='<th colspan="5" style="text-align: right;"><button onclick="onClickSaveLeave()" class="btn btn-success">Verify</button> <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" /></th>'
+                                	   $('#buttonId').append(buttonId);
+                          		 }
+                               }else{
+                            	  
+                       			var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+                       			$('#tblid').append(noData);
+                               }
+							
+						} else { 
+							var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+							$('#tblid').append(noData);
+						}
+					},
+					error : function(e) {
+						console.log("error");
+					}
+				});
+	} else {
+		
+		var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+		$('#tblid').append(noData);
+	}
+}
+
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+			<div class="main">
+
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-lg-6">
+							<div class="form-group">
+								<label>From Date</label> <input type="text" readonly
+									id="fromDate" class="form-control"
+									onchange="getSalaryCountData()">
+
+							</div>
+						</div>
+						<div class="col-lg-6">
+							<div class="form-group">
+								<label>To Date</label> <input type="text" readonly id="toDate"
+									class="form-control" onchange="getSalaryCountData()">
+							</div>
+						</div>
+						<!-- <div class="col-lg-4">
+							<div class="form-group">
+								<label>Employee Id</label> <select
+									class="form-control propertyCatName" id="empId">
+									<option value="">--Select--</option>
+									<option th:if="${Edit}" th:each="c:${EmployeeList}"
+										th:value='${c.key}' th:text="${c.name}"
+										th:selected='${c.key==certiAssign[0].empId}'></option>
+									<option th:unless="${Edit}" th:each="c:${EmployeeList}"
+										th:value='${c.key}' th:text="${c.name}"></option>
+
+								</select>
+							</div>
+						</div> -->
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+						
+
+							<div class="row">
+
+								<div class="col-lg-2 col-xs-6 mt pc" onclick="getAttendanceData()" style="padding: 5px;">
+									<!-- small box -->
+									<div class="small-box bg-aqua">
+										<div class="row">
+											<div class="col-lg-12 mt">
+												<div class="inner" align="center">
+													<p>Attendance</p>
+													<input type="hidden" id="attCount">
+												</div>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+
+								<!-- ./col -->
+								<div class="col-lg-2 col-xs-6 mt pc" onclick="getTripData()" style="padding: 5px;">
+									<!-- small box -->
+									<div class="small-box bg-green">
+										<div class="row">
+											<div class="col-lg-12 mt">
+												<div class="inner" align="center">
+
+													<p>Trip</p>
+													<input type="hidden" id="tripCount">
+
+												</div>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+
+								<div class="col-lg-2 col-xs-6 mt pc" onclick="getFoodData()" style="padding: 5px;">
+									<!-- small box -->
+									<div class="small-box bg-yellow">
+										<div class="row">
+											<div class="col-lg-12 mt">
+												<div class="inner" align="center">
+
+													<p>Food</p>
+													<input type="hidden" id="foodCount">
+
+												</div>
+											</div>
+											
+									</div>
+								</div>
+                           </div>
+								<div class="col-lg-2 col-xs-6 mt pc" onclick="getExtraSalaryData()" style="padding: 5px;">
+									<!-- small box -->
+									<div class="small-box bg-red">
+										<div class="row">
+											<div class="col-lg-12 mt">
+												<div class="inner" align="center">
+
+													<p>Extra Day</p>
+													<input type="hidden" id="extraSalCount">
+
+												</div>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+
+								<!-- ./col -->
+
+
+								<!-- <div class="col-lg-2 col-xs-6 mt" style="padding: 5px;">
+									small box
+									<div class="small-box bg-pink">
+										<div class="row">
+											<div class="col-lg-7 mt">
+												<div class="inner">
+
+													<p>Extra Day</p>
+
+												</div>
+											</div>
+
+										</div>
+									</div>
+								</div> -->
+
+								<div class="col-lg-2 col-xs-6 mt pc"  onclick="getAdvanceData()" style="padding: 5px;">
+									<!-- small box -->
+									<div class="small-box bg-ltblue">
+										<div class="row">
+											<div class="col-lg-12 mt">
+												<div class="inner" align="center">
+													<p>Advance</p>
+													<input type="hidden" id="advCount" value=''>
+												</div>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+
+								<div class="col-lg-2 col-xs-6 mt pc" onclick="getIncomeeData()" style="padding: 5px;">
+									<!-- small box -->
+									<div class="small-box bg-pink">
+										<div class="row">
+											<div class="col-lg-12 mt">
+												<div class="inner" align="center">
+													<p>Income Tax</p>
+													<input type="hidden" id="IncomeTaxCount">
+												</div>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-2 col-xs-6 mt pc" onclick="onCllickFinalSalary()" style="padding: 5px;">
+									<!-- small box -->
+									<div class="small-box bg-lightblue">
+										<div class="row">
+											<div class="col-lg-12 mt">
+												<div class="inner" align="center">
+
+													<p>Final Salary</p>
+													<input type="hidden" id="finalCount">
+
+												</div>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+
+								<div class="col-lg-2 col-xs-6 mt pc" onclick="getLeaveData()" style="padding: 5px;">
+									<!-- small box -->
+									<div class="small-box bg-lightred">
+										<div class="row">
+											<div class="col-lg-12 mt">
+												<div class="inner" align="center">
+													<p>Leave</p>
+													<input type="hidden" id="leaveCount">
+												</div>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+
+							</div>
+
+						</div>
+					</div>
+					<div class="topbtnright" align="right">
+					<div class="form-group" id="buttonId">
+						
+					</div>
+				</div>
+					
+
+					<div class="wmd-view">
+						<table class="table" id="myTable1" width="100%" border="0"
+							cellspacing="1" cellpadding="0">
+							<tr id="titleId"></tr>
+							<tr id="headId"></tr>
+							<tbody id="tblid"></tbody>
+
+							<!-- <tr id="buttonId"></tr> -->
+
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /# row -->
+
+	</div>
+	</div>
+</body>
+</html>

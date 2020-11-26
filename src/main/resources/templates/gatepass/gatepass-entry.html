@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.theadCls>tr>th {
+	text-align: center;
+}
+
+#autocomplete-list2 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 205px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list2 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list2 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.trCls {
+	background: #d1e3f5;
+}
+
+.trCls>th {
+	color: #2c61e1;
+	font-size: 14px;
+}
+
+.tbll {
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin-bottom: 20px;
+}
+</style>
+<script>
+	//ADD MORE FUNCTION
+
+	function addMore() {
+
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+		$("#myTable tbody tr td:last").html("");
+		var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+
+		var editTr = 0;
+
+		if (lengthOfTableRow > editTr) {
+			$("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last')
+					.append(removeMore);
+		}
+
+		$("#myTable tbody tr:last").find(".itemName").val("");
+		$("#myTable tbody tr:last").find(".itemCode").val("");
+		$("#myTable tbody tr:last").find(".clientNetQty").val("");
+		$("#myTable tbody tr:last").find(".actualNetQty").val("");
+		$("#myTable tbody tr:last").find(".serveTypeId").val("");
+		$("#myTable tbody tr:last").find(".serveType").val("");
+		$("#myTable tbody tr:last").find(".weight").val("");
+
+		$("#myTable > tbody > tr").each(function(i) {
+
+			var textInput = $(this).find('input');
+			var divInput = $(this).find('div');
+
+			textInput.eq(0).attr('id', "inputItemCode_" + i);
+			textInput.eq(1).attr('id', "inputItemName_" + i);
+			textInput.eq(2).attr('id', "inputClientNetQty_" + i);
+			textInput.eq(3).attr('id', "inputActualNetQty_" + i);
+			textInput.eq(4).attr('id', "inputItemServeTypeId_" + i);
+			textInput.eq(5).attr('id', "inputItemServeType_" + i);
+			textInput.eq(6).attr('id', "inputItemCategory_" + i);
+			textInput.eq(7).attr('id', "inputItemSubcategory_" + i);
+			textInput.eq(8).attr('id', "inputWeight_" + i);
+			divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+		})
+	}
+$(document).ready(function (){
+	$("#entryDate").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	});
+	
+	$("#entryTime").datetimepicker({
+		format:'H:i',
+		closeOnDateSelect: true,
+		datepicker : false,
+	});
+	
+	$("#exitTime").datetimepicker({
+		format:'H:i',
+		closeOnDateSelect: true,
+		datepicker : false,
+	});
+	var id = $("#gatePassId").val();
+	if(id) {
+		$('#btnCancel').click(function () {
+			window.location.href = "/gatepass/view-gatepass";
+		})
+		var po = $("#pOrder").val();
+		if(po=="" || po==null) {
+			$("#divShowId").hide();
+		}
+		$(".hideCls").hide();
+		var weightType = $("#weightType").val();
+		if(weightType=="2") {
+			$(".tblHideCls").show();
+			$("#grossDiv").hide();
+			$("#tareDiv").hide();
+		} else {
+			$(".tblHideCls").hide();
+			$("#grossDiv").show();
+			$("#tareDiv").show();
+		}
+	} else {
+		$(".tblHideCls").hide();
+		$("#custDiv").hide();
+		$("#otherDriverDiv").hide();
+		$('#btnCancel').click(function () {
+			location.reload();
+		})
+		var fullDate = new Date();
+		var twoDigitMonth=((fullDate.getMonth()+1)>=10)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+		var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+		var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+		$("#entryDate").val(currentDate);
+		
+		var d = new Date();
+		var hours = d.getHours();
+		var minutes = d.getMinutes(); 
+		hours=((d.getHours())>=10)? (d.getHours()) : '0' + (d.getHours());
+		minutes=((d.getMinutes())>=10)? (d.getMinutes()) : '0' + (d.getMinutes()); 
+		var time = hours + ":" + minutes;
+		$("#entryTime").val(time);
+	}
+	
+	
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		
+	});
+	
+	$("#weightType").change(function(){
+		var weightType = $(this).val();
+		$(".itemCode").val("");
+		$(".itemName").val("");
+		$(".clientNetQty").val("");
+		$(".actualNetQty").val("");
+		$(".serveTypeId").val("");
+		$(".serveType").val("");
+		$(".itemCategory").val("");
+		$(".subCategory").val("");
+		if(weightType=="2") {
+			$(".tblHideCls").show();
+			$("#grossDiv").hide();
+			$("#tareDiv").hide();
+			$("#purchaseOrder").removeAttr("disabled");
+			document.getElementById("supplyByClient").checked = false;
+		} else {
+			$(".tblHideCls").hide();
+			$("#grossDiv").show();
+			$("#tareDiv").show();
+			$("#myTable tbody tr:not(:first)").remove();
+			$("#myTable tbody tr:last").find('td:last').remove();
+		}
+	})
+	
+	
+	$("#submit").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			item = {};
+			
+			item['gatePass']		=	$('#gatePassId').val();
+			item['weightType']		=	$('#weightType').val();
+			item['entryDate']		=	$('#entryDate').val();
+			item['entryTime']		=	$('#entryTime').val();
+			item['refGatePassNo']	=	$('#refGatePassNo').val();
+			item['store']			=	$('#store').val();
+			item['passType']		=	$('#passType').val();
+			item['vendor']			=	$('#vendorId').val();
+			item['challanNo']		=	$('#challanNo').val();
+			item['vehicleNo']		=	$('#vehicleNo').val();
+			item['rstNo']			=	$('#rstNo').val();
+			item['clientRSTNo']		=	$('#clientRSTNo').val();
+			item['driverName']		=	$('#driverName').val();
+			if($('#gross').val()!="") {
+				item['gross']			=	parseFloat($('#gross').val());
+			}
+			if($('#tare').val()!="") {
+				item['tare']			=	parseFloat($('#tare').val());
+			}
+			item['exitTime']		=	$('#exitTime').val();
+			item['remarks']			=	$('#remarks').val();
+			item['pOrder']			=	$('#pOrder').val();
+			
+			item['itemCode']		=	$(this).find(".itemCode").val();
+			item['itemCategory']	=	$(this).find(".itemCategory").val();
+			item['subCategory']		=	$(this).find(".subCategory").val();
+			item['clientNetQty']	=	parseFloat($(this).find(".clientNetQty").val());
+			item['actualNetQty']	=	parseFloat($(this).find(".actualNetQty").val()); 
+			item['serveTypeId']		=	$(this).find(".serveTypeId").val();
+			item['customerId']		=	$("#customerId").val();
+			
+			dataset.push(item);
+		});
+		console.log(dataset)
+		if (!blankValidation("customerId","TextField" ,"Please Enter Customer"))
+		      return false;
+		if (!blankValidation("vehicleNo","TextField" ,"Please Enter Vehicle Number"))
+		      return false;
+		/* if (!blankValidation("driverName","TextField" ,"Please Enter Driver Name"))
+		      return false; */
+		submitGatePass(dataset);
+	});
+})
+function submitGatePass(dataset) {
+	swal.fire({
+		title					: "Are you sure want to Submit?",
+		text					: "Once Submited,Can't revert back !",
+		type 					: "warning",
+		showCancelButton		: true,
+		confirmButtonColor		: "#DD6BB5",
+		confirmButtonText		: "Submit",
+		showLoaderOnConfirm		: true,
+		reverseButtons 			: true,
+		confirmButtonAriaLabel 	: 'Thumbs up, great!',
+		cancelButtonText 		: 'Cancel',
+		cancelButtonAriaLabel 	: 'Thumbs down',	
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "gatepass-entry-save",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					if(response.message=="Success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							window.location.href = "/gatepass/view-gatepass-entry" ;
+						})
+					} else {
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			}) //ajax ends
+		}
+	})
+}
+
+function getPurchaseOrderAutoSearch() {
+	var value = $('#purchaseOrder').val();
+	var store = $('#store').val();
+	if(value) {
+		$.ajax({
+			type : "POST",
+			url : "gatepass-entry-get-purchase-order?value=" + value +"&store="+store,
+			dataType : 'json',
+			contentType : 'application/json', 
+			success : function(response) {
+				if(response.body.length!=0)	{
+					$("#purchaseOrder").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue2(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'('+response.body[i].name+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#pordersuggestion").show();
+					$("#pordersuggestion").html(content);
+				} else {
+					$("#purchaseOrder").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					content += '<li onClick="selectAutocompleteValue2(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#pordersuggestion").show();
+					$("#pordersuggestion").html(content);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$("#purchaseOrder").css("background","#FFF");
+				var content = '<ul id="autocomplete-list2">';
+				content += '<li onClick="selectAutocompleteValue2(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#pordersuggestion").show();
+				$("#pordersuggestion").html(content);
+			}
+		});
+	} else {
+		$("#purchaseOrder").css("background","#FFF");
+		var content = '<ul id="autocomplete-list2">';
+		content += '<li onClick="selectAutocompleteValue2(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#pordersuggestion").show();
+		$("#pordersuggestion").html(content);	
+	}
+}
+function selectAutocompleteValue2(key,name) {
+	if (key) {
+ 		$("#pOrder").val(key);
+    	$("#purchaseOrder").val(key);
+    	$("#purchaseOrder").attr('data-procat', key);
+    	$("#pordersuggestion").hide();
+    	getPODetails(key);
+    	$(".itemCode").val("");
+		$(".itemName").val("");
+		$(".clientNetQty").val("");
+		$(".actualNetQty").val("");
+		$(".serveTypeId").val("");
+		$(".serveType").val("");
+		$(".itemCategory").val("");
+		$(".subCategory").val("");
+	} else {
+		$("#pOrder").val("");
+    	$("#purchaseOrder").val("");
+    	$("#purchaseOrder").attr('data-procat', "");
+    	$("#pordersuggestion").hide();
+    	getPODetails("");
+    	$(".itemCode").val("");
+		$(".itemName").val("");
+		$(".clientNetQty").val("");
+		$(".actualNetQty").val("");
+		$(".serveTypeId").val("");
+		$(".serveType").val("");
+		$(".itemCategory").val("");
+		$(".subCategory").val("");
+	}
+}
+
+function getPODetails(pOrder) {
+	$("#tbodyShow").empty();
+	$("#tbodyData").empty();
+	$(".itemCategory").val(""); 
+	$(".subCategory").val(""); 
+	$(".itemCode").val(""); 
+	$(".ItemName").val(""); 
+	$(".clientNetQty").val(""); 
+	$(".actualNetQty").val(""); 
+	$(".serveTypeId").val(""); 
+	$(".serveType").val(""); 
+	$(".weight").val(""); 
+	
+	$("#myTable tbody tr:not(:first)").remove();
+	$("#myTable tbody tr:last").find('td:last').remove();
+	var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	$("#myTable tbody tr:last").append('<td>'+ add+'</td>');
+	
+	if(pOrder) {
+		$.ajax({
+			type		: "POST",
+			url 		: "gatepass-entry-get-item-dtls-by-po",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: pOrder,
+			success		: function(response){
+				if(response.message=="success"){
+					if(response.body.length!=0) {
+						$(".hideCls").hide();
+						$("#tbodyShow").empty();
+						$("#vendorId").val(response.body[0].vendorId);
+						$("#vendor").val(response.body[0].vendor);
+						  var c = 0;
+						for(var i = 0; i < response.body.length; i++) {
+							/* var table = "<tr>"
+								+"<td align='center'>"+response.body[i].itemCategory+"</td>"
+								+"<td align='center'>"+response.body[i].subCategory+"</td>"
+								+"<td align='center'>"+response.body[i].itemName+"</td>"
+								+"<td align='center'>"+response.body[i].quantity+"</td>"
+								+"<td align='center'>"+response.body[i].serveType+"</td>"
+								+"</tr>";
+							$("#tbodyShow").append(table);  */
+							 c = c + 1;
+						     if(c!=response.body.length) {
+						    	 table1 = '<tr class="tr_clone">' 
+								        + '<td><input type="hidden" id="inputItemCode_'+i+'" class="form-control itemCode" value="'+response.body[i].itemId+'" />'
+		    	    					+ '<input type="text" id="inputItemName_'+i+'" class="form-control itemName" value="'+response.body[i].itemName+'"   onkeyup="getItemAutoSearch(event);"/> <div id="suggesstion-box1_'+i+'"></div></td>'
+		    	    					+ '<td><input type="text" id="inputClientNetQty_'+i+'" class="form-control clientNetQty"  value="'+response.body[i].quantity+'"></td>'
+		    	    					+ '<td><input type="text" id="inputActualNetQty_'+i+'" class="form-control actualNetQty" onkeyup="numberOnly(event);"/></td>'
+		    	    					+ '<td><input type="hidden" id="inputItemServeTypeId_'+i+'"  class="form-control serveTypeId" value="'+response.body[i].serveTypeId+'">'
+		    	    					+ ' <input type="text" id="inputItemServeType_'+i+'" readonly class="form-control serveType" value="'+response.body[i].serveType+'"> '
+		    	    					+ '<input type="hidden" id="inputItemCategory_'+i+'"  class="form-control itemCategory" value="'+response.body[i].itemCategory+'"> '
+		    	    					+ '<input type="hidden" id="subCategory'+i+'"   class="form-control subCategory" value="'+response.body[i].subCategory+'"></td>' 
+		    	    					+ '<td><input type="text" id="qQuantity_'+i+'" class="form-control  weight"   onkeyup="numberOnly"  ></td>'
+						                +'<td><button type="button" class="btn btn-warning rmv" name="Remove"> <span class="ti-minus"></span></button>'
+						                +'&nbsp;</td>' 
+						                +'</tr>';
+					     }
+						     if(c==response.body.length) {
+						     if(c!=1) {
+						    	 table1 = '<tr class="tr_clone">' 
+								        + '<td><input type="hidden" id="inputItemCode_'+i+'" class="form-control itemCode" value="'+response.body[i].itemId+'" />'
+		    	    					+ '<input type="text" id="inputItemName_'+i+'" class="form-control itemName" value="'+response.body[i].itemName+'"   onkeyup="getItemAutoSearch(event);"/> <div id="suggesstion-box1_'+i+'"></div></td>'
+		    	    					+ '<td><input type="text" id="inputClientNetQty_'+i+'" class="form-control clientNetQty" value="'+response.body[i].quantity+'"></td>'
+		    	    					+ '<td><input type="text" id="inputActualNetQty_'+i+'" class="form-control actualNetQty" onkeyup="numberOnly(event);"/></td>'
+		    	    					+ '<td><input type="hidden" id="inputItemServeTypeId_'+i+'"  class="form-control serveTypeId" value="'+response.body[i].serveTypeId+'">'
+		    	    					+ ' <input type="text" id="inputItemServeType_'+i+'" readonly class="form-control serveType" value="'+response.body[i].serveType+'"> '
+		    	    					+ '<input type="hidden" id="inputItemCategory_'+i+'"  class="form-control itemCategory" value="'+response.body[i].itemCategory+'"> '
+		    	    					+ '<input type="hidden" id="subCategory'+i+'"   class="form-control subCategory" value="'+response.body[i].subCategory+'"></td>' 
+		    	    					+ '<td><input type="text" id="qQuantity_'+i+'" class="form-control  weight"   onkeyup="numberOnly" ></td>'
+						                +'<td><button type="button" class="btn btn-warning rmv" name="Remove"> <span class="ti-minus"></span></button>'
+						                +'&nbsp;<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button></td>' 
+						                +'</tr>';
+						     } else {
+						    	 table1 = '<tr class="tr_clone">' 
+								        + '<td><input type="hidden" id="inputItemCode_'+i+'" class="form-control itemCode" value="'+response.body[i].itemId+'" />'
+		    	    					+ '<input type="text" id="inputItemName_'+i+'" class="form-control itemName" value="'+response.body[i].itemName+'"   onkeyup="getItemAutoSearch(event);"/> <div id="suggesstion-box1_'+i+'"></div></td>'
+		    	    					+ '<td><input type="text" id="inputClientNetQty_'+i+'" class="form-control clientNetQty" value="'+response.body[i].quantity+'"></td>'
+		    	    					+ '<td><input type="text" id="inputActualNetQty_'+i+'" class="form-control actualNetQty" onkeyup="numberOnly(event);"/></td>'
+		    	    					+ '<td><input type="hidden" id="inputItemServeTypeId_'+i+'"  class="form-control serveTypeId" value="'+response.body[i].serveTypeId+'">'
+		    	    					+ ' <input type="text" id="inputItemServeType_'+i+'" readonly class="form-control serveType" value="'+response.body[i].serveType+'"> '
+		    	    					+ '<input type="hidden" id="inputItemCategory_'+i+'"  class="form-control itemCategory" value="'+response.body[i].itemCategory+'"> '
+		    	    					+ '<input type="hidden" id="subCategory'+i+'"   class="form-control subCategory" value="'+response.body[i].subCategory+'"></td>' 
+		    	    					+ '<td><input type="text" id="qQuantity_'+i+'" class="form-control  weight"   onkeyup="numberOnly" ></td>'
+		    				 
+		    				            +'<td><button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button></td>' 
+						                +'</tr>';
+						     }
+					     }
+					     $('#tbodyData').append(table1);
+					 	
+							
+						}
+						
+						
+				     
+					} else {
+						/* $(".hideCls").show();
+						var tbl = '<tr class="hideCls"><td colspan="5" style="text-align:center;color:red;border-top:1px solid #333;"><b>No Data Found<br>(To see item details, please select purchase order)</b></td></tr>';
+						$("#tbodyShow").append(tbl); */
+					}
+				}			
+			}, error :	function(data) {
+				/* console.log(data)
+				$(".hideCls").show();
+				var tbl = '<tr class="hideCls"><td colspan="5" style="text-align:center;color:red;border-top:1px solid #333;"><b>No Data Found<br>(To see item details, please select purchase order)</b></td></tr>';
+				$("#tbodyShow").append(tbl); */
+			}
+		});
+	} else {
+		$(".hideCls").show();
+		var tbl = '<tr class="hideCls"><td colspan="5" style="text-align:center;color:red;border-top:1px solid #333;"><b>No Data Found<br>(To see item details, please select purchase order)</b></td></tr>';
+		$("#tbodyShow").append(tbl);
+	} 
+}
+
+function getCustomerAutoSearch() {
+	var value = $('#customer').val();
+	if(value) {
+		$.ajax({
+			type : "POST",
+			url : "gatepass-entry-get-towhom-given",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : value,
+			success : function(response) {
+				if(response.body.length!=0)	{
+					$("#customer").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue3(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'('+response.body[i].key+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#customersuggestion").show();
+					$("#customersuggestion").html(content);
+				} else {
+					$("#customer").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue3(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#customersuggestion").show();
+					$("#customersuggestion").html(content);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$("#customer").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue3(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#customersuggestion").show();
+				$("#customersuggestion").html(content);
+			}
+		});
+	} else {
+		$("#customer").css("background","#FFF");
+		var content = '<ul id="autocomplete-list">';
+		content += '<li onClick="selectAutocompleteValue3(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#customersuggestion").show();
+		$("#customersuggestion").html(content);	
+	}
+}
+function selectAutocompleteValue3(key,name) {
+	if (key) {
+ 		$("#customerId").val(key);
+    	$("#customer").val(name);
+    	$("#customer").attr('data-procat', key);
+    	$("#customersuggestion").hide();
+	} else {
+		$("#customerId").val("");
+    	$("#customer").val("");
+    	$("#customer").attr('data-procat', "");
+    	$("#customersuggestion").hide();
+	}
+}
+
+function getItemAutoSearch(e) {
+	var id = e.currentTarget.id;
+	var value = e.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+	var pOrder = $("#pOrder").val();
+	if(pOrder) {
+		if(value) {
+			obj = {};
+			obj['key']	= pOrder;
+			obj['name']	= value;
+			
+			$.ajax({
+				type : "POST",
+				url : "gatepass-entry-get-item",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : JSON.stringify(obj),
+				success : function(response) {
+					if(response.body.length!=0)	{
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue1(\''+response.body[i].key+'\',\''+response.body[i].name+'\','+counter+')">'+response.body[i].name+'('+ response.body[i].key+')'+'</li>';
+						} 
+						content += '</ul>';
+						$("#suggesstion-box1_"+counter).show();
+						$("#suggesstion-box1_"+counter).html(content);
+					} else {
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#suggesstion-box1_"+counter).show();
+						$("#suggesstion-box1_"+counter).html(content);
+					}
+				}, error : function(data) {
+					console.log(data)
+					$(id).css("background","#FFF");
+					var content = '<ul id="autocomplete-list1">';
+					content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box1_"+counter).show();
+					$("#suggesstion-box1_"+counter).html(content);
+				}
+			});
+		} else {
+			$(id).css("background","#FFF");
+			var content = '<ul id="autocomplete-list1">';
+			content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+			content += '</ul>';
+			$("#suggesstion-box1_"+counter).show();
+			$("#suggesstion-box1_"+counter).html(content);
+		}
+	} else {
+		var value1 = $("input[name='supplyByClient']:checked").val();
+		if(value1!="1") {
+			swal({
+				title	:	"Please Select Purchase Order",
+				type	:	'warning',
+			})
+			$("#"+id).val("");
+		} else {
+			if(value) {
+				obj = {};
+				obj['key']	= "";
+				obj['name']	= value;
+				
+				$.ajax({
+					type : "POST",
+					url : "gatepass-entry-get-item",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : JSON.stringify(obj),
+					success : function(response) {
+						if(response.body.length!=0)	{
+							$(id).css("background","#FFF");
+							var content = '<ul id="autocomplete-list1">';
+							for (var i = 0; i < response.body.length; i++) {
+								content += '<li onClick="selectAutocompleteValue1(\''+response.body[i].key+'\',\''+response.body[i].name+'\','+counter+')">'+response.body[i].name+'('+ response.body[i].key+')'+'</li>';
+							} 
+							content += '</ul>';
+							$("#suggesstion-box1_"+counter).show();
+							$("#suggesstion-box1_"+counter).html(content);
+						} else {
+							$(id).css("background","#FFF");
+							var content = '<ul id="autocomplete-list1">';
+							content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+							content += '</ul>';
+							$("#suggesstion-box1_"+counter).show();
+							$("#suggesstion-box1_"+counter).html(content);
+						}
+					}, error : function(data) {
+						console.log(data)
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#suggesstion-box1_"+counter).show();
+						$("#suggesstion-box1_"+counter).html(content);
+					}
+				});
+			} else {
+				$(id).css("background","#FFF");
+				var content = '<ul id="autocomplete-list1">';
+				content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box1_"+counter).show();
+				$("#suggesstion-box1_"+counter).html(content);
+			}
+		}
+	}
+}
+function selectAutocompleteValue1(key,name,counter) {
+	if (key) {
+ 		$("#inputItemCode_"+counter).val(key);
+    	$("#inputItemName_"+counter).val(name+"("+key+")");
+    	$("#inputItemName_"+counter).attr('data-procat', key);
+    	$("#suggesstion-box1_"+counter).hide();
+    	getServeType(counter);
+	} else {
+		$("#inputItemCode_"+counter).val("");
+    	$("#inputItemName_"+counter).val("");
+    	$("#inputItemName_"+counter).attr('data-procat', "");
+    	$("#suggesstion-box1_"+counter).hide();
+	}
+}
+function getServeType(counter) {
+	var key = $('#inputItemCode_'+counter).val();
+	if(key) {
+		$.ajax({
+			type : "POST",
+			url : "gatepass-entry-get-servetype",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : key,
+			success : function(response) {
+				if (response.message == "success") {
+					if(response.body.length!=0)	{
+						console.log(response.body)
+						$("#inputItemServeTypeId_"+counter).val(response.body[0].serveTypeId);
+						$("#inputItemServeType_"+counter).val(response.body[0].serveType);
+						$("#inputItemCategory_"+counter).val(response.body[0].itemCategory);
+						$("#inputItemSubcategory_"+counter).val(response.body[0].subCategory);
+						getCategory(response.body[0].itemCategory);
+					} else {
+						$("#inputItemServeTypeId_"+counter).val("");
+						$("#inputItemServeType_"+counter).val("");
+						$("#inputItemCategory_"+counter).val("");
+						$("#inputItemSubcategory_"+counter).val("");
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+				$("#inputItemServeTypeId_"+counter).val("");
+				$("#inputItemServeType_"+counter).val("");
+				$("#inputItemCategory_"+counter).val("");
+				$("#inputItemSubcategory_"+counter).val("");
+			}
+		})
+	} else {
+		$("#inputItemServeTypeId_"+counter).val("");
+		$("#inputItemServeType_"+counter).val("");
+		$("#inputItemCategory_"+counter).val("");
+		$("#inputItemSubcategory_"+counter).val("");
+	}
+}
+
+function getActualQty() {
+	var pOrder = $("#pOrder").val();
+	var isSupply = $("#isSupply").val();
+	if(isSupply=="true") {
+		var weightType = $("#weightType").val();
+		if(weightType=="1") {
+			var gross = $("#gross").val();
+			var tare = $("#tare").val();
+			if(parseFloat(gross) && parseFloat(tare)) {
+				if(parseFloat(gross) > parseFloat(tare)) {
+					var netQty = parseFloat(gross) - parseFloat(tare);
+					$("#inputActualNetQty_0").val(parseFloat(netQty));
+					$("#inputClientNetQty_0").val(parseFloat(netQty));
+				} else {
+					swal({
+						title	:	"Tare Can't Be Greater Than Gross",
+						type	:	"warning",
+					})
+					$("#gross").val("");
+					$("#tare").val("");
+					$("#inputActualNetQty_0").val("");
+					$("#inputClientNetQty_0").val("");
+				}
+			}
+		}
+	} else {
+		if(pOrder) {
+			var weightType = $("#weightType").val();
+			if(weightType=="1") {
+				var gross = $("#gross").val();
+				var tare = $("#tare").val();
+				if(parseFloat(gross) && parseFloat(tare)) {
+					if(parseFloat(gross) > parseFloat(tare)) {
+						var netQty = parseFloat(gross) - parseFloat(tare);
+						$("#inputActualNetQty_0").val(parseFloat(netQty));
+						$("#inputClientNetQty_0").val(parseFloat(netQty));
+					} else {
+						swal({
+							title	:	"Tare Can't Be Greater Than Gross",
+							type	:	"warning",
+						})
+						$("#gross").val("");
+						$("#tare").val("");
+						$("#inputActualNetQty_0").val("");
+						$("#inputClientNetQty_0").val("");
+					}
+				}
+			}
+		}
+	}
+}
+
+function numberOnly(e) {
+	id=e.currentTarget.id;
+	checkNum(id);
+}
+function storeOnchange(){
+	$(".itemCategory").val(""); 
+	$(".subCategory").val(""); 
+	$(".itemCode").val(""); 
+	$(".itemName").val(""); 
+	$(".clientNetQty").val(""); 
+	$(".actualNetQty").val(""); 
+	$(".serveTypeId").val(""); 
+	$(".serveType").val(""); 
+	$(".weight").val(""); 
+	$("#pOrder").val(""); 
+	$("#purchaseOrder").val(""); 
+	$("#refGatePassNo").val(""); 
+	$("#rstNo").val(""); 
+	$("#clientRSTNo").val(""); 
+	$("#vendorId").val(""); 
+	$("#challanNo").val(""); 
+	$("#customer").val(""); 
+	$("#driverName").val(""); 
+	$("#exitTime").val(""); 
+	$("#vehicleNo").val(""); 
+	
+	$("#myTable tbody tr:not(:first)").remove();
+	$("#myTable tbody tr:last").find('td:last').remove();
+	 
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Gate Pass Entry</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Gate Pass Entry</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<input type="hidden" id="gatePassId" th:value="${gatePassId}">
+
+
+								<div class="col-lg-3">
+									<div class="form-group">
+										<label>Branch/Store</label> <select class="form-control"
+											id="store" th:if="${gatePassId}" disabled>
+											 
+											<option th:each="c,iter:${storeList}" th:value="${c.key}"
+												th:text="${c.name}"
+												th:selected="${gatePass[0].store==c.key}"></option>
+										</select> <select class="form-control" id="store"
+											th:unless="${gatePassId}" onchange="storeOnchange()">
+										 
+											<option th:each="c,iter:${storeList}" th:value="${c.key}"
+												th:text="${c.name}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-3">
+									<div class="form-group">
+										<label>Purchase Order</label> <input type="hidden" id="pOrder"
+											th:value="${gatePass[0].pOrder}" class="form-control"
+											th:if="${gatePassId}"> <input type="text"
+											id="purchaseOrder" th:value="${gatePass[0].pOrder}"
+											onkeyup="getPurchaseOrderAutoSearch();" class="form-control"
+											th:if="${gatePassId}" disabled> <input type="hidden"
+											id="pOrder" class="form-control" th:unless="${gatePassId}">
+										<input type="text" id="purchaseOrder" class="form-control"
+											th:unless="${gatePassId}"
+											onkeyup="getPurchaseOrderAutoSearch();">
+										<div id="pordersuggestion"></div>
+										<!-- <select th:if="${gatePassId}" id="pOrder" class="form-control"><option value="">Select</option>
+												<option th:each="c,iter:${poList}" th:selected="${c.key==gatePass[0].pOrder}" th:value="${c.key}" th:text="${c.key}"></select>
+												<select th:unless="${gatePassId}" id="pOrder" class="form-control"><option value="">Select</option>
+												<option th:each="c,iter:${poList}" th:value="${c.key}" th:text="${c.key}"></select> -->
+									</div>
+								</div>
+
+								<div class="col-lg-3">
+									<div class="form-group">
+										<label>Pass Type</label> <select disabled class="form-control"
+											id="passType" th:if="${gatePassId}">
+											<option value=1>Gate IN</option>
+										</select> <select class="form-control" id="passType"
+											th:unless="${gatePassId}">
+											<option value=1>Gate IN</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-3">
+									<div class="form-group">
+										<label>Item Weight Type</label> <select disabled
+											class="form-control" id="weightType" th:if="${gatePassId}">
+											<option value=1 th:selected="${gatePass[0].weightType==1}">Container
+												Wise</option>
+											<option value=2 th:selected="${gatePass[0].weightType!=1}">Unit
+												Wise</option>
+										</select> <select class="form-control" id="weightType"
+											th:unless="${gatePassId}"> 
+											<option value=2>Unit Wise</option>
+										</select>
+									</div>
+								</div> 
+								<div class="row">
+									<div class="col-md-6">
+										<div class="first-section">
+											<div class="text-heading">
+												<h4>Challan Details</h4>
+											</div>
+											<div class="row">
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Entry Date</label> <input type="text"
+															th:if="${gatePassId}" th:value="${gatePass[0].entryDate}"
+															id="entryDate" class="form-control" readonly> <input
+															type="text" th:unless="${gatePassId}" id="entryDate"
+															class="form-control" readonly>
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Reference Gate Pass No.</label> <input type="text"
+															th:value="${gatePass[0].refGatePassNo}"
+															class="form-control" id="refGatePassNo"
+															th:if="${gatePassId}"> <input type="text"
+															class="form-control" id="refGatePassNo"
+															th:unless="${gatePassId}">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Challan No.</label> <input type="text"
+															id="challanNo" th:value="${gatePass[0].challanNo}"
+															class="form-control" th:if="${gatePassId}"> <input
+															type="text" id="challanNo" class="form-control"
+															th:unless="${gatePassId}">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>RST No.</label> <input type="text" id="rstNo"
+															th:value="${gatePass[0].rstNo}" class="form-control"
+															th:if="${gatePassId}"> <input type="text"
+															id="rstNo" class="form-control" th:unless="${gatePassId}">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Client RST No.</label> <input type="text"
+															id="clientRSTNo" th:value="${gatePass[0].clientRSTNo}"
+															class="form-control" th:if="${gatePassId}"> <input
+															type="text" id="clientRSTNo" class="form-control"
+															th:unless="${gatePassId}">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Vendor</label> <input type="hidden" id="vendorId"
+															th:if="${gatePassId}" th:value="${gatePass[0].vendorId}">
+														<input type="text" id="vendor"
+															th:value="${gatePass[0].vendor}"
+															onkeyup="getVendorAutoSearch();" class="form-control"
+															th:if="${gatePassId}" disabled> <input
+															type="hidden" id="vendorId" th:unless="${gatePassId}">
+														<input type="text" id="vendor" class="form-control"
+															th:unless="${gatePassId}" readonly>
+														<div id="vendorsuggestion"></div>
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Vehicle No.</label> <input type="text"
+															id="vehicleNo" th:value="${gatePass[0].vehicleNo}"
+															class="form-control" th:if="${gatePassId}"> <input
+															type="text" id="vehicleNo" class="form-control"
+															th:unless="${gatePassId}">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Driver Name</label> <input type="text"
+															id="driverName" th:value="${gatePass[0].driverName}"
+															class="form-control" th:if="${gatePassId}"> <input
+															type="text" id="driverName" class="form-control"
+															th:unless="${gatePassId}">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>To Whom Given</label> <input type="hidden"
+															id="customerId" th:value="${gatePass[0].customerId}"
+															class="form-control" th:if="${gatePassId}"> <input
+															type="text" id="customer"
+															th:value="${gatePass[0].customer}" class="form-control"
+															th:if="${gatePassId}" disabled
+															onkeyup="getCustomerAutoSearch();"> <input
+															type="hidden" id="customerId" class="form-control"
+															th:unless="${gatePassId}"> <input type="text"
+															id="customer" class="form-control"
+															th:unless="${gatePassId}"
+															onkeyup="getCustomerAutoSearch();">
+														<div id="customersuggestion"></div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6">
+										<div class="second-section">
+											<div class="text-heading">
+												<h4>Vehicle Details</h4>
+											</div>
+											<div class="row">
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Entry Time</label> <input type="text"
+															th:value="${gatePass[0].entryTime}" id="entryTime"
+															class="form-control" th:if="${gatePassId}"> <input
+															type="text" id="entryTime" th:unless="${gatePassId}"
+															class="form-control">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Exit Time</label> <input type="text" id="exitTime"
+															th:value="${gatePass[0].exitTime}" class="form-control"
+															th:if="${gatePassId}"> <input type="text"
+															id="exitTime" class="form-control"
+															th:unless="${gatePassId}">
+													</div>
+												</div>
+												<!-- <div class="col-lg-6" id="grossDiv">
+													<div class="form-group">
+														<label>Gross</label> <input type="text" id="gross" th:value="${gatePass[0].gross}"
+															class="form-control" th:if="${gatePassId}" onkeyup="getActualQty();checkNum('gross');"> <input type="text" id="gross"
+															class="form-control" th:unless="${gatePassId}" onkeyup="getActualQty();checkNum('gross');">
+													</div>
+												</div> 
+												<div class="col-lg-6" id="tareDiv">
+													<div class="form-group">
+														<label>Tare</label> <input type="text" id="tare" th:value="${gatePass[0].tare}"
+															class="form-control" th:if="${gatePassId}" onkeyup="getActualQty();checkNum('tare');"> <input type="text" id="tare"
+															class="form-control" th:unless="${gatePassId}" onkeyup="getActualQty();checkNum('tare');">
+													</div>
+												</div> -->
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- <div class="row">
+								<div class="col-lg-12">
+									<h4><b style="color:#2c61e1;">Purchase Order Details</b></h4>
+								</div>
+							</div> -->
+							<!-- <div class="row" id="divShowId">   th:if="${not #lists.isEmpty(itemList)}"
+								<div class="col-lg-12">
+									id="table-data"
+									<table class="tbll table table-bordered" id="myTable1" width="100%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead><tr class="trCls"><th colspan="5"><b>Purchase Order Details</b></th></tr></thead>
+										<thead class="theadCls">
+											<tr>
+												<th>Category</th>
+												<th>Sub Category</th>
+												<th>Item</th>
+												<th>Quantity</th>
+												<th>Serve Type</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyShow" th:unless="${gatePassId}">
+											<tr class="hideCls" th:unless="${gatePassId}"><td colspan="5" style="text-align:center;color:red;border-top:1px solid #333;"><b>No Data Found<br>(To see item details, please select purchase order)</b></td></tr>
+										</tbody>
+										<tbody id="tbodyShow" th:if="${gatePassId}" >
+											<tr th:each="a,iter:${itemList}">
+												<td align="center" th:text="${a.itemCategory}"></td>
+												<td align="center" th:text="${a.subCategory}"></td>
+												<td align="center" th:text="${a.itemName}"></td>
+												<td align="center" th:text="${a.quantity}"></td>
+												<td align="center" th:text="${a.serveType}"></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div> -->
+							<div class="row">
+								<div class="col-lg-12">
+									<h4>
+										<b style="color: #2c61e1;">Item Details</b>
+									</h4>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<!-- id="table-data" -->
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Item Name</th>
+												<th>Client Net Qty</th>
+												<th>Actual Net Qty</th>
+												<th>Serve Type</th>
+												 
+												<th class="tblHideCls">Action</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<!-- <tr class="hideCls" th:unless="${gatePassId}"><td colspan="4" style="text-align:center;color:red;border-top:1px solid #333;"><b>No Data Found</b></td></tr>
+											<tr class="hideCls" th:unless="${gatePassId}"><td colspan="4" style="text-align:center;"><b>(To see item details, please select purchase order.)</b></td></tr> -->
+											<tr class="tr_clone" th:if="${gatePassId}"
+												th:each="a,iter:${gatePass}">
+												<td><input type="hidden"
+													th:id="${'inputItemCode_'+iter.index}"
+													th:value="${a.itemCode}" class="form-control itemCode"
+													value=''> <input type="text"
+													th:id="${'inputItemName_'+iter.index}"
+													th:value="${a.itemName}" class="form-control itemName"
+													value='' onkeyup="getItemAutoSearch(event);">
+													<div th:id="${'suggesstion-box1_'+iter.index}"></div></td>
+												<td><input type="text"
+													th:id="${'inputClientNetQty_'+iter.index}"
+													th:value="${a.clientNetQty}" onkeyup="numberOnly(event);"
+													class="form-control clientNetQty" value=''></td>
+												<td><input type="text"
+													th:id="${'inputActualNetQty_'+iter.index}"
+													th:value="${a.actualNetQty}" onkeyup="numberOnly(event);"
+													class="form-control actualNetQty" value=''></td>
+												<td><input type="hidden"
+													th:id="${'inputItemServeTypeId_'+iter.index}"
+													th:value="${a.serveTypeId}"
+													class="form-control serveTypeId" value='' readonly>
+													<input type="text"
+													th:id="${'inputItemServeType_'+iter.index}"
+													th:value="${a.serveType}" class="form-control serveType"
+													value='' readonly> <input type="hidden"
+													th:id="${'inputItemCategory_'+iter.index}"
+													th:value="${a.itemCategory}"
+													class="form-control itemCategory" value=''> <input
+													type="hidden" th:id="${'inputItemSubcategory_'+iter.index}"
+													th:value="${a.subCategory}"
+													class="form-control subCategory" value=''></td>
+												<td><input type="text"
+													th:id="inputWeight_+${iter.index}" th:value="${a.weight}"
+													onkeyup="numberOnly(event);" class="form-control weight"
+													value=''></td>
+												<td class="tblHideCls"><button
+														th:if="${iter.size == iter.index+1}" type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>
+													<button th:if="${iter.size != 1}" type="button"
+														class="btn btn-warning rmv" name="Remove">
+														<span class="ti-minus"></span>
+													</button></td>
+											</tr>
+											<tr class="tr_clone" th:unless="${gatePassId}">
+												<td><input type="hidden" id="inputItemCode_0"
+													class="form-control itemCode" value=''> <input
+													type="text" id="inputItemName_0"
+													class="form-control itemName" value=''
+													onkeyup="getItemAutoSearch(event);">
+													<div id="suggesstion-box1_0"></div></td>
+												<td><input type="text" id="inputClientNetQty_0"
+													onkeyup="numberOnly(event);"
+													class="form-control clientNetQty" value=''></td>
+												<td><input type="text" id="inputActualNetQty_0"
+													onkeyup="numberOnly(event);"
+													class="form-control actualNetQty" value=''></td>
+												<td><input type="hidden" id="inputItemServeTypeId_0"
+													class="form-control serveTypeId" value='' readonly>
+													<input type="text" id="inputItemServeType_0"
+													class="form-control serveType" value='' readonly> <input
+													type="hidden" id="inputItemCategory_0"
+													class="form-control itemCategory" value=''> <input
+													type="hidden" id="inputItemSubcategory_0"
+													class="form-control subCategory" value=''></td>
+												<td><input type="text" id="inputWeight_0"
+													onkeyup="numberOnly(event);" class="form-control weight"
+													value=''></td>
+												<td class="tblHideCls"><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Remarks</label>
+										<textarea th:if="${gatePassId}" class="form-control textarea"
+											id="remarks" th:text="${gatePass[0].remarks}"></textarea>
+										<textarea th:unless="${gatePassId}"
+											class="form-control textarea" id="remarks"></textarea>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

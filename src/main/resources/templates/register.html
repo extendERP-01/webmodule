@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Handling Form Submission</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="../assets/css/lib/bootstrap.min.css" rel="stylesheet" />
+    <link href="../css/signin.css" rel="stylesheet" />
+</head>
+<body>
+	<h1>Add User without Ajax</h1>
+	<p th:if="${message} != null" th:text="${message}"></p>
+	
+    <form action="#" th:action="@{addUser}" th:object="${user}" method="post">
+    	<input type="hidden" th:field="*{user}" />
+        <p>username: <input type="text" th:field="*{userName}" /></p>
+        <p>password: <input type="text" th:field="*{userPassword}" /></p>
+        <p>email   : <input type="text" th:field="*{userEmail}" /></p>
+        <p>address : <input type="text" th:field="*{userAddress}" /></p>
+        <p>phone   : <input type="text" th:field="*{userMobile}" /></p>
+       
+        <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
+    </form>
+</body>
+
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script>
+//ADD MORE FUNCTION
+
+function addMore1() {
+	var count =0;
+	$(".vAssetId").each(function(i){
+		var id = $(this).val();
+		var lastId = $("#myTable tbody tr:last").find(".vAssetId").val();
+		if(lastId == id){
+			count = count + 1;
+		}
+	})
+	if(count > 1) {
+		swal({
+			title	:	"Duplicate Vehicle Selected",
+			type	:	"warning",
+		})
+		$("#myTable tbody tr:last").find(".vAssetId").val("");
+		$("#myTable tbody tr:last").find(".vehicleNo").val("");
+		$("#myTable tbody tr:last").find(".category").val("");
+		$("#myTable tbody tr:last").find(".vehicleNo").attr('data-procat', "");
+	} else {
+		addMore();
+	}
+}
+ 
+function addMore() {
+
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+	$("#myTable tbody tr td:last").html("");
+	var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore1();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+
+	var editTr = 0;
+
+	if (lengthOfTableRow > editTr) {
+		$("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last')
+				.append(removeMore);
+	}
+
+	$("#myTable tbody tr:last").find(".driverId").val("");
+	$("#myTable tbody tr:last").find(".driverName").val("");
+	$("#myTable tbody tr:last").find(".vAssetId").val("");
+	$("#myTable tbody tr:last").find(".vehicleNo").val("");
+	$("#myTable tbody tr:last").find(".category").val("");
+	$("#myTable tbody tr:last").find(".assignDate").val("");
+
+	$("#myTable > tbody > tr").each(function(i) {
+
+		var textInput = $(this).find('input');
+		var divInput = $(this).find('div');
+
+		textInput.eq(0).attr('id', "inputDriverId_" + i);
+		textInput.eq(1).attr('id', "inputDriverName_" + i);
+		textInput.eq(2).attr('id', "inputVAssetId_" + i);
+		textInput.eq(3).attr('id', "inputVehicleNo_" + i);
+		textInput.eq(4).attr('id', "inputCategory_" + i);
+		textInput.eq(5).attr('id', "inputAssignDate_" + i);
+		divInput.eq(0).attr('id', "driverSuggestionBox_" + i);
+		divInput.eq(1).attr('id', "suggesstion-box1_" + i);
+	})
+	
+	$(".assignDate").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	});
+}
+
+$(document).ready(function (){
+	$(".assignDate").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	});
+	$("#removeDate").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	});
+	
+	$("#store").change(function(){
+		$("#vehicleAssetId").val("");
+		$("#vehicleNo").val("");
+		$("#vehicleCategory").val("");
+		$("#vehiclSuggestionBox").hide();
+	})
+	
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore1();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+			
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+	});
+	
+	$("#submit").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			item = {};
+			
+			item['driverId']		=	$(this).find(".driverId").val();
+			item['vAssetId']		=	$(this).find(".vAssetId").val();
+			item['vehicleNo']		=	$(this).find(".vehicleNo").val();
+			item['assignDate']		=	$(this).find(".assignDate").val();
+			
+			dataset.push(item);
+		});
+		
+		var driverIdValid = true;
+		$(".driverId").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"TextField" ,"Please Enter Driver Name")){
+				driverIdValid = false;
+				return false;
+			}
+			
+		});
+		
+		var vAssetValid = true;
+		if(driverIdValid){
+			$('.vAssetId').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Vehicle Number")){
+					vAssetValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		
+		var assignDateValid = true;
+		if(driverIdValid && vAssetValid){
+			$('.assignDate').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Assign Date")){
+					assignDateValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		if(driverIdValid && vAssetValid && assignDateValid){
+			console.log(dataset)
+			assignAsset(dataset);
+		}
+	}); 
+})
+function assignAsset(dataset) {
+	swal.fire({
+		title					: "Are you sure want to Submit?",
+		text					: "Once Submited,Can't revert back !",
+		type 					: "warning",
+		showCancelButton		: true,
+		confirmButtonColor		: "#DD6BB5",
+		confirmButtonText		: "Submit",
+		showLoaderOnConfirm		: true,
+		reverseButtons 			: true,
+		confirmButtonAriaLabel 	: 'Thumbs up, great!',
+		cancelButtonText 		: 'Cancel',
+		cancelButtonAriaLabel 	: 'Thumbs down',	
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "assign-vehicle-to-driver-save",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					if(response.message=="Success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							window.location.href = "/asset/view-assigned-vehicle-to-driver" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			}) //ajax ends
+		}
+	})
+}
+
+function getDriverAutoSearch(e) {
+	var id = e.currentTarget.id;
+	var value = e.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+		if(value) {
+			$.ajax({
+				type : "POST",
+				url : "assign-vehicle-to-driver-get-employee", //driver
+				dataType : 'json',
+				contentType : 'application/json',
+				data : value,
+				success : function(response) {
+					if(response.body.length!=0)	{
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\','+counter+')">'+response.body[i].name+' ('+ response.body[i].key+')'+'</li>';
+						} 
+						content += '</ul>';
+						$("#driverSuggestionBox_"+counter).show();
+						$("#driverSuggestionBox_"+counter).html(content);
+					} else {
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#driverSuggestionBox_"+counter).show();
+						$("#driverSuggestionBox_"+counter).html(content);
+					}
+				}, error : function(data) {
+					console.log(data)
+					$(id).css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#driverSuggestionBox_"+counter).show();
+					$("#driverSuggestionBox_"+counter).html(content);
+				}
+			});
+		} else {
+			$(id).css("background","#FFF");
+			var content = '<ul id="autocomplete-list">';
+			content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+			content += '</ul>';
+			$("#driverSuggestionBox_"+counter).show();
+			$("#driverSuggestionBox_"+counter).html(content);	
+		}
+}
+function selectAutocompleteValue(key,name,counter) {
+	if (key) {
+ 		$("#inputDriverId_"+counter).val(key);
+    	$("#inputDriverName_"+counter).val(name+' ('+key+')');
+    	$("#inputDriverName_"+counter).attr('data-procat', key);
+    	$("#driverSuggestionBox_"+counter).hide();
+	} else {
+		$("#inputDriverId_"+counter).val("");
+    	$("#inputDriverName_"+counter).val("");
+    	$("#inputDriverName_"+counter).attr('data-procat', "");
+    	$("#driverSuggestionBox_"+counter).hide();
+	}
+}
+
+function getVehicleAutoSearch(e) {
+	var id = e.currentTarget.id;
+	var value = e.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+	if(value) {
+		$.ajax({
+			type : "POST",
+			url : "assign-vehicle-to-driver-get-vehicle",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : value,
+			success : function(response) {
+				if(response.body.length!=0)	{
+					$(id).css("background","#FFF");
+					var content = '<ul id="autocomplete-list1">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue1(\''+response.body[i].assetId+'\',\''+response.body[i].serialNo+'\',\''+response.body[i].category+'\','+counter+')">'+response.body[i].serialNo+' ('+ response.body[i].category+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#suggesstion-box1_"+counter).show();
+					$("#suggesstion-box1_"+counter).html(content);
+				} else {
+					$(id).css("background","#FFF");
+					var content = '<ul id="autocomplete-list1">';
+					content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box1_"+counter).show();
+					$("#suggesstion-box1_"+counter).html(content);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$(id).css("background","#FFF");
+				var content = '<ul id="autocomplete-list1">';
+				content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box1_"+counter).show();
+				$("#suggesstion-box1_"+counter).html(content);
+			}
+		});
+	} else {
+		$(id).css("background","#FFF");
+		var content = '<ul id="autocomplete-list1">';
+		content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#suggesstion-box1_"+counter).show();
+		$("#suggesstion-box1_"+counter).html(content);
+	}
+}
+function selectAutocompleteValue1(assetId,serialNo,category,counter) {
+	if (assetId) {
+ 		$("#inputVAssetId_"+counter).val(assetId);
+    	$("#inputVehicleNo_"+counter).val(serialNo);
+    	$("#inputCategory_"+counter).val(category);
+    	$("#inputVehicleNo_"+counter).attr('data-procat', serialNo);
+    	$("#suggesstion-box1_"+counter).hide();
+	} else {
+		$("#inputVAssetId_"+counter).val("");
+    	$("#inputVehicleNo_"+counter).val("");
+    	$("#inputCategory_"+counter).val("");
+    	$("#inputVehicleNo_"+counter).attr('data-procat', "");
+    	$("#suggesstion-box1_"+counter).hide();
+	}
+}
+
+function checkRunningKM(e) {
+	var id = e.currentTarget.id;
+	var value = e.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+	if(value=="true") {
+		$("#inputAssignKM_"+counter).val('0');
+	}
+}
+/*
+function getServeType(counter) {
+	var key = $('#inputItemCode_'+counter).val();
+	if(key) {
+		$.ajax({
+			type : "POST",
+			url : "entry-get-servetype",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : key,
+			success : function(response) {
+				if (response.message == "success") {
+					if(response.body.length!=0)	{
+						console.log(response.body)
+						$("#inputItemServeTypeId_"+counter).val(response.body[0].serveTypeId);
+						$("#inputItemServeType_"+counter).val(response.body[0].serveType);
+						$("#inputItemCategory_"+counter).val(response.body[0].itemCategory);
+						$("#inputItemSubcategory_"+counter).val(response.body[0].subCategory);
+					} else {
+						$("#inputItemServeTypeId_"+counter).val("");
+						$("#inputItemServeType_"+counter).val("");
+						$("#inputItemCategory_"+counter).val("");
+						$("#inputItemSubcategory_"+counter).val("");
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+				$("#inputItemServeTypeId_"+counter).val("");
+				$("#inputItemServeType_"+counter).val("");
+				$("#inputItemCategory_"+counter).val("");
+				$("#inputItemSubcategory_"+counter).val("");
+			}
+		})
+	} else {
+		$("#inputItemServeTypeId_"+counter).val("");
+		$("#inputItemServeType_"+counter).val("");
+		$("#inputItemCategory_"+counter).val("");
+		$("#inputItemSubcategory_"+counter).val("");
+	}
+} */
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Assign Asset To Vehicle</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Assign Vehicle To Driver</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<!-- id="table-data" -->
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Driver Name</th>
+												<th>Vehicle Number</th>
+												<th>Category</th>
+												<th>Assign Date</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<tr class="tr_clone">
+												<td><input type="hidden" id="inputDriverId_0"
+													class="form-control driverId" value=''> <input
+													type="text" id="inputDriverName_0" 
+													class="form-control driverName" value='' onkeyup="getDriverAutoSearch(event);">
+													<div id="driverSuggestionBox_0"></div></td>
+												<td><input type="hidden" id="inputVAssetId_0"
+													class="form-control vAssetId" value=''> <input
+													type="text" id="inputVehicleNo_0" 
+													class="form-control vehicleNo" value='' onkeyup="getVehicleAutoSearch(event);">
+													<div id="suggesstion-box1_0"></div></td>
+												<td><input type="text" id="inputCategory_0"
+													class="form-control category" value='' readonly>
+													</td>
+												<td><input type="text" id="inputAssignDate_0"
+													class="form-control assignDate" value='' readonly></td>
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore1();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

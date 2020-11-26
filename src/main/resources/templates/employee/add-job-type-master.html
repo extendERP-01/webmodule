@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+       
+     function validateForm(){
+    	 
+	  if (!blankValidation("jobTypeName","TextField", "Job Type Name can not be left blank"))
+          return false;
+      if (!blankValidation("jobTypeDesc","TextField", "Description can not be left blank"))
+          return false;
+      if (!blankValidation("jobTypeStatus","TextField", "Status can not be left blank"))
+          return false;
+      
+     }  
+ 
+    </script>
+</head>
+<div layout:fragment="content">
+
+        <div class="main mrt_20">
+            <!--Alert Box-->
+                <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+             <span th:text="${message}"></span>
+          </div>
+              <!--Alert Box-->
+ 		<div class="col-md-12">
+       <ol class="breadcrumb breadcrumb-arrow">
+             <li><a href="index.html">Home</a></li>
+             <li class="active"><span>Add Job Title</span></li>
+            <!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+        </ol>
+        </div>
+        <div class="card-title">
+                <h4>Add Job Title</h4>
+            </div> 
+            <div class="container-fluid"> 
+                <div class="card"> 
+                    <div class="card-body">
+                        <div class="basic-elements">
+                            <form th:action="@{/employee/add-job-type-master}"th:object="${jobType}" method="post" onsubmit="return validateForm();" autocomplete="off">
+                               <input type="hidden" th:field="*{jobTypeId}" />
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Job Title Name</label>
+                                             <input type="text" class="form-control" th:field="*{jobTypeName}" onkeyup="checkAlphabetAndNumber('jobTypeName')">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <textarea class="form-control textarea" th:field="*{jobTypeDesc}" ></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Status</label>
+                                               <select class="form-control"  th:field="*{jobTypeStatus}">
+                                                <option th:value=null>--select--</option>
+                                                <option th:value=true>Active</option>
+                                                <option th:value=false>Inactive</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-success">submit</button>
+                           				<button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+                                    </div>
+                                  </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</html>

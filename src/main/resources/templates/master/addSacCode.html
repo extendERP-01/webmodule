@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	function validateForm(){
+	   if (!blankValidation("sacCodeName","TextField", "SacCodeName can not be left blank"))
+	      		return false;
+	   if (!blankValidation("sacService","TextField", "SacService can not be left blank"))
+     		return false;
+	   if (!blankValidation("sacDescription","TextArea", "SacDescription can not be left blank"))
+     		return false;
+	   if (!blankValidation("sacGST","TextField", "SacGST can not be left blank"))
+     		return false;
+	   if (!blankValidation("sacEffDate","TextField", "Date can not be left blank"))
+	       return false;
+	   if (!blankValidation("sacActive","SelectBox", "Status can not be left blank"))
+     		return false;
+	   if (!checkSpecialCharacterFirstCustom("sacCodeName","Special character is not allowed in SacCodeName!!!",/[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/)) 
+	        return false;
+		if (!checkSpecialCharacterFirstCustom("sacService","Special character is not allowed in SacService!!!",/[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/)) 
+	        return false;
+		if (!checkSpecialCharacterFirstCustom("sacDescription","Special character is not allowed in SacDescription!!!",/[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/)) 
+	        return false;
+		if (!checkSpecialCharacterFirstCustom("sacGST","Special character is not allowed in SacGST!!!",/[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/)) 
+	        return false;
+	}
+</script>
+<script>
+
+	$( function() {
+	    $( "#sacEffDate" ).datepicker({
+			format:'dd-mm-yyyy',
+			autoclose:true
+		}) 
+ 
+	  } );
+
+/* function change()
+{
+	window.location.href("/user/list-sac-code");
+} */
+</script>
+</head>
+<div layout:fragment="content">
+	  <div class="content-wrap">
+        <div class="main mrt_20">
+          <div class="col-md-12">
+            <ol class="breadcrumb breadcrumb-arrow">
+              <li><a href="index.html">Home</a></li>
+              <!-- <li><a href="#">View User</a></li>
+              <li><a href="#">Manage User</a></li> -->
+              <li class="active"><span>Add SAC Code</span></li>
+            </ol>
+          </div>
+          <div class="card-title">
+            <h4>SAC Code</h4>
+          </div>
+          <div class="container-fluid">
+            
+           <!--  <ul class="nav nav-tabs" id="myTab" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link" href="add-sac-code" role="tab">Add SAC Code</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="list-sac-code" role="tab">View SAC Code</a>
+              </li>
+              
+            </ul> -->
+            <div class="card">
+              
+              
+              
+              <div class="card-body">
+                <div class="basic-elements">
+                 <form  th:action="@{add-sac-code}" th:object="${sacCodeModel}" method="post" onsubmit="return validateForm();">
+				 <input type="hidden" th:field="*{sacId}">
+                    <div class="row">
+                      <div class="col-lg-6">
+                        <div class="form-group">
+                          <label>SAC Code Name</label>
+                          <input type="text" class="form-control" name=""  th:field="*{sacCodeName}">
+                        </div>
+                       <!--  <div class="form-group">
+                          <label>Service Name</label>
+                          <input type="text" class="form-control" name=""  th:field="*{sacService}">
+                        </div> -->
+                        <div class="form-group">
+											<label>Service Name</label> <select class="form-control"
+												th:field="*{sacService}">
+												<option value="">Select</option>
+												<option th:each="c:${serviceList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+                        <div class="form-group">
+                          <label>Description</label>
+                          <textarea name="" cols="" rows="" class="form-control textarea" th:field="*{sacDescription}"></textarea>
+                        </div>
+                        
+                      </div>
+                      <div class="col-lg-6">
+                        <div class="form-group">
+                          <label>GST Value</label>
+                          <input type="text" class="form-control" name=""  th:field="*{sacGST}">
+                        </div>
+                        <div class="form-group">
+                          <label>Effective Date</label>
+                          <input class="form-control" th:field="*{sacEffDate}" type="text">
+                        </div>
+                        
+                        <div class="form-group">
+                          <label>Status</label>
+                          <select class="form-control" th:field="*{sacActive}">
+                            <option th:value=null>Select</option>
+							<option th:value="true">Active</option>
+							<option th:value="false">Inactive</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div class="form-group">
+                        <button class="btn btn-success"> Submit</button>
+                        
+                        <input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" />
+                        <!--input name="" type="button" class="btn btn-success" value="SUBMIT"-->
+                      </div>
+                    </div>
+                    
+                  </form>
+                </div>
+              </div>
+              <div style="clear:both;"></div>
+            </div>
+            
+            
+            
+          </div>
+        </div>
+      </div>
+</div>
+</html>

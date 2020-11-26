@@ -1,0 +1,182 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Purchase Order Report</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+}
+
+.logotext {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+}
+
+.heading {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.slogan {
+	font-size: 14px;
+	color: #f26304;
+	padding: 5px;
+}
+
+.containersec {
+	width: 800px;
+	margin: 0 auto;
+}
+
+.address {
+	font-size: 12px;
+	text-align: right;
+}
+
+div {
+	padding: 4px 0px;
+}
+
+th {
+	background: #f9965a;
+	color: #FFF;
+	padding: 8px 5px;
+	text-align: left;
+}
+
+.innertable td {
+	color: #333;
+	padding: 8px 5px;
+}
+
+.total {
+	background: #f9965a;
+	color: #FFF;
+	padding: 8px 5px;
+	text-align: left;
+	font-weight: bold;
+}
+
+.description {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+}
+
+.points {
+	padding: 20px 0px;
+	line-height: 26px;
+}
+
+.points span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+	padding: 5px 10px;
+	border-radius: 12px;
+	margin: 3px;
+}
+</style>
+</head>
+<body>
+	<div class="containersec">
+		<table width="700" height="100%">
+			<tr>
+				<td><img th:src="@{classpath:static/assets/images/login_img/extend.png}" height="80" width="150" /></td>
+				<td>
+					<div class="logotext">Nirmalya Labs Pvt. Ltd.</div>
+					<div class="slogan">An Inherent Attribute of Soul</div>
+				</td>
+				<div>
+					<td align="right">#81, Sai Saraswati Complex , District
+						Center,<br /> C.S.Pur , Bhubaneswar ,Odisha INDIA - 751016<br />
+						email : info@nirmalyalabs.com<br /> Tel : +91 674-2747047
+					</td>
+				</div>
+			</tr>
+			<tr>
+				<td colspan="3" class="heading">Perchase Order</td>
+			</tr>
+			<tr>
+				<td colspan="3" bgcolor="#cedefd">
+					<table width="780">
+						<tr>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<table width="700" class="innertable">
+						<thead>
+							<tr>
+								<th>Sl. No.</th>
+								<th>Purchase Order</th>
+								<th>Order Date</th>
+								<th>Delivery Period</th>
+								<th>Vendor Name</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="items,iter : ${Porder}">
+								<td bgcolor="#F5F5F5" th:text="${iter.index+1}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.purchaseOrder}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.porderDate}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.deliveryPeriod}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.vendor}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.status}"></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<table width="680" class="innertable" id="onePdf">
+						<tbody>
+							<tr th:each="items,iter : ${OnePorder}">
+								<td bgcolor="#F5F5F5" th:text="${iter.index+1}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.purchaseOrder}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.itemName}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.vendor}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.pOQty}"></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3" class="description" align="center"><strong>Thank
+						You For Your Business</strong></td>
+			</tr>
+			<tr>
+				<td colspan="3" class="declair" valign="bottom">Make all checks
+					payable to your <span>COMPANY NAME HERE</span> Payment is due
+					within <span>TIME OUT</span> . Should you have any questions
+					concerning this invoice Contact <span>CONTACT PERSON</span> at <span>CONTACT
+						NUMBER</span>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 325px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 170px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.money {
+	text-align: right;
+}
+
+.first-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 100px;
+}
+
+.second-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 130px;
+}
+
+.text-heading {
+	background-color: #d1e3f5;
+	padding: 1px;
+	text-align: center;
+	margin-bottom: 14px;
+}
+
+.text-heading h4 {
+	font-size: 16px;
+	font-weight: 600;
+	color: #2c61e0;
+	padding-top: 7px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	border: 1px solid #FFF;
+	text-align: center;
+	font-weight: bold;
+}
+
+td input {
+	width: 70px;
+}
+</style>
+
+<script>
+	$(document).ready(function() {
+		$("#fromDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		});
+		$("#toDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		});
+		
+		
+		
+		//submit button function through ajax 
+		
+		$("#submit").click(function(){
+			
+			var dataset = [];
+			$("#tblid > tr").each(function(){
+				assign = {};  
+				assign['fromDate']		=	$("#fromDate").val();
+				assign['toDate']		=	$("#toDate").val();
+				assign['ppId']		=	$("#ppId").val();
+				assign['sizeGrade09']		=	$(this).find(".size").val();
+				assign['slitGrade09']   =	    $(this).find(".slitGrade09").val();
+				assign['mcoilGrade09']     =   $(this).find(".mcoilGrade09").val();
+				assign['planGrade09']     =   $(this).find(".planGrade09").val();
+				
+				assign['slitGrade115']     =   $(this).find(".slitGrade115").val();
+				assign['mcoilGrade115']     =   $(this).find(".mcoilGrade115").val();
+				assign['planGrade115']     =   $(this).find(".planGrade115").val();
+				
+				assign['slitGrade145']     =   $(this).find(".slitGrade145").val();
+				assign['mcoilGrade145']     =   $(this).find(".mcoilGrade145").val();
+				assign['planGrade145']     =   $(this).find(".planGrade145").val();
+				
+				assign['slitGrade12']     =   $(this).find(".slitGrade12").val();
+				assign['mcoilGrade12']     =   $(this).find(".mcoilGrade12").val();
+				assign['planGrade12']     =   $(this).find(".planGrade12").val();
+				
+				assign['slitGrade15']     =   $(this).find(".slitGrade15").val();
+				assign['mcoilGrade15']     =   $(this).find(".mcoilGrade15").val();
+				assign['planGrade15']     =   $(this).find(".planGrade15").val();
+				
+				assign['totalslit']     =   $(this).find(".totalslit").val();
+				assign['totalPlan']     =   $(this).find(".totalPlan").val();
+				assign['totalMcoil']     =   $(this).find(".totalMcoil").val();
+				assign['total']     =   $(this).find(".total").val();
+       
+				dataset.push(assign);
+			 
+			});//table tbody tr loop ends  
+				submitAddPlanning(dataset);
+			 							
+				
+		})
+		
+
+	}) 
+
+
+	function submitAddPlanning(dataset){ 
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "add-production-planning-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){ 
+					console.log(response)
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/production/view-production-planning" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+</script>
+<script type="text/javascript">
+function getThickness(){
+  var grade = $("#grade").val();
+  $("#thickness").empty(); 
+		if (grade) {
+			$.ajax({
+				type : 'POST',
+				url : 'view-production-grade-details-getthickness',
+				contentType : false,
+				data : grade,
+				success : function(response) {
+					if (response.message == "success") {	 
+						var option = $("<option></option>");
+						$(option).val(null);
+						$(option).html("--select--");
+						$("#thickness").append(option);
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].name);
+							$(option).html(response.body[i].name);
+							$("#thickness").append(option);
+						}
+					}
+				},
+				error : function(e) {
+					alert("error");
+				}
+			});
+		} else { 
+			var option = $("<option></option>");
+			$(option).val(null);
+			$(option).html("--select--");
+			$("#thickness").append(option);  
+		}
+	}
+	
+	//For Getting The purchase OrderList in table
+	function getProductionDetails() {
+		$('#tblid').empty();
+		$('#tbdy').empty();
+	 
+		var fromDate = $("#fromDate").val();
+		var toDate = $("#toDate").val();
+		var toDate = $("#toDate").val();
+		var thickness = $("#thickness").val();
+		
+		if (fromDate && toDate && thickness) {
+			
+		 
+			$.ajax({
+						type : 'POST',
+						url : 'view-production-grade-details-through-ajax?fromDate='
+								+ fromDate + '&toDate=' + toDate + '&thickness=' + thickness,
+						contentType : 'application/json',
+						success : function(response) {
+							if (response.message == "success") {
+                                   if(response.body != null){ 
+                                	   for (var i = 0; i < response.body.length; i++) {
+       									var table = '  <tr>  <td bgcolor="#F5F5F5" > '+response.body[i].size+'  </td>  <td bgcolor="#F5F5F5" > '+response.body[i].sales+'</td>  '
+       											+ '   <td bgcolor="#F5F5F5" > '+response.body[i].ratio+' </td> '
+       											+ ' <td bgcolor="#F5F5F5" > '+response.body[i].finishedProduct+' </td> '
+       											+ ' <td bgcolor="#F5F5F5" > '+response.body[i].wip+' </td>  '
+       											+ ' <td bgcolor="#F5F5F5" > '+response.body[i].slit+' </td>  '
+       											+ ' <td bgcolor="#F5F5F5" > '+response.body[i].motherCoil+' </td> '
+       											+ ' <td bgcolor="#F5F5F5" > '+response.body[i].total+'  </td> '
+       											+ '<td bgcolor="#F5F5F5" > '+response.body[i].stock+' </td> '
+       											+ ' <td bgcolor="#F5F5F5" > '+response.body[i].mplan+'  </td> '
+       											+ '<td bgcolor="#F5F5F5" > '+response.body[i].gtotal+' </td>' 
+       											+ '<td bgcolor="#F5F5F5" > '+response.body[i].afterProductionPercentage+' </td>'
+       											+  '</tr> '; 
+       									$('#tblid').append(table);
+       								}
+                                   }else{
+                                	  
+                           			var noData = '<tr> <td colspan="21"><div class="norecord">No Record Found</div></td> </tr>';
+                           			$('#tblid').append(noData);
+                                   }
+								
+							} else { 
+								var noData = '<tr> <td colspan="21"><div class="norecord">No Record Found</div></td> </tr>';
+								$('#tblid').append(noData);
+							}
+						},
+						error : function(e) {
+							console.log("error");
+						}
+					});
+		} else {
+			
+			var noData = '<tr> <td colspan="21"><div class="norecord">No Record Found</div></td> </tr>';
+			$('#tblid').append(noData);
+			 
+			 
+		}
+	}
+</script>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Production Planning</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Production Grade Wise Details</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form>
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+
+
+											<input type="hidden" th:if="${Edit}" id="ppId"
+												th:value="${planningList[0].ppId}" /> <label>From
+												Date</label> <input type="text" readonly id="fromDate"
+												class="form-control" onchange="getProductionDetails()">
+
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>To Date</label> <input type="text" readonly
+												id="toDate" class="form-control"
+												onchange="getProductionDetails()">
+										</div>
+									</div>
+
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Grade</label> <select class="form-control" id="grade"
+												onchange="getThickness()">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${gradeList}" th:value='${c.name}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Thickness</label> <select class="form-control"
+												id="thickness" onchange="getProductionDetails()">
+												<option th:value="NULL">--Select--</option>
+
+											</select>
+										</div>
+									</div>
+
+								</div>
+
+								<div>
+									<Strong>Purchase Order Details</Strong>
+									<div style="width: 100%; overflow-x: scroll;">
+										<table id="myTable1" width="1000px" border="0" cellspacing="1"
+											cellpadding="0">
+
+
+											<tr>
+												<th class="tableheader" align="center" width="70">Size</th>
+												<th class="tableheader" align="center" width="70">Sales</th>
+												<th class="tableheader" align="center" width="70">Ratio</th>
+												<th class="tableheader" align="center" width="70">Finished
+													Product</th>
+												<th class="tableheader" align="center" width="70">WIP</th>
+												<th class="tableheader" align="center" width="70">Slit</th>
+												<th class="tableheader" align="center" width="70">Mother
+													Coil</th>
+												<th class="tableheader" align="center" width="70">Total
+												</th>
+												<th class="tableheader" align="center" width="70">Stock
+													%</th>
+												<th class="tableheader" align="center" width="70">Grand
+													Total</th>
+												<th class="tableheader" align="center" width="70">After
+													Production Quantity</th>
+												<th class="tableheader" align="center" width="70">After
+													Production %</th>
+
+											</tr>
+											<tbody id="tblid"></tbody>
+										</table>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

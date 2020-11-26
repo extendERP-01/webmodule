@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+  xmlns:th="http://www.thymeleaf.org" 
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+  layout:decorate="~{layout/master}">
+  <head>
+  
+  <script type="text/javascript">
+  
+  function validateForm(){
+	  if (!blankValidation("accountHeadType","TextField", "Account Head Name can not be left blank"))
+          return false;
+	  
+	  if (!blankValidation("desc","TextField", "Account Head Description can not be left blank"))
+          return false;
+	  
+	  if (!blankValidation("status","SelectBox", "Account Status can not be left blank"))
+          return false;
+	  
+	  if (!checkSpecialCharacterFirst("accountHeadType","Special character is not allowed in Account Head Name!!!"))
+          return false;
+	 
+	  
+  }
+      </script>
+  </head>
+  <div layout:fragment="content">
+	<div class="content-wrap">
+        <div class="main mrt_20">
+            <div class="col-md-12">
+               <!--Alert Box-->
+	           <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+	              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+	             <span th:text="${message}"></span>
+	          </div>
+	          <!--Alert Box-->
+               <ol class="breadcrumb breadcrumb-arrow">
+                   <li><a href="index.html">Home</a></li>
+                   <li class="active"><span>Add Account Head Type  </span></li>
+               </ol>
+            </div>
+            <div class="card-title">
+                <h4>Add Account Head Type</h4>
+            </div>
+            <div class="container-fluid">
+               
+                <div class="card">
+                   
+                    <div class="card-body">
+                        <div class="basic-elements">
+                            <form th:action="@{add-account-head-type}" th:object="${accountHeadTypeModel}" method="post"  onsubmit="return validateForm();" autocomplete="off" >
+                            <input type="hidden" th:field="*{accountHeadTypeId}" />
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Account Head Type</label>
+                                            <input type="text" class="form-control" th:field="*{accountHeadType}" onkeyup="checkAlphabetAndNumber('accountHeadType')">
+                                        </div>
+                                        
+                                       
+                                        <div class="form-group">
+                                            <label>Description.</label>
+                                            <textarea class="form-control textarea"  th:field="*{desc}"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Status</label>
+                                            <select class="form-control" th:field="*{status}">
+                                            	<option th:value="null" th:text="Select"></option>
+                                                <option th:value="true" th:text="Active"></option>
+                                                <option th:value="false" th:text="Inactive"></option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                        <button type="button" class="btn btn-warning" onclick="window.location.reload();" >Cancel</button>
+                                    </div>
+                                    </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <!-- nav tab section end -->
+    <div id="search">
+        <button type="button" class="close">×</button>
+        <form>
+            <input type="search" value="" placeholder="type keyword(s) here" />
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+</html>

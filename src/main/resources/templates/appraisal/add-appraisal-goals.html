@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	//$("#myTable tbody tr:last").find(".langCls").append(new Option("--Select--","")); 
+	/* $("#myTable tbody tr:last").find(".slCls").val(""); */
+	$("#myTable tbody tr:last").find(".goalCls").val("");
+	$("#myTable tbody tr:last").find(".KeayAreaCls").val("");
+	$("#myTable tbody tr:last").find(".sprakCls").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		
+		textInput.eq(0).attr('id',"selectLang_"+i);
+		textInput.eq(1).attr('id',"selectPrice_"+i);
+		textInput.eq(2).attr('id',"selectWrite_"+i);
+		textInput.eq(3).attr('id',"selectSpeak_"+i);
+		textInput.eq(0).attr('value',i+1);
+		
+	})
+	
+}
+
+function disableTableOption(){
+	
+	 $("#myTable > tbody > tr").each(function(i){
+	   $(".langCls option").prop("disabled", false); //enable everything
+	
+	   var arr = $.map(
+	       $(".langCls option:selected"), function (n) {
+	             return n.value;
+	   });
+	   
+	   $(".langCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+	   }).hide();
+	
+	  
+	   $(".langCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+	   }).show();
+	 })
+}	
+
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".langCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".langCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+$(document).ready(function(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+		});
+	
+	$("#fromDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	
+	$("#toDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	
+
+	
+//submit button function
+	
+	$("#submit").click(function(){
+		
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			assign = {};
+			assign['editId']    =	$("#id").val();
+			assign['empId']		=	$("#empId").val();
+			assign['langId']	=	$(this).find(".langCls").val();
+			assign['readId']	    =	$(this).find(".readCls").val();
+			assign['writeId']  =	$(this).find(".writeCls").val();
+			assign['spaekId']	=	$(this).find(".sprakCls").val();
+			dataset.push(assign);
+			console.log(assign);
+		});//table tbody tr loop ends
+		
+		if (!blankValidation("empId","SelectBox" ,"Please Select Employee Name"))
+		      return false;
+		
+		var langValid = true;
+		$(".langCls").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select Qualification")){
+				langValid = false;
+				return false;
+			}
+			
+		});
+		
+		var readValid = true;
+		if(langValid){
+			$('.readCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Institute Name")){
+					readValid = false;
+					return false;
+				}
+			});
+		}
+		var writeValid = true;
+		if(langValid && readValid){
+			$('.writeCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Institute Name")){
+					writeValid = false;
+					return false;
+				}
+			});
+		}
+		var speakValid = true;
+		if(langValid && readValid && writeValid){
+			$('.sprakCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Institute Name")){
+					speakValid = false;
+					return false;
+				}
+			});
+		}
+		
+		if(langValid && readValid && writeValid && speakValid){
+			submitAssignLanguage(dataset);
+		}
+											
+			
+		
+	})
+})
+
+	function submitAssignLanguage(dataset){
+	console.log(dataset);
+	//const ipAPI = 'https://api.ipify.org?format=json'
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				window.location.href = "/appraisal/view-appraisal-goals" ;
+				/* $.ajax({
+				type		: "POST",
+				url 		: "add-employee-language-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					//console.log(response);
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/employee/view-employee-language" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends */
+		}
+		})//swal function block ends
+	}//submit function ends
+
+
+function funcLoad(){
+	location.href = "/employee/view-employee-language";
+}
+	
+</script>
+
+<script type="text/javascript">
+		
+		
+		function checkForDuplicate(event) {	
+				var item = event.currentTarget.value;
+				var count=0;
+				var itemId=event.currentTarget.id;
+				$(".langCls ").each(function(){
+	
+					if(item == $(this).val()){
+						count++;
+					}	
+				})	
+	
+				if(count>=2){
+					swal('Language is Already Selected');
+					$("#"+itemId).val("");
+				}	
+
+			}
+		
+		
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Appraisal Goals</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Appraisal Goals</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${langAssign}" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+
+									<div class="col-lg-4">
+
+										<input type="hidden" th:if="${Edit}" id="id"
+											th:value="${langAssign[0].editId}" />
+
+										<div class="form-group">
+											<label>Role</label> <select class="form-control" id="roleId">
+												<option value="">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${roleList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==langAssign[0].empId}'></option>
+												<option th:unless="${Edit}" th:each="c:${roleList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+
+											</select>
+										</div>
+
+
+
+									</div>
+									<div class="col-lg-4">
+
+										<div class="form-group">
+											<label>From Date</label> <input class="form-control" type="text" id="fromDate"
+												readonly />
+										</div>
+
+
+
+									</div>
+									<div class="col-lg-4">
+
+										<div class="form-group">
+											<label>To Date</label> <input class="form-control" type="text" id="toDate"
+												readonly />
+										</div>
+
+
+
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Sl.No</th>
+													<th>Goals</th>
+													<th>Key Measurement Area</th>
+													<th>weighage</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody id="tbodyData">
+
+												<tr class="tr_clone" th:if="${Edit}"
+													th:each="a,iter:${langAssign}">
+													<td><select id="selectLang_"
+														class="form-control langCls"
+														onChange="disableTableOption();">
+															<option value="">--Select--</option>
+															<option th:each="c:${LangList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.langId}'></option>
+													</select></td>
+													<td><select id="selectRead_"
+														class="form-control readCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${canDoList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.readId}'></option>
+													</select></td>
+
+													<td><select id="selectWrite_"
+														class="form-control writeCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${canDoList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.writeId}'></option>
+													</select></td>
+													<td><select id="selectSpeak_"
+														class="form-control sprakCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${canDoList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.spaekId}'></option>
+													</select></td>
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+
+													</td>
+												</tr>
+
+
+												<tr class="tr_clone" th:unless="${Edit}">
+													<td><input type="text" id="selectSl_"
+														class="form-control slCls" value="1" readonly></td>
+													<td><input type="text" id="selectRead_"
+														class="form-control goalCls"></td>
+
+													<td><textarea rows="5" cols="50" id="keyArea_0"
+															class="form-control KeayAreaCls"></textarea></td>
+													<td><input type="text" id="weigh_"
+														class="form-control goalCls"></td>
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+
+
+										</table>
+									</div>
+
+								</div>
+								<div class="row">
+									<div class="form-group col-md-12">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning"
+											onclick="funcLoad();">Cancel</button>
+									</div>
+								</div>
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</html>

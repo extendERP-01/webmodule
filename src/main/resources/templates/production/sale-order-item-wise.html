@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 490px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+ 
+	//datepicker() Ends
+
+	//Validation Function (Two Date Field Must Required)
+	function validateForm() {
+		if (!blankValidation("param2", "TextField", " Date Is Required"))
+			return false;
+		else if (!blankValidation("param1", "TextField", "Plant Is Required"))
+			return false; 
+		else 
+			return true;
+	}
+
+	//PDF Print pdf Function
+	function pdfCreation() {
+		window.open("/production/pipe-scrap-report-download?grade="
+				+ window.btoa($('#param1').val()) + "&thickness="
+				+ window.btoa($('#param2').val()) + "&param3="
+				+ window.btoa($('#param3').val())+ "&param4="
+				+ window.btoa($('#param4').val())+ "&slitWidth="
+				+ window.btoa($('#param5').val())+ "&pipeSize="
+				+ window.btoa($('#param6').val()), '_blank');
+	}
+
+	//PDF Print Preview Function
+	function pdfPreview() {
+		window.open("/production/pipe-scrap-report-preview?grade="
+				+ window.btoa($('#param1').val()) + "&thickness="
+				+ window.btoa($('#param2').val()) + "&param3="
+				+ window.btoa($('#param3').val())+ "&param4="
+				+ window.btoa($('#param4').val())+ "&slitWidth="
+				+ window.btoa($('#param5').val())+ "&pipeSize="
+				+ window.btoa($('#param6').val()), '_self');
+	}
+
+	function excelCreation(){
+		 var valid = true; 
+		 valid = validateForm(); 
+		 if(valid){
+			 window.open("/production/item-sale-order-report-excel?param1="
+						+ window.btoa($('#param1').val()) + "&param2="
+						+ window.btoa($('#param2').val()) , '_self');
+		 }
+		
+	}
+	
+	//Reload Page Function
+	function funcLoad() {
+		location.reload();
+    }
+  
+	$(document).ready(function() {
+		$("#param2").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		})
+		 
+	});
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="card-title">
+					<h4>Sale Order Item Report</h4>
+				</div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Store</label> <select class="form-control" id="param1">
+												<option th:value="NULL">--Select--</option>
+
+												<option th:each="c:${storeList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Date</label> <input type="text" class="form-control"
+												id="param2"  readonly>
+										</div>
+									</div>
+
+
+
+
+								</div>
+
+
+
+
+								<div class="row">
+									<div class="form-group">
+										<button class="btn btn-primary" onclick="funcLoad();">
+											Reset</button>
+										<!-- <button type="button" class="btn btn-primary"
+											onclick="pdfPreview();">Print Preview</button> -->
+										<!-- <button type="button" class="btn btn-primary"
+											onclick="pdfCreation();">Print</button> -->
+										<button type="button" class="btn btn-success"
+											onclick="excelCreation();">Download Excel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+</div>
+</html>

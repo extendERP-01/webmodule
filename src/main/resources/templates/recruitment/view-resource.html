@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.modalIn {
+	border-bottom: 1px solid #e8e4e4;
+}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-resource-ThroughAjax'
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'jobId'
+			}, {
+				'data' : 'jobTitle'
+			}, {
+				'data' : 'jobType'
+			}, {
+				'data' : 'deptName'
+			}, {
+				'data' : 'hiringManager'
+			}, {
+				'data' : 'boardBy'
+			}, {
+				'data' : 'budget'
+			} , {
+				'data' : 'vendor'
+			}, {
+				'data' : 'status'
+			}, {
+				'data' : 'action'}
+			]
+		});
+	});
+
+	/* function searchData() {
+		$('#tblTheme').DataTable().draw();
+	} */
+	
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class="active"><span>View Resource</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Resource</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+				
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblTheme" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Job Code</th>
+									<th>Job Title</th>
+									<th>Job Type</th> 
+									<th>Department</th>
+									<th>Hiring Manager</th>
+									<th>On Board By</th>
+									<th>Budget</th>
+									<th>Vendor</th>
+									<th>Status</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+</html>

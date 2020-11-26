@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	function checkEmpty() {
+
+		addMore();
+	}
+
+	//ADD MORE
+	function addMore() {
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+		$("#myTable tbody tr td:last").html("");
+		var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+
+		//$("#myTable tbody tr:last").find(".NameCls").append(new Option("--Select--","")); 
+		$("#myTable tbody tr:last").find(".empCls1").val("");
+		$("#myTable tbody tr:last").find(".empNameCls").val("");
+		$("#myTable tbody tr:last").find(".leaveCls").val("");
+		$("#myTable tbody tr:last").find(".leaveStatusCls").val("");
+
+		var editTr = 0;
+
+		if (lengthOfTableRow > editTr) {
+			$("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last')
+					.append(removeMore);
+		}
+
+		$("#myTable tbody tr:last").find(".empCls1").empty();
+		$("#myTable tbody tr:last").find(".empCls1").val("");
+		$("#myTable tbody tr:last").find(".empCls").empty();
+		$("#myTable tbody tr:last").find(".empCls").val("");
+
+		$("#myTable > tbody > tr").each(function(i) {
+			var textInput = $(this).find('input');
+			var divInput = $(this).find('div');
+
+			textInput.eq(0).attr('id', "emp_" + i);
+			textInput.eq(1).attr('id', "empId_" + i);
+			textInput.eq(2).attr('id', "empName_" + i);
+			/* textInput.eq(3).attr('id',"date_"+i); */
+			textInput.eq(3).attr('id', "leav_" + i);
+			textInput.eq(4).attr('id', "apvStatus_" + i);
+
+			divInput.eq(0).attr('id', "suggesstion-box_" + i);
+
+			$(".dateCls").datetimepicker({
+				format : 'd-m-Y',
+				closeOnDateSelect : true,
+				timepicker : false,
+			});
+
+		})
+
+	}
+	$(document)
+			.ready(
+					function() {
+						activaTab('menu0');
+						$("#fromDate").datetimepicker({
+							format : 'd-m-Y',
+							closeOnDateSelect : true,
+							timepicker : false,
+						});
+
+						$("#toDate").datetimepicker({
+							format : 'd-m-Y',
+							closeOnDateSelect : true,
+							timepicker : false,
+						});
+						//for minus
+						var lengthOfTableRow = $("#tbodyData").children('tr').length;
+						$('.tbll')
+								.on(
+										'click',
+										'.rmv',
+										function() {
+											$(this).closest('tr').remove();
+
+											$("#myTable tbody tr:last").find(
+													'td:last').html('');
+											var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+											var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+											if ($("#tbodyData").children('tr').length > 1) {
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(add);
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(remove);
+											} else {
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(add);
+											}
+
+										});
+					});
+
+	function activaTab(tab) {
+		$('.nav-tabs a[href="#' + tab + '"]').tab('show');
+	};
+
+	function checkEmpty() {
+
+		addMore();
+	}
+</script>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<!--Alert Box-->
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		<!--Alert Box-->
+		<div class="col-md-12">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>Set Development Goal</span></li>
+				<!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>Set Development Goal</h4>
+		</div>
+		<div class="container-fluid">
+			<div class="card">
+				<div class="card-body">
+					<div class="basic-elements">
+						<div class="row">
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>Employee Name</label> <select
+										class="form-control propertyCatName" id="empId">
+										<option value="">--Select--</option>
+										<option th:if="${Edit}" th:each="c:${EmployeeList}"
+											th:value='${c.key}' th:text="${c.name}"
+											th:selected='${c.key==certiAssign[0].empId}'></option>
+										<option th:unless="${Edit}" th:each="c:${EmployeeList}"
+											th:value='${c.key}' th:text="${c.name}"></option>
+
+									</select>
+								</div>
+							</div>
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>Designation</label> <select class="form-control">
+										<option>All</option>
+										<option>Manager</option>
+										<option>Supervisor</option>
+										<option>Staff</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>From</label> <input type="text" id="fromDate" readonly class="form-control">
+								</div>
+							</div>
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>To</label> <input type="text" id="toDate" readonly class="form-control">
+								</div>
+							</div>
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>Supervisor Name</label> <select
+										class="form-control propertyCatName" id="empId">
+										<option value="">--Select--</option>
+										<option th:if="${Edit}" th:each="c:${EmployeeList}"
+											th:value='${c.key}' th:text="${c.name}"
+											th:selected='${c.key==certiAssign[0].empId}'></option>
+										<option th:unless="${Edit}" th:each="c:${EmployeeList}"
+											th:value='${c.key}' th:text="${c.name}"></option>
+
+									</select>
+								</div>
+							</div>
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>Designation</label> <select class="form-control">
+										<option>All</option>
+										<option>Manager</option>
+										<option>Supervisor</option>
+										<option>Staff</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-lg-12">
+								<div class="row">
+									<table class="tbll" id="myTable">
+										<thead>
+											<tr>
+												<th>KRA</th>
+												<th>Expected Out Core</th>
+												<th>Priorty</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<tr>
+												<td width="300"><input type="hidden" id="emp_0"
+													class="form-control empCls"> <textarea type="text"
+														id="empId_0" class="form-control empCls1" /></textarea>
+												<td width="300"><input type="hidden" id="emp_0"
+													class="form-control empCls"> <textarea type="text"
+														id="empId_0" class="form-control empCls1" /></textarea>
+												<td width="300"><input type="hidden" id="emp_0"
+													class="form-control empCls"> <textarea type="text"
+														id="empId_0" class="form-control empCls1" /></textarea>
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="checkEmpty();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+
+											</tr>
+
+											<!-- <tr>
+												<td colspan="4">
+													<div align="left">
+														<button class="btn btn-success">Save</button>
+														<button class="btn btn-warning">Close</button>
+													</div>
+												</td>
+											</tr> -->
+										</tbody>
+									</table>
+									
+									<div style="margin-top: 10px;" >
+										<button type="submit" class="btn btn-success">submit</button>
+										<button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+									</div>
+								</div>
+								<div style="clear: both;"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+</html>

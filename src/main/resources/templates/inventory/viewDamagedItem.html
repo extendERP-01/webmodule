@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style type="text/css">
+.sidebar.sidebar-shrink ~.content-wrap {
+	margin-left: 250px;
+	-webkit-transition: margin-left 300ms ease-in-out;
+	transition: margin-left 300ms ease-in-out;
+	height: 100vh !important;
+}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+		//Method for listing of all the Item Records
+		$('#itemList').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-damaged-items-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'tItem'
+			}, {
+				'data' : 'tItemSlNo'
+			}, {
+				'data' : 'tDamagedDesc'
+			}, {
+				'data' : 'status'
+			},{
+				'data' : 'tItemReSaleValue'
+			}, {
+				'data' : 'tVendor'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+	
+	
+	//Method For Searching Records In The List
+	
+	function searchData() {
+		$('#itemList').DataTable().draw();
+	}
+	// Method For View Details In Model
+	
+	function viewInModelData(index) {
+		$('#itemModel').empty();
+		var id = window.atob(index);
+		$.ajax({
+			type : "POST",
+			url : "view-damaged-items-model",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					var tStatus = "";
+					if (response.body.tStatus) {
+						tStatus = "ReSale";
+					} else {
+						tStatus = "Scraped";
+					}
+
+					table = '<tr><td>Item : :</td>' + '<td>'
+							+ response.body.tItem + '</td>'
+							+'</tr><tr><td>Serial No. :</td>' + '<td>'
+							+ response.body.tItemSlNo + '</td>'
+							+'</tr><tr><td>Description  :</td>' + '<td>'
+							+ response.body.tDamagedDesc + '</td>'
+							+ '</tr><tr><td>Item Status:</td>' + '<td>'
+							+ tStatus
+							+ '</td></tr><tr><td> ReSale Value :</td>' + '<td>'
+							+ response.body.tItemReSaleValue
+							+ '</td></tr><tr><td>Vendor :</td>' + '<td>'
+							+ response.body.tVendor
+							+ '</td></tr>';
+					$('#myModal').modal('show');
+					$('#itemModel').append(table);
+				}
+			},
+			error : function(data) {
+			}
+		})
+	}
+
+	//Deleting the Item
+	
+	function deleteItem(id){
+		swal.fire({
+			  title: "Are you sure want to Delete?",
+			  text: "Once Deleted,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'Delete',
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/inventory/view-damaged-items-delete?id="+ id,
+					    success: function(response) {
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Record Deleted Successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        	
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+	}
+	
+
+</script>
+<script>
+//change status to Scrapped
+function ChangeToScraped(id){
+	swal.fire({
+		  title: "Are you sure want to change the status to Scrapped?",
+		/*   text: "Once Deleted,Can't revert back !", */
+		  type: "warning",
+		  showCancelButton: true,
+		  confirmButtonColor: '#d33',
+		  cancelButtonColor: '#e7b63a',
+		  confirmButtonText: 'Change Status',
+		  //closeOnConfirm: false,
+		  reverseButtons : true
+		  
+		}).then((result) => {
+			if(result.value){
+			 $.ajax({
+				    type: "GET",
+				    url:"/inventory/view-damaged-items-change-statusToScrapped?id="+ id,
+				    success: function(response) {
+				        if (response.message == "success") {
+				        	swal({
+				        		title: "Status Changed Successfully.",
+				        		type: "success"
+				        	}).then(function(){
+				        		 location.reload();
+				        	})
+				        
+				        	
+				        } else {
+				            swal({
+				                title: 'Unsuccess',
+				                text: response.code
+				            })
+				        }
+				    },
+				    error: function(data) {
+			       
+				    }
+				})
+			}
+		  
+		});
+}
+//change status to reSale
+function ChangeToReSale(id){
+	swal.fire({
+		  title: "Are you sure want to change the status to ReSale?",
+		/*   text: "Once Deleted,Can't revert back !", */
+		  type: "warning",
+		  showCancelButton: true,
+		  confirmButtonColor: '#d33',
+		  cancelButtonColor: '#e7b63a',
+		  confirmButtonText: 'Change Status',
+		  //closeOnConfirm: false,
+		  reverseButtons : true
+		  
+		}).then((result) => {
+			if(result.value){
+			 $.ajax({
+				    type: "GET",
+				    url:"/inventory/view-damaged-items-change-statusToReSale?id="+ id,
+				    success: function(response) {
+				        if (response.message == "success") {
+				        	swal({
+				        		title: "Status Changed Successfully.",
+				        		type: "success"
+				        	}).then(function(){
+				        		 location.reload();
+				        	})
+				        
+				        	
+				        } else {
+				            swal({
+				                title: 'Unsuccess',
+				                text: response.code
+				            })
+				        }
+				    },
+				    error: function(data) {
+			       
+				    }
+				})
+			}
+		  
+		});
+}
+//function for auto filled of item name
+function itemAutoComplete() {
+	alert($("#param1").val());
+	$.ajax({
+				type : "POST",
+				url : "view-damaged-items-paramItem-autocompleteList",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#param1").val(),
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						if (response.body.length != 0) {
+							console.log("if: " + response);
+							$("#param1").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							for (var i = 0; i < response.body.length; i++) {
+								content += '<li onClick="selectAutocompleteValue(\''
+										+ response.body[i].key
+										+ '\',\''
+										+ response.body[i].name
+										+ '\')">'
+										+ response.body[i].key
+										+ '('
+										+ response.body[i].name
+										+ ')'
+										+ '</li>';
+							}
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+
+						} else {
+							console.log("else: " + response);
+							$("#param1").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							content += '<li onClick="selectAutocompleteValue(\''
+									+ ''
+									+ '\',\''
+									+ ''
+									+ '\')">'
+									+ "No Data Found" + '</li>';
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+}
+function selectAutocompleteValue(key, name) {
+	if (key) {
+		$("#param1").val(key);
+	
+		$("#param1").attr('data-procat', key);
+	
+		$("#suggesstion-box").hide();
+	} else {
+		$("#param1").val("");
+	
+		$("#param1").attr('data-procat', "");
+	
+		$("#suggesstion-box").hide();
+	}
+}
+
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a href="#">View User</a></li>
+                  <li><a href="#">Manage User</a></li> -->
+					<li><a href="add-damaged-items">Add Damaged Item</a></li>
+					<li class="active"><span>View Damaged Item Details</span></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+				</ul>
+				<div class="card">
+
+					<div id="demo" class="collapse">
+						<div class="search-field">
+							<div class="row">
+								<div class="col-md-2">
+									<div class="org-name">Item</div>
+								</div>
+								<div class="col-md-3">
+									<input type="text" class="form-control" id="param1"
+										onkeyup="itemAutoComplete();" />
+									<div id="suggesstion-box"></div>
+								</div>
+								<div class="col-md-2">
+									<div class="org-name">Vendor</div>
+								</div>
+								<div class="col-md-3">
+									<select class="form-control" id="param2">
+										<option th:value="null">Select</option>
+										<option th:each="c:${vendorName}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<button class="btn btn-primary" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<a data-toggle="collapse" data-target="#demo"
+						class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+					</a>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="itemList" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Item</th>
+										<th>Serial No.</th>
+										<th>Description</th>
+										<th>Status</th>
+										<th>ReSale Value</th>
+										<th>Vendor</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Start-->
+
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Item</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="itemModel">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

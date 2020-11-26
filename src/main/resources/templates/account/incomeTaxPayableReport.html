@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.sidebar.sidebar-shrink ~.content-wrap {
+	margin-left: 250px;
+	-webkit-transition: margin-left 300ms ease-in-out;
+	transition: margin-left 300ms ease-in-out;
+	height: 100vh !important;
+}
+</style>
+<script type="text/javascript">
+	
+//datepicker() Starts
+$(function() {
+	//date time picker
+	$( "#param1" ).datetimepicker({
+	format:'d-m-Y',
+	closeOnDateSelect: true,
+
+	timepicker : false,
+	})
+	$( "#param2" ).datetimepicker({
+	format:'d-m-Y',
+	closeOnDateSelect: true,
+
+	timepicker : false,
+	})
+
+});
+
+//Validation Function (Two Date Field Must Required)
+function validateFormPdf() {
+	if (!blankValidation("param1", "TextField", "From Date Is Required"))
+		return false;
+	if (!blankValidation("param2", "TextField", "To Date Is Required"))
+		return false;
+
+	var startdate = $("#param1").val();
+
+	var start = startdate.split('-');
+	var date1 = start[0];
+	var month1 = start[1];
+	var year1 = start[2];
+
+	var startday = parseInt(date1);
+	var startmonth = parseInt(month1);
+	var startyear = parseInt(year1);
+
+	var enddate = $("#param2").val();
+
+	var end = enddate.split('-');
+	var date2 = end[0];
+	var month2 = end[1];
+	var year2 = end[2];
+
+	var endday = parseInt(date2);
+	var endmonth = parseInt(month2);
+	var endyear = parseInt(year2);
+
+	if (endyear < startyear) {
+
+		swal("From Date should be less than To date");
+		return false;
+	}
+
+	if (endyear == startyear) {
+
+		if (endmonth < startmonth) {
+			swal("From Date should be less than To date");
+			return false;
+		}
+
+		else if (endmonth == startmonth) {
+
+			if (endday < startday) {
+
+				swal("From Date should be less than To date");
+				return false;
+			} else if (endday == startday) {
+
+				swal("From Date should be less than To date");
+				return false;
+			}
+		}
+	}
+
+	pdfCreation();
+
+}
+
+//Validation Function (Two Date Field Must Required)
+function validateForm() {
+	if (!blankValidation("param1", "TextField", "From Date Is Required"))
+		return false;
+	if (!blankValidation("param2", "TextField", "To Date Is Required"))
+		return false;
+
+	var startdate = $("#param1").val();
+
+	var start = startdate.split('-');
+	var date1 = start[0];
+	var month1 = start[1];
+	var year1 = start[2];
+
+	var startday = parseInt(date1);
+	var startmonth = parseInt(month1);
+	var startyear = parseInt(year1);
+
+	var enddate = $("#param2").val();
+
+	var end = enddate.split('-');
+	var date2 = end[0];
+	var month2 = end[1];
+	var year2 = end[2];
+
+	var endday = parseInt(date2);
+	var endmonth = parseInt(month2);
+	var endyear = parseInt(year2);
+
+	if (endyear < startyear) {
+
+		swal("From Date should be less than To date");
+		return false;
+	}
+
+	if (endyear == startyear) {
+
+		if (endmonth < startmonth) {
+			swal("From Date should be less than To date");
+			return false;
+		}
+
+		else if (endmonth == startmonth) {
+
+			if (endday < startday) {
+
+				swal("From Date should be less than To date");
+				return false;
+			} else if (endday == startday) {
+
+				swal("From Date should be less than To date");
+				return false;
+			}
+		}
+	}
+
+	pdfPreview();
+
+}
+
+//date comparision
+
+//Validation Function (Two Date Field Must Required)
+function validateFormXls() {
+	if (!blankValidation("param1", "TextField", "From Date Is Required"))
+		return false;
+	if (!blankValidation("param2", "TextField", "To Date Is Required"))
+		return false;
+
+	var startdate = $("#param1").val();
+
+	var start = startdate.split('-');
+	var date1 = start[0];
+	var month1 = start[1];
+	var year1 = start[2];
+
+	var startday = parseInt(date1);
+	var startmonth = parseInt(month1);
+	var startyear = parseInt(year1);
+
+	var enddate = $("#param2").val();
+
+	var end = enddate.split('-');
+	var date2 = end[0];
+	var month2 = end[1];
+	var year2 = end[2];
+
+	var endday = parseInt(date2);
+	var endmonth = parseInt(month2);
+	var endyear = parseInt(year2);
+
+	if (endyear < startyear) {
+
+		swal("From Date should be less than To date");
+		return false;
+	}
+
+	if (endyear == startyear) {
+
+		if (endmonth < startmonth) {
+			swal("From Date should be less than To date");
+			return false;
+		}
+
+		else if (endmonth == startmonth) {
+
+			if (endday < startday) {
+
+				swal("From Date should be less than To date");
+				return false;
+			} else if (endday == startday) {
+
+				swal("From Date should be less than To date");
+				return false;
+			}
+		}
+	}
+
+	downloadExcel();
+
+}
+	//PDF Print Function
+	function pdfCreation() {
+		window.open(
+				"/account/download-income-tax-payable-report?param1="
+						+ window.btoa($('#param1').val()) + "&param2="
+						+ window.btoa($('#param2').val()) , '_blank');
+						
+	}
+	
+	//PDF Print Preview Function
+	
+	
+	function pdfPreview() {
+	
+				window.open("/account/preview-income-tax-payable-report?param1="
+						+ window.btoa($('#param1').val()) + "&param2="
+						+ window.btoa($('#param2').val()) , '_blank');
+			}
+
+	/*
+	*excel download
+	*/
+	
+	function downloadExcel(){
+		var param1 =$("#param1").val() ;
+		var param2 = $("#param2").val();
+		
+		
+		window.open("excel-download-income-tax-payable-report?param1="+window.btoa(param1)+"&param2="+window.btoa(param2), '_blank');
+	}
+	
+	
+	//Reload Page Function
+	function funcLoad() {
+		location.reload();
+	}
+		
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="card-title">
+					<h4>Income Tax Payable Report</h4>
+				</div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>From Date</label> <input type="text" class="form-control" id="param1" readonly>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>To Date</label> <input type="text" class="form-control" id="param2" readonly>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="form-group">
+										<button class="btn btn-primary" onclick="funcLoad();">
+											Reset</button>
+										<button type="button" class="btn btn-primary"
+											onclick="validateForm();">Print Preview</button>
+										<button type="button" class="btn btn-primary"
+											onclick="validateFormPdf();">Print</button>
+										<button type="button" class="btn btn-primary"
+											onclick="validateFormXls();">Print xls</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+</div>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	
+	
+	function viewInModel(index) {
+		$('#table1').empty();
+		$.ajax({
+					type : "POST",
+					url : "view-planning-approve-stage-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "Success") {
+							table = '<tr><td>Employee Name :</td>'
+									+ '<td align="left">'
+									+ response.body[0].empName
+									+ '</td>'
+									+ '</tr><tr><td>Traveling Place :</td><td align="left">'
+									+ response.body[0].placeName
+									+ '</tr><tr><td>Travelling Requisition Id:</td><td align="left">'
+									+ response.body[0].reqId
+									+ '</tr><tr><td>Traveling From Date :</td><td align="left">'
+									+ response.body[0].fromDate
+									+ '</tr><tr><td>Traveling To Date :</td><td align="left">'
+									+ response.body[0].toDate
+									+ '</tr><tr><td>Travelling Purpose :</td><td align="left">'
+									+ response.body[0].purpose
+									+ '</td></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+                             table = '<tr class="modalIn"><th><b>Reimbursement Type </b></th><th><b>Policy Name </b></th><th><b>Expense Date</b></th><th><b>Expense Desc</b></th><th><b>Expense Amount</b></th><th><b>Reference Number</b></th>' ;
+							
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+							
+							for (var i=0; i<response.body.length; i++) {
+								table =  '<tr><td>'
+									+ response.body[i].reimTypeName
+									+ '</td><td>'
+									+ response.body[i].policyName
+									+ '</td><td>'
+									+ response.body[i].rembDate
+									+ '</td><td>'
+									+ response.body[i].rembDesc
+									+ '</td><td>'
+									+ response.body[i].rembAmount
+									+ '</td><td>'
+									+ response.body[i].rembRefNo
+									+ '</td></tr>';
+								$('#myModal').modal('show');
+								$('#table1').append(table);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-production-planning-approve-stage-throughajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'ppId'
+			}, {
+				'data' : 'fromDate'
+			}, {
+				'data' : 'toDate'
+			}, {
+				'data' : 'productionStatusName'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+</script>
+<script type="text/javascript">
+
+
+//Forward the reimbursement 
+function forwardplanning(id){
+	swal.fire({
+		  title: "Are you sure want to forward?",
+		  text: "Once forward,Can't revert back !",
+		  type: "warning",
+		  showCancelButton: true,
+		  confirmButtonColor: '#d33',
+		  cancelButtonColor: '#e7b63a',
+		  confirmButtonText: 'forward',
+		  //closeOnConfirm: false,
+		  reverseButtons : true
+		  
+		}).then((result) => {
+			if(result.value){
+			 $.ajax({
+				    type: "GET",
+				    url:"/production/save-planning-approval-action?id="+ id,
+				    success: function(response) {
+				    	console.log(response);
+				        if (response.message == "Success") {
+				        	swal({
+				        		title: "Planning forwarded successfully.",
+				        		type: "success"
+				        	}).then(function(){
+				        		 location.reload();
+				        	})
+				        
+				        } else {
+				            swal({
+				                title: 'Unsuccess',
+				                text: response.code
+				            })
+				        }
+				    },
+				    error: function(data) {
+			       
+				    }
+				})
+			}
+		  
+		});
+	
+}
+//end 
+
+//Start Reject reimbursement
+function rejectplanning(id,rejectaction){
+	$("#planningId").val(id);
+	$("#rejectActionId").val(rejectaction); 
+	if($("#rejectActionId").val() == '1'){
+		$("#modal-title-id").html("Reject Planning");
+	}else if($("#rejectActionId").val() == '2'){
+		$("#modal-title-id").html("Return Planning");
+	}else{
+		$("#modal-title-id").html("Resubmit Planning");
+	}
+	$('#approvalActionModal').modal('show');
+	
+}
+//End of Reject reimbursement
+
+//Save rejected reimbursement comment
+function saveRejectplanning(){
+	if($("#rejectActionId").val() == '1'){
+		var titleval = "Are you sure want to reject?";
+		var textval = "Once reject,Can't revert back !";
+		var confirmButtonTextval = 'reject';
+	}else if($("#rejectActionId").val() == '2'){
+		var titleval = "Are you sure want to return?";
+		var textval = "Once reject,Can't revert back !";
+		var confirmButtonTextval = 'return';
+	}else{
+		var titleval = "Are you sure want to resubmit?";
+		var textval = "Once resubmit,Can't revert back !";
+		var confirmButtonTextval = 'resubmit';
+	}
+	$('#approvalActionModal').modal('hide');
+	swal.fire({
+		  title: titleval,
+		  text: textval,
+		  type: "warning",
+		  showCancelButton: true,
+		  confirmButtonColor: '#d33',
+		  cancelButtonColor: '#e7b63a',
+		  confirmButtonText: confirmButtonTextval,
+		  reverseButtons : true
+		  
+		}).then((result) => {
+			if(result.value){
+				
+			 var ppId = $("#planningId").val();
+			 var rejectionComment = $("#rejectionCommentId").val();
+			 var rejectAction = $("#rejectActionId").val();
+			 $.ajax({
+				    type : "POST",
+					url : "save-planning-reject-action",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : JSON.stringify({'ppId':ppId,'returnDesc':rejectionComment,'returnType':rejectAction}),
+					success: function(response) {
+				    	console.log(response);
+				        if (response.message == "Success") { 
+				        	swal({
+				        		title: "Planning  status Updated successfully.",
+				        		type: "success"
+				        	}).then(function(){
+				        		 location.reload();
+				        	})
+				        
+				        } else {
+				            swal({
+				                title: 'Unsuccess',
+				                text: response.code
+				            })
+				        }
+				    },
+				    error: function(data) {
+			       
+				    }
+				})
+			}
+		  
+		});
+}
+//End of save
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>View Production Planning Approve</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>From Date</label> <input class="form-control"
+										type="text" readonly placeholder="" name="" id="param1">
+								</div>
+							</div>
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>To Date</label> <input class="form-control" type="text"
+										readonly placeholder="" name="" id="param2">
+								</div>
+							</div>
+							<div class="col-md-2" style="margin-top: auto;">
+								<div class="form-group">
+									<button class="btn btn-primary" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblTheme" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Production planning</th>
+									<th>Start Date</th>
+									<th>End Date</th>
+									<th>Approve Status</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Planning</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+
+		<!-- Modal Start -->
+		<div id="approvalActionModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="modal-title-id">Reject Planning</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="planningId" value="0"> <input
+							type="hidden" id="rejectActionId" value="1">
+						<div class="form-group">
+							<label>Comment :</label>
+							<textarea class="form-control" id="rejectionCommentId" rows="4"></textarea>
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success"
+							onclick="saveRejectplanning()">Save</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End -->
+	</div>
+</div>
+</html>

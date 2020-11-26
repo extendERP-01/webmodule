@@ -1,0 +1,909 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;  
+	 
+	position: absolute;
+	z-index: 9999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f2f2f2;
+	border-bottom: 1px solid #373757;
+	color: #373757;
+	font-weight: 500;
+}
+
+#autocomplete-list li:hover {
+	background: #373757;
+	color: #f2f2f2;
+	cursor: pointer;
+}
+
+.overSelect {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.selectBox {
+	position: relative;
+}
+
+.selectBox select {
+	width: 100%; 
+	font-weight: bold; 
+	font-size: 14px;
+}
+
+.checkClass {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+.checkClass1 {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+.checkClass label {
+	display: block;
+}
+
+.checkClass1 label {
+	display: block;
+}
+
+.sub-tbl th {
+	font-size: 14px;
+	font-weight: 500;
+	color: #2c61e1;
+}
+
+.sub-tbl thead {
+	border-bottom: 1px solid #000;
+	background-color: #f5eba8;
+}
+
+.sub-tbl td {
+	font-size: 12px;
+	color: #000;
+}
+</style>
+
+<script>
+
+$(document).ready(function(){
+	$("#goalData").hide();
+	//on change function
+	$("#financialDate").on('change', function() {
+		var financialDate = $(this).val();
+		if (financialDate) {
+
+			$.ajax({
+				type : 'POST',
+				url : 'add-employee-appraisal-details-fromDate-throughAjax',
+				contentType : false,
+				data : financialDate,
+				success : function(response) {
+					console.log(response)
+					if (response.message == "success") {
+						$("#financialFromDate").empty();
+						/* console.log(response.body);
+						var option = $("<option></option>");
+						$(option).val(null);
+						$(option).html("--Select--");
+						$("#financialFromDate").append(option); */
+						for (var i = 0; i < response.body.length; i++) {
+						/* 	var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							console.log(option); */
+							$("#financialFromDate").val(response.body[i].name);
+						}
+					}
+				},
+				error : function(e) {
+					alert("error");
+				}
+			});
+		} else {
+			$("#financialFromDate").empty();
+			var option = $("<option></option>");
+			$(option).val(null);
+			$(option).html("select");
+			$("#financialFromDate").append(option);
+		}
+	});
+
+
+		//FOR MINUS
+		
+		
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var lengthOfTableCol = $("#tbodyData").children('colspan').length;
+		$('.tbll').on('click', '.rmv', function () {
+			$(this).closest('tr').remove();
+			$("#myTable tbody tr:last").find('td:last').html('');
+			var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+			var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+			if($("#tbodyData").children('tr').length > 1){
+				$("#myTable tbody tr:last").find('td:last').append(add);
+				$("#myTable tbody tr:last").find('td:last').append(remove);
+			}else{
+				$("#myTable tbody tr:last").find('td:last').append(add);
+			}
+			displayTable();
+		});
+		
+ // Function for saving data 
+
+		$("#submitItems").click(function(){		
+			var stageNo = 1;
+			var dataset = [];
+			
+		 	$("#tbodyData > tr").each(function(i){
+				
+				$(this).find("input:checkbox[name=user_]:checked").each(function(j){
+					
+				item = {};	
+				item['isedit']	        	             =	$("#isedit").val();
+				item['financialFromDate']	        	 =	$("#financialFromDate").val();
+				item['tSetAuthorityNFA']	        	 =	$("#tStaff").val();
+				item['tAppraisalFrequency']	        	 =	$("#tAppraisalFrequency").val();
+				item['financialDate']	        	     =	$("#financialDate").val();
+				item['tAppraisalDueDate']                =  $("#tAppraisalDueDate").val();
+				item['tSetAuthorityStageNo'] 		     =	stageNo;
+                item['tUserRole']	                 =	$(this).closest("tr").find(".tUserRoleCls").val();
+                
+                
+				item['tEmployee']	        		=	$(this).val();	
+				item['tSetAuthorityTAT']   	 	  =	$(this).closest("tr").find(".tSetAuthorityTATCls").val();
+				dataset.push(item);		
+				//console.log(item);
+				});		
+				stageNo++;
+			}); 
+			/* table tbody tr loop ends */
+			submitAppraisalDetails(dataset);
+
+		//Blank Validations 
+			if (!blankValidation("tStaff","SelectBox" ,"Please Enter Employee Id"))
+				return false;
+
+						
+
+			if (!blankValidation("tAppraisalFrequency","SelectBox", "Please select Appraisal Policy"))
+				return false;
+				
+			
+			if (!blankValidation("financialDate","SelectBox", "Please select Financial Year"))
+				return false;
+				
+			 if (!blankValidation("tAppraisalDueDate","TextField", "Please enter Due Days"))
+				return false; 
+			
+			
+						var roleValid =true;
+						$('.tUserRoleCls').each(function(){
+						if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Role")){
+
+							roleValid =false;
+						return false;
+						}
+
+						});
+
+						
+					  
+						var tatValid =true;
+						if(roleValid ){
+						$('.tSetAuthorityTATCls').each(function(){
+						if (!blankValidation($(this).attr('id'),"TextField" ,"Please define TAT ")){
+							tatValid =false;
+						return false;
+						}
+
+						});
+						}
+						if(roleValid  && tatValid){
+						var checkedCount = $('input:checkbox[name=user_]:checked').length;
+						if (checkedCount == 0) {
+							swal({
+								title	: "Please Choose Employee Name To Approve",
+							})
+							return false; 
+						}
+						
+						
+						
+							 
+					
+							submitAppraisalDetails(dataset);
+					
+					}
+				});
+						
+			});	
+				
+
+</script>
+
+
+<script>
+
+//function for auto filled of employee name
+function staffAutoComplete() {
+	$
+			.ajax({
+				type : "POST",
+				url : "add-employee-appraisal-details-employeeAutocompleteList",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#tStaff").val(),
+
+				success : function(response) {
+					if (response.message == "success") {
+
+						if (response.body.length != 0) {
+							console.log("if: " + response);
+							$("#tStaff").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							for (var i = 0; i < response.body.length; i++) {
+								content += '<li onClick="selectAutocompleteValue(\''
+										+ response.body[i].key
+										+ '\',\''
+										+ response.body[i].name
+										+ '\')">'
+										+ response.body[i].key
+										+ '('
+										+ response.body[i].name
+										+ ')'
+										+ '</li>';
+							}
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+
+						} else {
+							console.log("else: " + response);
+							$("#tStaff").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							content += '<li onClick="selectAutocompleteValue(\''
+									+ ''
+									+ '\',\''
+									+ ''
+									+ '\')">'
+									+ "No Data Found" + '</li>';
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+}
+function selectAutocompleteValue(key, name) {
+	if (key) {
+		$("#tSetAuthorityNFA").val(key);
+		$("#tStaff").val(key);
+		$("#tStaff").attr('data-procat', key);
+		$("#staff").val(name);
+		$("#suggesstion-box").hide();
+		getGoalDetails(key);
+	} else {
+		$("#tSetAuthorityNFA").val("");
+		$("#tStaff").val("");
+		$("#tStaff").attr('data-procat', "");
+		$("#staff").val("");
+		$("#suggesstion-box").hide();
+	}
+}
+
+
+function getGoalDetails(key){
+	$("#goalData").show();
+}
+
+
+/* Function for blank validation */
+
+function checkEmpty(){
+
+	var roleValid =true;
+	$('.tUserRoleCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Role")){
+
+		roleValid =false;
+	return false;
+	}
+
+	});
+
+	
+  
+	var tatValid =true;
+	if(roleValid ){
+	$('.tSetAuthorityTATCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"TextField" ,"Please define TAT ")){
+		tatValid =false;
+	return false;
+	}
+
+	});
+	}
+	if(roleValid  && tatValid){
+	var checkedCount = $('input:checkbox[name=user_]:checked').length;
+	if (checkedCount == 0) {
+		swal({
+			title	: "Please Choose Employee Name To Approve",
+		})
+		return false; 
+	}
+	
+	
+		addMore();
+	}
+}
+/* Function for adding more Table row */
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var lengthOfTableCol = $("#tbodyData").children('colspan').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	$("#myTable tbody tr:last").find('.tUserRoleCls').val("");
+	$("#myTable tbody tr:last").find('.tEmployeeCls').attr('checked',false);
+	$("#myTable tbody tr:last").find('.tSetAuthorityTATCls').val("");
+
+	var editTr = 0;
+
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+
+ /* BLANK FIELD START */
+	$("#myTable tbody tr:last").find(".tUserRoleCls").val("");
+	$("#myTable tbody tr:last").find(".checkClass").hide();
+	$("#myTable tbody tr:last").find(".checkClass1").hide();
+	
+	if($("#myTable tbody tr:last").find(".tUserRoleCls").val("")){
+		$("#myTable tbody tr:last").find(".checkClass").empty();
+	} 
+
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input') ;
+		var divInput = $(this).find('div') ;
+		var checkBox = $(this).find('input:checkbox:first').attr('checked', 'checked');
+		var buttonInput = $(this).find('button') ;
+		
+		selectInput.eq(0).attr('id',"userRole_"+i);
+		textInput.eq(0).attr('id',"selectUser_"+i);		
+		textInput.eq(textInput.length-1).attr('id',"TAT_"+i);
+		divInput.eq(0).attr('id',"mselct_"+i);
+		divInput.eq(4).attr('id',"mselct1_"+i);
+		divInput.eq(3).attr('id',"checkboxes_"+i);
+		buttonInput.eq(0).attr('id',"selectDiv_"+i);
+
+	})
+}
+
+//get user name from user role
+function getUserRoleName(event){
+	var cId = event.currentTarget.id;
+	var userRole = event.currentTarget.value;
+	var l = cId.split("_");
+	var counter = l[1];
+	var count = 0;
+	var i = 1;
+	$(".tUserRoleCls").each(function() {		
+		if (userRole == $(this).val()) {
+			count++;	
+		}			
+	})
+	if (count>=2 ){
+	
+	}
+	else{
+		$("#checkboxes_"+counter).hide();			
+		if (userRole !="") {
+			 $("#checkboxes_"+counter).show();
+			 $.ajax({
+				type : 'POST',
+				url : 'add-employee-appraisal-details-name-throughAjax',
+				contentType : false,
+				data : userRole,				
+				success : function(response) {				
+					$("#checkboxes_"+counter).empty();
+				    for (var i = 0; i < response.body.length; i++) {
+						var divContent ="<label ><input type='checkbox' name='user_'   class='tEmployeeCls' value='"+response.body[i].key+"'/>"+response.body[i].name+" </label>";
+						$("#checkboxes_"+counter).append(divContent);
+					}  				 
+				},
+				error : function(e) {
+					console.log("error",e);
+				}
+			});
+		}
+		else {
+			$("#checkboxes_"+counter).empty();
+		}
+	}
+}
+
+/* Function for Submit PupUp */
+
+
+function submitAppraisalDetails(dataset){
+
+	console.log(dataset)
+	swal.fire({
+		title				: "Are you sure want to Submit?",
+		text				: "Once Submited,Can't revert back !",
+		type 				: "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+	
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+		showLoaderOnConfirm	: true,
+		preConfirm: () => {
+						return new Promise((resolve) => {
+							setTimeout(() => {
+								console.log("Doing async operation");
+								resolve()
+							}, 3000)
+						})
+					}
+
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+			type		: "POST",
+			url 		: "add-employee-appraisal-details",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(dataset),
+			success		: function(response){
+				console.log(response);
+				if(response.message=="Success"){
+					swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+					}).then(function(){
+							window.location.href = "/employee/view-employee-appraisal-details" ;
+					})
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	}
+	})//swal function block ends
+}//submit function ends
+
+//Function for cancel button
+
+function funcLoad(){
+	location.reload();
+} 
+/*  function returnToAddPage(){
+	var item = $("#reqstnIssueNote").val();
+	if((item == null)||(item == "")){
+		funcLoad();
+	}
+	else{
+		window.location.href = "/user/add-set-authority" ;
+	}
+}  */
+
+//function to check duplicate entry of user role   in edit time
+	function checkForDuplicateEntryForuserRoleTable(event) {
+		var userRoleTable = event.currentTarget.value;
+		var count = 0;
+		var userRoleTableId = event.currentTarget.id;	
+		var i = 1;
+		var l = userRoleTableId.split("_");
+		var counter = l[1];	
+		
+		$(".userRoleNameCls").each(function() {		
+			if (userRoleTable == $(this).val()) {
+				count++;	
+				//alert(counter)
+			}			
+		})
+		if (count >= 2) {			
+			swal('This Use Role name is already selected');
+			$("#" + userRoleTableId).val("");
+			$("#checkboxes_"+counter).empty();			
+		}
+		
+	}
+//function to check duplicate entry of user role name in add time
+	function disableTableOption(){
+
+		$("#myTable > tbody > tr").each(function(i){
+			$(".userRoleNameCls option").prop("disabled", false); //enable everything
+	
+			var arr = $.map(
+			$(".userRoleNameCls option:selected"), function (n) {
+				return n.value;
+			});
+	
+			$(".userRoleNameCls option").filter(function () {
+				return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+			}).hide();
+	
+	
+			$(".userRoleNameCls option").filter(function () {
+				return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+			}).show();
+		})
+		}	
+		function displayTable(){
+			$("#myTable > tbody > tr").each(function(i){
+				var arr = $.map(
+				$(".userRoleNameCls option:selected"), function (n) {
+					return n.value;
+				});
+				$(".userRoleNameCls option").filter(function () {
+					return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+				}).show();
+			})
+		}
+
+//function for show and hide checkbox 
+	 function showCheckboxes(event) {
+		
+		  var cId = event.currentTarget.id;
+			var l = cId.split("_");
+			var counter = l[1];		
+			console.log("date are" + counter)
+				$("#checkboxes_"+counter).toggle(); 
+
+	 } 
+	 
+	 
+	 
+	 function disableStaffOption(){
+
+			$("#myTable > tbody > tr").each(function(i){
+				$(".tUserRoleCls option").prop("visible", true); //enable everything
+		
+				var arr = $.map(
+				$(".tUserRoleCls option:selected"), function (n) {
+					return n.value;
+				});
+		
+				$(".tUserRoleCls option").filter(function () {
+					return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+				}).hide();
+		
+				$(".tUserRoleCls option").filter(function () {
+					return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+				}).show();
+			})
+		}	
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Appraisal Initiate</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Appraisal Initiate</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:action="@{/employee/add-employee-appraisal-details}"
+								th:object="${reviewerAssignList}" method="post"
+								autocomplete="off">
+								<input type="hidden" id="isedit" th:value="${id}" />
+
+								<!-- <input type="hidden" id="isedit" th:value="${id}" /> -->
+								<input type="hidden" id="financialFromDate" />
+
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+
+
+
+										<div class="form-group">
+											<label>Employee Id</label> <input type="text" th:if="${id}"
+												class="form-control" id="tStaff"
+												onkeyup="staffAutoComplete();"
+												th:value="${reviewerAssignList[0].tSetAuthorityNFA}"
+												readonly> <input type="text" th:unless="${id}"
+												class="form-control" id="tStaff"
+												onkeyup="staffAutoComplete();" />
+											<div id="suggesstion-box"></div>
+										</div>
+
+										<div class="form-group">
+											<label>Name</label> <input type="text" th:if="${id}"
+												class="form-control" id="staff"
+												th:value="${reviewerAssignList[0].staff}" readonly>
+											<input type="text" th:unless="${id}" class="form-control"
+												id="staff" readonly>
+										</div>
+
+										<div class="form-group">
+											<label>Appraisal Policy</label> <select class="form-control"
+												id="tAppraisalFrequency" th:disabled='${id}'>
+												<option th:value="null">--Select--</option>
+												<option th:if="${id}" th:each="c:${policy}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==reviewerAssignList[0].tAppraisalFrequency}"></option>
+												<option th:unless="${id}" th:each="c:${policy}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+
+										<div class="form-group">
+											<label>Financial Year</label> <select class="form-control"
+												id="financialDate" th:disabled='${id}'>
+												<option th:value="null">--Select--</option>
+												<option th:if="${id}" th:each="c:${financialYear}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==reviewerAssignList[0].financialDate}"></option>
+												<option th:unless="${id}" th:each="c:${financialYear}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+
+
+
+
+										<div class="form-group" id="dueDate">
+											<label>Due Days</label> <input type="text" th:if="${id}"
+												class="form-control" id="tAppraisalDueDate"
+												th:value="${reviewerAssignList[0].tAppraisalDueDate}"
+												th:disabled='${id}'> <input type="text"
+												th:unless="${id}" class="form-control"
+												id="tAppraisalDueDate">
+										</div>
+
+									</div>
+									<div id="goalData" class="col-lg-6">
+										<table style="width: 100%;" class="sub-tbl">
+											<thead>
+												<tr>
+													<th>Sl.No</th>
+													<th>Goals</th>
+													<th>Key Area</th>
+													<th>Weighage</th>
+												</tr>
+
+											</thead>
+											<tbody>
+												<tr>
+													<td><input type="text" class="form-control" value="1"></td>
+													<td><input type="text" class="form-control"
+														value="Creativity"></td>
+													<td><textarea class="form-control" >Have a hunger for new things </textarea></td>
+													<td><input type="text" class="form-control" value="10"></td>
+												</tr>
+												<tr>
+													<td><input type="text" class="form-control" value="2"></td>
+													<td><input type="text" class="form-control"
+														value="Leadership"></td>
+													<td><textarea class="form-control">Have a great leader ship quality</textarea></td>
+													<td><input type="text" class="form-control" value="30"></td>
+												</tr>
+
+												<tr>
+													<td><input type="text" class="form-control" value="3"></td>
+													<td><input type="text" class="form-control"
+														value="Punctual"></td>
+													<td><textarea class="form-control">Finish assigned work on time</textarea></td>
+													<td><input type="text" class="form-control" value="40"></td>
+												</tr>
+
+											</tbody>
+										</table>
+
+									</div>
+
+								</div>
+								<div class="card-title">
+									<u><h4 style="color: green;">Reviewer Details</u>
+									</h4>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="2" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Employee Role</th>
+													<th>Name</th>
+													<th>TAT</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody id="tbodyData">
+
+
+
+												<!-- 	for edit -->
+
+
+
+												<tr class="tr_clone" th:if="${id}"
+													th:each="a,iter:${reviewerAssignList}">
+
+													<td valign="top"><select
+														th:id="'userRole_'+${iter.index}"
+														class="form-control tUserRoleCls"
+														onchange="getUserRoleName(event);">
+															<option value="">--Select--</option>
+															<option th:each="c:${roleList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected="${c.key ==a.tUserRole}"></option>
+													</select></td>
+
+													<td valign="top"><div id="mselct_">
+															<div class="input-group md-form form-sm form-2 pl-0">
+																<input type="text" class="form-control"
+																	value="Select User" th:id="'tEmployee'+${iter.index}"
+																	readonly>
+																<div style="float: right;">
+																	<button type="button" class="fa fa-caret-down"
+																		style="font-size: 28px" name="add"
+																		th:id="'selectDiv_'+${iter.index}"
+																		onclick="showCheckboxes(event);"></button>
+																</div>
+															</div>
+															<div th:id="'checkboxes_'+${iter.index}"
+																class="checkClass">
+																<div th:each="c:${userList[iter.index]}">
+																	<input type="checkbox" class="tEmployeeCls"
+																		name="user_" th:text="${c.name}"
+																		th:checked="${#lists.contains(activity2, c.key)}"
+																		th:value='${c.key}'>
+																</div>
+															</div>
+														</div></td>
+
+
+													<td valign="top"><input type="text"
+														th:id="'TAT_'+${iter.index}"
+														class="form-control tSetAuthorityTATCls"
+														th:value="${a.tSetAuthorityTAT}"></td>
+
+
+													<td valign="top">
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+													</td>
+												</tr>
+
+
+
+
+												<!-- for add  -->
+
+
+												<tr class="tr_clone" th:unless="${id}">
+
+													<td valign="top"><select id="userRole_0"
+														class="form-control tUserRoleCls"
+														onchange="disableStaffOption(),getUserRoleName(event);">
+															<option value="">--Select--</option>
+															<option th:each="c:${roleList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+
+													<td valign="top"><div id="mselct_">
+															<div class="input-group md-form form-sm form-2 pl-0">
+																<input type="text" class="form-control"
+																	value="Select User" id="tEmployee" readonly>
+																<div style="float: right;">
+																	<button type="button" class="fa fa-caret-down"
+																		style="font-size: 28px" name="add" id="selectDiv_0"
+																		onclick="showCheckboxes(event);"></button>
+																</div>
+															</div>
+															<div id="checkboxes_0" class="checkClass">
+																<input type="checkbox" class="tEmployeeCls" name="user_">
+															</div>
+														</div></td>
+
+
+
+
+													<td valign="top"><input type="text" id="TAT_0"
+														class="form-control tSetAuthorityTATCls"></td>
+
+													<td valign="top">
+														<button type="button" class="btn btn-primary tr_clone_add"
+															name="add" onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+							</form>
+						</div>
+
+					</div>
+					<div class="row">
+						<div class="form-group">
+							<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+							<button type="button" class="btn btn-warning"
+								onclick="returnToAddPage();">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div style="clear: both;"></div>
+</html>

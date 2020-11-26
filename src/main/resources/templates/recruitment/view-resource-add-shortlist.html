@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+var dobvalid = true;
+var upload = false;
+
+/* function dateValid() {
+
+	var val = $("#dob_" + counter).val();
+	var s = "dob_" + counter;
+
+	if (val == null || val == "") {
+		if (!blankValidation("dob_" + counter, "TextField", "Please Select DOB")) {
+			dobvalid = false;
+			return false;
+		}
+	} else if (val != null || val != "") {
+		dobvalid = underAgeValidate(s);
+	}
+} */
+
+function underAgeValidate(id) {
+	var date = document.getElementById(id).value;
+
+	var birthday = date.split("-").reverse().join("-");
+
+	var optimizedBirthday = birthday.replace(/-/g, "/");
+
+	var myBirthday = new Date(optimizedBirthday);
+
+	var currentDate = new Date().toJSON().slice(0, 10) + ' 01:00:00';
+
+	var myAge = ~~((Date.now(currentDate) - myBirthday) / (31557600000));
+
+	if (myAge < 18) {
+		swal("Employee can't be under 18 years.");
+		$("#" + id).val('');
+		return false;
+	} else {
+		return true;
+	}
+
+}
+
+function addMore() { 
+	if (dobvalid && upload) {
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+		$("#myTable tbody tr td:last").html("");
+		var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button> '
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+
+		$("#myTable tbody tr:last").find(".candCls").val("");
+		$("#myTable tbody tr:last").find(".fatherCls").val("");
+		$("#myTable tbody tr:last").find(".dobCls").val("");
+		$("#myTable tbody tr:last").find(".docCls").val("");
+		$("#myTable tbody tr:last").find(".uploadedBillCls").empty();
+		$("#myTable tbody tr:last").find(".document").val("");
+		$("#myTable tbody tr:last").find(".reqCls").val("");
+
+		var editTr = 0;
+
+		if (lengthOfTableRow > editTr) {
+			$("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+		}
+
+		$("#myTable > tbody > tr").each(function (i) {
+			var textInput = $(this).find('input');
+			var selectInput = $(this).find('select');
+			var divInput = $(this).find('div');
+
+			textInput.eq(1).attr('id', "candidate_" + i);
+			textInput.eq(3).attr('id', "fatherName_" + i);
+			textInput.eq(2).attr('id', "dob_" + i);
+			selectInput.eq(0).attr('id', "vendor_" + i);
+			divInput.eq(0).attr('id', "uploadedBillDiv_" + i);
+			textInput.eq(4).attr('id', "uploadDoc_" + i);
+			textInput.eq(0).attr('id', "reqiId_" + i);
+
+		})
+		
+		$(".dobCls").datetimepicker({
+			format: 'd-m-Y',
+			closeOnDateSelect: true,
+			timepicker: false,
+		})
+
+	} else {
+		addMore();
+	}
+
+}
+
+var count = 0;
+$(document).ready(function () {
+	
+	$(".dobCls").datetimepicker({
+		format: 'd-m-Y',
+		closeOnDateSelect: true,
+		timepicker: false,
+	})
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button> '
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if ($("#tbodyData").children('tr').length > 1) {
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		} else {
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+	});
+});
+
+function saveFile(event) {
+
+	var AssignItemQty = event.currentTarget.value;
+
+	var parts = AssignItemQty.split('.');
+	var co = parts[1];
+
+	if (co == "doc" || co == "docx" || co == "pdf") {
+
+		var currentFldId = event.currentTarget.getAttribute('id');
+		var l = currentFldId.split("_");
+		var counter = l[1];
+		var currentFldId = "#" + currentFldId;
+
+		var uFile = $(currentFldId)[0].files[0];
+		var fileName = event.currentTarget.value;
+		var lastIndex = fileName.lastIndexOf("\\");
+		if (lastIndex >= 0) {
+			fileName = fileName.substring(lastIndex + 1);
+		}
+		var extension = fileName.split(".");
+		var iURL = URL.createObjectURL(uFile);
+
+		$("#uploadedBillDiv_" + counter).html("");
+
+		var LightImg = "<a class='example-image-link' href='" + iURL + "' title='" + fileName + "' target='_balnk'>Preview Image</a>";
+
+		$("#uploadedBillDiv_" + counter).html(LightImg);
+
+		upload = true;
+
+	} else {
+		swal("Incompatible File");
+	}
+}
+
+function submitForm() {
+	//submit button function
+	count = 0;
+	var y = true;
+	var dataset = [];
+	var vendor = true;
+	var candid = true;
+	var father = true;
+	var dob = true;
+	$("#tbodyData > tr").each(function () {
+
+		var uFile = $(this).find(".document")[0].files[0];
+
+		var fileName = $(this).find(".document").val();
+
+		if (fileName != '' && fileName != 'undefined' && fileName != null) {
+			var lastIndex = fileName.lastIndexOf("\\");
+			if (lastIndex >= 0) {
+				fileName = fileName.substring(lastIndex + 1);
+			}
+			var data = '';
+			var x = [];
+
+			var reader = new FileReader();
+			reader.readAsDataURL(uFile);
+
+			reader.onload = function () {
+
+				data = reader.result.split(",");
+
+				x.push(data[1]);
+			};
+		} else {
+			var x = [];
+			x.push('empty');
+			y = false;
+		}
+
+
+		assign = {};
+		assign['fatherName'] = $("#fatherName_" + count).val();
+		assign['dob'] = $("#dob_" + count).val();
+		assign['candidateName'] = $("#candidate_" + count).val();
+		assign['vendorId'] = $('#vendor_' + count).find(":selected").val();
+		assign['requisitionId'] = $('#reqiId_0').val();
+		assign['file'] = x;
+		assign['document'] = fileName;
+
+		dataset.push(assign);
+		console.log(assign);
+
+		vendor = true;
+		if (vendor) {
+			if (!blankValidation("vendor_" + count, "SelectBox", "Please Select Vendor")) {
+				vendor = false;
+				return false;
+			}
+		}
+
+		candid = true;
+		if (candid) {
+			if (!blankValidation("candidate_" + count, "TextField", "Please Enter Candidate Name")) {
+				candid = false;
+				return false;
+			}
+		}
+
+		dob = true;
+		if (dob) {
+			if (!blankValidation("dob_" + count, "TextField", "Please Select DOB")) {
+				dob = false;
+				return false;
+			}
+		}
+
+		father = true;
+		if (father) {
+			if (!blankValidation("fatherName_" + count, "TextField", "Please Enter Father's Name")) {
+				father = false;
+				return false;
+			}
+		}
+
+		if (!y) {
+			swal.fire({
+				title: "Please Upload Files!",
+				type: "warning"
+			})
+		}
+
+		if (assign.document) {
+
+		}
+		count++;
+	}); //table tbody tr loop ends
+
+	if (vendor && candid && y && father && dob) {
+		console.log(dataset);
+		//const ipAPI = 'https://api.ipify.org?format=json'
+		swal.fire({
+			title: "Are you sure want to Submit?",
+			text: "Once Submited,Can't revert back !",
+			type: "warning",
+
+			showCancelButton: true,
+			confirmButtonColor: "#DD6BB5",
+			confirmButtonText: "Submit",
+			reverseButtons: true,
+			confirmButtonAriaLabel: 'Thumbs up, great!',
+			cancelButtonText: 'Cancel',
+			cancelButtonAriaLabel: 'Thumbs down',
+		}).then((result) => {
+			if (result.value) {
+				$.ajax({
+					type: "POST",
+					url: "view-shortList-cadidate-list",
+					dataType: "json",
+					contentType: "application/json",
+					data: JSON.stringify(dataset),
+					success: function (response) {
+						//console.log(response);
+						if (response.message == "Success") {
+							swal({
+								title: "Data Saved Successfully.",
+								type: "success",
+							}).then(function () {
+								window.location.href = "/recruitment/view-resource-shortlist";
+							})
+						} else {
+							swal({
+								title: response.code,
+								text: response.message,
+								type: "warning"
+							})
+						}
+					},
+					error: function (data) {
+						console.log(data);
+					}
+				}) //ajax ends
+			}
+		}) //swal function block ends
+	}
+}
+
+
+function funcLoad() {
+	location.href = "/recruitment/view-resource-shortlist";
+}
+	
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Short List Candidate</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Short List Candidate</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${shortList}" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+
+									<input type="hidden" th:field="*{requisitionId}" id="reqiId">
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Job Code</label> <input class="form-control"
+												type="text" th:field="*{jobId}" readonly />
+										</div>
+
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Job Tittle</label> <input class="form-control"
+												type="text" th:field="*{jobTitle}" readonly />
+										</div>
+
+									</div>
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Department</label> <input class="form-control"
+												type="text" th:field="*{deptName}" readonly />
+										</div>
+
+									</div>
+
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Hiring Manager</label> <input class="form-control"
+												type="text" th:field="*{hiringManager}" readonly />
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>On Board By</label> <input class="form-control"
+												type="text" th:field="*{boardBy}" readonly />
+										</div>
+
+
+
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Vendor Name</th>
+													<th>Candidate Name</th>
+													<th>DOB</th>
+													<th>Father's Name</th>
+													<th>Attachment</th>
+													<th style="width: 115px;">Action</th>
+												</tr>
+
+											</thead>
+
+											<tbody id="tbodyData">
+
+												<tr class="tr_clone">
+
+													<td><select class="form-control vendor" id="vendor_0"
+														th:field="*{vedorName}">
+															<option th:value="null">--Select Vendor--</option>
+															<option th:each="c:${vendorList}" th:value="${c.key}"
+																th:text="${c.name}"></option>
+													</select> <input type="hidden" th:field="*{requisitionId}"
+														id="reqiId_0" class="reqCls"></td>
+													<td><input type="text" id="candidate_0"
+														class="form-control candCls"></td>
+													<td><input type="text" id="dob_0"
+														class="form-control dobCls" readonly></td>
+													<td><input id="fatherName_0"
+														class="form-control fatherCls"></td>
+													<td><input type="file" class="document"
+														style="display: block; white-space: nowrap; overflow: hidden;text-overflow: ellipsis;" id="uploadDoc_0"
+														onchange="saveFile(event)" /> 
+														<div id="uploadedBillDiv_0" align="center"
+															class="uploadedBillCls"></div></td>
+
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button></td>
+
+												</tr>
+
+											</tbody>
+
+
+										</table>
+									</div>
+
+								</div>
+								<div class="row">
+									<div class="form-group col-md-12">
+										<button type="button" id="submit" class="btn btn-success"
+											onclick="submitForm()">Submit</button>
+										<button type="button" class="btn btn-warning"
+											onclick="funcLoad();">Cancel</button>
+									</div>
+								</div>
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</html>

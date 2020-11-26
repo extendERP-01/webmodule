@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head> 
+<script>
+$(document).ready(function() {
+	
+	
+	
+	
+	//date time picker
+	$( "#lPeriodStartDate" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		//minDate: new Date() ,
+		timepicker : false,
+	})
+	
+	//date time picker
+	$( "#lPeriodEndDate" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		//minDate: new Date() ,
+		timepicker : false,
+	})
+});
+ 
+function validateForm(){
+//	alert('hello validateForm');
+	 if (!blankValidation("lPeriodName","TextField", "Period Name can not be left blank"))
+        return false;
+	 
+	 if (!blankValidation("lPeriodStartDate","TextField", "Start Date can not be left blank"))
+	        return false;
+	          
+    if (!blankValidation("lPeriodEndDate","TextField", "End Date can not be left blank"))
+            return false; 
+	
+		var startdate=$("#lPeriodStartDate").val();
+	  
+	    var start = startdate.split('-');
+	    var date1 = start[0];
+	    var month1 = start[1];
+	    var year1 = start[2];
+	    
+	    var startday=parseInt(date1);
+	    var startmonth=parseInt(month1);
+	    var startyear=parseInt(year1);
+	   
+	    var enddate=$("#lPeriodEndDate").val();
+		  
+	    var end = enddate.split('-');
+	    var date2 = end[0];
+	    var month2 = end[1];
+	    var year2 = end[2];
+	    
+	    var endday=parseInt(date2);
+	    var endmonth=parseInt(month2);
+	    var endyear=parseInt(year2);
+	     
+	    if(endyear<startyear){
+	    	 $('#lPeriodEndDate').focus();
+	    	swal("End Date should be less than Start date");
+	    	return false;
+	    }
+	    if(endyear == startyear){
+	    	if(endmonth<startmonth){
+	    		$('#lPeriodEndDate').focus();
+		    	swal("End Date should be less than Start date");
+		    	return false;
+	    	}  else if(endmonth==startmonth){
+	    		if(endday<startday){
+	    			$('#lPeriodEndDate').focus();
+			    	swal("End Date should be less than Start date");
+			    	return false;
+	    		}else if(endday==startday){
+	    			$('#lPeriodEndDate').focus();
+			    	swal("End Date should be less than Start date");
+			    	return false;
+	    		}
+	    	}  
+	    }
+        
+    if (!blankValidation("lPeriodStatus","SelectBox", "Please Select Status."))
+        return false;
+    
+}
+</script>
+</head>
+<div layout:fragment="content">
+	 <div class="content-wrap">
+        <div class="main mrt_20">
+          <div class="col-md-12">
+            <ol class="breadcrumb breadcrumb-arrow">
+              <li><a th:href="@{/index}">Home</a></li> 
+              <li class="active"><a th:href="@{/leave/add-leave-period}">Add Leave Period</a></li>
+            </ol>
+          </div>
+          <div class="card-title">
+            <h4>Add Leave Period</h4>
+          </div>
+          <div class="container-fluid">
+              
+            <div class="card">
+              
+              <div class="card-body">
+                <div class="basic-elements"> 
+                   <form    th:action="@{add-leave-period}" th:object="${leaveperiod}" onsubmit="return validateForm();" method="post" autocomplete="off">
+                   <div class="row">
+						<div th:if="${message != null}">
+							<span th:text="${message}" style="color: red;"></span>
+						</div>
+					</div>
+                    <div class="row">
+                         <div class="col-lg-6">
+                      	    <input  type="hidden" th:field="*{lPeriodId}" />  
+                       
+	                       	<div class="form-group">
+	                          <label>Leave Period Name</label>
+	                          <input  type="text" name=""  value="" class="form-control" th:field="*{lPeriodName}"/>
+	                        </div>
+	                      </div>  
+	                      
+                          <div class="col-lg-6">
+                            <div class="form-group">
+                             <label>Start Period Date</label>
+                             <input class="form-control datepickerforthis" type="text" name=""  value="" 
+												th:field="*{lPeriodStartDate}">
+                            </div>
+                          </div>
+                        
+                        <div class="col-lg-6">  
+                          <div class="form-group">
+                           <label>End Period Date</label>
+                           <input class="form-control datepickerforthis" type="text" name=""  value=""
+												th:field="*{lPeriodEndDate}"  >  
+                          </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+	                        <div class="form-group">
+	                          <label>Status</label>
+	                          <select class="form-control" th:field="*{lPeriodStatus}" > 
+	                            <option th:value="NULL">--Select--</option>
+	                            <option th:value="true"> Active</option>
+	                            <option th:value="false">Inactive</option>
+	                          </select>
+	                        </div>
+	                    </div>    
+                   
+                      <div class="form-group col-md-12">
+                          <input type="submit" value="Submit" class="btn btn-success" />
+						  <input type="reset" value="Cancel" class="btn btn-warning"
+												onclick="window.location.reload();" />
+                      </div>  
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div style="clear:both;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+</html>
+  

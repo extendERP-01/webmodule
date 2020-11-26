@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.modalIn {
+	border-bottom: 1px solid #e8e4e4;
+}
+</style>
+<script>
+	//Deleting the travelingType
+	
+	const ipAPI = 'https://api.ipify.org?format=json'
+	function deletetravelingType(id){
+	 //var data = id.split(",");
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/reimbursement/view-traveling-requisition-delete?id=" +id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(data){
+				console.log(data);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+	
+
+	
+	function viewInModel(index) {
+		$('#table1').empty();
+		$.ajax({
+					type : "POST",
+					url : "view-reimbursement-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							table = '<tr><td>Employee Name :</td>'
+									+ '<td align="left">'
+									+ response.body[0].empName
+									+ '</td>'
+									+ '</tr><tr><td>Traveling Place :</td><td align="left">'
+									+ response.body[0].placeName
+									+ '</tr><tr><td>Travelling Requisition Id:</td><td align="left">'
+									+ response.body[0].reqId
+									+ '</tr><tr><td>Traveling From Date :</td><td align="left">'
+									+ response.body[0].fromDate
+									+ '</tr><tr><td>Traveling To Date :</td><td align="left">'
+									+ response.body[0].toDate
+									+ '</tr><tr><td>Travelling Purpose :</td><td align="left">'
+									+ response.body[0].purpose
+									+ '</td></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+                             table = '<tr class="modalIn"><th><b>Reimbursement Type </b></th><th><b>Policy Name </b></th><th><b>Expense Date</b></th><th><b>Expense Desc</b></th><th><b>Expense Amount</b></th><th><b>Reference Number</b></th>' ;
+							
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+							
+							for (var i=0; i<response.body.length; i++) {
+								table =  '<tr><td>'
+									+ response.body[i].reimTypeName
+									+ '</td><td>'
+									+ response.body[i].policyName
+									+ '</td><td>'
+									+ response.body[i].rembDate
+									+ '</td><td>'
+									+ response.body[i].rembDesc
+									+ '</td><td>'
+									+ response.body[i].rembAmount
+									+ '</td><td>'
+									+ response.body[i].rembRefNo
+									+ '</td></tr>';
+								$('#myModal').modal('show');
+								$('#table1').append(table);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+	
+	function viewHistoryInModel(index) {
+		$('#table2').empty();
+		$.ajax({
+					type : "POST",
+					url : "view-reimbursement-history",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							var travelingTypeStatus = "";
+							
+							table = '<tr class="modalIn"><th><b>Date </b></th><th><b>Action Taken</b></th><th><b>From</b></th><th><b>To</b></th><th><b>Action Comment</b></th>' ;
+							
+							$('#myModal1').modal('show');
+							$('#table2').append(table);
+							if(response.body.length >0){
+								for (var i=0; i<response.body.length; i++) {
+									table =  '<tr><td>'
+										+ response.body[i].date
+										+ '</td><td>'
+										+ response.body[i].action
+										+ '</td><td>'
+										+ response.body[i].actionTakenFrom
+										+ '</td><td>'
+										+ response.body[i].actionTakenTo
+										+ '</td><td>'
+										+ response.body[i].comment
+										+ '</td></tr>';
+									$('#myModal1').modal('show');
+									$('#table2').append(table);
+								}
+							}else{
+								table = '<tr><td colspan= "5" style="font-size:20px; color:#1379de; text-align:center;">Not Processed Yet...!</td></tr>';
+								$('#myModal1').modal('show');
+								$('#table2').append(table);
+							}
+							
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+/* 		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-reimbursement-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'empName'
+			}, {
+				'data' : 'reqId'
+			},{
+				'data' : 'placeName'
+			},{
+				'data' : 'purpose'
+			},{
+				'data' : 'fromDate'
+			}, {
+				'data' : 'toDate'
+			}, {
+				'data' : 'statusName'
+			}, {
+				'data' : 'action'
+			} ]
+		}); */
+	});
+
+	/* function searchData() {
+		$('#tblTheme').DataTable().draw();
+	} */
+	 
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/recruitment/add-requistion}">Add
+							Requirement</a></li>
+					<li class="active"><span>View Requirement </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Requirement</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<!-- <div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-requistion">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Job Code</label> <select class="org-name form-control "
+									id="param1">
+									<option value="job1">JOB001</option>
+									<option value="job2">JOB002</option>
+									<option value="job3">JOB003</option>
+
+								</select>
+
+							</div>
+							<div class="col-md-2">
+								<label>Job Tittle </label> <select class="form-control">
+									<option value="">--Select--</option>
+									<option value="job1">Senior Developer</option>
+									<option value="job2">Developer</option>
+									<option value="job3">Fresher</option>
+
+								</select>
+
+							</div>
+							<div class="col-md-2">
+								<label>Department</label> <select class="form-control">
+									<option value="">--Select--</option>
+									<option value="department1">Account</option>
+									<option value="department2">HR</option>
+									<option value="department3">Development</option>
+
+
+								</select>
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group">
+									<input type="button" class="btn btn-info" value="Search"
+										onclick="searchData()" />
+								</div>
+							</div>
+						</div>
+					</div> -->
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblTheme" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Job Code</th>
+									<th>Job Tittle</th>
+									<th>Job Type</th>
+									<th>Department</th>
+									<th>Hiring Manager</th>
+									<th>On Board By</th>
+									<th>Budget</th>
+									<th>Assigned Employee</th>
+
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th>JOB001</th>
+									<th>Software Developer</th>
+									<th>Full Type</th>
+									<th>Development</th>
+									<th>Priyabrata Prusty</th>
+									<th>25000</th>
+									<th>21-10-2020</th>
+									<th>PRASANNA SATPATHY</th>
+
+								</tr>
+								<tr>
+									<th>JOB002</th>
+									<th>Full Stack Developer</th>
+									<th>Full time</th>
+									<th>Development</th>
+									<th>Dipti Ranjan</th>
+									<th>21-10-2020</th>
+									<th>40000</th>
+									<th>RABINDRA DAS</th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 850px;">
+					<div class="modal-header">
+						<h4 class="modal-title">HR Screening</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Vender</th>
+										<th>Candidate Name</th>
+										<th>DOB</th>
+										<th>Father Name</th>
+										<th align="center">Attachment</th>
+										<th>Screening Status</th>
+										<th>InterViewer</th>
+										<th>Feedback</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<th>Indeed</th>
+										<th>Omraj</th>
+										<th>01/08/1996</th>
+										<th>Rk</th>
+										<th width="50"><input type="file" id="fileUploadReq"
+											style="display: block;" onchange="saveFileReq()">
+											<div id="uploadedImgDivReq"></div></th>
+										<th><select name="cars" id="cars">
+												<option value="volvo">Select</option>
+												<option value="volvo">ShortListed</option>
+												<option value="saab">Hold</option>
+												<option value="opel">Rejected</option>
+										</select></th>
+										<td>
+											<div
+												style="border: 1px solid #ccc; padding: 4px; height: 30px; overflow-y: scroll;">
+												<input type="checkbox" name="1" value="1"> Sumit <br />
+												<input type="checkbox" name="1" value="2"> Rajesh <br />
+												<input type="checkbox" name="1" value="3"> Rahul
+											</div>
+										<th><a data-toggle='modal' title='View'
+											href='javascript:void' onclick='modelview3();'><i
+												class='fa fa-bars'></i></a></th>
+
+									</tr>
+									<tr>
+										<th>Naukri</th>
+										<th>Jinesh</th>
+										<th>01/08/1997</th>
+										<th>Sk</th>
+										<th width="50"><input type="file" id="fileUploadReq"
+											style="display: block;" onchange="saveFileReq()">
+											<div id="uploadedImgDivReq"></div></th>
+										<th><select name="cars" id="cars">
+												<option value="volvo">Select</option>
+												<option value="volvo">ShortListed</option>
+												<option value="saab">Hold</option>
+												<option value="opel">Rejected</option>
+										</select></th>
+
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" data-dismiss="modal">Submit</button>
+						<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

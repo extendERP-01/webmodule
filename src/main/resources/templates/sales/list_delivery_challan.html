@@ -1,0 +1,322 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script> 
+//  PDF Function
+function createPdf(id) { 
+	window.open("/download/delivery-challan-pdf?id="+id,'_blank');
+}
+
+//Sale Invoice PDF Function
+function generateInvoice(id) { 
+	window.open("/sales/list-deliveryChalan-generate-invoice?id="+id);
+}
+function viewInModel(index){ 
+	$('#table1').empty();
+		$.ajax({
+			type 		:	"POST",
+			url 		:	"list-deliveryChalan-modal",
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	index,
+			success 	: 	function(response) {
+				if(response.message=="success"){
+					
+					 
+				    table = '<tr><td>Entry Date :</td>'+'<td align="left">'
+				    +response.body.entryDate+'</td>'+' <td>Challan No:</td><td align="left">'
+				    +response.body.challanNo+'</td>'+' <td>Challan type:</td><td align="left">'
+					+response.body.challanType+'</td> <td> Sale Order:</td>'+'<td align="left">'
+					+response.body.saleOrder+'</td>'+'</tr><tr><td> Purchase Order:</td><td align="left">'
+					+response.body.refPoId+'</td>'+' <td> Client Name:</td><td align="left">'
+					+response.body.clientName+'</td>'+' <td> TIN:</td><td align="left">'
+					+response.body.tin+'</td>'+' <td> Delivery Address:</td><td align="left">'
+					+response.body.deliveryAddress+'</td>'+'</tr><tr><td> Delivery Site:</td><td align="left">'
+					+response.body.deliverySite+'</td>'+' <td>  Slurry Powder:</td><td align="left">'
+					+response.body.slurryPowder+'</td>'+' <td> Batch Plant:</td><td align="left">'
+					+response.body.batchPlant+'</td>'+' <td> Batch Time:</td><td align="left">'
+					+response.body.batchTime+'</td>'+'</tr><tr><td> Cement Brand:</td><td align="left">'
+					+response.body.cementBrand+'</td>'+' <td> Batch Quantity:</td><td align="left">'
+					+response.body.batchQty+'</td>'+' <td> Cement Supply By Client:</td><td align="left">'
+					+response.body.cementSupplyByClient+'</td>'+' <td> RMC Grade:</td><td align="left">'
+					+response.body.rmcGrade+'</td>'+'</tr><tr><td> Slump MM:</td><td align="left">'
+					+response.body.slumpMM+'</td>'+' <td> QC Remark:</td><td align="left">'
+					+response.body.qcRemark+'</td>'+' <td> Bill Qty:</td><td align="left">'
+					+response.body.billQty+'</td>'+' <td> No Of TM:</td><td align="left">'
+					+response.body.noOfTm+'</td>'+'</tr><tr><td> Total Quantity:</td><td align="left">'
+					+response.body.totalQty+'</td>'+' <td> Auto No Of TM & Total Qty:</td><td align="left">'
+					+response.body.autoNoOfTmQty+'</td>'+' <td> Referal Challan No:</td><td align="left">'
+					+response.body.referalChallanNo+'</td>'+' <td> Ref. Gate Pass No:</td><td align="left">'
+					+response.body.refGatePassNo+'</td>'+'</tr><tr><td> Vehicle No:</td><td align="left">'
+					+response.body.vechileNo+'</td>'+' <td> RST NO:</td><td align="left">'
+					+response.body.rstNo+'</td>'+' <td> Gross Weight:</td><td align="left">'
+					+response.body.grossWt+'</td>'+' <td> Tare Weight:</td><td align="left">'
+					+response.body.tareWt+'</td>'+'</tr><tr><td> Net Weight:</td><td align="left">'
+					
+					+response.body.netWt+'</td>'+' <td> Driver Name:</td><td align="left">'
+					+response.body.driverName+'</td>'+' <td> Helper Name:</td><td align="left">'
+					+response.body.helper+'</td>'+' <td> Out Time:</td><td align="left">'
+					+response.body.outTime+'</td>'+'</tr><tr><td> Out K.M:</td><td align="left">'
+					+response.body.okm+'</td>'+' <td> Front Hour:</td><td align="left">'
+					+response.body.ofhr+'</td>'+' <td> Back Hour:</td><td align="left">'
+					+response.body.obhr+'</td>'+' <td> Is Pump Machine Used:</td><td align="left">'
+					+response.body.isPump+'</td>'+'</tr><tr><td> Select Pump :</td><td align="left">'
+					+response.body.pumpList+'</td>'+' <td> Return Time:</td><td align="left">'
+					+response.body.returnTime+'</td>'+' <td> Return KM:</td><td align="left">'
+					+response.body.rKm+'</td>'+' <td> Front Houre:</td><td align="left">'
+					+response.body.rfhr+'</td>'+'</tr><tr><td> Back Hour:</td><td align="left">'
+					+response.body.rBhr+'</td>'+' <td> Site In Time:</td><td align="left">'
+					+response.body.siteInTime+'</td>'+' <td> Site Out Time:</td><td align="left">'
+					+response.body.siteOutTime+'</td>'+' <td> Site Supervisor:</td><td align="left">'
+					+response.body.siteSupervisor+'</td>'+'</tr><tr><td> Docket Number:</td><td align="left">'
+					+response.body.docketNo+'</td>'+' <td> Remark:</td><td align="left">'
+					 
+					+response.body.remarks+'</td></tr>';
+					$('#myModal').modal('show');
+					$('#table1').append(table);
+					
+					table = '<tr><th><b>Sand</b></th><th><b>Chip 10mm</b></th><th><b>Chip 20mm</b></th><th><b>Cement</b></th><th><b>Water</b></th><th><b>FlyAsh</b></th><th><b>Add Mix</b></th><th><b>Total</b></th><th><b>Density</b>' ;
+					
+					$('#myModal').modal('show');
+					$('#table1').append(table); 
+						table =  '<tr><td>'
+							+ response.body.sand2
+							+ '</td><td>'
+							+ response.body.chip310mm
+							+ '</td><td>'
+							+ response.body.chip420mm
+							+ '</td><td>'
+							+ response.body.cement
+							+ '</td><td>'
+							+ response.body.flyAsh
+							+ '</td><td>'
+							+ response.body.water
+							+ '</td><td>'
+							+ response.body.addMix
+							+ '</td><td>'
+							+ response.body.total
+							+ '</td><td>'
+							+ response.body.density
+							+ '</td></tr>';
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+					 
+					
+				}				
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+ 	$(document).ready(function() {			
+ 		$('#table').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'list-deliveryChalan-through-ajax',
+					'data' : function(d) {
+						d.param1 = $('#param1').val();
+						d.param2 = $('#param2').val();
+					}
+				},
+				'dataSrc' : "",
+			    'columns' : [
+				{'data' : 'entryDate'}, 
+				{'data' : 'saleOrder'},
+				{'data' : 'refPoId'},
+				{'data' : 'clientAccount'},
+				{'data' : 'batchPlant'},
+				{'data' : 'invoiceNumber'},
+				{'data' : 'action'}
+					]	
+			});
+		  });
+	
+	function searchData() {
+		$('#table').DataTable().draw();
+	}
+	const ipAPI = 'https://api.ipify.org?format=json'
+	function DeleteItem(id){
+		//var index = window.atob(id);
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/sales/list-deliveryChalan-delete?id="+id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a href="#">View User</a></li>
+                  <li><a href="#">Manage User</a></li> -->
+					<li><a th:href="@{delivery-challan-add}">Add Delivery
+							Challan </a></li>
+					<li class="active"><span>View Delivery Challan</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Listing of Delivery Challan</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="delivery-challan-add">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label> Plant Name</label> <select class="form-control"
+									id="param1">
+									<option th:value="NULL">--Select--</option>
+									<option th:each="c:${batchPlantList}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<label> Sale Order</label> <select class="form-control"
+									id="param2">
+									<option th:value="NULL">--Select--</option>
+									<option th:each="c:${saleOrderList}" th:value='${c.key}'
+										th:text="${c.key}"></option>
+								</select>
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Entry Date</th>
+									<th>Sale Order</th>
+									<th>Purchase Order</th>
+									<th>Customer Name</th>
+									<th>Plant Name</th>
+									<th>Invoice Number</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+
+						</table>
+
+					</div>
+					<div style="clear: both;"></div>
+
+
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content" style="height: 620px; width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Delivery Challan</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table id="table1">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+
+
+	</div>
+</div>
+</html>

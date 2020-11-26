@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		//Method for listing of all the Item Records
+		$('#itemList').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-rfq-quotation-details-through-ajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val(); 
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'venQuotId'
+			}, {
+				'data' : 'rfqNo'
+			}, {
+				'data' : 'rfqName'
+			}, {
+				'data' : 'vendor'
+			},  {
+				'data' : 'action'
+			} ]
+		});
+	});
+	
+	 
+	
+	function searchData() {
+		$('#itemList').DataTable().draw();
+	}
+	
+	
+	// Method For View Details In Model
+	
+  function viewInModel(index) {
+	 
+	 //alert(index);
+		var id = index;
+		
+	$('#table1').empty();
+	$('#table2').empty();
+		$.ajax({
+				type : "POST",
+				url : "view-rfq-quotation-details-model",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : id,
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						// console.log(response.body.status_m);
+						console.log(response.body);
+						
+						 var status_m = "";
+						if (response.body[0].status_m) {
+							status_m = "Active";
+						} else {
+							status_m = "Inactive";
+						}
+						   
+					
+						span = '<tr><td>Quotation No  :</td>' + '<td>'
+						+response.body[0].venQuotId + '</td>'
+						+ '</tr><tr><td>Vendor Name:</td>' + '<td>'
+						+response.body[0].vendorName
+						+ '</tr><tr><td>Notes:</td>' + '<td>'
+						+response.body[0].qNote
+						+ '</td></tr><tr><td>Grand Total:</td>' + '<td>'
+						+ response.body[0].grandTotal + '</td></tr><tr><th><b>Details Of Item Details :<b></th></tr>';  
+						$('#myModal').modal('show');
+						$('#table1').append(span);
+							
+						table2 = '<tr><th><b>Item Name</b></th><th><b>Item Price</b></th><th><b>Item Qnty.</b></th><th><b>Line Total</b></th>' ;
+						$('#myModal').modal('show');
+						$('#table2').append(table2);
+					 
+						for (var i=0; i<response.body.length; i++) {
+							
+							var status = "";
+							if (response.body[i].status_m) {
+								status = "Active";
+							} else {
+								status = "Inactive";
+							}
+							
+						 
+							table =  '<tr><td>'
+								+ response.body[i].itemName
+								+ '</td><td>'
+								+ response.body[i].unitPrice
+								+ '</td><td>'
+								+ response.body[i].quantity
+								+ '</td><td>'
+								+ response.body[i].lineTotal
+								+ '</td> </tr>';
+							$('#myModal').modal('show');
+							$('#table2').append(table);
+						} 
+								
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+		})
+}
+
+
+	 
+</script>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li> 
+                    <li><a href="add-rfq-quotation-detail">Add Vendor Quotation</a></li> 
+					<li class="active"><span>View Vendor Quotation</span></li>
+				</ol>
+			</div> 
+			<div class="container-fluid">
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+					 
+					
+				</ul> 
+				<div class="card">
+						<div class="search-field">
+						 <div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-rfq-quotation-detail">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<a href="javascript:createPdf()" class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</a>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>RFQ Name</label>
+								
+		                              <select class="org-name form-control" id="param1"  >
+		                                 <option th:value="NULL">Select</option>
+								         <option th:each="c:${lRFQData}" th:value='${c.key}'
+									     th:text="${c.name}"></option>   
+		                              </select>
+		                           </div>
+								 
+								<div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch ">
+										<button class="btn btn-info" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table id="itemList" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Quotation No</th>
+										<th>RFQ No</th>
+										<th>RFQ Name</th>
+										<th>Vendor</th> 
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					
+				</div>
+			</div>
+		</div>
+		
+		<!-- Modal Start-->
+		
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Vendor Quotation</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%;" id="table1">
+						</table>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%;" id="table2">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

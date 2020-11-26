@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	function validateForm() {
+		if (!blankValidation("tWorkDayName", "TextField",
+				"Day  can not be left blank"))
+			return false;
+
+		if (!blankValidation("tWorkDayStatus", "TextField",
+				"Working Status can not be left blank"))
+			return false;
+	}
+</script>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class="active"><span>Add Work Week</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Work Week</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form action="#" th:action="@{add-workweek-master}"
+								th:object="${workWeekMaster}" method="post"
+								onsubmit="return validateForm();" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"> </span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"> </span>
+									</div>
+								</div>
+								<input type="hidden" th:field="*{tWorkDay}" />
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Day</label> <select class="form-control"
+												th:field="*{tWorkDayName}">
+												<option value="">Select</option>
+												<option th:each="c:${dayName}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+
+										<div class="form-group">
+											<label>Working Status</label> <select class="form-control"
+												th:field="*{tWorkDayStatus}">
+												<option value="">Select</option>
+												<option th:each="c:${workingStatus}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+
+									</div>
+								</div>
+								<div class="form-group">
+									<input type="submit" value="Submit" class="btn btn-success" />
+									<input type="reset" value="Cancel" class="btn btn-warning"
+										onclick="window.location.reload();" />
+								</div>
+							</form>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

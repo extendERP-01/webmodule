@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	
+	
+function viewInModel(index){
+	$('#table1').empty();
+		$.ajax({
+			type 		:	"POST",
+			url 		:	"view-apply-leave-approve-model",
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	index,
+			success 	: 	function(response) {
+				
+				   if(response.message=="success"){
+					var total = 2;
+					
+					 table = '<tr><td>Employee Name:</td>'+'<td align="left">'
+					    +response.body[0].empName+'</td>'+'</tr><tr><td>Leave Apply Date:</td><td align="left">'
+						+response.body[0].lApplyDate+'</td></tr>';
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+						table = '<tr><th><b>Leave Type </b></th><th><b>From Date</b></th><th><b>To Date</b></th><th><b>Total Days</b></th><th><b>Reason</b></th>' ;
+					$('#myModal').modal('show');
+					$('#table1').append(table);
+						for (var i=0; i<response.body.length; i++) {
+							table =  '<tr><td>'
+								+ response.body[i].ltypeName
+								+ '</td><td>'
+								+ response.body[i].lApplyStartDate
+								+ '</td><td>'
+								+ response.body[i].lApplyEndDate
+								+ '</td><td>'
+								+ response.body[i].totalLeave
+								+ '</td><td>'
+								+ response.body[i].lReason
+								+ '</td></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(table); 
+						
+					 }
+           
+					
+				}				
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}  
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-apply-leave-approve-through-ajax',
+				'data' : function(d) { 
+					d.param1 = $('#param1').val();
+					d.param2 = $('#empName').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {'data' : 'empName'},
+				{'data' : 'applyId'},
+				{'data' : 'lApplyDate'},
+				{'data' : 'statusName'},
+				{'data' : 'action'}]
+		});
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+</script>
+<script type="text/javascript">
+
+
+//Forward the Requisition 
+function forwardLeave(id){
+	swal.fire({
+		  title: "Are you sure want to Approve?",
+		  text: "Once approved,Can't revert back !",
+		  type: "warning",
+		  showCancelButton: true,
+		  confirmButtonColor: '#d33',
+		  cancelButtonColor: '#e7b63a',
+		  confirmButtonText: 'Approve',
+		  //closeOnConfirm: false,
+		  reverseButtons : true
+		  
+		}).then((result) => {
+			if(result.value){
+			 $.ajax({
+				    type: "GET",
+				    url:"/leave/save-leave-approval-action?id="+ id,
+				    success: function(response) {
+				    	console.log(response);
+				        if (response.message == "success") {
+				        	swal({
+				        		title: "Leave approved successfully.",
+				        		type: "success"
+				        	}).then(function(){
+				        		 location.reload();
+				        	})
+				        
+				        } else {
+				            swal({
+				                title: 'Unsuccess',
+				                text: response.code
+				            })
+				        }
+				    },
+				    error: function(data) {
+			       
+				    }
+				})
+			}
+		  
+		});
+	
+}
+//end 
+
+//Start Reject Requisition
+function rejectLeave(id,rejectaction){
+	$("#rejectRequisitionId").val(id);
+	$("#rejectActionId").val(rejectaction);
+	if($("#rejectActionId").val() == '1'){
+		$("#modal-title-id").html("Reject Requisition");
+	}else if($("#rejectActionId").val() == '2'){
+		$("#modal-title-id").html("Return Requisition");
+	}else{
+		$("#modal-title-id").html("Resubmit Requisition");
+	}
+	$('#approvalActionModal').modal('show');
+	
+}
+//End of Reject Requisition
+
+//Save rejected Requisition comment
+function saveLeaveRejectComment(){
+	if($("#rejectActionId").val() == '1'){
+		var titleval = "Are you sure want to reject?";
+		var textval = "Once reject,Can't revert back !";
+		var confirmButtonTextval = 'reject';
+	}else if($("#rejectActionId").val() == '2'){
+		var titleval = "Are you sure want to return?";
+		var textval = "Once reject,Can't revert back !";
+		var confirmButtonTextval = 'return';
+	}else{
+		var titleval = "Are you sure want to resubmit?";
+		var textval = "Once resubmit,Can't revert back !";
+		var confirmButtonTextval = 'resubmit';
+	}
+	$('#approvalActionModal').modal('hide');
+	swal.fire({
+		  title: titleval,
+		  text: textval,
+		  type: "warning",
+		  showCancelButton: true,
+		  confirmButtonColor: '#d33',
+		  cancelButtonColor: '#e7b63a',
+		  confirmButtonText: confirmButtonTextval,
+		  reverseButtons : true
+		  
+		}).then((result) => {
+			if(result.value){
+				
+			 var requisitionId = $("#rejectRequisitionId").val();
+			 var rejectionComment = $("#rejectionCommentId").val();
+			 var rejectAction = $("#rejectActionId").val();
+			 $.ajax({
+				    type : "POST",
+					url : "save-leave-reject-action",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : JSON.stringify({'applyId':requisitionId,'lReason':rejectionComment,'rejectionType':rejectAction}),
+					success: function(response) {
+				    	console.log(response);
+				        if (response.message == "success") {
+				        	console.log()
+				        	swal({
+				        		title: "Leave status  Changes successfully.",
+				        		type: "success"
+				        	}).then(function(){
+				        		 location.reload();
+				        	})
+				        
+				        } else {
+				            swal({
+				                title: 'Unsuccess',
+				                text: response.code
+				            })
+				        }
+				    },
+				    error: function(data) {
+			       
+				    }
+				})
+			}
+		  
+		});
+}
+//End of save
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<!--  <ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/reimbursement/add-traveling-requisition}">Add travelingType</a></li>
+					<li class="active"><span>View travelingType </span></li>
+				</ol>  -->
+			</div>
+			<div class="card-title">
+				<h4>View Leave Approval </h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+						<div class="search-field">
+							<div class="row">
+								<div class="col-md-2">
+									<label>Employee Name</label>
+								
+									<input id="param1" class="form-control" type="text"
+										placeholder="" name="" onkeyup="searchData()">
+								</div>
+								
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Employee Name</th>
+										<th>Leave Id</th>
+										<th>Leave Apply Date</th>
+										<th>Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Leave</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		
+		<!-- Modal Start -->
+		<div id="approvalActionModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="modal-title-id">Reject Requisition</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="rejectRequisitionId" value="0">
+						<input type="hidden" id="rejectActionId" value="1">
+						<div class="form-group">
+							<label>Comment :</label> 
+							<textarea class="form-control" id="rejectionCommentId" rows="4"></textarea>
+						</div>
+					</div>
+					
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" onclick="saveLeaveRejectComment()">Save</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End -->
+	</div>
+</div>
+</html>

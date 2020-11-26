@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<title>Gocool Order-Status</title>
+<meta charset="utf-8">
+<meta http-equiv="refresh" content="30">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="../assets/css/newbootstrap.css">
+<link rel="stylesheet" type="text/css"
+	href="../assets/css/news-ticker.css">
+<script src="../assets/js/newjquery.js"></script>
+<!-- <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script> -->
+<script src="../assets/js/popper.min.js"></script>
+<script src="../assets/js/newbootstrap.js"></script>
+<script src="../assets/js/newsTicker.js"></script>
+
+<style>
+/* Make the image fully responsive */
+.carousel-caption {
+	position: absolute;
+	right: 15%;
+	bottom: 44px;
+	left: 15%;
+	z-index: 10;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	color: #fff;
+	text-align: center;
+}
+
+.carousel-inner img {
+	width: 100%;
+	height: 100%;
+}
+
+.roundedimg {
+	border-radius: 50%;
+	border: 3px solid #FFF;
+}
+
+.sticker {
+	height: 150px;
+	width: 150px;
+	position: absolute;
+	left: -60px;
+	bottom: -5px;
+}
+
+.discount {
+	position: absolute;
+	z-index: 1;
+	font-size: 45px;
+	top: 25px;
+	left: 35px;
+}
+
+.off {
+	position: absolute;
+	font-size: 22px;
+	color: #FFF;
+	margin-top: -10px;
+}
+
+.cutprice {
+	font-size: 40px;
+	text-decoration: line-through;
+	opacity: 0.6;
+}
+
+.paidprice {
+	font-size: 60px;
+	color: #FFF;
+	font-weight: bold;
+}
+
+.header {
+	height: auto;
+	background: #000;
+}
+
+.tablebg {
+	/*background:#F5F5F5;*/
+	padding: 15px 20px;
+	min-height: 220px;
+}
+
+.ft_sz {
+	font-size: 50px;
+}
+
+.footer {
+	height: 100px;
+	background: #000;
+}
+
+.marqueetext {
+	font-size: 36px;
+	color: #F90;
+	line-height: 50px;
+}
+
+.mrt_5 {
+	margin: 5px 0px;
+}
+
+.col-md-6 p {
+	font-size: 20px;
+}
+
+th {
+	background: #f00;
+	color: #fff;
+	padding: 5px;
+}
+
+.heading {
+	font-size: 22px;
+	color: #fff;
+	background-image: linear-gradient(45deg, #ee2722, #000000);
+	font-weight: 700;
+	padding: 5px 7px;
+}
+
+.news-box {
+	height: 245px;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1)
+		inset;
+	padding: 10px 25px;
+	overflow: hidden;
+}
+
+.mrt_20 {
+	margin-bottom: 20px;
+}
+
+.order-id {
+	text-align: center;
+	font-size: 16px;
+	font-weight: 700
+}
+</style>
+</head>
+<body style="overflow: hidden;">
+	<div class="header" align="center">
+		<img src="../assets/images/logo.png" class="img-fluid" width="300" height="350"/>
+	</div>
+	<div class="row">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-4">
+					<div class="news-box mrt_20">
+						<div id="multilines">
+
+							<div class="heading">Order Ready</div>
+							<div th:unless="${not #lists.isEmpty(orderList2)}"><img src="../assets/images/animate1.gif" class="img-fluid" alt=""></div>
+							<ul class="newsticker" th:if="${not #lists.isEmpty(orderList2)}">
+								<li th:each="c,iter:${orderList2}">
+									<div class="row">
+										<div class="col-md-12">
+											<div class="order-id" th:text="${c.orderId}">CD-1</div>
+										</div>
+									</div>
+								</li>
+							</ul>
+
+						</div>
+					</div>
+					<div class="news-box">
+						<div id="multilines">
+
+							<div class="heading">Order In Progress</div>
+							<div th:unless="${not #lists.isEmpty(orderList1)}"><img src="../assets/images/animate2.gif" class="img-fluid" alt=""></div>
+							<ul class="newsticker" th:if="${not #lists.isEmpty(orderList1)}">
+								<li th:each="c,iter:${orderList1}">
+									<div class="row">
+										<div class="col-md-12">
+											<div class="order-id" th:text="${c.orderId}">CD-1</div>
+										</div>
+									</div>
+								</li>
+							</ul>
+
+						</div>
+					</div>
+					<!-- <div class="tablebg">
+						<div class="heading">Order Ready</div>
+						<table width="96%" border="0"
+							class="table table-bordered table-striped">
+							<thead>
+								<tr>
+									<th>Order Id</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="c,iter:${orderList2}">
+									<td th:text="${c.orderId}">Order Id 01</td>
+									<td th:if="${c.orderStatus==1}"><span
+										class="badge badge-danger" th:text="${c.status}">In
+											Progress</span></td>
+									<td th:if="${c.orderStatus==2}"><span
+										class="badge badge-info" th:text="${c.status}">In
+											Progress</span></td>
+								</tr>
+							</tbody>
+						</table>
+					</div> -->
+					<!-- <div class="tablebg">
+						<div class="heading">Order In Progress</div>
+						<table width="96%" border="0"
+							class="table table-bordered table-striped">
+							<thead>
+								<tr>
+									<th>Order Id</th>
+									<th>Status</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="c,iter:${orderList1}">
+									<td th:text="${c.orderId}">Order Id 01</td>
+									<td th:if="${c.orderStatus==1}"><span
+										class="badge badge-danger" th:text="${c.status}">In
+											Progress</span></td>
+									<td th:if="${c.orderStatus==2}"><span
+										class="badge badge-info" th:text="${c.status}">In
+											Progress</span></td>
+								</tr>
+							</tbody>
+						</table>
+					</div> -->
+				</div>
+				<div class="col-md-8"
+					th:unless="${not #lists.isEmpty(discountList)}">
+					<img src="../assets/images/no_offer.jpg">
+				</div>
+				<div class="col-md-8" th:if="${not #lists.isEmpty(discountList)}">
+					<div id="demo" class="carousel slide mrt_5" data-ride="carousel">
+						<ul class="carousel-indicators">
+							<li data-target="#demo" th:each="c,iter:${discountList}"
+								th:attr="data-slide-to=${iter.index}"
+								th:classappend="${iter.index==0} ? active : ''"></li>
+							<!-- <li data-target="#demo" data-slide-to="1"></li>
+							<li data-target="#demo" data-slide-to="2"></li>
+							<li data-target="#demo" data-slide-to="3"></li> -->
+						</ul>
+						<div class="carousel-inner">
+							<div class="carousel-item"
+								th:classappend="${iter.index==0} ? active : ''"
+								th:each="c,iter:${discountList}">
+								<img th:src="${'../assets/images/'+c.status}" class="img-fluid" />
+								<div class="carousel-caption">
+									<h1 class="ft_sz" th:text="${c.itemName}">Delicious Food &
+										Bakery</h1>
+									<div class="row">
+										<div class="col-md-6">
+											<img th:src="${'/document/item/'+ c.image}"
+												class="roundedimg" />
+										</div>
+										<div class="col-md-6">
+											<p>
+												Price : <span class="cutprice"
+													th:text="${'₹ '+#numbers.formatDecimal(c.price, 0, 'COMMA', 2, 'POINT')}">₹
+													200</span>
+											</p>
+											<div class="paidprice"
+												th:text="${'₹ '+#numbers.formatDecimal(c.newPrice, 0, 'COMMA', 2, 'POINT')}">₹
+												150</div>
+											<div class="sticker">
+												<img th:src="${'../assets/images/'+c.discountImage}"
+													class="img-fluid" />
+												<div class="discount">
+													<span
+														th:text="${#numbers.formatInteger(c.discount,1,'POINT')+'%'}">
+														20% </span><br> <span class="off">Off</span>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<a class="carousel-control-prev" href="#demo" data-slide="prev">
+							<span class="carousel-control-prev-icon"></span>
+						</a> <a class="carousel-control-next" href="#demo" data-slide="next">
+							<span class="carousel-control-next-icon"></span>
+						</a>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<div class="footer">
+		<div class="marqueetext">
+			<marquee>5% off on Home Delivery</marquee>
+		</div>
+	</div>
+	<script>
+	var multilines = $('#multilines .newsticker').newsTicker({
+		row_height: 40,
+		speed: 600,
+		prevButton: $('#multilines .prev-button'),
+		nextButton: $('#multilines .next-button'),
+		stopButton: $('#multilines .stop-button'),
+		startButton: $('#multilines .start-button'),
+	});
+	
+	var oneliner = $('#oneliner .newsticker').newsTicker({
+		row_height: 44,
+		max_rows: 1,
+		time: 5000,
+		nextButton: $('#oneliner .header')
+	});
+	
+	// Pause newsTicker on .header hover
+	$('#oneliner .header').hover(function() {
+		oneliner.newsTicker('pause');
+	}, function() {
+		oneliner.newsTicker('unpause');
+	});
+</script>
+</body>
+</html>

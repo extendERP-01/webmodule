@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<style type="text/css">
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 440px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list1 li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.red {
+	background-color: #b3ccff;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 500px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+
+<script>
+function checkEmpty1() {
+	var addCharges = true;
+    $('.charges').each(function() {
+        if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Expenses Head")) {
+        	addCharges = false;
+            return false;
+        }
+    });
+    
+    var addAmount = true;
+    if (addCharges) { 
+        $('.addAmount').each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Additional Charges Amount")) {
+            	addAmount = false;
+                return false;
+            }
+        });
+    }
+    
+    if(addCharges && addAmount) {
+    	addMore1();
+    }
+}
+
+function addMore1() {
+	
+	var lengthOfTableRow = $("#tbodyData1").children('tr').length;
+    var cloneHtml = $("#myTable1 tbody tr:first").clone();
+    
+    $("#myTable1 tbody tr:last").find('td:last').html('');
+    $("#myTable1 tbody").append($("#myTable1 tbody tr:first").clone());
+    $("#myTable1 tbody tr td:last").html("");
+    
+    var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty1();"><span class="ti-plus"></span></button>&nbsp;'
+    var removeMore = '<button type="button" class="btn btn-warning rmv1" name="Remove"><span class="ti-minus"></span></button>';
+    
+    $("#myTable1 tbody tr:last").find('td:last').append(addMore);
+    $("#myTable1 tbody tr:last").find('td:last').append(removeMore);
+    
+    var editTr = 0;
+    if (lengthOfTableRow > editTr) {
+        $("#myTable1 tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+    }
+    
+    $("#myTable1 tbody tr:last").find(".charges").val("");
+    $("#myTable1 tbody tr:last").find(".addAmount").val("");
+    
+    $("#myTable1 > tbody > tr").each(function(i) {
+        var textInput = $(this).find('input');
+
+        textInput.eq(0).attr('id', "additionalCharges_" + i);
+        textInput.eq(1).attr('id', "additionalAmount_" + i);
+
+    })
+}
+//method to check each row is not empty
+/* function checkEmpty() {
+    var catValid = true;
+    $('.itemCategory').each(function() {
+        if (!blankValidation($(this).attr('id'), "SelectBox", "Please Select Item Category")) {
+
+            catValid = false;
+            return false;
+        }
+    });
+
+    var subcatValid = true;
+    if (catValid) {
+        $('.itemSubCategory').each(function() {
+            if (!blankValidation($(this).attr('id'), "SelectBox", "Please Select Item SubCategory")) {
+
+                subcatValid = false;
+                return false;
+            }
+
+        });
+    }
+    var itemValid = true;
+    if (catValid && subcatValid) {
+        $('.itemCls').each(function() {
+            if (!blankValidation($(this).attr('id'), "SelectBox", "Please Select Item ")) {
+
+                itemValid = false;
+                return false;
+            }
+
+        });
+    }
+    var qtyValid = true;
+    if (catValid && subcatValid && itemValid) {
+        $('.lServiceQuantityCls').each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Quantity")) {
+
+                qtyValid = false;
+                return false;
+            }
+
+        });
+    }
+    if (catValid && subcatValid && itemValid && qtyValid) {
+        addMore();
+    }
+
+}
+//method to add more row
+function addMore() {
+    var lengthOfTableRow = $("#tbodyData").children('tr').length;
+    var cloneHtml = $("#myTable tbody tr:first").clone();
+    $("#myTable tbody tr:last").find('td:last').html('');
+    $("#myTable tbody").append($("#myTable tbody tr:first").clone());
+    $("#myTable tbody tr td:last").html("");
+    var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+    var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+    $("#myTable tbody tr:last").find('td:last').append(addMore);
+    $("#myTable tbody tr:last").find('td:last').append(removeMore);
+    var editTr = 0;
+    if (lengthOfTableRow > editTr) {
+        $("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+    }
+    // Blan k Fields
+    $("#myTable tbody tr:last").find(".itemCategory").val("");
+    $("#myTable tbody tr:last").find(".itemSubCategory").empty();
+    $("#myTable tbody tr:last").find(".itemSubCategory").val("");
+    $("#myTable tbody tr:last").find(".itemCls1").empty();
+    $("#myTable tbody tr:last").find(".itemCls1").val("");
+    $("#myTable tbody tr:last").find(".itemCls").empty();
+    $("#myTable tbody tr:last").find(".itemCls").val("");
+    $("#myTable tbody tr:last").find(".returnedQuantityCls").empty();
+    $("#myTable tbody tr:last").find(".lServiceQuantityCls").val("");
+    $("#myTable tbody tr:last").find(".lineTotalCls").html("0.00");
+    $("#myTable tbody tr:last").find(".priceCls").empty();
+    $("#myTable > tbody > tr").each(function(i) {
+        var selectInput = $(this).find('select');
+        var textInput = $(this).find('input');
+        var labelInput = $(this).find('label');
+        var divInput = $(this).find('div');
+
+        textInput.eq(0).attr('id', "itemCategory_" + i);
+        textInput.eq(1).attr('id', "itemSubCategory_" + i);
+        textInput.eq(2).attr('id', "itemName_" + i);
+        textInput.eq(3).attr('id', "item_" + i);
+        textInput.eq(4).attr('id', "ServiceQuantity_" + i);
+        labelInput.eq(0).attr('id', "price_" + i);
+        labelInput.eq(1).attr('id', "lineTotal_" + i);
+        divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+    })
+} */
+
+$(document).ready(function() {
+    var id = $('#goodsReturnNote').val();
+    if (id) {
+        var gstType = $('#gstType').val();
+        if (gstType == "false") {
+            $('#taxType1').html("State Tax");
+            $('#igstR').hide();
+            $('#cgstR').show();
+            $('#sgstR').show();
+        } else {
+            $('#taxType1').html("Center Tax");
+            $('#igstR').show();
+            $('#cgstR').hide();
+            $('#sgstR').hide();
+        }
+    }
+    /* $('#taxType').html("");
+    var lengthOfTableRow = $("#tbodyData").children('tr').length;
+    $('.tbll').on('click', '.rmv', function() {
+        $(this).closest('tr').remove();
+        calculateSubTotal();
+        getGSTRate();
+
+        $("#myTable tbody tr:last").find('td:last').html('');
+        var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+        var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+        if ($("#tbodyData").children('tr').length > 1) {
+            $("#myTable tbody tr:last").find('td:last').append(add);
+            $("#myTable tbody tr:last").find('td:last').append(remove);
+        } else {
+            $("#myTable tbody tr:last").find('td:last').append(add);
+        }
+
+    }); */
+    
+    var lengthOfTableRow1 = $("#tbodyData1").children('tr').length;
+    $('.tbll1').on('click', '.rmv1', function() {
+        $(this).closest('tr').remove();
+
+        //calculateSubTotal();
+        //calculategstRate();
+        $("#myTable1 tbody tr:last").find('td:last').html('');
+        var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty1();"><span class="ti-plus"></span></button>&nbsp;'
+        var remove = '<button type="button" class="btn btn-warning rmv1" name="Remove"><span class="ti-minus"></span></button>';
+        if ($("#tbodyData1").children('tr').length > 1) {
+            $("#myTable1 tbody tr:last").find('td:last').append(add);
+            $("#myTable1 tbody tr:last").find('td:last').append(remove);
+        } else {
+
+            $("#myTable1 tbody tr:last").find('td:last').append(add);
+        }
+        var newVal = $(this).closest('tr').find(".addAmount").attr("id");
+		var l = newVal.split("_");
+		var counter = l[1];
+		newCalculation(counter);
+    });
+    
+    
+
+    //method to submit data 
+    $("#submitItems").click(function() {
+    	
+    	var newD = [];
+    	$("#tbodyData1 > tr").each(function(){
+    		
+    		add = {};
+    		
+    		add['key'] = $(this).find(".charges").val();
+    		add['name'] = $(this).find(".addAmount").val();
+    		
+    		var addCharges = true;
+    	    $('.charges').each(function() {
+    	        if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Charges Type")) {
+    	        	addCharges = false;
+    	            return false;
+    	        }
+    	    });
+    	    
+    	    var addAmount = true;
+    	    if (addCharges) { 
+    	        $('.addAmount').each(function() {
+    	            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Additional Charges Amount")) {
+    	            	addAmount = false;
+    	                return false;
+    	            }
+    	        });
+    	    }
+    	    if(addCharges && addAmount) {
+    	    	newD.push(add);
+    	    } else {
+    	    	swal("Additonal Charges Type Or Amount Can't Be Left Blank..!!")
+    	    }
+    	});
+    	
+        var dataset = [];
+        var i = 0;
+        $("#tbodyData > tr").each(function() {
+            item = {};
+            item['goodsReturnNote'] = $("#goodsReturnNote").val();
+            item['purchaseOrder'] = $("#purchaseOrder").val();
+            item['gRNInvoiceId'] = $("#invoice_").val();
+            item['gRtNDescription'] = $("#gRtNDescription_").val();
+            item['gRtNActive'] = $("#statusId").val();
+            item['itemCategory'] = $(this).find(".itemCategory").val();
+            item['itemSubCategory'] = $(this).find(".itemSubCategory").val();
+            item['itemName'] = $(this).find(".itemCls1").val();
+            item['gRtNQty'] = $(this).find(".lServiceQuantityCls").val();
+            item['price'] = parseFloat($(this).find(".priceCls").text());
+            item['gsubTotal'] = $("#subTotal").html();
+            item['discount'] = $("#discount").html();
+            item['gstRate'] = $("#gstRate").html();
+            item['sgst'] = $("#sgst").html();
+            item['cgst'] = $("#cgst").html();
+            item['igst'] = $("#igst").html();
+            item['grandTotal'] = $("#grandTotal").html();
+            item['lineTotal'] = $(this).find(".lineTotalCls").html();
+            item['gstType'] = $("#gstType").val();
+
+            dataset.push(item);
+            i++;
+        }); //table tbody tr loop ends
+        var length = dataset.length;
+
+        if (!blankValidation("invoice_", "TextField", "InvoiceNumber can not be left blank"))
+            return false;
+        if (!blankValidation("gRtNDescription_", "TextArea", "Please Enter Description"))
+            return false;
+        if (!blankValidation("statusId", "SelectBox", "Please Select Status"))
+            return false;
+        var catValid = true;
+        $('.itemCategory').each(function() {
+            if (!blankValidation($(this).attr('id'), "SelectBox", "Please Select Item Category")) {
+
+                catValid = false;
+                return false;
+            }
+
+        });
+
+        var subcatValid = true;
+        if (catValid) {
+            $('.itemSubCategory').each(function() {
+                if (!blankValidation($(this).attr('id'), "SelectBox", "Please Select Item SubCategory")) {
+
+                    subcatValid = false;
+                    return false;
+                }
+
+            });
+        }
+        var itemValid = true;
+        if (catValid && subcatValid) {
+            $('.itemCls').each(function() {
+                if (!blankValidation($(this).attr('id'), "SelectBox", "Please Select Item ")) {
+
+                    itemValid = false;
+                    return false;
+                }
+
+            });
+        }
+        var qtyValid = true;
+        if (catValid && subcatValid && itemValid) {
+            $('.lServiceQuantityCls').each(function() {
+                if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Quantity")) {
+
+                    qtyValid = false;
+                    return false;
+                }
+
+            });
+        }
+        if (catValid && subcatValid && itemValid && qtyValid) {
+        	console.log(dataset)
+            submitGoodsReturnsNote(dataset);
+        }
+    });
+    
+});
+
+    //method to show submit pop up
+function addTotalAdditionalCharges(e) {
+	var value = e.currentTarget.value;
+	var grandTotal = $("#hiddenGrandTotal").val();
+	var sum = 0;
+	if(value) {
+		$("#tbodyData1 > tr").each(function(){
+			var amount = $(this).find(".addAmount").val();
+			sum = parseFloat(sum) + parseFloat(amount);
+		})
+		$("#totalAddCharges").html(sum.toFixed(2));
+		var newTotal = parseFloat(grandTotal) + parseFloat(sum);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	} else {
+		$("#totalAddCharges").html("0.00");
+		var newTotal = parseFloat(grandTotal);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	}
+}
+
+function newCalculation(i) {
+	value = "A";
+	var grandTotal = $("#hiddenGrandTotal").val();
+	var sum = 0;
+	if(value) {
+		$("#tbodyData1 > tr").each(function(){
+			var amount = $(this).find(".addAmount").val();
+			sum = parseFloat(sum) + parseFloat(amount);
+		})
+		$("#totalAddCharges").html(sum.toFixed(2));
+		var newTotal = parseFloat(grandTotal) + parseFloat(sum);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	} else {
+		$("#totalAddCharges").html("0.00");
+		var newTotal = parseFloat(grandTotal);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	}
+}
+
+function submitGoodsReturnsNote(dataset) {
+        swal.fire({
+            title: "Are you sure want to Submit?",
+            text: "Once Submited,Can't revert back !",
+            type: "warning",
+
+            showCancelButton: true,
+            confirmButtonColor: "#DD6BB5",
+            confirmButtonText: "Submit",
+            showLoaderOnConfirm: true,
+            reverseButtons: true,
+            confirmButtonAriaLabel: 'Thumbs up, great!',
+            cancelButtonText: 'Cancel',
+            cancelButtonAriaLabel: 'Thumbs down',
+            preConfirm: () => {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        console.log("Doing async operation");
+                        resolve()
+                    }, 3000)
+                })
+            }
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    type: "POST",
+                    url: "add-inventory-goodsreturns",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(dataset),
+                    success: function(response) {
+                        if (response.message == "Success") {
+                            swal({
+                                title: "Data Saved Successfully.",
+                                type: "success",
+                            }).then(function() {
+                                window.location.href = "/inventory/view-inventory-goodsreturns";
+                            })
+                        } else {
+                            swal({
+                                title: response.code,
+                                text: response.message,
+                                type: "warning"
+                            })
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var err = eval("(" + xhr.responseText + ")");
+                        console.log(err)
+                        console.log(err.message)
+                    }
+                }) //ajax ends
+            }
+        }) //swal function block ends
+    }
+ //submit function ends 
+
+
+//For Quantity Comparision
+/* function quantitycal(event) {
+    var AssignItemQty = event.currentTarget.value;
+    var currentQtyFldId = event.currentTarget.getAttribute('id');
+    var AssignItemCode = $("#" + currentQtyFldId).closest('tr').find('input').eq(2).val();
+    var POItemQty = $("#PO_" + AssignItemCode).text();
+
+    if (POItemQty == "" || POItemQty == null) {
+        swal('Item is not exist in PO Details');
+        $("#" + currentQtyFldId).val("");
+        return false;
+    }
+
+    if (parseFloat(AssignItemQty) > parseFloat(POItemQty)) {
+        swal('Assign quanity is more');
+        $("#" + currentQtyFldId).val("");
+        return false;
+    }
+    if (parseFloat(AssignItemQty) < 0) {
+        swal('Assign quanity is less');
+        $("#" + currentQtyFldId).val("");
+        return false;
+    }
+
+} */
+
+
+//For Getting invoice  Details in List
+function getTableLst() {
+    var invoice = $("#invoice_").val();
+    $("#tbodyData").empty();
+    if (invoice) {
+        $.ajax({
+            type: 'POST',
+            url: 'add-inventory-goodsreturns-get-list-through-ajax',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: invoice,
+            success: function(response) {
+                if (response.message == "success") {
+                    console.log(response.body)
+                    var gstType = response.body[0].gstType;
+                    if(gstType){
+                    	$("#gstType").val(true);
+                    	$("#cgstR").hide();
+                    	$("#sgstR").hide();
+                    	$("#igstR").show();
+                    	$("#cgst").text("0.00");
+                    	$("#sgst").text("0.00");
+                    } else {
+                    	$("#gstType").val(false);
+                    	$("#cgstR").show();
+                    	$("#sgstR").show();
+                    	$("#igstR").hide();
+                    	$("#igst").text("0.00");
+                    }
+                    
+                    $("#store").empty();
+                    $("#store").append("<option value='"+response.body[0].storeId+"'>"+response.body[0].storeName+"</option>");
+                    
+                    for (var i = 0; i < response.body.length; i++) {
+                        table = '<tr><td><input type="hidden" id="itemCategory_' + i + '" class="form-control itemCategory" value="' + response.body[i].itemCategory + '" /> <input type="hidden"' +
+                            'id="itemSubCategory_' + i + '" class="form-control itemSubCategory" value="' + response.body[i].subCategory + '" /> <input type="hidden" id="itemName_' + i + '"' +
+                            'class="form-control itemCls1" value="' + response.body[i].itemId + '"> <input type="text" id="item_' + i + '" class="form-control itemCls" value="' + response.body[i].itemName + '" readonly></td>' +
+                            '<td><input type="text" readonly class="form-control hiddenQty" id="hidenQTY_'+ i +'" value="' + response.body[i].quantity + '"></td>'+
+                            '<td><input type="text" id="ServiceQuantity_' + i + '" class="form-control  lServiceQuantityCls" onkeyup="checkQty(event);calculateAmountTotal(event);calculategstRate();checkGRNReturnQty(event);" value="0"></td>' +
+                            '<td><input type="text" id="price_' + i + '" class="form-control priceCls right-align" readonly value="' + response.body[i].price + '"></td>' +
+                            '<td><input type="text" id="gstRate_' + i + '" class="form-control gstRateCls" readonly value="' + response.body[i].gst + '"></td>' +
+                            '<td><input type="text" id="cessAmt_'+i+'" class="form-control cessAmount" readonly value="'+ response.body[i].cessAmount +'"></td>' +
+                            '<td><input type="text" id="lineTotal_' + i + '" class="form-control lineTotalCls right-align" readonly value="0.00"></td>' +
+                            '</tr>';
+                        $("#tbodyData").append(table);
+                    }
+                } else {
+                    table = '<tr><td><input type="hidden" id="itemCategory_0" class="form-control itemCategory">' +
+                        '<input type="hidden" id="itemSubCategory_0" class="form-control itemSubCategory">' +
+                        '<input type="hidden" id="itemSubCategory_0" class="form-control itemCls1">' +
+                        '<input type="text" id="item_0" class="form-control itemCls" readonly></td>' +
+                        '<td><input type="text" readonly class="form-control hiddenQty" id="hidenQTY_0" value=""></td>'+
+                        '<td><input type="text" id="ServiceQuantity_0" class="form-control lServiceQuantityCls" onkeyup="checkQty(event);calculateAmountTotal(event);calculategstRate();checkGRNReturnQty(event);"></td>' +
+                        '<td><input type="text" id="price_0" class="form-control priceCls right-align" readonly value=""></td>' +
+                        '<td><input type="text" id="gstRate_0" class="form-control gstRateCls" readonly value=""></td>' +
+                        '<td><input type="text" id="cessAmt_0" class="form-control cessAmount" readonly></td>' +
+                        '<td><input type="text" id="lineTotal_0" class="form-control lineTotalCls right-align" readonly value="0.00"></td>' +
+                        '</tr>';
+                    $("#tbodyData").append(table);
+                    $("#gstType").val("");
+                    $("#cgstR").show();
+                	$("#sgstR").show();
+                	$("#igstR").show();
+                	$("#cgst").text("0.00");
+                	$("#sgst").text("0.00");
+                	$("#igst").text("0.00");
+                	$("#subTotal").text("0.00");
+                	$("#grandTotal").text("0.00");
+                }
+            },
+            error: function(data) {
+                console.log(data);
+                table = '<tr><td><input type="hidden" id="itemCategory_0" class="form-control itemCategory">' +
+                '<input type="hidden" id="itemSubCategory_0" class="form-control itemSubCategory">' +
+                '<input type="hidden" id="itemSubCategory_0" class="form-control itemCls1">' +
+                '<input type="text" id="item_0" class="form-control itemCls" readonly></td>' +
+                '<td><input type="text" readonly class="form-control hiddenQty" id="hidenQTY_0" value=""></td>'+
+                '<td><input type="text" id="ServiceQuantity_0" class="form-control lServiceQuantityCls" onkeyup="checkQty(event);calculateAmountTotal(event);calculategstRate();checkGRNReturnQty(event);"></td>' +
+                '<td><input type="text" id="price_0" class="form-control priceCls right-align" readonly value=""></td>' +
+                '<td><input type="text" id="gstRate_0" class="form-control gstRateCls" readonly value=""></td>' +
+                '<td><input type="text" id="cessAmt_0" class="form-control cessAmount" readonly></td>' +
+                '<td><input type="text" id="lineTotal_0" class="form-control lineTotalCls right-align" readonly value="0.00"></td>' +
+                '</tr>';
+            $("#tbodyData").append(table);
+            $("#gstType").val("");
+            $("#cgstR").show();
+        	$("#sgstR").show();
+        	$("#igstR").show();
+        	$("#cgst").text("0.00");
+        	$("#sgst").text("0.00");
+        	$("#igst").text("0.00");
+        	$("#subTotal").text("0.00");
+        	$("#grandTotal").text("0.00");
+            }
+        });
+    } else {
+    	table = '<tr><td><input type="hidden" id="itemCategory_0" class="form-control itemCategory">' +
+        '<input type="hidden" id="itemSubCategory_0" class="form-control itemSubCategory">' +
+        '<input type="hidden" id="itemSubCategory_0" class="form-control itemCls1">' +
+        '<input type="text" id="item_0" class="form-control itemCls" readonly></td>' +
+        '<td><input type="text" readonly class="form-control hiddenQty" id="hidenQTY_0" value=""></td>'+
+        '<td><input type="text" id="ServiceQuantity_0" class="form-control lServiceQuantityCls" onkeyup="checkQty(event);calculateAmountTotal(event);calculategstRate();checkGRNReturnQty(event);"></td>' +
+        '<td><input type="text" id="price_0" class="form-control priceCls right-align" readonly value=""></td>' +
+        '<td><input type="text" id="gstRate_0" class="form-control gstRateCls" readonly value=""></td>' +
+        '<td><input type="text" id="cessAmt_0" class="form-control cessAmount" readonly></td>' +
+        '<td><input type="text" id="lineTotal_0" class="form-control lineTotalCls right-align" readonly value="0.00"></td>' +
+        '</tr>';
+    $("#tbodyData").append(table);
+    $("#gstType").val("");
+    $("#cgstR").show();
+	$("#sgstR").show();
+	$("#igstR").show();
+	$("#cgst").text("0.00");
+	$("#sgst").text("0.00");
+	$("#igst").text("0.00");
+	$("#subTotal").text("0.00");
+	$("#grandTotal").text("0.00");
+    }
+}
+
+function checkGRNReturnQty(event) {
+	var value = event.currentTarget.value;
+	var id = event.currentTarget.id;
+	var l = id.split("_");
+	var i = l[1];
+	
+	var grnQty = $("#hidenQTY_"+i).val();
+	var qty = $("#ServiceQuantity_"+i).val();
+	
+	if(parseFloat(qty) > parseFloat(grnQty)) {
+		swal({
+			title	:	"Quantity can't be greater than GRn Quantity("+grnQty+")",
+			type	:	"warning",
+		})
+		$("#ServiceQuantity_"+i).val("0");
+		$("#lineTotal_"+i).val("0.00");
+		calculategstRate();
+	}
+}
+
+function calculateAmountTotal(event) {
+    var currentId = event.currentTarget.id;
+    var currentValue = event.currentTarget.value;
+    var l = currentId.split("_");
+    var counter = l[1];
+    var price = $("#price_" + counter).val();
+    var quantity = $("#ServiceQuantity_" + counter).val();
+    if (price && quantity) {
+        var mul = price * quantity;
+        $("#lineTotal_" + counter).val((mul).toFixed(2));
+
+    } else {
+        var mul = 0;
+        $("#lineTotal_" + counter).val((mul).toFixed(2));
+
+    }
+    calculateSubTotal();
+
+}
+//method to calculate subtotal
+function calculateSubTotal() {
+    var sum = 0;
+    var grandTotal = 0;
+    $(".lineTotalCls").each(function(i) {
+        sum = sum + parseFloat($(this).val());
+    })
+    $('#subTotal').html((sum).toFixed(2));
+    calculategstRate();
+}
+
+function calculategstRate() {
+    var sum = 0;
+    var j = 0;
+    var gstRate = 0;
+    var sum = 0;
+    $(".lineTotalCls").each(function(i) {
+        sum = sum + parseFloat($(this).val());
+    })
+    var gstRate = 0.0;
+    var itemCGST = 0.0;
+    var itemIGST = 0.0;
+    var cessValue = 0.0;
+    $("#tbodyData > tr").each(function(i) {
+        var gstval = parseFloat($(this).find(".gstRateCls").val());
+        var amt = parseFloat($(this).find(".lineTotalCls").val());
+        var itemCess = parseFloat($(this).find(".cessAmount").val());
+        var gstvalhalf = parseFloat(gstval) / 2;
+        var cgstval = ((amt * parseFloat(gstvalhalf)) / 100).toFixed(2);
+        var igstval = ((amt * parseFloat(gstval)) / 100).toFixed(2);
+        var cess = ((igstval * parseFloat(itemCess)) / 100).toFixed(2);
+        itemCGST = parseFloat(itemCGST) + parseFloat(cgstval);
+        itemIGST = parseFloat(itemIGST) + parseFloat(igstval);
+        cessValue = parseFloat(cessValue) + parseFloat(cess);
+    });
+    $('#subTotal').html((sum).toFixed(2));
+    var addTotalAmount = $('#totalAddCharges').html();
+    $('#cess').html((cessValue).toFixed(2));
+    var subTotal = $('#subTotal').html();
+    var gstType = $("#gstType").val();
+    /* 	var gstType = $("#gstType").val(); */
+    if (gstType == "true") {
+        $('#igst').html((itemIGST).toFixed(2));
+        $('#cgst').html("0.00");
+        $('#sgst').html("0.00");
+        var total = parseFloat(subTotal) + itemIGST;
+        var grandTotal = Math.round(total);
+        var grandTotal = Math.round((parseFloat(subTotal) + itemIGST + cessValue + parseFloat(addTotalAmount)));
+        $('#grandTotal').html((grandTotal).toFixed(2));
+        $('#hiddenGrandTotal').val((grandTotal - addTotalAmount).toFixed(2));
+    } else {
+        $('#igst').html("0.00");
+        $('#cgst').html((itemCGST).toFixed(2));
+        $('#sgst').html((itemCGST).toFixed(2));
+        var total = parseFloat(subTotal) + itemCGST + itemCGST + cessValue + parseFloat(addTotalAmount);
+        var grandTotal = Math.round(total);
+        $('#grandTotal').html((grandTotal).toFixed(2));
+        $('#hiddenGrandTotal').val((grandTotal - addTotalAmount).toFixed(2));
+    }
+}
+
+
+//For Getting PurchsaseOrder in autoComplete
+
+function getPurchaseOrder() {
+    var purchaseOrder = $("#purchaseOrder").val();
+    var gRNInvoiceId = $("#invoiceName").val();
+    if (purchaseOrder && gRNInvoiceId) {
+        $.ajax({
+            type: "POST",
+            url: "add-inventory-goodsreturns-get-grninvoiceid-through-ajax?purchaseOrder=" + purchaseOrder + "&gRNInvoiceId=" + gRNInvoiceId,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.message == "success") {
+
+                    if (response.body.length != 0) {
+                        $("#invoiceName").css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list">';
+                        for (var i = 0; i < response.body.length; i++) {
+                            content += '<li onClick="selectAutocompleteValues(\'' + response.body[i].key + '\')">' + response.body[i].key + '</li>';
+                        }
+                        content += '</ul>';
+                        $("#suggesstion-box1").show();
+                        $("#suggesstion-box1").html(content);
+
+                    } else {
+                        $("#invoiceName").css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list">';
+                        content += '<li onClick="selectAutocompleteValues(\'' + '' + '\')">' + "No Data Found" + '</li>';
+                        content += '</ul>';
+                        $("#suggesstion-box1").show();
+                        $("#suggesstion-box1").html(content);
+                    }
+                }
+            },
+            error: function(data) {
+                console.log(data);
+                $("#invoiceName").css("background", "#FFF");
+                var content = '<ul id="autocomplete-list">';
+                content += '<li onClick="selectAutocompleteValues(\'' + '' + '\')">' + "No Data Found" + '</li>';
+                content += '</ul>';
+                $("#suggesstion-box1").show();
+                $("#suggesstion-box1").html(content);
+            }
+        })
+    } else {
+        selectAutocompleteValues("");
+    }
+}
+
+function selectAutocompleteValues(key) {
+    if (key) {
+        $("#invoice_").val(key);
+        $("#invoiceName").val(key);
+        $("#invoiceName").attr('data-procat', key);
+        $("#suggesstion-box1").hide();
+        getTableLst();
+    } else {
+        $("#invoice_").val("");
+        $("#invoiceName").val("");
+        $("#invoiceName").attr('data-procat', "");
+        $("#suggesstion-box1").hide();
+        getTableLst();
+    }
+}
+
+function funcLoad() {
+    location.reload();
+}
+//method to get price 
+/* function callUnitPriceItem(currentValue, counter) {
+    var validat = true;
+    $("#ServiceQuantity_" + counter).val("");
+    if (validat) {
+        var gRNInvoiceId = $("#invoice_").val();
+        var dataset = {
+            "gRNInvoiceId": gRNInvoiceId,
+            "itemId": currentValue
+        };
+        calculatePriceAJAX(dataset, counter)
+    }
+}
+
+function calculatePriceAJAX(dataset, counter) {
+    $("#price_" + counter).html("");
+    $("#lineTotal_" + counter).empty();
+    $(".subTotal").html("0.00");
+    $(".grandTotal").html("0.00");
+    $("#igst").html("0.00");
+    $("#sgst").html("0.00");
+    $("#cgst").html("0.00");
+    $("#discount").html("0.00");
+    $("#gstRate").html("0.00");
+    $("#gstType").val("");
+    $.ajax({
+        type: "POST",
+        url: "/inventory/add-inventory-goodsreturns-get-calculated-price-items",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify(dataset),
+        success: function(response) {
+
+            if (response.message == null) {
+                var items = response.body;
+                $("errorMsg").text("");
+                $("#price_" + counter).html(items[0].name);
+
+            } else {
+                $("#errorMsg").html(response.message)
+
+            }
+
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+
+}
+//get total amount
+
+function calculateLineTotal(event) {
+    var currentId = event.currentTarget.id;
+    var currentValue = event.currentTarget.value;
+    var l = currentId.split("_");
+
+    var counter = l[1];
+    var price = $("#price_" + counter).html();
+    var quantity = $("#ServiceQuantity_" + counter).val();
+    if (price && quantity) {
+        var mul = price * quantity;
+
+        $("#lineTotal_" + counter).html((mul).toFixed(2));
+        calculateSubTotal();
+    } else {
+        var mul = 0;
+        $("#lineTotal_" + counter).html((mul).toFixed(2));
+        calculateSubTotal();
+    }
+}
+
+function calculateSubTotal() {
+    var sum = 0;
+    $(".lineTotalCls").each(function(i) {
+        sum = sum + parseFloat($(this).html());
+    })
+    $('#subTotal').html((sum).toFixed(2));
+
+}
+
+//For duplicacy Check Of Item Name
+function checkForDuplicate(itemName, counter) {
+    var item = itemName;
+    var count = 0;
+    var itemId = event.currentTarget.id;
+    $(".itemCls").each(function() {
+        if (item == $(this).val()) {
+            count++;
+        }
+    })
+    if (count >= 2) {
+        //swal('item already selected');
+        swal({
+            title: "Items Are Already Selected",
+            text: "So You Can't Select It Again...!!!",
+            type: "warning",
+        })
+        $("#item_" + counter).val("");
+    }
+} */
+//get purchase order auto completelist
+
+function purchaseAutoComplete() {
+    if ($("#purchaseOrderName").val() != null || $("#purchaseOrderName").val() != '') {
+        $.ajax({
+            type: "POST",
+            url: "add-inventory-goodsreturns-getPurchaseOrderAutocompleteList",
+            dataType: 'json',
+            contentType: 'application/json',
+            data: $("#purchaseOrderName").val(),
+            success: function(response) {
+                if (response.message == "success") {
+
+                    if (response.body.length != 0) {
+
+                        $("#purchaseOrderName").css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list">';
+                        for (var i = 0; i < response.body.length; i++) {
+                            content += '<li onClick="selectAutocompleteValue(\'' + response.body[i].key + '\')">' + response.body[i].key + '</li>';
+                        }
+                        content += '</ul>';
+                        $("#suggesstion-box2").show();
+                        $("#suggesstion-box2").html(content);
+
+                    } else {
+
+                        $("#purchaseOrderName").css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list">';
+                        content += '<li onClick="selectAutocompleteValue(\'' + '' + '\')">' + "No Data Found" + '</li>';
+                        content += '</ul>';
+                        $("#suggesstion-box2").show();
+                        $("#suggesstion-box2").html(content);
+                    }
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    }
+}
+
+function selectAutocompleteValue(key) {
+
+    if (key) {
+        $("#purchaseOrder").val(key);
+        $("#purchaseOrderName").val(key);
+        $("#purchaseOrderName").attr('data-procat', key);
+        $("#suggesstion-box2").hide();
+        getPurchaseOrder();
+    } else {
+        $("#purchaseOrder").val("");
+        $("#purchaseOrderName").val("");
+        $("#purchaseOrderName").attr('data-procat', "");
+        $("#suggesstion-box2").hide();
+
+        getPurchaseOrder();
+    }
+}
+//Function to get gst rate On Change Of  item Name
+/* 
+function getUnitGst() {
+    var invoice = $("#invoice_").val();
+    var currentId = event.currentTarget.id;
+    var l = currentId.split("_");
+    var counter = l[1];
+
+    if (invoice) {
+        $.ajax({
+            type: 'POST',
+            url: 'add-inventory-goodsreturns-get-gsts-rate-through-ajax',
+            contentType: false,
+            data: invoice,
+            success: function(response) {
+                var items = response.body;
+
+                if (response.message == "success") {
+
+                    if (items.length > 0) {
+                        for (var i = 0; i < items.length; i++) {
+                            $("#gstRate").text(items[i].key);
+
+
+                        }
+                    }
+                } else {
+                    swal("Please Try Again");
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+
+    }
+}
+
+//get gst rate					
+function getGSTRate() {
+    var gstRate = $('#gstRate').html();
+    if (gstRate <= 100) {
+        var value = gstRate / 2;
+        if (gstRate != 0) {
+            $('#labelIgst').html("IGST(" + gstRate + "%)");
+            $('#labelCgst').html("CGST(" + value + "%)");
+            $('#labelSgst').html("SGST(" + value + "%)");
+        } else {
+            $('#labelIgst').html("IGST");
+            $('#labelCgst').html("CGST");
+            $('#labelSgst').html("SGST");
+        }
+        var subTotal = $('#subTotal').html();
+        var discount = $('#discount').html();
+
+        if (discount == "") {
+            discount = 0.0;
+        }
+        var total = parseFloat(subTotal) - parseFloat(discount);
+        var amount = $('#amount').val();
+        var igst = (total * gstRate) / 100;
+        var gst = igst / 2;
+        $('#igst').html((igst).toFixed(2));
+        $('#cgst').html((gst).toFixed(2));
+        $('#sgst').html((gst).toFixed(2));
+        var grandTotal = total + parseFloat(igst);
+        $('#grandTotal').html((grandTotal).toFixed(2));
+    } else {
+        swal({
+            title: "GST Rate Can't Be Greater Than 100.",
+            type: "warning",
+        })
+        $('#gstRate').val("");
+        $('#labelIgst').html("IGST");
+        $('#labelCgst').html("CGST");
+        $('#labelSgst').html("SGST");
+    }
+}
+// function for get discount
+function GetDiscount(event) {
+    var gRNInvoiceId = $("#invoice_").val();
+    var itemId = $(".itemCls").val();
+    var currentId = event.currentTarget.id;
+    var l = currentId.split("_");
+    var counter = l[1];
+
+    if (itemId != "" || itemId != null) {
+        $.ajax({
+            type: "POST",
+            url: "/inventory/add-inventory-goodsreturns-get-discount-through-ajax?itemId=" + itemId + "&gRNInvoiceId=" + gRNInvoiceId,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+                var items = response.body;
+                if (response.message == "success") {
+                    if (items.length > 0) {
+                        for (var i = 0; i < items.length; i++) {
+                            var subTotal = parseFloat($('#subTotal').html());
+                            var disc = (parseFloat(items[i].key)) / (parseFloat(items[i].name)) * subTotal;
+                            var discount = disc.toFixed(2);
+                            var value = ((items[i].name / items[i].key) * subTotal).toFixed(2);
+                            $('#discount').html(discount);
+                            getGSTRate();
+                        }
+                    }
+                } else {
+                    swal("Please Try Again");
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+
+    } else {
+
+    }
+} */
+//function to validate Quantity field					
+function checkQty(event) {
+    var currentId = event.currentTarget.id;
+    checkNum(currentId);
+}
+
+//for item auto complete
+/* function itemAutoComplete(event) {
+
+    var currentId = event.currentTarget.id;
+    var currentValue = event.currentTarget.value;
+    var l = currentId.split("_");
+    var counter = l[1];
+    currentValue = currentValue + "," + $("#invoice_").val();
+    if ($("#invoice_").val()) {
+
+        $.ajax({
+            type: "POST",
+            url: "add-inventory-goodsreturns-get-item",
+            dataType: 'json',
+            contentType: 'application/json',
+            data: currentValue,
+            success: function(response) {
+                if (response.message == "success") {
+                    if (response.body.length != 0) {
+                        $(currentId).css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list1">';
+                        for (var i = 0; i < response.body.length; i++) {
+                            content += '<li onClick="selectAutocompleteValueItem1(\'' + response.body[i].itemName + '\',\'' + response.body[i].itemId + '\',\'' + response.body[i].itemCategory + '\',\'' + response.body[i].itemSubCategory + '\',\'' + counter + '\')">' + response.body[i].itemName + '(' + response.body[i].itemId + ')' + '</li>';
+                        }
+                        content += '</ul>';
+                        $("#suggesstion-box1_" + counter).show();
+                        $("#suggesstion-box1_" + counter).html(content);
+
+                    } else {
+                        $(currentId).css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list1">';
+                        content += '<li onClick="selectAutocompleteValueItem(\'' + counter + '\')">' + "No Data Found" + '</li>';
+                        content += '</ul>';
+                        $("#suggesstion-box1_" + counter).show();
+                        $("#suggesstion-box1_" + counter).html(content);
+                    }
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+        $(currentId).css("background", "#FFF");
+        var content = '<ul id="autocomplete-list1">';
+        content += '<li onClick="selectAutocompleteValueItem(\'' + counter + '\')">' + "No Data Found" + '</li>';
+        content += '</ul>';
+        $("#suggesstion-box1_" + counter).show();
+        $("#suggesstion-box1_" + counter).html(content);
+    }
+}
+
+function selectAutocompleteValueItem1(itemName, item_p, categoryName, subCategoryName, counter) {
+
+    if (item_p) {
+        $("#itemName_" + counter).val(item_p);
+        $("#itemCategory_" + counter).val(categoryName);
+        $("#itemSubCategory_" + counter).val(subCategoryName);
+        $("#item_" + counter).val(itemName);
+        $("#item_" + counter).attr('data-procat', item_p);
+        $("#suggesstion-box1_" + counter).hide();
+        checkForDuplicate(itemName, counter);
+        callUnitPriceItem(item_p, counter);
+        getUnitGst();
+    } else {
+        $("#itemName_" + counter).val("");
+        $("#itemSubCategory_" + counter).val("");
+        $("#item_" + counter).val("");
+        $("#item_" + counter).attr('data-procat', "");
+        $("#suggesstion-box1_" + counter).hide();
+        checkForDuplicate(item_p, counter);
+        getPndngQuantity(item_p, counter); //for pending quantity change
+        callUnitPriceItem(item_p, counter); //for call item price
+        getReceiveQuantity(item_p, counter); //for recive quantity
+    }
+}
+
+function selectAutocompleteValueItem(counter) {
+    $("#itemName_" + counter).val("");
+    $("#itemSubCategory_" + counter).val("");
+    $("#item_" + counter).val("");
+    $("#item_" + counter).attr('data-procat', "");
+    $("#suggesstion-box1_" + counter).hide();
+    $("#ServiceQuantity_" + counter).val("");
+    $("#price_" + counter).empty();
+    $("#lineTotal_" + counter).empty();
+    $(".subTotal").html("0.00");
+    $(".grandTotal").html("0.00");
+    $("#igst").html("0.00");
+    $("#sgst").html("0.00");
+    $("#cgst").html("0.00");
+    $("#discount").html("0.00");
+    $("#gstType").html("0.00");
+    $("#gstRate").html("0.00");
+
+} */
+</script>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+
+					<li class="active"><span>Add Goods ReturnNotes</span></li>
+
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Goods Return Notes</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${inventoryGoodsReturnNoteModel}"
+								autocomplete="off">
+
+								<input type="hidden" id="goodsReturnNote"
+									th:value="${inventoryGoodsReturnNote}" /> <input type="hidden"
+									th:unless="${inventoryGoodsReturnNote}" id="gstType"> <input
+									type="hidden" id="gstType" th:if="${inventoryGoodsReturnNote}"
+									th:value="${inventoryGoodsReturnNoteModel[0].gstType}">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Purchase Order Number</label> <input
+												th:if="${inventoryGoodsReturnNote}" type="hidden"
+												id="purchaseOrder"
+												th:value="${inventoryGoodsReturnNoteModel[0].purchaseOrder}" />
+											<input type="text" th:if="${inventoryGoodsReturnNote}"
+												class="form-control" id="purchaseOrderName"
+												th:value="${inventoryGoodsReturnNoteModel[0].purchaseOrder}"
+												onkeyup="purchaseAutoComplete();" /> <input
+												th:unless="${inventoryGoodsReturnNote}" type="hidden"
+												id="purchaseOrder" /> <input type="text"
+												th:unless="${inventoryGoodsReturnNote}" class="form-control"
+												id="purchaseOrderName" onkeyup="purchaseAutoComplete();" />
+											<div id="suggesstion-box2"></div>
+
+										</div>
+										<div class="form-group">
+											<label> GRN Invoice</label> <input
+												th:if="${inventoryGoodsReturnNote}" type="hidden"
+												id="invoice_"
+												th:value="${inventoryGoodsReturnNoteModel[0].gRNInvoiceId}" />
+											<input type="text" th:if="${inventoryGoodsReturnNote}"
+												class="form-control" id="invoiceName"
+												th:value="${inventoryGoodsReturnNoteModel[0].gRNInvoiceId}"
+												onkeyup="getPurchaseOrder();" /> <input
+												th:unless="${inventoryGoodsReturnNote}" type="hidden"
+												id="invoice_" /> <input type="text"
+												th:unless="${inventoryGoodsReturnNote}" class="form-control"
+												id="invoiceName" onkeyup="getPurchaseOrder();" />
+											<div id="suggesstion-box1"></div>
+
+										</div>
+										<div class="form-group">
+											<label> Store </label>
+											<select id="store" class="form-control" th:if="${inventoryGoodsReturnNote}">
+												<option th:each="c,iter:${storeList}" th:value="${c.key}" th:text="${c.name}"></option>
+											</select>
+											<select id="store" class="form-control" th:unless="${inventoryGoodsReturnNote}">
+												<option value="">--Select--</option>
+											</select>
+										</div>
+										<div class="form-group" id="description">
+											<label id="porder">Description</label>
+											<textarea th:if="${inventoryGoodsReturnNote}"
+												style="height: 70px;" cols="50" rows="4"
+												id="gRtNDescription_" class="form-control textarea"
+												th:text="${inventoryGoodsReturnNoteModel[0].gRtNDescription}"></textarea>
+											<textarea th:unless="${inventoryGoodsReturnNote}"
+												style="height: 70px;" cols="50" rows="4"
+												id="gRtNDescription_" class="form-control textarea"></textarea>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Vehicle No.</label>
+											<input type="text" class="form-control"> 
+										</div>
+										<div class="form-group">
+											<label>Driver</label> 
+											<input type="text" class="form-control"> 
+										</div>
+										<div class="form-group">
+											<label>Driver Mobile No.</label> 
+											<input type="text" class="form-control"> 
+										</div>
+										<div class="form-group">
+											<label>Status</label> <select class="form-control"
+												id="statusId">
+												<option value="">--Select--</option>
+												<option th:if="${inventoryGoodsReturnNote}" value=true
+													th:selected="${inventoryGoodsReturnNoteModel[0].gRtNActive}">Active</option>
+												<option th:unless="${inventoryGoodsReturnNote}" value=true>Active</option>
+												<option th:if="${inventoryGoodsReturnNote}" value=false
+													th:selected="${!inventoryGoodsReturnNoteModel[0].gRtNActive}">Inactive</option>
+												<option th:unless="${inventoryGoodsReturnNote}" value=false>Inactive</option>
+											</select>
+										</div>
+									</div>
+								</div>
+								<!-- <input type="hidden" id="gstType"> -->
+								<label style="color:#2b5fdd;font-size:18px;"><strong>Invoice Details</strong></label>
+								<table class="tbll" id="myTable" width="100%" border="0"
+									cellspacing="1" cellpadding="5">
+									<thead>
+										<tr>
+											<th>Item Name</th>
+											<th>GRN Quantity</th>
+											<th>Quantity</th>
+											<th>Price</th>
+											<th>GST</th>
+											<th>Cess</th>
+											<th>Amount</th>
+											<!-- <th>Action</th> -->
+										</tr>
+									</thead>
+									<tbody id="tbodyData">
+										<tr class="tr_clone" th:if="${inventoryGoodsReturnNote}"
+											th:each="a,iter:${inventoryGoodsReturnNoteModel}">
+											<td><input type="hidden" th:id="itemCategory_+${iter.index}"
+												class="form-control itemCategory" th:value="${a.itemCategory}" /> <input type="hidden"
+												th:id="itemSubCategory_+${iter.index}"
+												class="form-control itemSubCategory" th:value="${a.itemSubCategory}"/> <input
+												type="hidden" th:id="itemName_+${iter.index}"
+												class="form-control itemCls1" th:value="${a.itemId}"> <input type="text"
+												th:id="item_+${iter.index}" class="form-control itemCls"
+												onkeyup="itemAutoComplete(event);" readonly th:value="${a.itemName}"></td>
+											<td><input type="text" th:id="hiddenQTY_+${iter.index}" class="form-control hiddenQty" readonly th:value="${a.quantityReceived}"></td>
+											<td><input type="text" th:id="ServiceQuantity_+${iter.index}"
+												class="form-control  lServiceQuantityCls"
+												onkeyup="checkQty(event);calculateAmountTotal(event);calculategstRate();checkGRNReturnQty(event);"
+												th:value="${a.gRtNQty}"></td>
+											<td><input type="text" th:id="price_+${iter.index}" th:value="${a.price}" class="form-control priceCls" readonly></td>
+											<td><input type="text" th:id="gstRate_+${iter.index}" th:value="${a.gstRate}" class="form-control gstRateCls" readonly></td>
+											<td><input type="text" th:id="cessAmt_+${iter.index}" th:value="${a.cessAmount}" class="form-control cessAmount" readonly></td>
+											<td><input type="text" th:id="lineTotal_+${iter.index}"
+												class="form-control lineTotalCls" value="0.00" readonly th:value="${a.lineTotal}"></td>
+
+
+											<!-- <td>
+												<button th:if="${iter.size == iter.index+1}" type="button"
+													class="btn btn-primary tr_clone_add" name="add"
+													onclick="checkEmpty();">
+													<span class="ti-plus"></span>
+												</button>&nbsp;
+												<button th:if="${iter.size != 1}" type="button"
+													class="btn btn-warning rmv" name="Remove">
+													<span class="ti-minus"></span>
+												</button>
+											</td> -->
+										</tr>
+										<tr class="tr_clone" th:unless="${inventoryGoodsReturnNote}">
+											<td><input type="hidden" th:id="itemCategory_"
+												class="form-control itemCategory" /> <input type="hidden"
+												th:id="itemSubCategory_"
+												class="form-control itemSubCategory" /> <input
+												type="hidden" th:id="itemName_"
+												class="form-control itemCls1"> <input type="text"
+												id="item_" class="form-control itemCls"
+												onkeyup="itemAutoComplete(event);" readonly></td>
+											<td><input type="text" id="hiddenQTY_" class="form-control hiddenQty" readonly></td>
+											<td><input type="text" id="ServiceQuantity_"
+												class="form-control  lServiceQuantityCls"
+												onkeyup="checkQty(event);calculateAmountTotal(event);calculategstRate();checkGRNReturnQty(event);"
+												value=''></td>
+											<td><input type="text" id="price_" class="form-control priceCls" readonly></td>
+											<td><input type="text" id="gstRate_" class="form-control gstRateCls" readonly></td>
+											<td><input type="text" id="cessAmt_" class="form-control cessAmount" readonly></td>
+											<td><input type="text" id="lineTotal_"
+												class="form-control lineTotalCls right-align" value="0.00" readonly></td>
+
+
+											<!-- <td><button type="button"
+													class="btn btn-primary tr_clone_add" name="add"
+													onclick="checkEmpty();">
+													<span class="ti-plus"></span>
+												</button>&nbsp;</td> -->
+										</tr>
+									</tbody>
+								</table>
+								<div class="row">
+									<div class="col-lg-6">
+							<label class="label-head" style="font-size: 18px; font-weight: bold; color: #2b5fdf;">Additional Expenses</label>
+							<table class="tbll1" id="myTable1" width="100%" border="0"
+									cellspacing="1" cellpadding="5">
+									<thead>
+										<tr>
+											<th>Expenses Head</th>
+											<th>Amount</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+
+									<tbody id="tbodyData1">
+										<!-- <tr class="tr_clone" th:if="${invGoods}"
+											th:each="a,iter:${invGoodsReceiveModel}">
+											<td><input type="hidden"
+												th:id="${'itemCategory_'+iter.index}"
+												class="form-control itemCategory"
+												th:value="${a.itmCategory}" /> <input type="hidden"
+												th:id="${'itemSubCategory_'+iter.index}"
+												class="form-control itemSubCategory"
+												th:value="${a.itmSubCategory}" /> <input type="hidden"
+												th:id="${'itemName_'+iter.index}"
+												class="form-control itemCls1"
+												th:value="${a.gRnInvoiceItmName}"> <input
+												type="text" th:id="${'item_'+iter.index}"
+												class="form-control itemCls"
+												onkeyup="itemAutoComplete(event);" th:value="${a.ItemName}">
+												<div id="suggesstion-box1_"></div></td>
+											<td><input type="text"
+												th:id="'receivedQuantity_'+${iter.index}"
+												class="form-control receivedQuantityCls"
+												th:each="c:${qtyLists[iter.index]}" th:value='${c.key}'
+												readonly></td>
+											<td><input type="text"
+												th:id="'ServiceQuantity_'+${iter.index}"
+												class="form-control lServiceQuantityCls"
+												onkeyup="checkQty(event); calculateAmountTotal(event); checkGRNQuantity(event);"
+												th:value='${a.gRnInvoiceQuantity}'></td>
+											<td><input type="text" th:id="'poPrice_'+${iter.index}"
+												class="form-control poPriceCls right-align" th:value='${a.gRnPrice}'
+												readonly></td>
+											<td><input type="text" th:id="'invPrice_'+${iter.index}"
+												class="form-control invPriceCls right-align" th:value='${a.invPrice}'
+												onkeyup="return extractNumber(this,2),calculateAmountTotal(event);" /></td>
+											<td><input type="text" th:id="'gstRate_'+${iter.index}"
+												class="form-control gstRateCls" th:value='${a.dGstRate}'
+												readonly onkeyup="calculategstRate();" /> <input
+												type="hidden" th:id="${'gstAmount_'+iter.index}"
+												class="form-control gstAmountCls" /></td>
+											<td><input type="text" readonly th:id="'cessAmt_'+${iter.index}" size="6" class="form-control cessAmount" th:value='${a.cessAmount}'></td>
+											<td><input type="text"
+												th:id="'amountTotal_'+${iter.index}"
+												class="form-control amountTotalCls right-align"
+												th:value="${a.lineTotal}" readonly></td>
+											<td>
+												<button th:if="${iter.size == iter.index+1}" type="button"
+													class="btn btn-primary tr_clone_add" name="add"
+													onclick="checkEmpty();">
+													<span class="ti-plus"></span>
+												</button>&nbsp; <button th:if="${iter.size == iter.index+2}"  type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>
+												<button th:if="${iter.size != 1}" type="button"
+													class="btn btn-warning rmv" name="Remove">
+													<span class="ti-minus"></span>
+												</button>
+											</td>
+										</tr> -->
+										<tr class="tr_clone" th:unless="${invGoods}">
+											<td><input type="text" id="additionalCharges_0" class="form-control charges"></td>
+											<td><input type="text" id="additionalAmount_0" onkeyup="checkQty(event);addTotalAdditionalCharges(event);" class="form-control addAmount right-align"></td>
+											<td>
+												<button type="button" class="btn btn-primary tr_clone_add"
+													name="add" onclick="checkEmpty1();">
+													<span class="ti-plus"></span>
+												</button>&nbsp;
+											</td>
+										</tr>
+									</tbody>
+								</table>
+						</div>
+									<div class="col-lg-6">
+										<table width="100%">
+											<tbody>
+
+												<tr th:if="${inventoryGoodsReturnNote}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Sub
+															Total</label></td>
+													<td width="40%"><label id="subTotal"
+														class="form-control subTotal" style="text-align:right;"
+														th:text="${inventoryGoodsReturnNoteModel[0].rcvSubTotal}">0.00</label></td>
+												</tr>
+												<tr th:unless="${inventoryGoodsReturnNote}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Sub
+															Total</label></td>
+													<td width="40%"><label id="subTotal" style="text-align:right;"
+														class="form-control subTotal">0.00</label></td>
+												</tr>
+												<tr th:if="${inventoryGoodsReturnNote}" style="display:none;">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Discount</label></td>
+													<td width="40%"><label id="discount"
+														class="form-control discount" style="text-align:right;"
+														th:text="${#numbers.formatDecimal(inventoryGoodsReturnNoteModel[0].discount, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+
+												</tr>
+												<tr th:unless="${inventoryGoodsReturnNote}" style="display:none;">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Discount</label></td>
+													<td width="40%"><label id="discount" style="text-align:right;"
+														class="form-control discount" onkeyup="myFunction();">0.00</label></td>
+													<!-- <input type="hidden" id="amount"></td> -->
+												</tr>
+
+												<tr id="cgstR"
+													th:if="${inventoryGoodsReturnNote} and ${!inventoryGoodsReturnNoteModel[0].gstType}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelCgst"
+														>CGST</label></td>
+													<td width="40%"><label id="cgst"
+														class="form-control cgst" style="text-align:right;"
+														th:text="${inventoryGoodsReturnNoteModel[0].cgst}">0.00</label></td>
+												</tr>
+												<tr id="cgstR"
+													th:if="${inventoryGoodsReturnNote} and ${inventoryGoodsReturnNoteModel[0].gstType}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelCgst"
+														>CGST</label></td>
+													<td width="40%"><label id="cgst"
+														class="form-control cgst" style="text-align:right;"
+														th:text="${inventoryGoodsReturnNoteModel[0].cgst}">0.00</label></td>
+												</tr>
+												<tr id="cgstR" th:unless="${inventoryGoodsReturnNote}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelCgst">CGST</label></td>
+													<td width="40%"><label id="cgst" style="text-align:right;"
+														class="form-control cgst">0.00</label></td>
+												</tr>
+
+												<tr id="sgstR"
+													th:if="${inventoryGoodsReturnNote} and ${!inventoryGoodsReturnNoteModel[0].gstType}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelSgst"
+														>SGST</label></td>
+													<td width="40%"><label id="sgst"
+														class="form-control sgst" style="text-align:right;"
+														th:text="${inventoryGoodsReturnNoteModel[0].sgst}">0.00</label></td>
+												</tr>
+												<tr id="sgstR"
+													th:if="${inventoryGoodsReturnNote} and ${inventoryGoodsReturnNoteModel[0].gstType}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelSgst"
+														>SGST</label></td>
+													<td width="40%"><label id="sgst"
+														class="form-control sgst" style="text-align:right;"
+														th:text="${inventoryGoodsReturnNoteModel[0].sgst}">0.00</label></td>
+												</tr>
+												<tr id="sgstR" th:unless="${inventoryGoodsReturnNote}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelSgst">SGST</label></td>
+													<td width="40%"><label id="sgst" style="text-align:right;"
+														class="form-control sgst">0.00</label></td>
+												</tr>
+												<tr id="igstR"
+													th:if="${inventoryGoodsReturnNote} and ${inventoryGoodsReturnNoteModel[0].gstType}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelIgst"
+														>IGST</label></td>
+													<td width="40%"><label id="igst"
+														class="form-control igst" style="text-align:right;"
+														th:text="${inventoryGoodsReturnNoteModel[0].igst}">0.00</label></td>
+												</tr>
+												<tr id="igstR"
+													th:if="${inventoryGoodsReturnNote} and ${!inventoryGoodsReturnNoteModel[0].gstType}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelIgst"
+														>IGST</label></td>
+													<td width="40%"><label id="igst"
+														class="form-control igst" style="text-align:right;"
+														th:text="${inventoryGoodsReturnNoteModel[0].igst}">0.00</label></td>
+												</tr>
+												<tr id="igstR" th:unless="${inventoryGoodsReturnNote}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelIgst">IGST</label></td>
+													<td width="40%"><label id="igst"
+														class="form-control igst" style="text-align:right;">0.00</label></td>
+												</tr>
+
+												<tr th:if="${inventoryGoodsReturnNote}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Cess</label></td>
+													<td width="40%"><label id="cess"
+														class="form-control cess" style="text-align:right;"
+														th:text="${inventoryGoodsReturnNoteModel[0].totalCess}">0.00</label></td>
+												</tr>
+												<tr th:unless="${inventoryGoodsReturnNote}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Cess</label></td>
+													<td width="40%"><label id="cess"
+														class="form-control cess" style="text-align:right;">0.00</label></td>
+												</tr>
+												<tr th:if="${inventoryGoodsReturnNote}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Aditional
+															Expenses</label></td>
+													<td width="40%"><label id="totalAddCharges"
+														class="form-control totalAddCharges right-align"
+														th:text="${invGoodsReceiveModel[0].totalAddCharges}">0.00</label></td>
+												</tr>
+												<tr th:unless="${inventoryGoodsReturnNote}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Aditional
+															Expenses</label></td>
+													<td width="40%"><label id="totalAddCharges"
+														class="form-control totalAddCharges right-align">0.00</label></td>
+												</tr>
+												<tr th:if="${inventoryGoodsReturnNote}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Grand
+															Total</label></td>
+													<td width="40%"><label id="grandTotal"
+														class="form-control grandTotal" style="text-align:right;"
+														th:text="${inventoryGoodsReturnNoteModel[0].grandTotal}">0.00</label><input type="hidden" id="hiddenGrandTotal"></td>
+												</tr>
+												<tr th:unless="${inventoryGoodsReturnNote}">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Grand
+															Total</label></td>
+													<td width="40%"><label id="grandTotal"
+														class="form-control grandTotal" style="text-align:right;">0.00</label><input type="hidden" id="hiddenGrandTotal"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</form>
+						</div>
+
+
+					</div>
+					<div class="row">
+				
+					<div class="col-md-12">
+						<div class="form-group">
+							<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+							<button type="button" class="btn btn-warning"
+								onclick="funcLoad();">Cancel</button>
+						</div>
+								
+					</div>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+</div>
+<div style="clear: both;"></div>
+</html>
+

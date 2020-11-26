@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head> 
+<script>
+ 
+ 
+function validateForm(){ 
+	 
+	 if (!blankValidation("leaveType","SelectBox", "Please Select Leave Type Name."))
+	    	return false;     
+     
+     if (!blankValidation("empl","SelectBox", "Please Select Employee."))
+  	    return false;
+      
+     if (!blankValidation("leaveType","SelectBox", "Please Select Leave Period."))
+  	    return false;
+     
+     if (!blankValidation("leavePerPeriod","TextField", "Leave Per Period can not be left blank"))
+	        return false;
+         
+ 	 if (!blankValidation("maxCaryFwdAmt","TextField", "Max Carried Forward Amount can not be left blank"))
+         return false; 
+}
+</script>
+</head>
+<div layout:fragment="content">
+	 <div class="content-wrap">
+        <div class="main mrt_20">
+          <div class="col-md-12">
+            <ol class="breadcrumb breadcrumb-arrow">
+              <li><a th:href="@{/index}">Home</a></li> 
+              <li class="active"><a th:href="@{/hrms/add-paid-time-off}">Add Paid Time Off</a></li>
+            </ol>
+          </div>
+          <div class="card-title">
+            <h4>Add Leave Paid Time off Employee</h4>
+          </div>
+          <div class="container-fluid">
+              
+            <div class="card">
+              
+              <div class="card-body">
+                <div class="basic-elements"> 
+                   <form th:action="@{add-paid-time-off}" th:object="${leavepaidtime}" onsubmit="return validateForm();" method="post" autocomplete="off">
+                   		<div class="row">
+							<div th:if="${message != null}">
+								<span th:text="${message}" style="color: red;"></span>
+							</div>
+						</div>
+						
+                    <div class="row">
+	                      <div class="col-lg-6">
+	                           <input type="hidden" th:field="*{paidId}" />
+	                       	  <div class="form-group">
+	                          	<label>Leave Type</label>
+	                          	<select class="org-name form-control"   th:field="*{leaveType}"  >
+	                              <option th:value="NULL">Select</option>
+							      <option th:each="c:${leaveTypeData}" th:value='${c.key}' th:text="${c.name}"></option>   
+                                </select> 
+	                          </div>
+	                      </div>
+	                         
+                        <div class="col-lg-6">    
+	                       	  <div class="form-group">
+	                          	<label> Employee</label>
+	                          	<select class="org-name form-control" th:field="*{empl}">
+	                              <option th:value="NULL">Select</option>
+							      <option th:each="c:${emplData}" th:value='${c.key}' th:text="${c.name}"></option>   
+                                </select>
+	                          </div>
+	                      </div>
+                        
+                         
+                        <div class="col-lg-6">
+	                        <div class="form-group">
+	                          <label>Leave Period</label>
+	                          <select class="org-name form-control" th:field="*{leavePeriod}">
+	                              <option th:value="NULL">Select</option>
+							      <option th:each="c:${leavePeriodData}" th:value='${c.key}' th:text="${c.name}"></option>   
+                              </select>
+	                         </div>
+                        </div>
+                        
+                         <div class="col-lg-6">  
+	                       	  <div class="form-group">
+	                          	<label>Leave Amount</label>
+	                          	 <input type="text" class="form-control" name=""  value=""  th:field="*{leavePeriodAmt}">  
+	                          </div>
+	                      </div>
+	                      
+	                      <div class="col-lg-6">
+										<div class="form-group">
+											<label>Note</label>
+											<textarea class="form-control textarea"   th:field="*{note}"></textarea>
+										</div>
+									</div>
+                         
+                      <div class="form-group"> 
+                      <br></br>
+                          <input type="submit" value="Submit" class="btn btn-success" />
+						  <input type="reset" value="Cancel" class="btn btn-warning"
+												onclick="window.location.reload();" />
+                      </div> 
+                    </div> 
+                  </form>
+                </div>
+              </div>
+              <div style="clear:both;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+</html>
+  

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.search-field {
+	float: left;
+	width: 100%;
+}
+</style>
+<script type="text/javascript">
+		
+		$(document).ready(function() {
+			
+			$("#param3").datetimepicker({
+				format : 'd-m-Y',
+				closeOnDateSelect : true,
+				timepicker : false,
+
+			});
+			$("#param4").datetimepicker({
+				format : 'd-m-Y',
+				closeOnDateSelect : true,
+				timepicker : false,
+
+			});
+			//Method for listing of all the Country Records
+			$('#tblTheme').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-pipe-polishing-throughajax',
+					'data' : function(d) {
+						d.param1 = $('#param1').val();
+						d.param2 = $('#param2').val();
+						d.param3 = $('#param3').val();
+						d.param4 = $('#param4').val();
+		
+					}
+				},
+				'dataSrc' : "",
+				'columns' : [ {
+					'data' : 'tMotherCoilBatch'
+				}, {
+					'data' : 'tMotherCoilThicknessName'
+				}, {
+					'data' : 'tMotherCoilGradeName'
+				},  {
+					'data' : 'tPipeScrapWeight'
+				}, {
+					'data' : 'tPipeSlitStartDate'
+				}, {
+					'data' : 'tPipeSlitEndDate'
+				}, {
+					'data' : 'action'
+				}
+		
+				]
+			});
+		});
+		
+		//Method For Searching Records In The List
+
+		function searchData() {
+			$('#tblTheme').DataTable().draw();
+		}
+		
+		
+		// Method For View customer Details In Model
+		
+		function viewInModel(index) {
+		$('#table1').empty();
+		
+		var data = index.split(",");
+		data
+		obj = {};
+		obj.tMotherCoilBatch = data[0];
+		obj.tMotherCoilThickness = data[1];
+		obj.tPipeSlitBatch = data[2];  
+			
+		$.ajax({	type : "POST",
+					url : "view-mother-coil-slit-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : JSON.stringify(obj),
+					success : function(response) {
+						console.log(response)
+						if (response.message == "success") { 
+							span = '<tr><td>Mother Coil Batch :</td>'+'<td align="left">'					
+								+ response.body[0].tMotherCoilBatch
+								+ '</td>'
+								+ '</tr><tr><td>Mother Coil Thickness :</td><td align="left">'
+								+ response.body[0].tMotherCoilThickness
+								+ '</tr><tr><td>Mother Coil Grade :</td><td align="left">'
+								+ response.body[0].tMotherCoilGrade
+								+ '</tr><tr><td>Slit Batch :</td><td align="left">'
+								+ response.body[0].tPipeSlitBatch
+								+ '</tr><tr><td>Scrap Weight :</td><td align="left">'
+								+ response.body[0].tPipeScrapWeight
+								+ '</tr><tr><td>Slit Start Date :</td><td align="left">'
+								+ response.body[0].tPipeSlitStartDate
+								+ '</tr><tr><td>Slit End Date :</td><td align="left">'
+								+ response.body[0].tPipeSlitEndDate
+								+ '</td></tr>'; 
+							$('#myModal').modal('show');
+							$('#table1').append(span) ;
+							table = '<tr><th><b>Slit Width</b></th><th><b>Quantity</b></th><th><b>Slit SubGroup</b></th><th><b>Pipe Size</b></th>' ;
+							
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+							for (var i=0; i<response.body.length; i++) {
+								table =  '<tr><td>'
+									+ response.body[i].tPipeSlitWidth
+									+ '</td><td>' 
+									+ response.body[i].tPipeSlitQty
+									+ '</td><td>'
+									+ response.body[i].slitSubGroup
+									+ '</td><td>'
+									+ response.body[i].tPipeSize
+									+ '</td></tr>';
+								$('#myModal').modal('show');
+								$('#table1').append(table);
+							}
+							
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+
+ 
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					 
+					<li class="active"><span>Add Polishing Details</span></li>
+				</ol>
+			</div>
+
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="mother-coil-slit">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-lg-2">
+								<label>Mother Coil Batch</label><select class="form-control"
+									id="param1">
+									<option th:value="NULL">--Select--</option>
+									<option th:each="c:${MCoilBatchLists}" th:value='${c.name}'
+										th:text="${c.name}"></option>
+								</select>
+
+
+							</div>
+
+							<div class="col-lg-2">
+								<label>Mother Coil Grade</label><select class="form-control"
+									id="param2">
+									<option th:value="NULL">--Select--</option>
+									<option th:each="c:${gradeList}" th:value='${c.name}'
+										th:text="${c.name}"></option>
+								</select>
+
+							</div>
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>Production Start Date</label> <input type="text"
+										class="form-control" id="param3" readonly>
+								</div>
+							</div>
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>Production End Date</label> <input type="text"
+										class="form-control" id="param4" readonly>
+								</div>
+							</div>
+							<div class="col-lg-2" style="margin-top: 26px;">
+								<div class="form-group">
+									<button class="btn btn-primary" onclick="searchData()">Search</button>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table class="table table-bordered" id="tblTheme">
+							<thead>
+								<tr>
+									<th>Mother Coil Batch</th>
+									<th>Mother Coil Thickness</th>
+									<th>Mother Coil Grade</th>
+									<th>Scrap Weight</th>
+									<th>Production Start Date</th>
+									<th>Production End Date</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Polishing Details</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+							<tbody id="tModelBody"></tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /# row -->
+	</div>
+</div>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>GatePass</title>
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+.td-border {
+	border-bottom: 1px solid #BABABA;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.tableheader {
+	padding: 10px 5px;
+	color: #418AB3;
+	font-weight: 600;
+	background: #f5f5f5;
+	border-bottom: 1px solid #ccc;
+	border-top: 10px solid #FFF;
+	text-align: center;
+}
+
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+}
+
+.mainheading {
+	font-size: 16px;
+	color: #000;
+	padding: 20px;
+}
+
+.subheading {
+	font-size: 14px;
+	padding: 10px 0px;
+}
+
+.maintable tr td {
+	padding: 10px 5px;
+}
+
+.bill {
+	font-size : 18px;
+}
+</style>
+</head>
+<body>
+	<table class="maintable" width="680">
+		<tr>
+			<td width="200"><img
+				th:src="@{classpath:static/assets/images/logo.png}" height="150"
+				weight="150" /></td>
+			<td class="bill"><div>AB DINESH CONCRETE INDIA PVT LTD</div>
+				<div>1170,Hanspal,po-Naharkanta ,Bhubaneswar ,ODISHA</div>
+				<div>Contact No.:9238033102 ,EmailId:sales@abdinesh.com</div></td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<hr></hr>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<table width="680">
+					<tr>
+						<td colspan="4" align="center" class="mainheading">Gate Pass
+							Entry</td>
+					</tr>
+					<tr>
+						<td>Gate Pass No :</td>
+						<td th:text="${gatePass[0].gatePass}"></td>
+						<td>Branch :</td>
+						<td th:text="${gatePass[0].store}"></td>
+					</tr>
+					<tr>
+						<td>Entry Date:</td>
+						<td th:text="${gatePass[0].entryDate}"></td>
+						<td>Entry Time :</td>
+						<td th:text="${gatePass[0].entryTime}"></td>
+					</tr>
+					<tr>
+						<td>Challan Number:</td>
+						<td th:text="${gatePass[0].challanNoId}"></td>
+						<td>Reference Gate Pass :</td>
+						<td th:text="${gatePass[0].refGatePassNo}"></td>
+					</tr>
+					<tr>
+						<td>Vendor :</td>
+						<td th:text="${gatePass[0].vendor}"></td>
+						<td>Purchase Order :</td>
+						<td th:text="${gatePass[0].pOrder}"></td>
+					</tr>
+					<tr>
+						<td>RST No :</td>
+						<td th:text="${gatePass[0].rstNo}"></td>
+						<td>Client RST No :</td>
+						<td th:text="${gatePass[0].clientRSTNo}"></td>
+					</tr>
+					<tr>
+						<td>Vehicle No :</td>
+						<td th:text="${gatePass[0].vehicleNo}"></td>
+						<td>Driver Name :</td>
+						<td th:text="${gatePass[0].driverName}"></td>
+					</tr>
+					<tr>
+						<td>Gross :</td>
+						<td th:text="${gatePass[0].gross}"></td>
+						<td>Tare :</td>
+						<td th:text="${gatePass[0].tare}"></td>
+					</tr>
+					<tr>
+						<td>Exit Time :</td>
+						<td th:text="${gatePass[0].exitTime}"></td>
+						<td>Running KM :</td>
+						<td th:text="${gatePass[0].runningKM}"></td>
+					</tr>
+					<tr>
+						<td>Front Hour :</td>
+						<td th:text="${gatePass[0].frontHR}"></td>
+						<td>Back Hour :</td>
+						<td th:text="${gatePass[0].backHR}"></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<table id="id_td" class="maintbl" cellpadding="0" cellspacing="0"
+					style="width: 670px;">
+					<thead>
+						<tr>
+							<th class="tableheader" width="500" align="left">SL NO.</th>
+							<th class="tableheader" width="500" align="left">ITEM NAME</th>
+							<th class="tableheader" width="500" align="left">CLIENT NET QTY</th>
+							<th class="tableheader" width="500" align="left">ACTUAL NET QTY</th>
+							<th class="tableheader" width="500" align="left">SERVE TYPE</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="other,iter : ${gatePass}">
+							<td class="td-border td-border-right" th:text="${iter.index+1}"></td>
+							<td class="td-border td-border-right" th:text="${other.itemName}"></td>
+							<td class="td-border td-border-right" th:text="${other.clientNetQty}"></td>
+							<td class="td-border td-border-right" th:text="${other.actualNetQty}"></td>
+							<td class="td-border td-border-right" th:text="${other.serveType}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+		<!-- <tr>
+			<td colspan="2">
+				<table width="680">
+					<tr>
+						<td colspan="2" class="subheading">Product Details</td>
+						<td colspan="4" class="subheading">Transportation Details</td>
+					</tr>
+					<tr>
+						<td>PO Number :</td>
+						<td>Nil</td>
+						<td>Producing Plant :</td>
+						<td>HP/1</td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Grade of Concrete:</td>
+						<td>M-30</td>
+						<td>Vehicle Number :</td>
+						<td>64587</td>
+					</tr>
+					<tr>
+						<td>Quantity in (Cum):</td>
+						<td></td>
+						<td>Departure From Plant :</td>
+						<td></td>
+						<td>Arrival at Site :</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Pump:</td>
+						<td></td>
+						<td>Departure From Site :</td>
+						<td></td>
+						<td>Arrival at Plant :</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Slump:</td>
+						<td></td>
+						<td>Opening Km :</td>
+						<td></td>
+						<td>Closing Km :</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Supervisor Name:</td>
+						<td></td>
+						<td>Opening Hours (Front Engg):</td>
+						<td></td>
+						<td>Closing Hours (Front Engg):</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Cement Brand:</td>
+						<td></td>
+						<td>Opening Hours (Back Engg):</td>
+						<td></td>
+						<td>Closing Hours (Back Engg):</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Remarks:</td>
+						<td></td>
+						<td>RST Number:</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Gross Weight :</td>
+						<td></td>
+						<td>Tare Weight :</td>
+						<td></td>
+						<td>Net Weight:</td>
+						<td></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<table width="680">
+					<tr>
+						<td>Receiver's Signature</td>
+						<td>Site Supervisor</td>
+						<td>Security Signature</td>
+						<td>For AB DINESH CONCRETE INDIA</td>
+					</tr>
+				</table>
+			</td>
+		</tr> -->
+	</table>
+</body>
+</html>

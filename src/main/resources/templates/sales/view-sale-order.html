@@ -1,0 +1,470 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<!-- BOLT Sandbox/test //-->
+<script id="bolt"
+	src="https://sboxcheckout-static.citruspay.com/bolt/run/bolt.min.js"
+	bolt- color="e34524"
+	bolt-logo="http://boltiswatching.com/wp-content/uploads/2015/09/Bolt-Logo-e14421724859591.png"></script>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 310px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+
+//View 'Quotation Master' Modal Function
+function viewInModel(index) {
+    $('#table1').empty();
+    $('#table2').empty();
+    $('#table3').empty();
+    $.ajax({
+        type: "POST",
+        url: "view-sale-order-modal",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: index,
+        success: function(response) {
+            if (response.message == "success") {
+                console.log(response.body);
+                var qStatus = "";
+                if (response.body[0].qStatus) {
+                    qStatus = "Active";
+                } else {
+                    qStatus = "Inactive";
+                }
+                var approveActive = "";
+                if (response.body[0].approveActive) {
+                    approveActive = "Complete";
+                } else {
+                    approveActive = "Pending";
+                }
+                var taxType = "";
+                if (response.body[0].taxType) {
+                    taxType = "Center Tax";
+                } else {
+                    taxType = "State Tax";
+                }
+                span = '<tr><td>Sales Order :</td>' +
+                    '<td align="left">' +
+                    response.body[0].salesOrder +
+                    '</td>' +
+                    '</tr><tr><td>Customer Name :</td>' +
+                    '<td align="left">' +
+                    response.body[0].customerName +
+                    '</td>' +
+                    '</tr><tr><td>Quotation Valid Upto :</td>' +
+                    '<td align="left">' +
+                    response.body[0].quotationVDate +
+                    '</td>' +
+                    '</tr><tr><td>Description :</td>' +
+                    '<td align="left">' +
+                    response.body[0].qDescription +
+                    '</td>' +
+                    '</tr><tr><td>Notes :</td>' +
+                    '<td align="left">' +
+                    response.body[0].qNote +
+                    '</td>' +
+                    '</tr><tr><td>Tax Type :</td>' +
+                    '<td align="left">' +
+                    taxType +
+                    '</td>' +
+                    '</tr><tr><td>Approved Status :</td>' +
+                    '<td align="left">' +
+                    approveActive +
+                    '</td>' +
+                    '</tr><tr><td>Status :</td>' +
+                    '<td align="left">' +
+                    qStatus +
+                    '</td></tr>' +
+                    '<th><b>Details Of Quotation Items</b></th></tr>';
+                $('#myModal').modal('show');
+                $('#table1').append(span);
+
+                table2 = '<tr><th><b>ItemName</b></th><th><b>ItemCode</b></th><th><b>UnitPrice</b></th>' +
+                    '<th><b>Quantity</b></th><th><b>Discount</b></th><th><b>GST</b></th><th><b>Cess</b></th><th><b>ServeType</b></th><th><b>Amount</b></th></tr>';
+                $('#myModal').modal('show');
+                $('#table2').append(table2);
+
+                for (var i = 0; i < response.body.length; i++) {
+
+                    table = '<tr><td>' +
+                        response.body[i].itemName +
+                        '</td><td>' +
+                        response.body[i].itemCode +
+                        '</td><td>' +
+                        (response.body[i].unitPrice).toFixed(2) +
+                        '</td><td>' +
+                        response.body[i].quantity +
+                        '</td><td>' +
+                        (response.body[i].discount).toFixed(2) +
+                        '</td><td>' +
+                        response.body[i].itemGST +
+                        '</td><td>' +
+                        response.body[i].itemCess +
+                        '</td><td>' +
+                        response.body[i].qServeType +
+                        '</td><td>' +
+                        (response.body[i].lineTotal).toFixed(2) +
+                        '</td></tr>';
+                    $('#myModal').modal('show');
+                    $('#table2').append(table);
+                }
+                if (response.body[0].taxType) {
+                    table3 = '<tr><td colspan="5" align="right" width="480px"><b>Sub Total :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].subTotal).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>IGST :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].qIGST).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>Cess :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].totalCess).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>Grand Total :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].grandTotal).toFixed(2) +
+                        '</td>' +
+                        '</tr>';
+                    $('#table3').append(table3);
+                } else {
+                    table3 = '<tr><td colspan="5" align="right" width="480px"><b>Sub Total :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].subTotal).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>CGST :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].qCGST).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>SGST :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].qSGST).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>Cess :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].totalCess).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>Grand Total :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].grandTotal).toFixed(2) +
+                        '</td>' +
+                        '</tr>';
+                    $('#table3').append(table3);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+
+//(document).ready() Starts
+$(document).ready(function() {
+    $('#table').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'view-sale-order-through-ajax',
+            'data': function(d) {
+
+                d.param1 = $('#param1').val();
+                d.param2 = $('#param2').val();
+            }
+        },
+        'dataSrc': "",
+        'columns': [{
+                'data': 'salesOrder'
+            },
+            {
+                'data': 'customerName'
+            },
+            {
+                'data': 'quotationVDate'
+            },
+            {
+                'data': 'orderReceiveDate'
+            },
+            {
+                'data': 'orderReceiveTime'
+            },
+            {
+                'data': 'approveStatus'
+            },
+            {
+                'data': 'status'
+            },
+            {
+                'data': 'action'
+            }
+        ]
+    });
+
+});
+//(document).ready() Ends
+
+//Search Function
+function searchData() {
+    $('#table').DataTable().draw();
+}
+
+//Quotation Master PDF Function
+function pdfCreate(id) {
+    window.open("/download/view-sales-order-one-pdf?id=" + id, '_blank');
+}
+
+//Get Customer List Auto Search Function
+function customerAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "add-sale-order-getCustomerAutocompleteList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#cName").val(),
+        success: function(response) {
+            if (response.message == "success") {
+
+                if (response.body.length != 0) {
+                    $("#cName").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) {
+                        content += '<li onClick="selectAutocompleteValue(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].key + '(' + response.body[i].name + ')' + '</li>';
+                    }
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+
+                } else {
+                    $("#cName").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectAutocompleteValue(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+
+function selectAutocompleteValue(key, name) {
+    if (key) {
+        $("#param2").val(key);
+        $("#cName").val(name);
+        $("#cName").attr('data-procat', key);
+        $("#suggesstion-box").hide();
+    } else {
+        $("#param2").val("");
+        $("#cName").val("");
+        $("#cName").attr('data-procat', "");
+        $("#suggesstion-box").hide();
+    }
+}
+
+//Get Quotation List Auto Search Function
+function saleOrderAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "view-sale-order-getSaleOrderList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#qNum").val(),
+        success: function(response) {
+            if (response.message == "success") {
+
+                if (response.body.length != 0) {
+                    $("#qNum").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) {
+                        content += '<li onClick="selectQAutocomplete(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].key + '</li>';
+                    }
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+
+                } else {
+                    $("#qNum").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectQAutocomplete(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+
+function selectQAutocomplete(key, name) {
+    if (key) {
+        $("#param1").val(key);
+        $("#qNum").val(name);
+        $("#qNum").attr('data-procat', key);
+        $("#suggesstion-box1").hide();
+    } else {
+        $("#param1").val("");
+        $("#qNum").val("");
+        $("#qNum").attr('data-procat', "");
+        $("#suggesstion-box1").hide();
+    }
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li><a th:href="@{/sales/add-sale-order}">Add Sale
+						Order</a></li>
+				<li class="active"><span>View Sale Order</span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>View Sale Order</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+				<div class="search-field">
+					<div class="row">
+						<div class="col-md-1">
+							<div class="form-group">
+								<a class="btn btn-secondary" href="add-sale-order">Create</a>
+							</div>
+						</div>
+						<div class="col-md-1">
+							<div class="form-group">
+								<button class="btn btn-info">Import</button>
+							</div>
+						</div>
+						<div class="col-md-1">
+							<div class="form-group">
+								<button class="btn btn-warning">
+									<i class="fa fa-download"> </i>
+								</button>
+							</div>
+						</div>
+						<div class="col-md-1"></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Sale Order</label> <input type="hidden" id="param1">
+								<input type="text" class="form-control" id="qNum"
+									onkeyup="saleOrderAutoComplete();">
+								<div id="suggesstion-box1"></div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Customer Name</label> <input type="hidden" id="param2">
+								<input type="text" class="form-control" id="cName"
+									onkeyup="customerAutoComplete();">
+								<div id="suggesstion-box"></div>
+							</div>
+						</div>
+						<div class="col-lg-2" style="margin-top: 26px;">
+							<div class="form-group">
+								<button class="btn btn-primary" onclick="searchData()">Search</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table  table-bordered">
+							<thead>
+								<tr>
+									<th>Sale Order</th>
+									<th>Customer Name</th>
+									<th>Quotation Valid Upto</th>
+									<th>Order Receive Date</th>
+									<th>Order Receive Time</th>
+									<th>Approved Status</th>
+									<th>Status</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-lg">
+
+				<!-- Modal content-->
+				<div class="modal-content" width="100%">
+					<div class="modal-header">
+						<h4 class="modal-title">View Item Details of Sales Order</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+						</table>
+						<table width="100%" border="0" id="table2">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<table width="100%" border="0" id="table3">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

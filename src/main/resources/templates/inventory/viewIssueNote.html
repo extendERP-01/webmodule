@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.sidebar.sidebar-shrink ~.content-wrap {
+	margin-left: 250px;
+	-webkit-transition: margin-left 300ms ease-in-out;
+	transition: margin-left 300ms ease-in-out;
+	height: 100vh !important;
+}
+</style>
+<script type="text/javascript">
+function dateValid() {
+	if($("#param3").val() && $("#param4").val()) dateValidation('param3', 'param4', 'To Date', 'From Date');
+}
+$(document).ready(function() {
+	//date picker
+	$("#param3").datetimepicker({
+		format: 'd-m-Y',
+		closeOnDateSelect: true,
+		timepicker: false
+	});
+	$("#param4").datetimepicker({
+		format: 'd-m-Y',
+		closeOnDateSelect: true,
+		timepicker: false
+	});
+	//Method for listing of all the Issue Note Records
+	$('#issueNoteList').DataTable({
+		'processing': true,
+		'serverSide': true,
+		'searching': false,
+		'ordering': false,
+		"ajax": {
+			'url': 'view-issue-note-throughAjax',
+			'data': function(d) {
+				d.param1 = $('#param1').val();
+				d.param2 = $('#param2').val();
+				d.param3 = $('#param3').val();
+				d.param4 = $('#param4').val();
+				d.param5 = $('#param5').val();
+			}
+		},
+		'dataSrc': "",
+		'columns': [{
+			'data': 'tStoreName'
+		}, {
+			'data': 'reqstnIssueNote'
+		}, {
+			'data': 'itemRequisition'
+		}, {
+			'data': 'status'
+		}, {
+			'data': 'action'
+		}]
+	});
+});
+//Fuction to create All Report
+function createPdf() {
+	window.open("/download/view-issue-note-download-pdf?param1=" + window.btoa($('#param1').val()) + "&param2=" + window.btoa($('#param2').val()) + "&param3=" + window.btoa($('#param3').val()) + "&param4=" + window.btoa($('#param4').val()), '_blank');
+}
+//Function to create Individual Report
+function pdfCreate(id) {
+	window.open("/download/inventory-view-one-issue-note-pdf?id=" + id, '_blank');
+}
+//Method for Excel
+function downloadExcel() {
+	var param1 = $("#param1").val();
+	var param2 = $("#param2").val();
+	var param3 = $("#param3").val();
+	var param4 = $("#param4").val();
+	window.open("view-issue-note-download-excel?param1=" + window.btoa(param1) + "&param2=" + window.btoa(param2) + "&param3=" + window.btoa(param3) + "&param4=" + window.btoa(param4), '_blank');
+}
+//Method For Searching Records In The List
+function searchData() {
+	$('#issueNoteList').DataTable().draw();
+}
+
+function changeRecvStatus(index) {
+	swal.fire({
+		title: "Are you sure want to Change Status?",
+		text: "Once Changed,Can't Revert Back !",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#DD6BB5",
+		confirmButtonText: "Submit",
+		showLoaderOnConfirm: true,
+		reverseButtons: true,
+		confirmButtonAriaLabel: 'Thumbs up, great!',
+		cancelButtonText: 'Cancel',
+		cancelButtonAriaLabel: 'Thumbs down',
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value) {
+			$.ajax({
+				type: "POST",
+				url: "view-issue-note-change-status",
+				dataType: 'json',
+				contentType: 'application/json',
+				data: window.atob(index),
+				success: function(response) {
+					if(response.message == "success") {
+						swal({
+							title: "Requested Items Received Successfully.",
+							type: "success",
+						}).then(function() {
+							location.reload();
+						})
+					}
+				},
+				error: function(data) {
+					console.log(data)
+				}
+			})
+		}
+	})
+}
+// Method For View Details In Model
+function viewInModelData(index) {
+	var id = window.atob(index);
+	$('#table1').empty();
+	$('#table2').empty();
+	$.ajax({
+		type: "POST",
+		url: "view-issue-note-inModel",
+		dataType: 'json',
+		contentType: 'application/json',
+		data: id,
+		success: function(response) {
+			if(response.message == "success") {
+				console.log(response.body.pINoteActive);
+				console.log(response.body);
+				var iRStatus = "";
+				if(response.body[0].pINoteActive) {
+					pINoteActive = "Received";
+				} else {
+					pINoteActive = "Not Received";
+				}
+				span = '<tr><td>Issue Number :</td>' + '<td align="left">' + response.body[0].reqstnIssueNote + '</td>' + '</tr><tr><td>Requisition Number :</td><td align="left">' + response.body[0].itemRequisition + '</td></tr>' + '<tr><tr><td>Status:</td>' + '<td align="left">' + pINoteActive + '</td>' + '</tr>';
+				$('#myModal1').modal('show');
+				$('#table1').append(span);
+				table2 = '<tr><th><b>Details Issue Note :<b></th></tr><tr><th><b> Category</b></th><th><b>Sub Category</b></th><th><b>Item Name</b></th>' + '<th><b>Quantity</b></th>';
+				$('#myModal1').modal('show');
+				$('#table2').append(table2);
+				for(var i = 0; i < response.body.length; i++) {
+					var qty = "";
+					if(response.body[i].iNoteQty == "" || response.body[i].iNoteQty == null) {
+						qty = "- -";
+					} else {
+						qty = response.body[i].iNoteQty;
+					}
+					table = '<tr><td>' + response.body[i].itemCategory + '</td><td>' + response.body[i].itemSubCategory + '</td><td>' + response.body[i].item + '</td><td>' + qty + '</td></tr>';
+					$('#myModal1').modal('show');
+					$('#table2').append(table);
+				}
+			}
+		},
+		error: function(data) {
+			console.log(data);
+		}
+	})
+}
+//Deleting the Issue Note
+function deleteIssueNote(id) {
+	swal.fire({
+		title: "Are you sure want to Delete?",
+		text: "Once Deleted,Can't revert back !",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: '#d33',
+		cancelButtonColor: '#e7b63a',
+		confirmButtonText: 'Delete',
+		reverseButtons: true
+	}).then((result) => {
+		if(result.value) {
+			$.ajax({
+				type: "GET",
+				url: "/inventory/delete-issue-note-byId?id=" + id,
+				success: function(response) {
+					if(response.message == "success") {
+						swal({
+							title: "Record Deleted Successfully.",
+							type: "success"
+						}).then(function() {
+							location.reload();
+						})
+					} else {
+						swal({
+							title: 'Unsuccess',
+							text: response.code
+						})
+					}
+				},
+				error: function(data) {
+					console.log(data)
+				}
+			})
+		}
+	});
+}
+//function for search param of requisition number
+function requisitionNoAutoComplete() {
+	$.ajax({
+		type: "POST",
+		url: "view-issue-note-getReqNo",
+		dataType: 'json',
+		contentType: 'application/json',
+		data: $("#param1").val(),
+		success: function(response) {
+			if(response.message == "success") {
+				if(response.body.length != 0) {
+					$("#param1").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for(var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].key + '</li>';
+					}
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				} else {
+					$("#param1").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+			}
+		},
+		error: function(data) {
+			console.log(data);
+		}
+	})
+}
+
+function selectAutocompleteValue(key, name) {
+	if(key) {
+		$("#param1").val(key);
+		$("#param1").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+	} else {
+		$("#param1").val("");
+		$("#param1").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+}
+//Function for searching through Issue Number
+function issueNoAutoComplete() {
+	$.ajax({
+		type: "POST",
+		url: "view-issue-note-getIssueNo",
+		dataType: 'json',
+		contentType: 'application/json',
+		data: $("#param2").val(),
+		success: function(response) {
+			if(response.message == "success") {
+				if(response.body.length != 0) {
+					$("#param2").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for(var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="autocompleteValue(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].key + '</li>';
+					}
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				} else {
+					$("#param2").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="autocompleteValue(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+			}
+		},
+		error: function(data) {
+			console.log(data);
+		}
+	})
+}
+
+function autocompleteValue(key, name) {
+	if(key) {
+		$("#param2").val(key);
+		$("#param2").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+	} else {
+		$("#param2").val("");
+		$("#param2").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class=""><a href="/inventory/add-issue-note">Add Issue
+							Note</a></li>
+					<li class="active"><span>View Issue Note</span></li>
+				</ol>
+			</div>
+
+			<div class="container-fluid">
+
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+
+
+				</ul>
+				<div class="card">
+
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-issue-note">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning" onclick="createPdf();">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Store</label> <select class="form-control" id="param5">
+									<option value="">Select</option>
+									<option th:each="c,iter:${storeList}" th:value="${c.key}"
+										th:text="${c.name}"></option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<label>Requisition Number</label> <input type="text"
+									class="form-control" id="param1"
+									onkeyup="requisitionNoAutoComplete();" />
+								<div id="suggesstion-box"></div>
+							</div>
+							<div class="col-md-2">
+								<label>Issue Number</label> <input type="text"
+									class="form-control" id="param2"
+									onkeyup="issueNoAutoComplete();" />
+								<div id="suggesstion-box"></div>
+							</div>
+							<div class="col-md-2">
+								<label>From Date</label> <input class="form-control" type="text"
+									name="" id="param3" readonly onchange="dateValid()">
+							</div>
+							<div class="col-md-2">
+								<label>To Date</label> <input class="form-control" type="text"
+									name="" id="param4" readonly onchange="dateValid()">
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="issueNoteList" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Store</th>
+									<th>Requisition Issue Number</th>
+									<th>Requisition Number</th>
+									<th>Status</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Issue Note</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+						</table>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table2">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+	</div>
+</div>
+</html>

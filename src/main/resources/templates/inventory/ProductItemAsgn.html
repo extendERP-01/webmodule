@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	padding: 0;
+	width: 500px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #fff;
+	border-left: 1px solid;
+	border-right: 1px solid;
+	border-bottom: #bbb9b9 1px solid;
+	border-right: 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	padding: 0;
+	width: 342px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script>
+//ADD MORE FUNCTION
+ 
+ function checkDuplicate() {
+	
+		var count =0;
+		$(".assignItemName").each(function(i){
+			var id = $(this).val();
+			var lastId = $("#myTable tbody tr:last").find(".assignItemName").val();
+			if(lastId == id){
+				count = count + 1;
+			}
+		}) 
+		if(count > 1) {
+			swal({
+				title : "Item Can't be Duplicate",
+				type : "warning",
+			})
+			$("#myTable tbody tr:last").find(".assignItemName").val("");
+			$("#myTable tbody tr:last").find(".assignQuantity").val("");
+			return false;
+		}else{
+			return true;
+		}
+}
+	
+function addMore() {
+		
+	var itemNameValid = true;
+	$(".assignItemName").each(function(){
+		var current_name = $(this).attr("id");
+		if (!blankValidation(current_name,"TextField" ,"Please Enter Item Name")){
+			itemNameValid = false;
+			return false;
+		}
+		
+	});
+	var itemPriceValid = true;
+	$(".assignQuantity").each(function(){
+		var current_price = $(this).attr("id");
+		if (!blankValidation(current_price,"TextField" ,"Please Enter Item Price")){
+			itemPriceValid = false;
+			return false;
+		}
+		
+	});
+	
+	var checkForDuplicate = checkDuplicate();
+
+	if(itemPriceValid  && itemPriceValid && checkForDuplicate){
+		
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+		$("#myTable tbody tr td:last").html("");
+		var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+		var editTr = 0;
+	
+		if (lengthOfTableRow > editTr) {
+			$("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last')
+					.append(removeMore);
+		}
+	
+		$("#myTable tbody tr:last").find(".assignItemName").val("");
+		$("#myTable tbody tr:last").find(".assignQuantity").val("");
+	
+		$("#myTable > tbody > tr").each(function(i) {
+	
+			var textInput = $(this).find('input');
+			var divInput = $(this).find('div');
+			var selectInput = $(this).find('select');
+	
+			textInput.eq(0).attr('id', "hiddenInput_" + i);
+			textInput.eq(1).attr('id', "inputItemName_" + i);
+			textInput.eq(2).attr('id', "inputItemQuantity_" + i);
+			divInput.eq(0).attr('id', "suggesstion-box_" + i);
+			
+		})
+		
+	}
+	
+}
+
+$(document).ready(function (){
+	$("#product").change(function(){
+		//on vendor change...clean fields..
+		$(".assignItemName").val('');
+		$(".assignQuantity").val('');
+	})
+					
+	
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+			
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+	});
+	
+	$("#submit").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			
+			item = {};
+			item['productId']		=	$('#storeProductId').val();
+			item['qtyPerBatch']		=	$('#qtyPerBatch').val();
+			item['productName']	    =	$('#productId').val();
+			item['itemId']	        =	$(this).find(".assignItemId").val();
+			item['qty']			    =	$(this).find(".assignQuantity").val();
+			
+			dataset.push(item);
+		});
+		console.log(dataset)
+		
+		
+		if (!blankValidation("vendor","SelectBox" ,"Please vendor name"))
+		      return false;
+		var itemNameValid = true;
+		$(".assignItemName").each(function(){
+			var current_name = $(this).attr("id");
+			if (!blankValidation(current_name,"TextField" ,"Please Enter Item Name")){
+				itemNameValid = false;
+				return false;
+			}
+			
+		});
+		var itemPriceValid = true;
+		$(".assignQuantity").each(function(){
+			var current_price = $(this).attr("id");
+			if (!blankValidation(current_price,"TextField" ,"Please Enter Item Price")){
+				itemPriceValid = false;
+				return false;
+			}
+			
+		});
+		var checkForDuplicate = checkDuplicate();
+		
+		if(itemNameValid && itemPriceValid && checkForDuplicate){
+			assignProduct(dataset);
+		}
+	}); 
+})
+
+function assignProduct(dataset) {
+	swal.fire({
+		title					: "Are you sure want to Submit?",
+		text					: "Once Submited,Can't revert back !",
+		type 					: "warning",
+		showCancelButton		: true,
+		confirmButtonColor		: "#DD6BB5",
+		confirmButtonText		: "Submit",
+		showLoaderOnConfirm		: true,
+		reverseButtons 			: true,
+		confirmButtonAriaLabel 	: 'Thumbs up, great!',
+		cancelButtonText 		: 'Cancel',
+		cancelButtonAriaLabel 	: 'Thumbs down',	
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 500)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "product-item-asgn-save",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					if(response.message=="success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							
+							window.location.href = "/inventory/product-item-asgn-view" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			}) //ajax ends
+		}
+	})
+}
+
+//get products
+function getAssignedItems(productId) {
+	var res;
+	if(productId) {
+		$("#tbodyTR").hide();
+		$("#tblBody").empty();
+		$("#tblBody").show();
+		$.ajax({
+			type : "POST",
+			url : "view-vendor-item-list-throughAjax",
+			contentType : 'application/json',
+			data : productId,
+			success : function(response) { 
+				res = response;
+					if(response.body.length!=0)	{
+						
+						for(var i=0;i<response.body.length;i++){
+						
+							var edit = '<i id="action2_'+i+'" title="Edit" class="fa fa-edit"  style="font-size: 20px;cursor:pointer;color:blue;margin-left:15px;" onClick="editItem(\''+response.body[i].vendorName+'\',\''+response.body[i].itemName+'\',\''+response.body[i].itemPrice+'\',\''+response.body[i].itemId+'\')"></i>';
+							var td = '<td><i id="action_'+i+'" title="Delete" class="fa fa-close"  style="font-size:24px;cursor:pointer;color:red;" onClick="unassignItem(\''+response.body[i].vendorName+'\',\''+response.body[i].itemId+'\')"></i>'+edit+'</td>';
+							
+							table = '<tr><td>'+response.body[i].itemName+'</td>'
+									+'<td>'+response.body[i].itemPrice+'</td>'
+									 
+									+'</tr>';
+							$('#tblBody').append(table);
+								
+							}
+					} else {
+						$("#tbodyTR").show();
+						$("#tblBody").hide();
+					}
+				}, 
+			error : function(error) {
+				console.log(error)
+			}
+		});
+	} else {
+		$("#tbodyTR").show();
+		$("#tblBody").hide();
+	}
+}
+
+//item auto complete function
+function getItemAutoSearch(event){
+
+	var vid = $("#productId").val();
+	var id = event.currentTarget.id;
+	var key = event.currentTarget.value; 
+	var l = id.split("_");
+	var counter = l[1];
+	
+	if(key) {
+		$.ajax({
+			type : "POST",
+			url : "product-item-asgn-item-autocmplt?key="+key+"&vid="+vid,
+			dataType : 'json',
+			contentType : 'application/json',
+			data : key,
+			success : function(response) {
+				console.log(response)
+				if(response.body.length>0)	{
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\''+response.body[i].name+'\',\''+response.body[i].key+'\','+counter +')">'+response.body[i].name+'</li>';
+					} 
+					
+					content += '</ul>';
+					var width = $("#inputItemName_"+counter).css("width");
+					$("#suggesstion-box_"+counter).show();
+					$("#suggesstion-box_"+counter).html(content);
+					$("#autocomplete-list").width(width);
+			
+				} else {
+					var content = '<ul id="autocomplete-list">';
+					content += '<li>No Data Found</li>';
+					content += '</ul>';
+					var width = $("#inputItemName_"+counter).css("width");
+					$("#suggesstion-box_"+counter).show();
+					$("#suggesstion-box_"+counter).html(content);
+					$("#autocomplete-list").width(width);
+				}
+			},
+			error : function(error) {
+				console.log(error)
+				var content = '<ul id="autocomplete-list">';
+				content += '<li>No Data Found</li>';
+				content += '</ul>';
+				var width = $("#inputItemName_"+counter).css("width");
+				$("#suggesstion-box_"+counter).show();
+				$("#suggesstion-box_"+counter).html(content);
+				$("#autocomplete-list").width(width);
+			}
+		});
+	}else {
+		var content = '<ul id="autocomplete-list">';
+		content += '<li>No Data Found</li>';
+		content += '</ul>';
+		var width = $("#inputItemName_"+counter).css("width");
+		$("#suggesstion-box_"+counter).show();
+		$("#suggesstion-box_"+counter).html(content);
+		$("#autocomplete-list").width(width);
+	}
+}
+
+//select auto complete item
+function selectAutocompleteValue(name,id,counter){
+	if(name){
+		$("#inputItemName_"+counter).val(name);
+		$("#hiddenInput_"+counter).val(id);
+		$("#suggesstion-box_"+counter).hide();
+	}else{
+		$("#inputItemName_"+counter).val('');
+		$("#suggesstion-box_"+counter).hide();
+	}
+}
+
+//product auto complete function
+function getProductAutoSearch(event){
+
+	var id = event.currentTarget.id;
+	var key = event.currentTarget.value;
+
+	if(key) {
+		$.ajax({
+			type : "POST",
+			url : "product-item-asgn-autocmpltVendor",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : key,
+			success : function(response) { 
+				if(response.body.length>0)	{
+					var content = '<ul id="autocomplete-list1">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteVandor(\''+response.body[i].name+'\',\''+response.body[i].key+'\')">'+response.body[i].name+'</li>';
+					} 
+					
+					content += '</ul>';
+					var width = $("#vendor").css("width");
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+					$("#autocomplete-list1").width(width);
+			
+				} else {
+					var content = '<ul id="autocomplete-list1">';
+					content += '<li>No Data Found</li>';
+					content += '</ul>';
+					var width = $("#vendor").css("width");
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+					$("#autocomplete-list1").width(width);
+				}
+			},
+			error : function(error) { 
+				var content = '<ul id="autocomplete-list1">';
+				content += '<li>No Data Found</li>';
+				content += '</ul>';
+				var width = $("#vendor").css("width");
+				$("#suggesstion-box1").show();
+				$("#suggesstion-box1").html(content);
+				$("#autocomplete-list1").width(width);
+			}
+		});
+	}else {
+		var content = '<ul id="autocomplete-list1">';
+		content += '<li>No Data Found</li>';
+		content += '</ul>';
+		var width = $("#vendor").css("width");
+		$("#suggesstion-box1").show();
+		$("#suggesstion-box1").html(content);
+		$("#autocomplete-list1").width(width);
+	}
+}
+
+//select auto complete product
+function selectAutocompleteVandor(name,id){
+ 	if(name){
+		$("#product").val(name);
+		$("#productId").val(id);
+		$("#suggesstion-box1").hide();
+		getAssignedItems($('#productId').val());
+	}else{
+		$("#inputItemName1").val('');
+		$("#suggesstion-box1").hide();
+		getAssignedItems($('#productId').val());
+	}
+	
+	
+}
+
+//hide suggetion box
+document.onclick = function(e){
+	var id = e.target.id;
+	
+	var table = document.getElementById("myTable");
+	for (var i = 0;i <= table.rows.length; i++) {
+	
+	    $("#suggesstion-box_"+i).hide();
+	    $("#suggesstion-box1").hide();
+
+	}
+}
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Product Item Assign</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Assign Item To Product</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group" th:if="${storeProductId}">
+									<input type="hidden" class="assingStoreProductId"
+										id="storeProductId" th:value="${storeProductId}">
+								</div>
+								<div class="form-group" th:unless="${storeProductId}">
+									<input type="hidden" class="assingStoreProductId"
+										id="storeProductId">
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group" th:if="${productID}">
+										<label>Product</label> <input type="hidden"
+											class="assingProductId" id="productId"
+											th:value="${productID}"> <input type="text"
+											id="product" class="form-control" th:value="${productName}"
+											onkeyup="getProductAutoSearch(event)">
+										<div id="suggesstion-box1"></div>
+									</div>
+									<div class="form-group" th:unless="${productID}">
+										<label>Product</label> <input type="hidden"
+											class="assingProductId" id="productId"> <input
+											type="text" id="product" class="form-control"
+											onkeyup="getProductAutoSearch(event)">
+										<div id="suggesstion-box1"></div>
+									</div>
+								</div>
+
+								<div class="col-lg-6">
+									<div class="form-group" th:if="${productID}">
+										<label>Quantity Per Batch</label> <input type="text"
+											id="qtyPerBatch" th:value="${product[0].qtyPerBatch}" class="form-control">
+									</div>
+									<div class="form-group" th:unless="${productID}">
+										<label>Quantity Per Batch</label> <input type="text"
+											id="qtyPerBatch" class="form-control">
+									</div>
+								</div>
+
+							</div>
+
+							<div class="row">
+								<div class="col-lg-12">
+									<label id="" style="font-size: 20px;"><b> Assign
+											Raw Items Of a Product</b></label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Item Name</th>
+												<th>Item Quantity</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<tr class="tr_clone" th:if="${productID}"
+												th:each="p,iter: ${product}">
+												<td><input type="hidden"
+													id="${'hiddenInput_'+iter.index}" class="assignItemId"
+													th:value="${p.itemId}"> <input
+													th:id="${'inputItemName_'+iter.index}"
+													th:value="${p.itemName}" type="text"
+													class="form-control assignItemName"
+													onkeyup="getItemAutoSearch(event)">
+													<div id="suggesstion-box_0"></div></td>
+												<td><input th:id="${'inputItemQuantity_' + iter.index}"
+													th:value="${p.qty}" type="text"
+													class="form-control assignQuantity"></td>
+												<td th:if="${product}">
+													<button type="button" th:if="${iter.size == iter.index+1}"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>
+													<button th:if="${iter.size != 1}" type="button"
+														class="btn btn-warning rmv" name="Remove">
+														<span class="ti-minus"></span>
+													</button>
+												</td>
+
+												<td th:unless="${product}">
+													<button type="button" class="btn btn-primary tr_clone_add"
+														name="add" onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>
+												</td>
+											</tr>
+											<tr class="tr_clone" th:unless="${productID}">
+
+												<td><input type="hidden" id="hiddenInput_0"
+													class="assignItemId"> <input type="text" size="8"
+													id="inputItemName_0" class="form-control assignItemName"
+													value='' onkeyup="getItemAutoSearch(event)">
+													<div id="suggesstion-box_0"></div></td>
+												<td><input type="text" size="4"
+													id="inputItemQuantity_0"
+													class="form-control assignQuantity" value=''></td>
+
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script> 
+//  PDF Function
+function createPdf(id) { 
+	window.open("/download/delivery-challan-pdf?id="+id,'_blank');
+}
+
+//Sale Invoice PDF Function
+function generateInvoice(id) { 
+	window.open("/sales/list-deliveryChalan-generate-invoice?id="+id);
+}
+function viewInModel(index){ 
+	$('#table1').empty();
+		$.ajax({
+			type 		:	"POST",
+			url 		:	"view-fuel-consumption-modal",
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	index,
+			success 	: 	function(response) {
+				if(response.message=="success"){
+					 console.log(response);
+				    table = '<tr><td>Branch Name :</td>'+'<td align="left">'
+				    +response.body.branch+'</td>'+'</tr><tr> <td>Fuel:</td><td align="left">'
+				    +response.body.fuel+'</td>'+'</tr><tr> <td>Quantity:</td><td align="left">'
+					+response.body.quantity+'</td> </tr><tr><td> File Slip Number:</td>'+'<td align="left">'
+					+response.body.fuelSlipNumber+'</td>'+'</tr><tr><td> Coupon Date:</td><td align="left">'
+					+response.body.couponDate+'</td>'+'</tr><tr> <td> Total Amount:</td><td align="left">'
+					+response.body.totalAmount+'</td>'+' </tr><tr><td> vehicle Number:</td><td align="left">'
+					+response.body.vechileNo+'</td>'+'</tr><tr> <td> Driver Name:</td><td align="left">'
+					+response.body.driverName+'</td>'+'</tr><tr><td> Helper:</td><td align="left">'
+					+response.body.helper+'</td>'+'</tr><tr> <td>  Vehicle Weight:</td><td align="left">'
+					+response.body.vehicleWt+'</td>'+'</tr><tr> <td> Time :</td><td align="left">'
+					+response.body.time+'</td>'+'</tr><tr> <td> Returninf Km:</td><td align="left">'
+					+response.body.runningKm+'</td>'+'</tr><tr><td> Front Hour Meter:</td><td align="left">'
+					+response.body.frontHrMeter+'</td>'+' </tr><tr><td> Back Hour Meter:</td><td align="left">' 
+					+response.body.backHrMeter+'</td></tr>';
+					$('#myModal').modal('show');
+					$('#table1').append(table);
+					 
+					
+				}				
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+ 	$(document).ready(function() {			
+ 		$('#table').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-fuel-consumption-through-ajax',
+					'data' : function(d) {
+						d.param1 = $('#param1').val();
+						d.param2 = $('#param2').val();
+					}
+				},
+				'dataSrc' : "",
+			    'columns' : [
+				{'data' : 'branch'}, 
+				{'data' : 'fuel'},
+				{'data' : 'quantity'},
+				{'data' : 'fuelSlipNumber'},
+				{'data' : 'couponDate'},
+				{'data' : 'vechileNo'},
+				{'data' : 'driverName'},
+				{'data' : 'tankFullName'},
+				{'data' : 'action'}
+					]	
+			});
+		  });
+	
+	function searchData() {
+		$('#table').DataTable().draw();
+	}
+	const ipAPI = 'https://api.ipify.org?format=json'
+	function DeleteItem(id){
+		//var index = window.atob(id);
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/asset/view-fuel-consumption-delete?id="+id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+
+					<li><a th:href="@{add-fuel-consumption}">Add Fuel
+							Consumption </a></li>
+					<li class="active"><span>View Fuel Consumption</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Listing Of Fuel Consumption</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-fuel-consumption">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label> Plant Name</label> <input type="text"
+									class="form-control" id="param1">
+
+							</div>
+							<div class="col-md-2">
+								<label> Vehicle Number</label> <select class="form-control"
+									id="param2">
+									<option th:value="NULL">--Select--</option>
+									<option th:each="c:${veichleList}" th:value='${c.key}'
+										th:text="${c.key}"></option>
+								</select>
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Branch</th>
+									<th>Fuel</th>
+									<th>Quantity</th>
+									<th>Fuel Slip Number</th>
+									<th>Coupon Date</th>
+									<th>vehicle Number</th>
+									<th>Driver Name</th>
+									<th>Is Tank Full</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+
+						</table>
+
+					</div>
+					<div style="clear: both;"></div>
+
+
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content" >
+					<div class="modal-header">
+						<h4 class="modal-title">View Fuel Consumption Details</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table id="table1">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+
+
+	</div>
+</div>
+</html>

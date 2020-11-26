@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<title>Add Job Requisition </title>
+
+<script>
+$(document).ready(function() {
+	
+	$("#onBoardBy").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+});
+function validateForm(){
+	if (!blankValidation("jobCode","SelectBox", "Please Select Discom Name"))
+	      return false;
+	if (!blankValidation("jobTitle","SelectBox" ,"Please Select Circle Name"))
+      return false;
+	if (!blankValidation("Department","SelectBox" ,"Please Enter Circle Name"))
+	      return false;
+	if (!blankValidation("hiringManager","SelectBox" ,"Description Can Not Be Left Blank"))
+      	  return false;
+	if (!blankValidation("onboardBy","TextArea", "Please Select S"))
+	      return false;
+	if (!blankValidation("Budget","TextArea", "Please Select"))
+	      return false;
+}
+
+function getJobTitle(){
+ 
+	var x = $('#jobCode').val();
+	
+}
+$(document).ready(function() { 
+	$("#jobCode").on('change', function() {
+		var jobCode = $(this).val();
+		if (jobCode) {
+			$.ajax({
+				type : 'POST',
+				url : 'add-requistion-get-jobtitle',
+				contentType : false,
+				data : jobCode,
+				success : function(response) {
+					console.log(response.body.name)
+					document.getElementById('jobTit').value=response.body.name;
+				 
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			});
+		} else {
+			$("#jobTitle").empty();
+			$("#jobTitle").append("<option value>--Select jobTitle--</option>");
+		}
+	});
+});
+</script>
+
+</head>
+
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Job Requisition</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12">
+				<!--Alert Box-->
+				<div class="alert alert-success alert-dismissible"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action.
+				</div>
+				<div class="alert alert-danger alert-dismissible"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action.
+				</div>
+				<div class="alert alert-warning alert-dismissible"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action.
+				</div>
+			</div>
+			<div class="card-title">
+				<h4>Add Job Requisition</h4></div>
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements"> <!--  -->
+							<form   th:action="@{add-requistion-details}" autocomplete="off" method="post" onsubmit="return validateForm();">
+							 
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										
+										<!-- <input type="hidden" th:field="${requistion.structId}"/>  -->
+                        				<div class="form-group">
+                         					<label>Budget</label>
+											<input type="text" class="form-control"  th:field="*{requistion.budget}"
+												onkeyup="checkAlphaNumber();" name=""  value="" autocomplete="on">
+										</div>
+										<div class="form-group">
+										<label>Job Code</label> <select class="form-control" th:field="*{requistion.jobCode}">
+											<option value="">--Select--</option>
+											<option th:each="c,iter:${jobCodeList}" th:value="${c.key}"
+												th:text="${c.key}" onchange="getJobTitle();"></option>
+										</select>
+										</div>
+										<div class="form-group">
+										<label>Job Title</label> <input class="form-control" id="jobTit" th:field="*{requistion.jobTitle}" readonly>
+										
+								
+										
+										</div>
+										<div class="form-group">
+										<label>Department</label> <select class="form-control" th:field="*{requistion.department}">
+											<option value="">--Select--</option>
+											<option th:each="c,iter:${DepartmentList}" th:value="${c.key}"
+												th:text="${c.name}"></option>
+										</select>
+										</div>
+										<div class="form-group">
+										<label>Hiring Manager</label> <select class="form-control" th:field="*{requistion.hiringManager}">
+											<option value="">--Select--</option>
+											<option th:each="c,iter:${hiringManagerList}" th:value="${c.key}"
+												th:text="${c.name}"></option>
+										</select>
+										</div>
+										<div class="form-group">
+											<label> On Board By</label> <input type="text"
+												class="form-control" th:field="*{requistion.onboardBy}"id="onBoardBy" readonly>
+										</div>
+									
+										<div class="form-group">
+											<input type="submit" value="Submit" class="btn btn-success" />
+											<input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();"/>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+	</div>
+</div>
+
+</html>

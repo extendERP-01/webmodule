@@ -1,0 +1,522 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 310px;
+	position: absolute;
+	z-index: 999;
+	height: 100px; 
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+//DELETE SALE INVOICE RETURN FUNCTION
+function DeleteSaleInvReturn(id) {
+    swal.fire({
+        title: "Are you sure want to Delete?",
+        text: "Once Deleted,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Delete",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "GET",
+                url: "/sales/view-saleinvoice-return-note-delete?id=" + id,
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(id),
+                success: function(response) {
+                    console.log(response);
+                    if (response.message == "success") {
+                        swal({
+                            title: "Data Deleted Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload();
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(response) {
+                    swal(response.code);
+                }
+            }) //ajax ends
+        }
+    }) //swal function block ends
+}
+
+//View 'Sale Invoice Return Master' Modal Function
+function viewInModel(index) {
+    $('#table1').empty();
+    $('#table2').empty();
+    $('#table3').empty();
+    $.ajax({
+        type: "POST",
+        url: "view-saleinvoice-return-note-modal",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: index,
+        success: function(response) {
+            if (response.message == "success") {
+                console.log(response.body);
+
+                var gstType = "";
+                if (response.body[0].gstType) {
+                    gstType = "Center Tax";
+                } else {
+                    gstType = "State Tax";
+                }
+                span = '<tr><td>Sale Invoice Return :</td>' +
+                    '<td align="left">' +
+                    response.body[0].saleInvReturn +
+                    '</td>' +
+                    '</tr><tr><td>Sales Order :</td>' +
+                    '<td align="left">' +
+                    response.body[0].salesOrderId +
+                    '</td>' +
+                    '</tr><tr><td>Sale Invoice :</td>' +
+                    '<td align="left">' +
+                    response.body[0].saleInvId +
+                    '</td>' +
+                    '</tr><tr><td>Description :</td>' +
+                    '<td align="left">' +
+                    response.body[0].saleInvReturnDesc +
+                    '</td>' +
+                    '</tr><tr><td>GST Type :</td>' +
+                    '<td align="left">' +
+                    gstType +
+                    '</td>' +
+                    '</tr><tr><td>GST Rate :</td>' +
+                    '<td align="left">' +
+                    response.body[0].gstRate + '%' +
+                    '</td></tr>' +
+                    '<th><b>Details Of Sale Invoice Return Items</b></th></tr>';
+                $('#myModal').modal('show');
+                $('#table1').append(span);
+
+                table2 = '<tr><th><b>ItemName</b></th><th><b>ItemCode</b></th><th><b>UnitPrice</b></th>' +
+                    '<th><b>Quantity</b></th><th><b>Discount</b></th><th><b>GST</b></th><<th><b>Cess</b></th><th><b>ServeType</b></th><th><b>Amount</b></th></tr>';
+                $('#myModal').modal('show');
+                $('#table2').append(table2);
+
+                for (var i = 0; i < response.body.length; i++) {
+
+                    table = '<tr><td>' +
+                        response.body[i].sRItemName +
+                        '</td><td>' +
+                        response.body[i].sRItemCode +
+                        '</td><td>' +
+                        (response.body[i].sRItemPrice).toFixed(2) +
+                        '</td><td align="center">' +
+                        response.body[i].sRItemQty +
+                        '</td><td>' +
+                        (response.body[i].sRDiscount).toFixed(2) +
+                        '</td><td>' +
+                        response.body[i].gstRate +
+                        '</td><td>' +
+                        response.body[i].itemCess +
+                        '</td><td>' +
+                        response.body[i].sRServeTypeId +
+                        '</td><td>' +
+                        (response.body[i].sRAmount).toFixed(2) +
+                        '</td></tr>';
+                    $('#myModal').modal('show');
+                    $('#table2').append(table);
+                }
+                if (response.body[0].gstType) {
+                    table3 = '<tr><td colspan="5" align="right" width="480px"><b>Sub Total :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].subTotal).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>IGST :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].sRIGST).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>Cess :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].totalCess).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>Grand Total :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].grandTotal).toFixed(2) +
+                        '</td>' +
+                        '</tr>';
+                    $('#table3').append(table3);
+                } else {
+                    table3 = '<tr><td colspan="5" align="right" width="480px"><b>Sub Total :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].subTotal).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>CGST :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].sRCGST).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>SGST :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].sRSGST).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>Cess :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].totalCess).toFixed(2) +
+                        '</td>' +
+                        '</tr><tr><td colspan="5" align="right"><b>Grand Total :</b></td>' +
+                        '<td align="left">' +
+                        (response.body[0].grandTotal).toFixed(2) +
+                        '</td>' +
+                        '</tr>';
+                    $('#table3').append(table3);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+
+//(document).ready() Starts
+$(document).ready(function() {
+    $('#table').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'view-saleinvoice-return-note-through-ajax',
+            'data': function(d) {
+
+                d.param1 = $('#param1').val();
+                d.param2 = $('#param2').val();
+            }
+        },
+        'dataSrc': "",
+        'columns': [{
+                'data': 'saleInvReturn'
+            },
+            {
+                'data': 'salesOrderId'
+            },
+            {
+                'data': 'saleInvId'
+            },
+            {
+                'data': 'saleInvReturnDesc'
+            },
+            {
+                'data': 'action'
+            }
+        ]
+    });
+});
+//(document).ready() Ends
+
+//Search Function
+function searchData() {
+    $('#table').DataTable().draw();
+}
+
+//Sales Order Auto Search Function
+function salesOrderAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "add-saleinvoice-return-note-salesOrderAutoCompleteList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#salesOrder").val(),
+        success: function(response) {
+            if (response.message == "success") {
+                if (response.body.length != 0) {
+                    $("#salesOrder").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+                        content += '<li onClick="selectAutocompleteValue(\'' +
+                            response.body[i].key +
+                            '\',\'' +
+                            response.body[i].name +
+                            '\')">' +
+                            response.body[i].key + '</li>';
+                    } //For Loop Ends
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+
+                } else {
+                    $("#salesOrder").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectAutocompleteValue(\'' +
+                        '' +
+                        '\',\'' +
+                        '' +
+                        '\')">' +
+                        "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+            $("#salesOrder").css("background", "#FFF");
+            var content = '<ul id="autocomplete-list">';
+            content += '<li onClick="selectAutocompleteValue(\'' +
+                '' +
+                '\',\'' +
+                '' +
+                '\')">' +
+                "Try Again" + '</li>';
+            content += '</ul>';
+            $("#suggesstion-box").show();
+            $("#suggesstion-box").html(content);
+        }
+    })
+}
+
+function selectAutocompleteValue(key, name) {
+    if (key) {
+        $("#param2").val(key);
+        $("#salesOrder").val(key);
+        $("#salesOrder").attr('data-procat', key);
+        $("#suggesstion-box").hide();
+    } else {
+        $("#param2").val("");
+        $("#salesOrder").val("");
+        $("#salesOrder").attr('data-procat', "");
+        $("#suggesstion-box").hide();
+    }
+}
+
+//Sales Invoice Return Auto Search Function
+function saleInvReturnAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "view-saleinvoice-return-note-saleInvReturnAutoCompleteList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#saleInvReturn").val(),
+        success: function(response) {
+            if (response.message == "success") {
+                if (response.body.length != 0) {
+                    $("#saleInvReturn").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+                        content += '<li onClick="selectAutocompleteReturnValue(\'' +
+                            response.body[i].key +
+                            '\',\'' +
+                            response.body[i].name +
+                            '\')">' +
+                            response.body[i].key + '</li>';
+                    } //For Loop Ends
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+
+                } else {
+                    $("#saleInvReturn").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectAutocompleteReturnValue(\'' +
+                        '' +
+                        '\',\'' +
+                        '' +
+                        '\')">' +
+                        "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+            $("#saleInvReturn").css("background", "#FFF");
+            var content = '<ul id="autocomplete-list">';
+            content += '<li onClick="selectAutocompleteReturnValue(\'' +
+                '' +
+                '\',\'' +
+                '' +
+                '\')">' +
+                "Try Again" + '</li>';
+            content += '</ul>';
+            $("#suggesstion-box1").show();
+            $("#suggesstion-box1").html(content);
+        }
+    })
+}
+
+function selectAutocompleteReturnValue(key, name) {
+    if (key) {
+        $("#param1").val(key);
+        $("#saleInvReturn").val(key);
+        $("#saleInvReturn").attr('data-procat', key);
+        $("#suggesstion-box1").hide();
+    } else {
+        $("#param1").val("");
+        $("#saleInvReturn").val("");
+        $("#saleInvReturn").attr('data-procat', "");
+        $("#suggesstion-box1").hide();
+    }
+}
+
+//Sale Invoice Return PDF Function
+function pdfCreateSaleInvReturn(id) {
+    window.open("/download/view-saleinvoice-return-note-one-pdf?id=" + id, '_blank');
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li><a th:href="@{/sales/add-saleinvoice-return-note}">Add
+						Sale Invoice Return Note</a></li>
+				<li class="active"><span>View Sale Invoice Return Note</span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>View Sale Invoice Return Note</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+				<div class="search-field">
+					<div class="row">
+						<div class="col-md-1">
+							<div class="form-group">
+								<a class="btn btn-secondary" href="add-saleinvoice-return-note">Create</a>
+							</div>
+						</div>
+						<div class="col-md-1">
+							<div class="form-group">
+								<button class="btn btn-info">Import</button>
+							</div>
+						</div>
+						<div class="col-md-1">
+							<div class="form-group">
+								<button class="btn btn-warning">
+									<i class="fa fa-download"> </i>
+								</button>
+							</div>
+						</div>
+						<div class="col-md-1"></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Sale Invoice Return</label> <input type="hidden"
+									id="param1"> <input type="text" class="form-control"
+									id="saleInvReturn" onkeyup="saleInvReturnAutoComplete();">
+								<div id="suggesstion-box1"></div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Sales Order</label> <input type="hidden" id="param2">
+								<input type="text" class="form-control" id="salesOrder"
+									autocomplete="off" onkeyup="salesOrderAutoComplete();">
+								<div id="suggesstion-box"></div>
+							</div>
+						</div>
+						<div class="col-md-2" style="margin-top: auto;">
+							<div class="form-group">
+								<button class="btn btn-primary" onclick="searchData()">Search</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table  table-bordered">
+							<thead>
+								<tr>
+									<th>Sale Invoice Return</th>
+									<th>Sales Order</th>
+									<th>Sale Invoice</th>
+									<th>Description</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content" width="100%">
+					<div class="modal-header">
+						<h4 class="modal-title">View Item Details of Sale Invoice
+							Return</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+						</table>
+						<table width="100%" border="0" id="table2">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<table width="100%" border="0" id="table3">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

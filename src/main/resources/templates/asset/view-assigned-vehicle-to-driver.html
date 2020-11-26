@@ -1,0 +1,417 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" >
+<!-- BOLT Sandbox/test //-->
+<script id="bolt" src="https://sboxcheckout-static.citruspay.com/bolt/run/bolt.min.js" bolt-
+color="e34524" bolt-logo="http://boltiswatching.com/wp-content/uploads/2015/09/Bolt-Logo-e14421724859591.png"></script>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 205px;
+	position: absolute;
+	z-index: 999;
+	height: 100px; 
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+//(document).ready() Starts
+$(document).ready(function() {
+	$("#param3").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	});
+	$("#param4").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	});
+	$("#removeDate").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	});
+    $('#table').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'view-assigned-vehicle-to-driver-through-ajax',
+            'data': function(d) {
+
+                d.param1 = $('#param1').val();
+                d.param2 = $('#param2').val();
+                d.param3 = $('#param3').val();
+                d.param4 = $('#param4').val();
+            }
+        },
+        'dataSrc': "",
+        'columns': [{
+                'data': 'driverName'
+            },
+            {
+                'data': 'vehicleNo'
+            },
+            {
+                'data': 'category'
+            },
+            {
+                'data': 'assignDate'
+            },
+            {
+                'data': 'status'
+            },
+            {
+                'data': 'action'
+            }
+        ]
+    });
+
+});
+//(document).ready() Ends
+
+//Search Function
+function searchData() {
+    $('#table').DataTable().draw();
+}
+
+function changeStatusModal(id,vId,date,time) {
+	$("#removeDate").val("");
+	$("#comment").val("");
+	$("#vehicleAsset").val(vId);
+	$("#driver").val(id);
+	$("#createdDate").val(date);
+	$("#createdTime").val(time);
+	$('#myModal').modal('show');
+}
+
+function unassignDriver() {
+	var vId = $("#vehicleAsset").val();
+	var id = $("#driver").val();
+	var removeDate = $("#removeDate").val();
+	var comment = $("#comment").val();
+	var createdDate = $("#createdDate").val();
+	var createdTime = $("#createdTime").val();
+	var validity = true;
+	
+	if(removeDate==null || removeDate=="") {
+		swal({
+			title	: "Please Enter Remove Date",
+			type	: "warning",
+		})
+		validity = false;
+	} else if(comment==null || comment=="") {
+		swal({
+			title	: "Please Enter Comment",
+			type	: "warning",
+		})
+		validity = false;
+	}
+	
+	if(validity) {
+		obj = {};
+		obj['vAssetId'] 		= window.atob(vId);
+		obj['driverId'] 		= window.atob(id);
+		obj['createdOnDate'] 	= window.atob(createdDate);
+		obj['createdOnTime'] 	= window.atob(createdTime);
+		obj['removeDate'] 		= removeDate;
+		obj['comment'] 			= comment;
+		console.log(obj)
+		$.ajax({
+			type : "POST",
+			url : "view-assigned-vehicle-to-driver-change-status",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : JSON.stringify(obj),
+			success : function(response) {
+				if(response.message=="success") {
+					swal({
+						title	: "Status Changed Successfully.",
+						type	: "success",
+					}).then(function(){
+						$('#myModal').modal('hide');
+						location.reload();
+					})
+				}
+			}, error : function(data) {
+				console.log(data)
+			}
+		});
+	}
+}
+
+//Quotation Master PDF Function
+function pdfCreate(id) {
+    window.open("/download/view-quotation-master-one-pdf?id=" + id, '_blank');
+}
+
+//Get Customer List Auto Search Function
+function getVehicleNo() {
+    $.ajax({
+        type: "POST",
+        url: "view-assigned-vehicle-to-driver-get-vehicle",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#param1").val(),
+        success: function(response) {
+            if (response.message == "success") {
+
+                if (response.body.length != 0) {
+                    $("#param1").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) {
+                        content += '<li onClick="selectAutocompleteValue(\'' + response.body[i].assetId + '\',\'' + response.body[i].serialNo + '\')">' + response.body[i].serialNo + '</li>';
+                    }
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+
+                } else {
+                    $("#param1").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectAutocompleteValue(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+            $("#param1").css("background", "#FFF");
+            var content = '<ul id="autocomplete-list">';
+            content += '<li onClick="selectAutocompleteValue(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+            content += '</ul>';
+            $("#suggesstion-box").show();
+            $("#suggesstion-box").html(content);
+        }
+    })
+}
+
+function selectAutocompleteValue(assetId, serialNo) {
+    if (assetId) {
+        $("#vehicleNo").val(assetId);
+        $("#param1").val(serialNo);
+        $("#param1").attr('data-procat', assetId);
+        $("#suggesstion-box").hide();
+    } else {
+        $("#vehicleNo").val("");
+        $("#param1").val("");
+        $("#param1").attr('data-procat', "");
+        $("#suggesstion-box").hide();
+    }
+}
+
+//Get Quotation List Auto Search Function
+function getDriverForSearch() {
+    $.ajax({
+        type: "POST",
+        url: "assign-vehicle-to-driver-get-employee",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#driverSearch").val(),
+        success: function(response) {
+            if (response.message == "success") {
+
+                if (response.body.length != 0) {
+                    $("#driverSearch").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) {
+                        content += '<li onClick="selectQAutocomplete(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].name + '('+ response.body[i].key +')' + '</li>';
+                    }
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+
+                } else {
+                    $("#driverSearch").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectQAutocomplete(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+            $("#driverSearch").css("background", "#FFF");
+            var content = '<ul id="autocomplete-list">';
+            content += '<li onClick="selectQAutocomplete(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+            content += '</ul>';
+            $("#suggesstion-box1").show();
+            $("#suggesstion-box1").html(content);
+        }
+    })
+}
+
+function selectQAutocomplete(key, name) {
+    if (key) {
+        $("#param2").val(key);
+        $("#driverSearch").val(name);
+        $("#driverSearch").attr('data-procat', key);
+        $("#suggesstion-box1").hide();
+    } else {
+        $("#param2").val("");
+        $("#driverSearch").val("");
+        $("#driverSearch").attr('data-procat', "");
+        $("#suggesstion-box1").hide();
+    }
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li><a th:href="@{/asset/assign-vehicle-to-driver}">Assign Vehicle To Driver</a></li>
+				<li class="active"><span>View Assigned Vehicle To Driver</span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>View Assigned Vehicle To Driver</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+				<div class="search-field">
+					<div class="row">
+						<div class="col-md-1">
+							<div class="form-group">
+								<a class="btn btn-secondary" href="assign-vehicle-to-driver">Create</a>
+							</div>
+						</div>
+						<div class="col-md-1">
+							<div class="form-group">
+								<button class="btn btn-info">Import</button>
+							</div>
+						</div>
+						<div class="col-md-1">
+							<div class="form-group">
+								<button class="btn btn-warning">
+									<i class="fa fa-download"> </i>
+								</button>
+							</div>
+						</div>
+						<div class="col-md-1"></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Vehicle Number</label>
+								<input type="hidden" class="form-control" id="vehicleNo">
+								<input type="text" class="form-control" id="param1" onkeyup="getVehicleNo();">
+								<div id="suggesstion-box"></div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Driver Name</label>
+								<input type="hidden"
+									class="form-control" id="param2">
+								<input type="text"class="form-control" id="driverSearch" onkeyup="getDriverForSearch();">
+								<div id="suggesstion-box1"></div>
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>From Date</label>
+								<input type="text"
+									class="form-control" id="param3" readonly>
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>To Date</label>
+								<input type="text"
+									class="form-control" id="param4" readonly>
+							</div>
+						</div>
+						<div class="col-lg-2" style="margin-top:26px;">
+							<div class="form-group">
+								<button class="btn btn-primary" onclick="searchData()">Search</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table  table-bordered">
+							<thead>
+								<tr>
+									<th>Driver Name</th>
+									<th>Vehicle No</th>
+									<th>Vehicle Category</th>
+									<th>Assign Date</th>
+									<th>Status</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content" width="100%">
+					<div class="modal-header">
+						<h4 class="modal-title">UnAssign Driver</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="col-md-12">
+							<input type="hidden" id="vehicleAsset">
+							<input type="hidden" id="driver">
+							<input type="hidden" id="createdDate">
+							<input type="hidden" id="createdTime">
+							<div class="form-group">
+								<label>Remove Date</label>
+								<input type="text" id="removeDate" readonly class="form-control">
+							</div>
+							<div class="form-group">
+								<label>Comment</label>
+								<textarea id="comment" class="form-control textarea"></textarea>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-info" id="submitModal" onclick="unassignDriver();">Submit</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+</div>
+</html>

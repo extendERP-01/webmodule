@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 325px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 170px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.money {
+	text-align: right;
+}
+
+.first-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+}
+
+.second-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 430px;
+}
+
+.text-heading {
+	background-color: #d1e3f5;
+	padding: 1px;
+	text-align: center;
+	margin-bottom: 14px;
+}
+
+.text-heading h4 {
+	font-size: 16px;
+	font-weight: 600;
+	color: #2c61e0;
+	padding-top: 7px;
+}
+</style>
+
+<script>
+	$(document).ready(function() {
+		$("#entryDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+			defaultDate: new Date(),
+		});
+		$("#batchTime").datetimepicker({
+			format : "h:m",
+			closeOnDateSelect : true,
+			minDate : new Date(),
+			timepicker : true,
+			datepicker : false,
+		});
+		$("#outTime").datetimepicker({
+			format : "h:m",
+			closeOnDateSelect : true,
+			minDate : new Date(),
+			timepicker : true,
+			datepicker : false,
+		});
+
+		$("#siteOutTime").datetimepicker({
+			format : "h:m",
+			closeOnDateSelect : true,
+			minDate : new Date(),
+			timepicker : true,
+			datepicker : false,
+		});
+		$("#siteInTime").datetimepicker({
+			format : "h:m",
+			closeOnDateSelect : true,
+			minDate : new Date(),
+			timepicker : true,
+			datepicker : false,
+		});
+		$("#returnTime").datetimepicker({
+			format : "h:m",
+			closeOnDateSelect : true,
+			minDate : new Date(),
+			timepicker : true,
+			datepicker : false,
+		});
+		
+		
+        // for hiding the show availabe cement Div
+		$("#availCementDiv").hide();
+        
+		var challanNo = $("#challanNo").val();
+		if(challanNo != null && challanNo != ""){ 
+			 $( "#entryDate" ).attr('disabled', true);
+			 $( "#saleOrder" ).attr('disabled', true);
+			 $( "#deliveryAddress" ).attr('disabled', true);
+			 $( "#deliverySite" ).attr('disabled', true);
+			 $( "#slurryPowder" ).attr('disabled', true);
+			 $( "#batchTime" ).attr('disabled', true);
+			 $( "#batchPlant" ).attr('disabled', true);
+			 $( "#cementBrand" ).attr('disabled', true);
+			 $( "#cementSupplyByClient" ).attr('disabled', true);
+			 $( "#sand2" ).attr('disabled', true);
+			 $( "#chip310mm" ).attr('disabled', true);
+			 $( "#chip420mm" ).attr('disabled', true);
+			 $( "#cement" ).attr('disabled', true);
+			 $( "#flyAsh" ).attr('disabled', true);
+			 $( "#water" ).attr('disabled', true);
+			 $( "#addMix" ).attr('disabled', true);
+			 $( "#total" ).attr('disabled', true);
+			 $( "#density" ).attr('disabled', true);
+			 $( "#rmcGrade" ).attr('disabled', true);
+			 $( "#slumpMM" ).attr('disabled', true);
+			 $( "#qcRemark" ).attr('disabled', true);
+			 $( "#billQty" ).attr('disabled', true);
+			 $( "#noOfTm" ).attr('disabled', true);
+			 $( "#totalQty" ).attr('disabled', true);
+			 $( "#referalChallanNo" ).attr('disabled', true);
+			 $( "#refGatePassNo" ).attr('disabled', true);
+			 $( "#vechileNo" ).attr('disabled', true);
+			 $( "#driverName" ).attr('disabled', true);
+			 $( "#helper" ).attr('disabled', true);
+			 $( "#isPump" ).attr('disabled', true);
+			 $( "#helper" ).attr('disabled', true);
+			 $( "#pumpList" ).attr('disabled', true);
+			 $( "#outTime" ).attr('disabled', true);
+			 $( "#okm" ).attr('disabled', true);
+			 $( "#ofhr" ).attr('disabled', true);
+			 $( "#obhr" ).attr('disabled', true);
+			 $( "#rstNo" ).attr('disabled', true);
+			 $( "#grossWt" ).attr('disabled', true);
+			 $( "#tareWt" ).attr('disabled', true);
+			 $( "#netWt" ).attr('disabled', true);
+			 $( "#docketNo" ).attr('disabled', true);
+			 $( "#batchQty" ).attr('disabled', true);
+		}else{
+			// for current date value
+		    var fullDate = new Date();
+			var twoDigitMonth=((fullDate.getMonth()+1)>=10)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+			var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+			var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+			$("#entryDate").val(currentDate); 
+			/* $("#entryDate[value='']").datepicker("setDate", "-0d");  */
+			// for current time value
+			  var d = new Date();
+			  var hours = d.getHours();
+			  var minutes = d.getMinutes(); 
+			  hours=((d.getHours())>=10)? (d.getHours()) : '0' + (d.getHours());
+			  minutes=((d.getMinutes())>=10)? (d.getMinutes()) : '0' + (d.getMinutes()); 
+			$("#batchTime").val(  hours + ":" + minutes);
+		}
+        
+	})
+
+	function validateForm() {
+		if (!blankValidation("entryDate", "TextField",
+				" Entry Date can not be left blank"))
+			return false;
+
+		if (!blankValidation("challanType", "SelectBox",
+				"Challan type can not be left blank"))
+			return false;
+		if (!blankValidation("saleOrder", "SelectBox",
+				"Sale Order can not be left blank"))
+			return false;
+		if (!blankValidation("deliveryAddress", "TextField",
+				"Delivery address can not be left blank"))
+			return false;
+		if (!blankValidation("deliverySite", "TextField",
+				"Delivery Site can not be left blank"))
+			return false;
+		if (!blankValidation("noOfTm", "TextField",
+				"Trip  Number can not be left blank"))
+			return false;
+		if (!blankValidation("billQty", "TextField",
+				" Bill Quantity can not be left blank"))
+			return false;
+		if (!blankValidation("vechileNo", "SelectBox",
+				"Vechile Number can not be left blank"))
+			return false;
+		if (!blankValidation("refGatePassNo", "TextField",
+				"Gate Pass Number can not be left blank"))
+			return false;
+
+		if (!blankValidation("grossWt", "TextField",
+				"Gross Weight can not be left blank"))
+			return false;
+		if (!blankValidation("tareWt", "TextField",
+				"Tare Weight can not be left blank"))
+			return false;
+		if (!blankValidation("netWt", "TextField",
+				"Net Weight can not be left blank"))
+			return false;
+		if (!blankValidation("employeePin", "TextField",
+				"Zip Code can not be left blank"))
+			return false;
+		if (!blankValidation("employeeMobilePhoneNo", "TextField",
+				"Mobile Number can not be left blank"))
+			return false;
+		if (!blankValidation("employeeEmail", "TextField",
+				"Personal Email  can not be left blank"))
+			return false;
+		if (!blankValidation("employeeDepartment", "SelectBox",
+				"Department can not be left blank"))
+			if (!checkSpecialCharacterFirst("employeeFname", "SelectBox",
+					"Special Character is not allowed at First Name"))
+				return false;
+		if (!checkSpecialCharacterFirst("employeeMname", "SelectBox",
+				"Special Character is not allowed at Middle Name"))
+			return false;
+		if (!checkSpecialCharacterFirst("employeeLname", "SelectBox",
+				"Special Character is not allowed at Last Name"))
+			return false;
+
+	}
+ 
+	function repaleCementValue() {
+		var value = $("#cementBrand").val();
+		$("#cementId").val(value);
+	}
+
+	function showPump() {
+
+		var value = $("#isPump").val();
+
+		if (value == 'true') { 
+			$("#pumpListDiv").show();
+		} else { 
+			$("#pumpListDiv").hide();
+		}
+	}
+
+	function validateCementBrand() {
+
+		var value = $("#cementBrand").val();
+		if (value == null || value == "") {
+			$("#cement").val("");
+			var cement = $("#cement").val();
+			var total = $("#total").val();
+			total = total - cement;
+			$("#total").val(total);
+			swal("Select Cement Brand.");
+		}
+	}
+	function calculateTotal() {
+		var cement = 0;
+		var sand2 = 0;
+		var chip310mm = 0;
+		var chip420mm = 0;
+		var water = 0;
+		var flyAsh = 0;
+		var addMix = 0;
+		var batchQty = 0;
+		if ($("#cement").val() != null && $("#cement").val() != '') {
+			cement = parseFloat($("#cement").val());
+		}
+		if ($("#sand2").val() != null && $("#sand2").val() != '') {
+			sand2 = parseFloat($("#sand2").val());
+		}
+		if ($("#chip310mm").val() != null && $("#chip310mm").val() != '') {
+			chip310mm = parseFloat($("#chip310mm").val());
+		}
+		if ($("#chip420mm").val() != null && $("#chip420mm").val() != '') {
+			chip420mm = parseFloat($("#chip420mm").val());
+		}
+		if ($("#water").val() != null && $("#water").val() != '') {
+			water = parseFloat($("#water").val());
+		}
+		if ($("#flyAsh").val() != null && $("#flyAsh").val() != '') {
+			flyAsh = parseFloat($("#flyAsh").val());
+		}
+		if ($("#addMix").val() != null && $("#addMix").val() != '') {
+			sand2 = parseFloat($("#addMix").val());
+		}
+		if ($("#batchQty").val() != null && $("#batchQty").val() != '') {
+			batchQty = parseFloat($("#batchQty").val());
+		}
+		if (batchQty == null || batchQty == "" || batchQty == 0) {
+			$("#total").val("");
+			$("#density").val("");
+			swal("Enter Batch Quantity .");
+		} else {
+			var total = cement + sand2 + chip310mm + chip420mm + water + flyAsh
+					+ addMix;
+			total = parseFloat(total);
+			var density = (total / batchQty).toFixed(2);
+			$("#total").val(total);
+			$("#density").val(density) ;
+		}
+
+	}
+
+	function driverAutoComplete() {
+		$.ajax({
+					type : "POST",
+					url : "delivery-challan-add-getDriverDetails",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#driverName").val(),
+					success : function(response) {
+
+						if (response.message == "success") {
+							if (response.body.length != 0) {
+								$("#driverName").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) {
+									content += '<li onClick="selectAutocompleteValue1(\''
+											+ response.body[i].customerId
+											+ '\',\''
+											+ response.body[i].customerName
+											+ '\')">'
+											+ response.body[i].customerId
+											+ '('
+											+ response.body[i].customerName
+											+ ')' + '</li>';
+								}
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+
+							} else {
+
+								$("#driverName").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteValue1(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+	}
+
+	function selectAutocompleteValue1(key, name) {
+
+		if (key) {
+
+			$("#driverId").val(key);
+			$("#driverName").val(name);
+			$("#driverName").attr('data-procat', key);
+			$("#suggesstion-box").hide();
+
+		} else {
+
+			$("#driverId").val("");
+			$("#driverName").val("");
+			$("#driverName").attr('data-procat', "");
+			$("#suggesstion-box").hide();
+
+		}
+
+	}
+
+	function myFunction() {
+		var grossWt = $('#grossWt').val();
+		grossWt = grossWt.replace(/\,/g, '');
+		var tareWt = $('#tareWt').val();
+		tareWt = tareWt.replace(/\,/g, '');
+
+		if (tareWt != null || tareWt != "" && grossWt != null || grossWt != "") {
+			if (tareWt > parseInt(grossWt)) {
+				$('#tareWt').val("");
+				swal({
+					title : "Tare Weight Can't Be Greater Than Gross Weight.",
+					type : "warning",
+				})
+			}
+			var netWt = parseInt(grossWt) - parseInt(tareWt);
+			if (netWt >= 0) {
+				$('#netWt').val(netWt);
+			} else {
+				$('#netWt').val("");
+			}
+		}
+
+	}
+	function checkNumber() {
+		if (isNaN($("#grossWt").val())) {
+			swal({
+				title : "Please Enter Numbers Only",
+				type : "warning",
+			})
+			$('#grossWt').val("");
+			return false;
+		}
+	}
+	function checkNumber1() {
+		if (isNaN($("#tareWt").val())) {
+			swal({
+				title : "Please Enter Numbers Only",
+				type : "warning",
+			})
+			$('#tareWt').val("");
+			return false;
+		}
+	}
+	 
+	
+	function tripDetails(){
+		var rmcGrade = $("#rmcGrade").val();
+		var saleOrder = $("#saleOrder").val();
+		var billQty = $("#billQty").val(); 
+		billQty = parseFloat(billQty);
+		$("#noOfTm").empty();
+		$("#totalQty").empty();
+		if (rmcGrade ) {
+
+			$ .ajax({
+						type : "GET",
+						url : "delivery-challan-add-tripDetails?rmcGrade=" + rmcGrade + "&saleOrder="+saleOrder,
+						dataType : 'json',
+						contentType : 'application/json', 
+						success : function(response) {
+							if (response.message == "success") {  
+	                      if(response.body[0].noOfTrips != 0){
+	                    	  console.log(response)
+	                    	  var noOfTrip = response.body[0].noOfTrips ;
+	                    	  var noOfTrips = parseFloat(noOfTrip);
+	                    	  noOfTrips = noOfTrips + 1;
+	                    	  $("#noOfTm").val(noOfTrips);
+	                    	  var totalQty = response.body[0].noOfRmcGrade ;
+	                    	  totalQty = parseFloat(totalQty);
+	                    	  totalQty = totalQty + billQty ;
+								$("#totalQty").val(totalQty); 
+	                      }else{
+	                    	  calcTotaltrip();
+	                      }
+								
+							 
+						 
+							}
+						},
+						error : function(data) {
+
+						}
+					})
+		} else {
+			$("#noOfTm").empty();
+			$("#totalQty").empty();
+		}
+	}
+	function driverDetailsOnVechileOnChange(){
+		var vechileNo = $("#vechileNo").val();  
+		$("#driverId").val("");
+		$("#driverName").val(""); 
+		if (vechileNo ) {
+
+			$ .ajax({
+						type : "POST",
+						url : "delivery-challan-add-vechileChange-driverDetails"  ,
+						dataType : 'json',
+						contentType : 'application/json', 
+						data : vechileNo,
+						success : function(response) {
+							if (response.message == "success") {   
+	                    	  
+	                    	    $("#driverId").val(response.body[0].key); 
+								$("#driverName").val(response.body[0].name); 
+	                      
+							}else{
+								$("#driverId").val('');
+								$("#driverName").val('');
+							}
+						},
+						error : function(data) {
+
+						}
+					})
+		} else {
+			$("#driverId").val('');
+			$("#driverName").val('');
+		}
+	}
+	
+
+	function cementDetails(){
+		var customer = $("#clientAccount").val();
+		var cementBrand = $("#cementBrand").val();
+		var cementSupplyByClient = $("#cementSupplyByClient").val();
+		$("#noOfTm").empty();
+		$("#totalQty").empty();
+		if (cementSupplyByClient !="false") {
+
+			$ .ajax({
+						type : "GET",
+						url : "delivery-challan-add-cementDetails?customer=" + customer + "&cementBrand="+cementBrand,
+						dataType : 'json',
+						contentType : 'application/json', 
+						success : function(response) {
+							if (response.message == "success") {  
+		                      if( response.body[0].availCement != null && response.body[0].availCement != 0 ){ 
+		                    	  $("#availCementDiv").show();
+									$("#availableCement").val(response.body[0].availCement); 
+		                      }else{
+		                    	  $("#availCementDiv").show();
+		                    	  $("#availableCement").val(""); 
+		                    	  $("#cementSupplyByClient").empty();
+		                      }
+								 
+							}
+						},
+						error : function(data) {
+
+						}
+					})
+		} else { 
+			$("#availableCement").val(""); 
+			$("#availCementDiv").hide();
+		}
+	}
+	
+	
+	function calcTotaltrip(){
+		var billQty = $("#billQty").val();   
+		if(billQty != null && billQty !=""){
+			billQty = parseFloat(billQty);
+	    	$("#noOfTm").val("1"); 
+			$("#totalQty").val(billQty); 
+		}else{
+			$("#noOfTm").val(""); 
+			$("#totalQty").val(""); 
+		}
+		
+	}
+	
+	function disabledEdits(){
+		var challanNo = $("#challanNo").val();
+		if(challanNo != null && challanNo != ""){ 
+			 $( "#entryDate" ).prop( "disabled", true );
+			 $( "#saleOrder" ).prop( "disabled", true );
+		}
+	}
+</script>
+
+
+<script th:inline="javascript">
+function soChange() {
+	var saleOrder = $("#saleOrder").val();
+	$("#clientAccount").empty();
+	$("#refPoId").empty();
+	if (saleOrder) {
+
+		$.ajax({
+			type : "POST",
+			url : "delivery-challan-add-getPodetails",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : saleOrder,
+			success : function(response) {
+				if (response.message == "success") {
+					var collectedValueJson = [[${pumpList}]];
+	
+					$("#refPoId").val(response.body[0].poId);
+					$("#clientName").val(response.body[0].customerName);
+					$("#clientAccount").val(response.body[0].customerId);
+					$("#tin").val(response.body[0].tin);
+					$("#rmcGrade").empty();
+					$("#pumpList").empty();
+					var isPumpUsed = false;
+					for (var i = 0; i < response.body.length; i++) {
+						if(response.body[i].rmcGradeId){
+							var option = $("<option></option>");
+							$(option).val(response.body[i].rmcGradeId);
+							$(option).html(response.body[i].rmcGrade);
+							$("#rmcGrade").append(option);
+						}
+	
+						if (response.body[i].pumpService != null) {
+							isPumpUsed = true;
+						}
+					}
+					if(isPumpUsed){
+						$("#pumpList").empty();
+						$("#pumpListDiv").show();
+						for (var i = 0; i < response.body.length; i++) {
+							$("#isPump").empty();
+							var option2 = $("<option value=true>Yes</option>");
+							$("#isPump").append(option2);
+							if(response.body[i].pumpServiceId != null){
+								var option1 = $("<option></option>");
+								$(option1).val( response.body[i].pumpServiceId);
+								$(option1).html(response.body[i].pumpService);
+								$("#pumpList").append(option1);
+							}
+						}
+					} else {
+						$("#isPump").empty();
+						var option2 = $("<option value=false>No</option>");
+						$("#isPump").append(option2);
+						$("#pumpList").empty();
+						$("#pumpListDiv").hide();
+					}
+					$("#billQty").val("");
+					$("#noOfTm").val("");
+					$("#totalQty").val("");
+				}
+			}, error : function(data) {
+
+			}
+		})
+	} else {
+		$("#refPoId").empty();
+		$("#clientAccount").empty();
+	}
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Delivery Challan</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Delivery Challan</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:action="@{/sales/delivery-challan-add}"
+								th:object="${deliveryChalanModel}" method="post"
+								onsubmit="return validateForm();">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<input type="hidden" th:field="*{challanNo}"
+										class="form-control">
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Entry Date</label> <input type="text" readonly
+												th:field="*{entryDate}" class="form-control">
+										</div>
+									</div>
+									<!-- <div class="col-lg-4">
+										<div class="form-group">
+											<label>Challan type</label><select class="form-control"
+												th:field="*{challanType}">
+												<option th:value="NULL">--Select--</option>
+												<option th:value="Normal">Normal</option>
+												<option th:value="cancelAll">Cancel All</option>
+												<option th:value="cancelPlanyData">Cancel Plant
+													Data</option>
+											</select>
+										</div>
+									</div> -->
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Sale Order</label> <select class="form-control"
+												th:field="*{saleOrder}" onchange="soChange()">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${saleOrderList}" th:value='${c.key}'
+													th:text="${c.key}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Reference PO ID</label> <input type="text"
+												th:field="*{refPoId}" class="form-control" readonly>
+										</div>
+									</div>
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Client Account</label> <input type="text"
+												th:field="*{clientName}" class="form-control" readonly>
+											<input type="hidden" th:field="*{clientAccount}"
+												class="form-control">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>TIN</label> <input type="text" class="form-control"
+												th:field="*{tin}" readonly>
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Delivery Address</label>
+											<textarea class="form-control textarea"
+												th:field="*{deliveryAddress}"></textarea>
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Delivery Site</label> <input type="text"
+												class="form-control" th:field="*{deliverySite}">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Slurry Powder (in Pkt)</label> <input type="text"
+												class="form-control" th:field="*{slurryPowder}"
+												onkeyup="checkNum('slurryPowder')">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Batch Plant</label> <select class="form-control"
+												th:field="*{batchPlant}">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${batchPlantList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Batch Time</label> <input type="text" readonly
+												class="form-control" th:field="*{batchTime}">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Cement Brand</label> <select class="form-control"
+												th:field="*{cementBrand}" onchange="repaleCementValue()">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${cementList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Batch Qty (In M3)</label> <input type="text"
+												class="form-control" th:field="*{batchQty}"
+												onkeyup="checkNum('batchQty')">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Docket No</label> <input type="text"
+												class="form-control" th:field="*{docketNo}">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Cement Supply By Client</label><select
+												class="form-control" th:field="*{cementSupplyByClient}"
+												onchange="cementDetails()">
+												<option th:value="NULL">--Select--</option>
+												<option th:value=true>Yes</option>
+												<option th:value=false>No</option>
+
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-4" id="availCementDiv">
+										<div class="form-group">
+											<label>Available Cement</label> <input type="text"
+												id="availableCement" class="form-control">
+
+										</div>
+									</div>
+
+								</div>
+
+								<div class="row">
+									<div class="col-md-12">
+										<div class="div-section">
+											<div class="text-heading">
+												<h4>Actual All Raw Material Quantity (All Quantity In
+													Kg)</h4>
+											</div>
+											<div class="row">
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label> Sand</label> <input type="text"
+															th:field="*{sand2}" class="form-control"
+															onchange='calculateTotal()' onkeyup="checkNum('sand2')">
+														<input type="hidden" value="itm00029"
+															th:field="*{sand2Id}" class="form-control">
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>10mm Chip</label> <input type="text"
+															th:field="*{chip310mm}" class="form-control"
+															onchange='calculateTotal()'
+															onkeyup="checkNum('chip310mm')"> <input
+															type="hidden" th:field="*{chip310mmId}" value="itm00030">
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>04-20mm Chip</label> <input type="text"
+															th:field="*{chip420mm}" class="form-control"
+															onchange='calculateTotal()'
+															onkeyup="checkNum('chip420mm')"> <input
+															type="hidden" th:field="*{chip420mmId}" value="itm00031"
+															class="form-control">
+
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Cement </label> <input type="text"
+															th:field="*{cement}" class="form-control"
+															onchange='calculateTotal() ; validateCementBrand() ;'
+															onkeyup="checkNum('cement')"> <input
+															type="hidden" th:field="*{cementId}" th:value="itm00000"
+															class="form-control">
+													</div>
+
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>FlyAsh</label> <input type="text"
+															th:field="*{flyAsh}" class="form-control"
+															onchange='calculateTotal()' onkeyup="checkNum('flyAsh')">
+														<input type="hidden" th:field="*{flyAshId}"
+															class="form-control" th:attr="value = itm00032">
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Water</label> <input type="text"
+															th:field="*{water}" class="form-control"
+															onchange='calculateTotal()' onkeyup="checkNum('water')">
+														<input type="hidden" th:field="*{waterId}"
+															class="form-control" th:value="itm00033">
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>AddMix</label> <input type="text"
+															th:field="*{addMix}" class="form-control"
+															onchange='calculateTotal()' onkeyup="checkNum('addMix')">
+														<input type="hidden" th:field="*{addMixId}"
+															class="form-control" th:value="itm00034">
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Total</label> <input type="text"
+															th:field="*{total}" class="form-control" readonly>
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Density</label> <input type="text"
+															th:field="*{density}" class="form-control" readonly>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>RMC Grade</label> <select class="form-control"
+												th:field="*{rmcGrade}">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${rmcGradeList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Slump MM</label> <input type="text"
+												th:field="*{slumpMM}" class="form-control"
+												onkeyup="checkNum('slumpMM')">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>QC Remarks</label> <input type="text"
+												th:field="*{qcRemark}" class="form-control">
+										</div>
+									</div>
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Bill Qty (In Cubic Meter)</label> <input type="text"
+												th:field="*{billQty}" class="form-control"
+												onkeyup="tripDetails(); checkNum('billQty')">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>No Of TM</label> <input type="text"
+												class="form-control" th:field="*{noOfTm}"
+												onkeyup="checkNum('noOfTm')" readonly>
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Total Qty </label> <input type="text"
+												class="form-control" th:field="*{totalQty}" readonly>
+										</div>
+									</div>
+									<!-- <div class="col-lg-4">
+										<div class="form-group">
+											<label>Auto No Of TM & Total Qty</label> <select
+												class="form-control" th:field="*{autoNoOfTmQty}">
+												<option th:value="NULL">--Select--</option>
+												<option th:value=true>Yes</option>
+												<option th:value=false>No</option>
+
+											</select>
+										</div>
+									</div> -->
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Reference Challan No</label> <input type="text"
+												class="form-control" th:field="*{referalChallanNo}">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Ref. Gate Pass No</label><input type="text"
+												class="form-control" th:field="*{refGatePassNo}">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Vehicle No</label> <select class="form-control"
+												th:field="*{vechileNo}"
+												onchange="driverDetailsOnVechileOnChange()">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${veichleList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Driver ID</label><input type="hidden"
+												class="form-control" th:field="*{driverId}"><input
+												type="text" th:field="*{driverName}" class="form-control"
+												onkeyup="driverAutoComplete()" />
+											<div id="suggesstion-box"></div>
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Helper</label><input type="text" class="form-control"
+												th:field="*{helper}">
+										</div>
+									</div>
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Is Pump Machine Used</label> <select
+												class="form-control" th:field="*{isPump}"
+												onchange="showPump()">
+												<option th:value="NULL">--Select--</option>
+												<option th:value=true th:text="Yes"></option>
+												<option th:value=false th:text="No"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-4 " id="pumpListDiv">
+										<div class="form-group ">
+											<label>Select Pump</label> <select class="form-control"
+												th:field="*{pumpList}">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${pumpList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<div class="out-section">
+											<div class="text-heading">
+												<h4>Out</h4>
+											</div>
+											<div class="row">
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>Out Time</label><input type="text" readonly
+															class="form-control" th:field="*{outTime}">
+													</div>
+												</div>
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>K.M.</label><input type="text" class="form-control"
+															th:field="*{okm}" onkeyup="checkNum('okm')">
+													</div>
+												</div>
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>Front Hour</label><input type="text"
+															class="form-control" th:field="*{ofhr}"
+															onkeyup="checkNum('ofhr')">
+													</div>
+												</div>
+
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>Back Hour</label><input type="text"
+															class="form-control" th:field="*{obhr}"
+															onkeyup="checkNum('obhr')">
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-md-6">
+										<div class="out-section">
+											<div class="text-heading">
+												<h4>Return</h4>
+											</div>
+											<div class="row">
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>Return Time</label><input type="text" readonly
+															class="form-control" th:field="*{returnTime}">
+													</div>
+												</div>
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>KM</label><input type="text" class="form-control"
+															th:field="*{rKm}" onkeyup="checkNum('rKm')">
+													</div>
+												</div>
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>Front Hour</label><input type="text"
+															class="form-control" th:field="*{rfhr}"
+															onkeyup="checkNum('rfhr')">
+													</div>
+												</div>
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>Back Hour</label><input type="text"
+															class="form-control" th:field="*{rBhr}"
+															onkeyup="checkNum('rBhr')">
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="clearfix"></div>
+								<div class="row">
+									<div class="col-md-12">
+										<div class="weight-section">
+											<div class="text-heading">
+												<h4>Weights (All Quanitity In Kg)</h4>
+											</div>
+											<div class="row">
+												<div class="col-lg-3">
+													<div class="form-group">
+														<label>RST No</label> <input type="text"
+															class="form-control" th:field="*{rstNo}">
+													</div>
+												</div>
+												<div class="col-md-3">
+													<div class="form-group">
+														<label>Gross Weight</label> <input type="text"
+															class="form-control" th:field="*{grossWt}"
+															onkeyup="myFunction();checkNum('grossWt');">
+													</div>
+												</div>
+												<div class="col-md-3">
+													<div class="form-group">
+														<label>Tare Weight</label> <input type="text"
+															class="form-control" th:field="*{tareWt}"
+															onkeyup="myFunction(); checkNum('tareWt');">
+													</div>
+												</div>
+												<div class="col-md-3">
+													<div class="form-group">
+														<label>Net Weight</label> <input type="text"
+															class="form-control" th:field="*{netWt}" readonly>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="clearfix"></div>
+								<div class="row">
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Site In Time</label><input type="text"
+												class="form-control" th:field="*{siteInTime}">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Site Out Time</label><input type="text"
+												class="form-control" th:field="*{siteOutTime}">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Site Supervisor</label><input type="text"
+												class="form-control" th:field="*{siteSupervisor}">
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Remarks</label>
+											<textarea class="form-control textarea" th:field="*{remarks}"></textarea>
+										</div>
+									</div>
+								</div>
+
+
+								<div class="row">
+									<div class="col-md-12">
+										<div class="form-group">
+											<input type="submit" value="Submit" class="btn btn-success" />
+											<input type="reset" value="Cancel" class="btn btn-warning"
+												onclick="window.location.reload();" />
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

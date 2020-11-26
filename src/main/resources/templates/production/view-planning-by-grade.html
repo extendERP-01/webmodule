@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 325px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 170px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.money {
+	text-align: right;
+}
+
+.first-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 100px;
+}
+
+.second-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 130px;
+}
+
+.text-heading {
+	background-color: #d1e3f5;
+	padding: 1px;
+	text-align: center;
+	margin-bottom: 14px;
+}
+
+.text-heading h4 {
+	font-size: 16px;
+	font-weight: 600;
+	color: #2c61e0;
+	padding-top: 7px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	border: 1px solid #FFF;
+	text-align: center;
+	font-weight: bold;
+}
+
+td input {
+	width: 70px;
+}
+</style>
+
+<script>
+	$(document).ready(function() {
+		$("#fromDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		});
+		$("#toDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		});
+		 
+	 
+</script>
+<!-- <script type="text/javascript">
+ 
+	function getDetailsData(id) {
+		var ppId = $("#ppId").val();
+		var fromDate = $("#fromDate").val();
+		var toDate = $("#toDate").val();
+	 
+		window.open("/production/view-production-planning-details-by-grade-details?grade="
+				+  id  + "&ppId="
+				+ window.btoa($('#ppId').val()) + "&fromDate="
+				+  $('#fromDate').val() + "&toDate="
+				+  $('#toDate').val() , '_self');
+	}
+	
+</script> -->
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<!-- <li class="active"><span>Add Production Planning</span></li> -->
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Production Planning Details By Grade</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form>
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<!-- <div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+
+
+											<input type="hidden" th:if="${Edit}" id="ppId"
+												th:value="${planningList[0].ppId}" /> <label>From
+												Date</label> <input type="text" readonly th:if="${Edit}"
+												id="fromDate" class="form-control"
+												th:value="${planningList[0].fromDate}"> <input
+												type="text" readonly th:unless="${Edit}" id="fromDate"
+												class="form-control" onchange="getProductionDetails()">
+
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>To Date</label> <input type="text" readonly
+												th:if="${Edit}" id="toDate" class="form-control"
+												th:value="${planningList[0].toDate}"> <input
+												type="text" readonly th:unless="${Edit}" id="toDate"
+												class="form-control" onchange="getProductionDetails()">
+										</div>
+									</div>
+								</div>   -->
+
+								<div>
+									<Strong>Planning Details By Grade</Strong>
+									<div style="width: 100%; overflow-x: scroll;">
+										<table id="myTable1" width="600px" border="0" cellspacing="1"
+											cellpadding="0">
+
+											<!-- <tr>
+												<td rowspan="2" class="tableheader" width="70">Size</td>
+												<td colspan="3" class="tableheader" align="center">
+
+													<button id="09" onclick="getDetailsData('09')">
+														09/20G JT</button>
+												</td>
+												<td colspan="3" class="tableheader" align="center">
+													<button id="1.15" onclick="getDetailsData('1.15')">
+														1.15/18G JT</button>
+												</td>
+												<td colspan="3" class="tableheader" align="center">
+													<button id="1.45" onclick="getDetailsData('1.45')">
+														1.45/16G JT</button>
+												</td>
+												<td colspan="3" class="tableheader" align="center">
+													<button id="1.2" onclick="getDetailsData('1.2')">
+														1.2/18G 304</button>
+												</td>
+												<td colspan="3" class="tableheader" align="center">
+													<button id="1.5" onclick="getDetailsData('1.5')">
+														1.5/16G 304</button>
+												</td>     
+												<td colspan="4" class="tableheader" align="center">Totals</td>
+											</tr> -->
+											<tr>
+												<th class="tableheader" align="center" width="70">Pipe
+													Size</th>
+												<th class="tableheader" align="center" width="70">Sales</th>
+												<th class="tableheader" align="center" width="70">Ratio</th>
+												<th class="tableheader" align="center" width="70">Finished
+													Product</th>
+												<th class="tableheader" align="center" width="70">WIP</th>
+												<th class="tableheader" align="center" width="70">SLIT</th>
+												<th class="tableheader" align="center" width="70">MOTHER</th>
+												<th class="tableheader" align="center" width="70">TOTAL</th>
+												<th class="tableheader" align="center" width="70">STOCK
+													%</th>
+
+											</tr>
+											<tbody id="tblid"></tbody>
+
+											<tbody id="tblid" th:if="${planningList !=null}">
+												<tr class="tr_clone" th:if="${Edit}"
+													th:each="a,iter:${planningList}">
+													<td bgcolor="#F5F5F5"><input type="text" class="size"
+														th:value="${a.size}"> <input type="hidden"
+														class="sizeId" th:value="${a.sizeId}"></td>
+													<td bgcolor="#F5F5F5"><input type="text"
+														th:value="${a.sales}" class="sales"></td>
+													<td bgcolor="#F5F5F5"><input type="text"
+														th:value="${a.ratio}" class="ratio"></td>
+													<td bgcolor="#F5F5F5"><input type="text"
+														th:value="${a.fp}" class="fp"></td>
+													<td bgcolor="#F5F5F5"><input type="text"
+														th:value="${a.wip}" class="wip"></td>
+													<td bgcolor="#F5F5F5"><input type="text"
+														th:value="${a.slit}" class="slit"></td>
+													<td bgcolor="#F5F5F5"><input type="text"
+														th:value="${a.mcoil}" class="mcoil"></td>
+													<td bgcolor="#F5F5F5"><input type="text"
+														th:value="${a.total}" class="total"></td>
+													<td bgcolor="#F5F5F5"><input type="text"
+														th:value="${a.sockPercentage}" class="sockPercentage"></td>
+
+												</tr>
+
+											</tbody>
+
+
+
+										</table>
+									</div>
+								</div>
+
+								<!-- <div class="row">
+									<div class="col-md-12">
+										<div class="form-group">
+											<button type="button" id="submit" class="btn btn-success">Submit</button>
+											<input type="reset" value="Cancel" class="btn btn-warning"
+												onclick="window.location.reload();" />
+										</div>
+									</div>
+								</div> -->
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+/* .pdt{
+padding-top:136px;
+} */
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 144px;
+	position: absolute;
+	z-index: 999;
+	height: 100px; 
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #3f4444;
+	color: #fff;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+	color: #000;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+    //Method for listing of all the Vendor Records
+
+    $('#vendorList').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'view-vendor-contract-through-ajax',
+            'data': function(d) {
+                d.param1 = $('#param1').val();
+            }
+        },
+        'dataSrc': "",
+        'columns': [
+			{
+                'data': 'vendorName'
+            }, {
+                'data': 'vendorGSTNO'
+            }, {
+                'data': 'vendorBankAc'
+            }, {
+                'data': 'vendorIFSC'
+            }, {
+                'data': 'vendorEmail'
+            }, {
+                'data': 'vendorMobile'
+            }, {
+                'data': 'vendorContract'
+            }, {
+                'data': 'fromDate'
+            }, {
+                'data': 'toDate'
+            },  {
+                'data': 'action'
+            }
+        ]
+    });
+    
+    $("#fromDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	
+	$("#toDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	
+	$("#submitContract").click(function(){
+		var id = $("#vendorId").val();
+		var file = $("#fileUpload").val();
+		
+		item = {};
+		
+		item.vendor = id;
+		item.vendorContract = file;
+		item.fromDate = $("#fromDate").val();
+		item.toDate = $("#toDate").val();
+		
+		var fileData = document.getElementById("fileUpload");
+		var docFile = $("#docFile").val();
+		
+		if(docFile == null || docFile == "") {
+			if(fileData.files.length == 0 ){
+				swal("Please Choose File")
+				return false;
+			}
+		}
+		
+		if (!blankValidation("fromDate", "TextField", "Please Enter From Date"))
+            return false;
+		if (!blankValidation("toDate", "TextField", "Please Enter To Date"))
+            return false;
+		
+		submitVendorContract(item);
+	})
+    
+}); 
+
+function searchData() {
+    $('#vendorList').DataTable().draw();
+}
+
+function submitVendorContract(dataset) {
+	console.log(dataset)
+	swal.fire({
+	    title: "Are you sure want to Submit?",
+	    text: "Once Submited,Can't revert back !",
+	    type: "warning",
+	    showCancelButton: true,
+	    confirmButtonColor: "#DD6BB5",
+	    confirmButtonText: "Submit",
+	    showLoaderOnConfirm: true,
+	    reverseButtons: true,
+	    confirmButtonAriaLabel: 'Thumbs up, great!',
+	    cancelButtonText: 'Cancel',
+	    cancelButtonAriaLabel: 'Thumbs down',
+	    preConfirm: () => {
+	        return new Promise((resolve) => {
+	            setTimeout(() => {
+	                console.log("Doing async operation");
+	                resolve()
+	            }, 3000)
+	        })
+	    }
+	}).then((result) => {
+	    if (result.value) {
+	        $.ajax({
+	            type: "POST",
+	            url: "view-vendor-contract-upload-file",
+	            dataType: "json",
+	            contentType: "application/json",
+	            data: JSON.stringify(dataset),
+	            success: function(response) {
+	                if (response.message == "Success") {
+	                    swal({
+	                        title: "Vendor Contract Uploaded Successfully.",
+	                        type: "success",
+	                    }).then(function() {
+	                        window.location.href = "/inventory/view-vendor-contract";
+	                    })
+
+	                } else {
+	                    swal({
+	                        title: response.code,
+	                        text: response.message,
+	                        type: "warning"
+	                    })
+	                }
+	            },
+	            error: function(response) {
+	                console.log(response);
+	            }
+	        }) 
+	    }
+	})
+}
+
+function vendorAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "view-vendor-contract-getVendorList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#vendor").val(),
+        success: function(response) {
+            if (response.message == "success") {
+
+                if (response.body.length != 0) {
+                    $("#vendor").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) {
+                        content += '<li onClick="selectQAutocomplete(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].name + '</li>';
+                    }
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+
+                } else {
+                    $("#vendor").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectQAutocomplete(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+            $("#vendor").css("background", "#FFF");
+            var content = '<ul id="autocomplete-list">';
+            content += '<li onClick="selectQAutocomplete(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+            content += '</ul>';
+            $("#suggesstion-box1").show();
+            $("#suggesstion-box1").html(content);
+        }
+    })
+}
+
+function selectQAutocomplete(key, name) {
+    if (key) {
+        $("#param1").val(key);
+        $("#vendor").val(name);
+        $("#vendor").attr('data-procat', key);
+        $("#suggesstion-box1").hide();
+    } else {
+        $("#param1").val("");
+        $("#vendor").val("");
+        $("#vendor").attr('data-procat', "");
+        $("#suggesstion-box1").hide();
+    }
+}
+
+function viewInModelData(index) {
+    $("#myModal").modal("show");
+    $("#vendorId").val(window.atob(index));
+    $.ajax({
+        type: "POST",
+        url: "view-vendors-model",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: window.atob(index),
+        success: function(response) {
+            if (response.message == "success") {
+				$("#fromDate").val(response.body.fromDate);
+				$("#toDate").val(response.body.toDate);
+				$("#docFile").val(response.body.vendorContract);
+				$("#uploadedBillDiv").empty();
+				
+				if(response.body.vendorContract!=null && response.body.vendorContract!="") {
+					$("#uploadedBillDiv").html(response.body.action);
+				}
+				
+            }
+        },
+        error: function(data) {
+            console.log(data)
+        }
+    })
+}
+
+function saveFile() {
+	$("#upload_prev").empty();
+	var uFile = $('#fileUpload')[0].files[0]; 
+	var fileName = $('#fileUpload').val();
+	
+	var lastIndex = fileName.lastIndexOf("\\");
+	if(lastIndex >= 0) {
+		fileName = fileName.substring(lastIndex + 1);
+	}
+	var iURL = URL.createObjectURL(uFile);
+	$("#uploadedBillDiv").html("");
+	
+	var LightImg =  "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' target='_blank'>Preview</a>";
+	$("#uploadedBillDiv").html(LightImg);
+	
+	var fileData = new FormData();
+	fileData.append('file',uFile);
+	fileData.append('path','none');
+	
+	$.ajax({
+		type        : "POST",
+		url         : "view-vendor-contract-uploadFile",
+		enctype     : "multipart/form-data",
+		contentType : false,
+		data        : fileData,
+		processData : false,
+		cache       : false,
+		success     : function(response){
+						
+					},			  
+		error       : function(e) {
+			
+			  		}
+	});
+}
+
+</script>
+</head>
+<div layout:fragment="content">
+    <div class="content-wrap">
+        <div class="main mrt_20">
+            <div class="col-md-12">
+                <ol class="breadcrumb breadcrumb-arrow">
+                    <li><a href="index.html">Home</a></li>
+                    <!-- <li><a href="">Add Vendor Contract</a></li> -->
+                    <li class="active"><span>View Vendor Contract</span></li>
+                </ol>
+            </div>
+
+            <div class="container-fluid">
+
+                <div class="card">
+                    <div class="search-field">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    <a class="btn btn-secondary" href="add-vendors">Create</a>
+                                </div>
+                            </div>
+                            <!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div> -->
+                            <div class="col-md-1"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label>Vendor Name</label>
+
+                                <input class="form-control" type=hidden placeholder="" name="" id="param1">
+                                <input class="form-control" type="text" placeholder="" name="" id="vendor" onkeyup="vendorAutoComplete()">
+                                <div id="suggesstion-box1"></div>
+                            </div>
+
+                            <div class="col-md-2 mrt_10">
+                                <div class="form-group filtersearch">
+                                    <button class="btn btn-info" onclick="searchData()">Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive" style="width: 100%;">
+                        <table id="vendorList" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Vendor Name</th>
+                                    <th>GST No.</th>
+                                    <th>Bank A/C No.</th>
+                                    <th>IFSC Code</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th>Contract</th>
+                                    <th>From Date</th>
+                                    <th>To Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div style="clear: both;"></div>
+
+                </div>
+            </div>
+        </div>
+
+        <div style="clear: both;"></div>
+        <div id="myModal" class="modal fade pdt" role="dialog">
+            <div class="modal-dialog modal-lg">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"><b>Contract Upload</b></h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <i class="fa fa-close fa-2x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                    	<div class="row">
+	                        <div class="col-md-6">
+	                            <div class="form-group">
+	                                <input type="hidden" id="vendorId">
+	                                <label>From Date</label> <input type="text" id="fromDate" class="form-control" readonly>
+	                            </div>
+	                        </div>
+	                        <div class="col-md-6">
+	                            <div class="form-group">
+	                                <label>To Date</label> <input type="text" id="toDate" class="form-control" readonly>
+	                            </div>
+	                        </div>
+	                        <div class="col-md-6">
+	                            <div class="form-group">
+	                            	<input type="hidden" id="docFile">
+	                                <label>Upload</label>
+	                                <input type="file" class="document" style="display: block;" id="fileUpload" onchange="saveFile()" />
+	                                <div id="uploadedBillDiv" class="uploadedBillCls"></div>
+	                            </div>
+	                        </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" id="submitContract">Submit</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- Modal End-->
+        <!-- /# row -->
+    </div>
+</div>
+</html>

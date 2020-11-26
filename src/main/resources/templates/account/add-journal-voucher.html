@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	//date time picker
+	$(document).ready(function() {
+
+		$("#paidDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			/* minDate : new Date(), */
+			timepicker : false,
+		})
+		HideBank();
+	});
+
+	lightbox.option({
+		'resizeDuration' : 200,
+		'wrapAround' : true,
+
+	})
+	function validateForm() {
+		var payMode = $("#paymentMode").val();
+		if (!blankValidation("costCenter", "TextField",
+				"Cost Center name can not be left blank"))
+			return false;
+		if (!blankValidation("paidFrom", "SelectBox",
+				"Please Select Paid from Name"))
+			return false;
+		if (!blankValidation("paidTo", "TextField",
+				"Please Select Paid To Name"))
+			return false;
+		if (!blankValidation("paidAmount", "TextField",
+				"Amount can not be left blank"))
+			return false;
+		if (!blankValidation("paidDesc", "TextArea",
+				"Description can not be left blank"))
+			return false;
+		if (!blankValidation("paidDate", "TextField",
+				"Date can not be left blank"))
+			return false;
+		if (!blankValidation("paymentMode", "SelectBox",
+				"Please Select Payment Mode"))
+			return false;
+
+		if (payMode == "PMOD004" || payMode == "PMOD005") {
+			if (!blankValidation("bankName", "SelectBox",
+					"Bank Name can not be left blank"))
+				return false;
+			if (!blankValidation("branchName", "SelectBox",
+					"Branch Name can not be left blank"))
+				return false;
+			if (!blankValidation("accNo", "SelectBox",
+					"Account No can not be left blank"))
+				return false;
+			if (payMode == "PMOD005") {
+				if (!blankValidation("chequeNo", "TextArea",
+						"Cheque No can not be left blank When You Chose Cheque"))
+					return false;
+			} else {
+				if (!blankValidation("transNo", "TextArea",
+						"Transaction No can not be left blank When You Chose Cheque"))
+					return false;
+			}
+		}
+	}
+</script>
+<script>
+	function checkNumber() {
+		if (isNaN($("#paidAmount").val())) {
+			swal({
+				title : "Please Enter Numbers Only",
+				type : "warning",
+			})
+			return false;
+		}
+	}
+	function checkBankDetails() {
+		var paymentMode = $("#paymentMode").val();
+		if (paymentMode == "PMOD002") {
+			HideBank();
+		} else if (paymentMode == "PMOD003") {
+			ShowCqNo();
+		} else if (paymentMode == "PMOD004") {
+			ShowTrNo();
+		} else {
+			HideBank();
+		}
+	}
+
+	function HideBank() {
+		$('#bankNamediv').hide();
+		$('#branchNamediv').hide();
+		$('#accNodiv').hide();
+		$('#chequeNoDiv').hide();
+		$('#paidFromDiv').hide();
+		$('#transNoDiv').hide();
+		$('#bankName').val('');
+		$('#branchName').val('');
+		$('#accNo').val('');
+		$('#chequeNo').val('');
+		$('#transNo').val('');
+	}
+
+	function ShowCqNo() {
+		$('#bankNamediv').show();
+		$('#branchNamediv').show();
+		$('#accNodiv').show();
+		$('#paidFromDiv').show();
+		$('#chequeNoDiv').show();
+		$('#transNoDiv').hide();
+	}
+	function ShowTrNo() {
+		$('#bankNamediv').show();
+		$('#branchNamediv').show();
+		$('#accNodiv').show();
+		$('#paidFromDiv').show();
+		$('#transNoDiv').show();
+		$('#chequeNoDiv').hide();
+
+	}
+
+	function checkAlphabetNumber() {
+		var tempVal = $("#transNo").val().replace(/[^a-zA-Z0-9 ]/g, '');
+		$("#transNo").val(tempVal);
+	}
+</script>
+
+<script type="text/javascript">
+	//for on change of branch name
+	function branchNameChange() {
+		var bankName = $("#bankName").val();
+
+		if (bankName) {
+
+			$.ajax({
+				type : 'POST',
+				url : 'add-journal-voucher-branchList',
+				contentType : false,
+				data : bankName,
+				success : function(response) {
+
+					$("#branchName").empty();
+					$("#branchName")
+							.append("<option value>--Select--</option>");
+
+					$("#accNo").empty();
+					$("#accNo").append("<option value>--Select--</option>");
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#branchName").append(option);
+
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			});
+		} else {
+			$("#branchName").empty();
+			$("#branchName").append("<option value>--Select--</option>");
+			$("#accNo").empty();
+			$("#accNo").append("<option value>--Select--</option>");
+
+		}
+
+	}
+
+	//for on change of account number
+	function acNoChange() {
+		var branchName = $("#branchName").val();
+		if (branchName) {
+
+			$.ajax({
+				type : 'POST',
+				url : 'add-journal-voucher-acNoList',
+				contentType : false,
+				data : branchName,
+				success : function(response) {
+
+					$("#accNo").empty();
+					$("#accNo").append("<option value>--Select--</option>");
+
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].key);
+						$("#accNo").append(option);
+
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			});
+		   } else {
+				$("#accNo").empty();
+				$("#accNo").append("<option value>--Select--</option>");
+		   }
+
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="col-md-12">
+					<ol class="breadcrumb breadcrumb-arrow">
+						<li><a href="index.html">Home</a></li>
+						<!-- <li><a href="#">View User</a></li>
+              <li><a href="#">Manage User</a></li> -->
+						<li class="active"><span>Add Journal Voucher</span></li>
+					</ol>
+				</div>
+				<div class="card-title">
+					<h4>Journal Voucher</h4>
+				</div>
+				<div class="container-fluid">
+
+					<div class="card">
+
+
+
+						<div class="card-body">
+							<div class="basic-elements">
+								<form th:action="@{add-journal-voucher}" autocomplete="off"
+									th:object="${accountJournalVoucherModel}" method="post"
+									onsubmit="return validateForm();">
+									<div class="row">
+										<div th:if="${message != null}">
+											<span th:text="${message}" style="color: red;"></span>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-lg-6">
+
+											<div class="form-group">
+												<label>Cost Center</label> <select class="form-control"
+													th:field="*{costCenter}">
+													<option value="">--Select--</option>
+													<option th:each="c:${costCenterList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+												</select>
+											</div>
+
+											<div class="form-group">
+												<label>Paid From</label> <select class="form-control"
+													th:field="*{paidFrom}">
+													<option value="">--Select--</option>
+													<option th:each="c:${PaidFromList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+												</select>
+											</div>
+
+											<div class="form-group">
+												<label>Paid To</label> <select class="form-control"
+													th:field="*{paidTo}">
+													<option value="">--Select--</option>
+													<option th:each="c:${PaidToList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+												</select>
+											</div>
+
+											<div class="form-group">
+												<label>Payment Mode</label> <select class="form-control"
+													th:field="*{paymentMode}" id="paymentMode"
+													onchange="checkBankDetails();">
+													<option value="">--Select--</option>
+													<option th:each="c:${PayModeList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+												</select>
+											</div>
+											<div class="form-group" id="bankNamediv">
+												<label>Bank Name</label> <select class="form-control"
+													th:field="*{bankname}" id="bankName"
+													onchange="branchNameChange();">
+													<option value="">--Select--</option>
+													<option th:each="c:${bankNameList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+												</select>
+											</div>
+											<div class="form-group" id="branchNamediv">
+												<label>Branch Name</label> <select class="form-control"
+													th:field="*{branchName}" id="branchName"
+													onchange="acNoChange();">
+													<option value="">--Select--</option>
+
+												</select>
+											</div>
+
+										</div>
+										<div class="col-lg-6">
+											<div class="form-group">
+												<label>Paid Amount</label> <input type="text"
+													class="form-control" name="" value=""
+													th:field="*{paidAmount}" onkeyup="checkNumber();" />
+											</div>
+											<div class="form-group">
+												<label> Paid Description</label>
+												<textarea name="" cols="" rows=""
+													class="form-control textarea" th:field="*{paidDesc}"></textarea>
+											</div>
+
+
+											<div class="form-group">
+												<label>Paid Date</label> <input type="text"
+													class="form-control" th:field="*{paidDate}" readonly>
+											</div>
+											<div class="form-group" id="accNodiv">
+												<label>Account Number</label> <select class="form-control"
+													th:field="*{accNo}" id="accNo" onchange="acNameChange();">
+													<option value="">--select--</option>
+												</select>
+											</div>
+
+											<div class="form-group" id="chequeNoDiv">
+												<label>Cheque Number</label> <input type="text"
+													class="form-control" id="chequeNo" th:field="*{chequeNo}"
+													onkeyup="checkAlphabetAndNumber('chequeNo')" />
+											</div>
+											<div class="form-group" id="transNoDiv">
+												<label>Transaction Number</label> <input type="text"
+													class="form-control" id="transNo" th:field="*{transNo}"
+													onkeyup="checkAlphabetAndNumber('transNo')" />
+											</div>
+
+										</div>
+									</div>
+									<div class="form-group col-md-12 row">
+										<input type="submit" value="Submit" class="btn btn-success" />
+										<input type="reset" value="Cancel" class="btn btn-warning"
+											onclick="window.location.reload();" />
+									</div>
+
+
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /# row -->
+	</div>
+</div>
+</html>

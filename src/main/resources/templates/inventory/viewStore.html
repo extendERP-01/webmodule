@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#tblStore').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'view-store-master-throughAjax',
+            'data': function(d) {
+                d.param1 = $('#param1').val();
+                d.param2 = $('#param2').val();
+            }
+        },
+        'dataSrc': "",
+        'columns': [{
+                'data': 'tStoreName'
+            },
+            {
+                'data': 'tStoreLogo'
+            },
+            {
+                'data': 'tStoreDescription'
+            },
+            {
+                'data': 'tAddress'
+            },
+            {
+                'data': 'tPhoneNo'
+            },
+            {
+                'data': 'action'
+            }
+        ]
+    });
+});
+
+function searchData() {
+    $('#tblStore').DataTable().draw();
+}
+
+function viewInModel(index) {
+
+    var name = '';
+    var desc = '';
+    var address = '';
+    var contact = '';
+    $("#storeTable").find('tbody > tr').each(function() {
+        $(this).find("td").eq(1).remove();
+    })
+    $.ajax({
+        type: "POST",
+        url: "view-store-master-model",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: index,
+        success: function(response) {
+            if (response.message == "success") {
+
+                name = '<td>' + response.body.tStoreName + '</td>'
+                desc = '<td>' + response.body.tStoreDescription + '</td>'
+                address = '<td>' + response.body.tAddress + '</td>'
+                contact = '<td>' + response.body.tPhoneNo +
+                    '</td>'
+
+                $(".name").append(name);
+                $(".desc").append(desc);
+                $(".address").append(address);
+
+                $(".contact").append(contact);
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+
+}
+
+//Deleting Beauty Chair
+function deleteItem(id) {
+    swal.fire({
+        title: "Are you sure want to Delete?",
+        text: "Once Deleted,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#e7b63a',
+        confirmButtonText: 'Delete',
+        reverseButtons: true
+
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "GET",
+                url: "/inventory/view-store-master-delete?id=" + id,
+                success: function(response) {
+                    if (response.message == "success") {
+                        swal({
+                            title: "Record Deleted Successfully.",
+                            type: "success"
+                        }).then(function() {
+                            location.reload();
+                        })
+                    } else {
+                        swal({
+                            title: 'Unsuccess',
+                            text: response.code
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            })
+        }
+    });
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="add-store-master">Add Store Details</a></li>
+					<li class="active"><span>View Store Details</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Store Details</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-store-master">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div> -->
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<div class="form-group">
+									<label>Store</label>
+									<select class="form-control" id="param1">
+										<option th:value="null">---Select---</option>
+										<option th:each="c:${storeList}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+									</select>
+								</div>
+							</div>
+							<div class="col-md-2">
+								<div class="form-group">
+									<label>State</label>
+									<select class="form-control" id="param2">
+										<option th:value="null">---Select---</option>
+										<option th:each="c:${stateList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div>
+							</div>
+							<div class="col-md-2" style="margin-top: 26px;">
+								<div class="form-group">
+									<button class="btn btn-primary" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblStore" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Store Name</th>
+											<th>Image</th>
+										<th>Description</th>
+										<th>Address</th>
+										<th>Contact No.</th>
+									
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Store</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="storeTable">
+							<tbody>
+								<tr class="name">
+									<td><b>Store Name :</b></td>
+								</tr>
+								<tr class="desc">
+									<td><b>Description :</b></td>
+								</tr>
+								<tr class="address">
+									<td><b>Address :</b></td>
+								</tr>
+
+
+								<tr class="contact">
+									<td><b>Contact No. :</b></td>
+								</tr>
+								
+							</tbody>
+							<tbody id="tModelBody"></tbody>
+						</table>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

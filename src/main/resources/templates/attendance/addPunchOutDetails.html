@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+
+function displayPunchIn(){
+	var refresh=1000; // Refresh rate in milli seconds
+	mytime=setTimeout('display_PunchIn()',refresh)
+	
+	}
+
+function display_PunchIn() {
+	var x1 = new Date()
+	var hour=x1.getHours();
+	var minute=x1.getMinutes();
+	var second=x1.getSeconds();
+	if(hour <10 ){hour='0'+hour;}
+	if(minute <10 ) {minute='0' + minute; }
+	if(second<10){second='0' + second;}
+	 var x1=x1.getMonth() + 1+ "/" + x1.getDate() + "/" + x1.getYear();  
+
+	 x =  hour+ ":" +  minute + ":" + second;
+	document.getElementById("tAttndncPunchOut").value = x;
+	
+	
+	displayPunchIn();
+	 }
+	
+
+
+</script>
+<script type="text/javascript">
+$(document).ready(function() {
+
+
+			var monthNames = [ "January", "February", "March", "April",
+					"May", "June", "July", "August", "September",
+					"October", "November", "December" ];
+			var dayNames = [ "Sunday", "Monday", "Tuesday", "Wednesday",
+					"Thursday", "Friday", "Saturday" ]
+
+			var newDate = new Date();
+			newDate.setDate(newDate.getDate());
+			$("#tAttndncDate_").html(
+					dayNames[newDate.getDay()] + " " + newDate.getDate()
+							+ ' ' + monthNames[newDate.getMonth()] + ' '
+							+ newDate.getFullYear());
+		});
+</script>
+<body onload=display_PunchIn();>
+	<span id="tAttndncPunchOut"></span>
+
+</body>
+
+</head>
+
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class="active"><span>Attendance Details</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>PUNCH OUT</h4>
+
+				<div class="topbtnright" align="right">
+					<div class="form-group">
+						<input type="submit" value="PunchOut" class="btn btn-success" />
+						<input type="reset" value="Cancel" class="btn btn-warning"
+							onclick="window.location.reload();" />
+					</div>
+				</div>
+
+			</div>
+
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form action="#" th:action="@{add-attendence-details-punchout}"
+								th:object="${attendenceDetails}" method="post"
+								onsubmit="return validateForm();" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"> </span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"> </span>
+									</div>
+								</div>
+								<input type="hidden" th:field="*{tEmployee}" />
+
+
+								<div class="row">
+									<div class="col-md-6">
+										<div class="form-group" id="tAttndncDate_">
+											<input type="text" class="form-control" name="tAttndncDate"
+												id="tAttndncDate" value="" th:field="*{tAttndncDate}">
+										</div>
+
+									</div>
+								</div>
+								<div class="row">
+
+
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>PunchOut Time</label> <input type="text"
+												class="form-control" name="tAttndncPunchOut" value=""
+												th:field="*{tAttndncPunchOut}">
+										</div>
+										<div class="form-group">
+											<label>PunchOut Location</label>
+										</div>
+										<div class="form-group">
+											<input type="radio" id="tAttndncPunchOut_Loc"
+												name="tAttndncPunchOut_Loc" value=1 checked />&nbsp;<label>Office</label>&nbsp;&nbsp;&nbsp;
+											<input type="radio" id="taxC" name="tAttndncPunchOut_Loc"
+												value=2 />&nbsp;<label>Other Place</label>
+										</div>
+										<div class="form-group">
+											<label>PunchOut Note</label>
+											<textarea name="tAttndncPunchOutNote" cols="" rows=""
+												th:field="*{tAttndncPunchOutNote}"
+												class="form-control textarea"></textarea>
+
+										</div>
+
+									</div>
+								</div>
+								<!-- <div class="form-group">
+
+
+									<input type="reset" value="Cancel" class="btn btn-warning"
+										onclick="window.location.reload();" />
+								</div> -->
+							</form>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

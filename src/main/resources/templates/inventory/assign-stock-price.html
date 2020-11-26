@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	padding: 0;
+	position: absolute;
+	width: 302px;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #fff;
+	border-left: 1px solid;
+	border-right: 1px solid;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	padding: 0;
+	width: 442px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script>
+//ADD MORE FUNCTION
+ var cId;
+function addMore() {
+
+	  var itemNameValid = true;
+	    $(".assignItemName").each(function() {
+	        var current_id = $(this).attr("id");
+	        if (!blankValidation(current_id, "TextField", "Please Enter Item Name")) {
+	            itemNameValid = false;
+	            return false;
+	        }
+
+	    });
+	    
+	    
+	    
+	    var specialPrice = true;
+	    if (itemNameValid) {
+	        $('.assignSpecialPrice').each(function() {
+	            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Stock Price")) {
+	            	specialPrice = false;
+	                return false;
+	            }
+
+	        });
+	    }
+if(itemNameValid && specialPrice){
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+		$("#myTable tbody tr td:last").html("");
+		var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+		var editTr = 0;
+	
+		if (lengthOfTableRow > editTr) {
+			$("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last')
+					.append(removeMore);
+		}
+	
+		$("#myTable tbody tr:last").find(".assignItemName").val("");
+		$("#myTable tbody tr:last").find(".assignPrice").val("");
+		$("#myTable tbody tr:last").find(".assignSalePrice").val("");
+		$("#myTable tbody tr:last").find(".assignSpecialPrice").val("");
+	
+		$("#myTable > tbody > tr").each(function(i) {
+	
+			var textInput = $(this).find('input');
+			var divInput = $(this).find('div');
+			var selectInput = $(this).find('select');
+	
+			textInput.eq(0).attr('id', "hiddenInput_" + i);
+			textInput.eq(1).attr('id', "inputItemName_" + i);
+			textInput.eq(2).attr('id', "inputSalePrice_" + i);
+			textInput.eq(3).attr('id', "inputSpecialPrice_" + i); 
+			divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+			
+		})
+	}
+}
+	    
+
+
+$(document).ready(function (){
+	$("#storeId").change(function(){
+		//on vendor change...clean fields..
+		$(".assignItemName").val('');
+		$(".assignSalePrice").val('');
+		$(".assignSpecialPrice").val('');
+		console.log("getting data for table")
+	})
+					
+	
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+			
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+	});
+	
+	$("#submit").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			  var radioValue = $("input[name='selectType']:checked").val();
+			item = {};
+			item['storeName']	=	$('#storeId').val();
+			item['itemId']	=	$(this).find(".assignItemId").val();
+			item['itemSalePrice']	=	$(this).find(".assignSalePrice").val();
+			item['itemSpecialPrice'] = $(this).find(".assignSpecialPrice").val();
+			item['selectType'] = radioValue;
+			item['priceAll']	=	$('#priceAll').val();
+			if(radioValue="3"){
+				if(item['itemSpecialPrice']<item['itemSalePrice']){
+					swal({
+						title:"invalid Special Price",
+						text: "sell price should be less than special price",
+						type:"warning"
+					})
+					$(this).find(".assignSpecialPrice").val('');
+				}
+			}
+		
+			
+			dataset.push(item);
+			console.log(item);
+		}); 
+		
+		if (!blankValidation("store","SelectBox" ,"Please select tore"))
+		      return false;
+		var itemNameValid = true;
+		var itemSpecialPriceValid = true;
+		var radioValue = $("input[name='selectType']:checked").val();
+		if(radioValue!="1"){
+			$(".assignItemName").each(function(){
+				var current_name = $(this).attr("id");
+				if (!blankValidation(current_name,"TextField" ,"Please Enter Item Name")){
+					itemNameValid = false;
+					return false;
+				}
+				
+			});
+			 
+			
+			$(".assignSpecialPrice").each(function(){
+				var current_price = $(this).attr("id");
+				if (!blankValidation(current_price,"TextField" ,"Please Enter Item  Stock Price")){
+					itemSpecialPriceValid = false;
+					return false;
+				}
+				
+			});
+			
+		}
+
+		if(itemNameValid && itemSpecialPriceValid){
+			assignAsset(dataset);
+		}
+	}); 
+})
+
+//assign Item To Customer
+function assignAsset(dataset) {
+	swal.fire({
+		title					: "Are you sure want to Submit?",
+		text					: "Once Submited,Can't revert back !",
+		type 					: "warning",
+		showCancelButton		: true,
+		confirmButtonColor		: "#DD6BB5",
+		confirmButtonText		: "Submit",
+		showLoaderOnConfirm		: true,
+		reverseButtons 			: true,
+		confirmButtonAriaLabel 	: 'Thumbs up, great!',
+		cancelButtonText 		: 'Cancel',
+		cancelButtonAriaLabel 	: 'Thumbs down',	
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 500)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "assign-stock-price-save",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					if(response.message=="Success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							var id = $("#storeId").val();
+							//getAssignedItems(id);
+							$(".assignItemName").val('');
+							$(".assignSalePrice").val('');
+							$(".assignSpecialPrice").val('');
+							/* $("#xyz").load(location.href + " #xyz"); */
+							location.reload();
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			}) //ajax ends
+		}
+	})
+}
+
+//get All Assigned Items
+/* function getAssignedItems(storeId) {
+	 
+	$(".assignSalePrice").val('');
+	$(".assignItemName").val('');
+	$(".assignSalePrice").val('');
+	$("#myTable tbody tr:not(:first)").remove();
+	$("#myTable tbody tr:last").find('td:last').remove();
+	var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	$("#myTable tbody tr:last").append('<td>'+ add+'</td>');
+	
+	if(storeId) {
+		$("#tbodyTR").hide();
+		$("#tblBody").empty();
+		$("#tblBody").show();
+		$.ajax({
+			type : "POST",
+			url : "assign-stock-price-view-throughAjax",
+			contentType : 'application/json',
+			data : storeId,
+			success : function(response) {
+				console.log(response)
+					if(response.body.length!=0)	{
+						
+						for(var i=0;i<response.body.length;i++){
+							var edit = '<i id="action2_'+i+'" title="Edit" class="fa fa-edit"  style="font-size: 20px;cursor:pointer;color:blue;margin-left:15px;" onClick="editItem(\''+response.body[i].itemId+'\',\''+response.body[i].itemName+'\',\''+response.body[i].itemSalePrice+'\',\''+response.body[i].itemSpecialPrice+'\')"></i>';
+							var td = '<td><i id="action_'+i+'" title="Delete" class="fa fa-close"  style="font-size:24px;cursor:pointer;color:red;" onClick="unassignItem(\''+response.body[i].storeId+'\',\''+response.body[i].itemId+'\')"></i>'+edit+'</td>';
+							table = '<tr><td>'+response.body[i].itemName+'</td>'
+									+'<td>'+response.body[i].itemSalePrice+'</td>'
+									+'<td>'+response.body[i].itemSpecialPrice+'</td>'
+									+td
+									+'</tr>';
+								$('#tblBody').append(table);
+							}
+					} else {
+						$("#tbodyTR").show();
+						$("#tblBody").hide();
+					}
+				}, 
+			error : function(error) {
+				console.log(error)
+			}
+		});
+	} else {
+		$("#tbodyTR").show();
+		$("#tblBody").hide();
+	}
+}
+ */
+//Unassign an Item
+function unassignItem(id,name){
+	var data=id+"-"+name;
+	swal.fire({
+		title					: "Are you sure want to Delete?",
+		type 					: "warning",
+		showCancelButton		: true,
+		confirmButtonColor		: "#DD6BB5",
+		confirmButtonText		: "Submit",
+		showLoaderOnConfirm		: true,
+		reverseButtons 			: true,
+		confirmButtonAriaLabel 	: 'Thumbs up, great!',
+		cancelButtonText 		: 'Cancel',
+		cancelButtonAriaLabel 	: 'Thumbs down',	
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 400)
+			})
+		}
+		}).then((result) => {
+			if(result.value){
+
+			$.ajax({
+				type		: "POST",
+				url 		: "assign-stock-price-delete",
+				dataType	: "json",
+				contentType : 'application/json',
+				data		:data,
+				success		: function(response){
+					console.log("res="+response.message)
+					if(response.message=="Success"){
+						swal({
+							title:"Data deleted Successfully.",
+							type: "success",
+						}).then(function(){
+							var id = $("#storeId").val();
+							//getAssignedItems(id);
+							//window.location.href = "/asset/assign-asset-to-vehicle" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},
+				error : function(error) {
+					swal({
+							title:'Error While Deleting Item',
+							text: error.toString(),
+							type:"warning"
+						})
+					//getAssignedItems($('#store').attr("name"));
+				}
+			}) //ajax ends
+		}
+	})
+}
+
+var itemName ="";
+var itemPrice = 0.0;
+var itemId = '';
+function editItem(id,name,itemSalePrice,itemSpecialPrice){
+	itemName = name;
+	itemId = id;
+	$("#Iname").val(itemName);
+	$("#Saleprice").val(itemSalePrice);
+	$("#specialprice").val(itemSpecialPrice);
+	$('#myModal').modal('show');
+}
+
+//update Assigned Item
+function updateItem(){
+	
+		 var item={};
+		 	
+			item['itemName']		=	$("#Iname").val();
+			item['storeName']	=	$('#storeId').val();
+			item['itemId']			= 	itemId;
+			item['itemSpecialPrice'] = $("#specialprice").val();
+			
+		 $.ajax({
+				type		: "POST",
+				url 		: "assign-stock-price-update",
+				dataType	: "json",
+				contentType : 'application/json',
+				data		: JSON.stringify(item),
+				success		: function(response){
+					console.log(response)
+					if(response.message=="success"){
+						swal({
+							title:"Data Updated Successfully.",
+							type: "success",
+						}).then(function(){
+							var id = $("#storeId").val();
+							
+							//getAssignedItems(id);
+							//window.location.href = "/asset/assign-asset-to-vehicle" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			}) //ajax ends
+			$('#myModal').modal('hide');
+	
+}
+
+//get AutoComplete Item 
+function getItemAutoSearch(event){
+	 var store = $('#storeId').val();;
+ 
+	var id = event.currentTarget.id;
+	var key = event.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+	if(key) {
+		$.ajax({
+			type : "GET",
+			url : "assign-stock-price-autocmplt-item?key=" + key + "&storeId="+store,
+			dataType : 'json',
+			contentType : 'application/json', 
+			success : function(response) {
+				if(response.body.length!=0)	{
+					
+					var content = '<ul id="autocomplete-list1">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\''+response.body[i].itemId+'\',\''+response.body[i].itemName+'\',\''+response.body[i].salePrice+'\','+counter+')">'+response.body[i].itemName+'</li>';
+					} 
+					
+					content += '</ul>';
+					var width = $("#inputItemName_"+counter).css("width");
+					$("#suggesstion-box1_"+counter).show();
+					$("#suggesstion-box1_"+counter).html(content);
+					$("#autocomplete-list1").width(width);
+					
+				} else {
+					var content = '<ul id="autocomplete-list1">';
+					content += '<li>No Data Found</li>';
+					content += '</ul>';
+					var width = $("#inputItemName_"+counter).css("width");
+					$("#suggesstion-box1_"+counter).show();
+					$("#suggesstion-box1_"+counter).html(content);
+					$("#autocomplete-list1").width(width);
+					
+				}
+			},
+			error : function(erroe) {
+				console.log(error)
+				var content = '<ul id="autocomplete-list1">';
+				content += '<li>No Data Found</li>';
+				content += '</ul>';
+				var width = $("#inputItemName_"+counter).css("width");
+				$("#suggesstion-box1_"+counter).show();
+				$("#suggesstion-box1_"+counter).html(content);
+				$("#autocomplete-list1").width(width);
+			}
+		});
+	}else {
+		var content = '<ul id="autocomplete-list1">';
+		content += '<li>No Data Found</li>';
+		content += '</ul>';
+		var width = $("#inputItemName_"+counter).css("width");
+		$("#suggesstion-box1_"+counter).show();
+		$("#suggesstion-box1_"+counter).html(content);
+		$("#autocomplete-list1").width(width);
+	}
+}
+//select AutoComlete Item Value
+function selectAutocompleteValue(id,name,SalePrice,counter){
+
+	if (id) {
+		$("#inputItemName_"+counter).val(name);
+		$("#hiddenInput_"+counter).val(id);
+		 
+		$("#inputSalePrice_"+counter).val(SalePrice);
+    	$("#suggesstion-box1_"+counter).hide();
+	} else {
+		$("#inputItemName_0"+counter).val('');
+		$("#hiddenInput_"+counter).val('');
+		$("#inputSalePrice_0"+counter).val('');
+    	$("#suggesstion-box1_"+counter).hide();
+	}
+}
+
+//Customer Name AutoSearch
+function getStoreAutoSearch(event){
+
+	var id = event.currentTarget.id;
+	var key = event.currentTarget.value;
+	$(".assignSalePrice").val('');
+	$(".assignItemName").val('');
+	$(".assignSalePrice").val('');
+	$("#myTable tbody tr:not(:first)").remove();
+	$("#myTable tbody tr:last").find('td:last').remove();
+	var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	$("#myTable tbody tr:last").append('<td>'+ add+'</td>');
+ 
+	if(key) {
+		$.ajax({
+			type : "POST",
+			url : "assign-stock-price-autocmplt-store",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : key,
+			success : function(response) {
+				if(response.body.length!=0)	{
+					console.log(response.body)
+					var content = '<ul id="autocomplete-list1">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectCustomerAutocmpltVal(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'</li>';
+					} 
+					
+					content += '</ul>';
+					var width = $("#store").css("width");
+					$("#suggesstion-box2").show();
+					$("#suggesstion-box2").html(content);
+					$("#autocomplete-list1").width(width);
+					
+				} else {
+					var content = '<ul id="autocomplete-list1">';
+					content += '<li>No Data Found</li>';
+					content += '</ul>';
+					var width = $("#store").css("width");
+					$("#suggesstion-box2").show();
+					$("#suggesstion-box2").html(content);
+					$("#autocomplete-list1").width(width);
+				}
+			},
+			error : function(erroe) {
+				console.log(error)
+				var content = '<ul id="autocomplete-list1">';
+				content += '<li>No Data Found</li>';
+				content += '</ul>';
+				var width = $("#store").css("width");
+				$("#suggesstion-box2").show();
+				$("#suggesstion-box2").html(content);
+				$("#autocomplete-list1").width(width);
+			}
+		});
+	}else {
+		var content = '<ul id="autocomplete-list1">';
+		content += '<li>No Data Found</li>';
+		content += '</ul>';
+		var width = $("#store").css("width");
+		$("#suggesstion-box2").show();
+		$("#suggesstion-box2").html(content);
+		$("#autocomplete-list1").width(width);
+	}
+}
+
+//select Auto Complete Customer Names
+function selectCustomerAutocmpltVal(id,name){
+
+	if (id) {
+		$("#store").val(name);
+    	$("#suggesstion-box2").hide();
+    	$("#storeName").attr('data-procat', id);
+		$("#storeId").val(id);
+		//getAssignedItems(id);
+	} else {
+		$("#storeId").val('');
+		$("#store").val('');
+		$("#storeName").attr('data-procat', "");
+    	$("#suggesstion-box2").hide();
+    	//getAssignedItems("");
+	}
+}
+
+
+ document.onclick = function(e){
+	var id = e.target.id;
+	var table = document.getElementById("myTable");
+	for (var i = 0, row; row = table.rows[i]; i++) {
+		if(id != ''){
+	        
+	    }else{
+	    	$("#suggesstion-box1_"+i).hide();
+	    }
+	}
+}
+    
+
+</script>
+
+<script>
+    $(document).ready(function(){
+    	
+    	$("#itemWise").hide();
+    	
+        $("input[type='radio']").click(function(){
+            var radioValue = $("input[name='selectType']:checked").val();
+            if(radioValue){
+                
+                if(radioValue=="1"){
+                	$("#all").show();
+                	$("#itemWise").hide(); 
+                } else if(radioValue=="3"){
+                	$("#all").hide();
+                	$("#itemWise").show(); 
+                	getAssignedItems();
+                }
+            }
+        });
+    });
+    
+    function getAssignedItems( ) {
+   	  var storeId = $("#storeId").val();
+    	if(storeId) { 
+    		$("#tbodyData").empty(); 
+    		$.ajax({
+    			type : "POST",
+    			url : "assign-stock-price-view-throughAjax",
+    			contentType : 'application/json',
+    			data : storeId,
+    			success : function(response) {
+    				console.log(response)
+    					if(response.body.length!=0)	{
+    						
+    	                    var c = 0;
+    	                    for (var i = 0; i < response.body.length; i++) {
+    	                        c = c + 1;
+    	                        if (c != response.body.length) {
+    	                            var table1 = '<tr class="tr_clone">' +
+    	                                '<td><input type="hidden" id="hiddenInput_' + i + '" class="form-control assignItemId" value="' + response.body[i].itemId + '" />' +
+    	                                '<input type="text" id="inputItemName_' + i + '" class="form-control assignItemName" value="' + response.body[i].itemName + '">' +
+    	                                '<td><input type="text" id="inputSalePrice_' + i + '" readonly class="form-control assignSalePrice" value="' + response.body[i].itemSalePrice + '"></td>' +
+    	                                '<td><input type="text" id="inputSpecialPrice_' + i + '" class="form-control assignSpecialPrice" value="' + response.body[i].itemSpecialPrice + '"></td>' +
+    	                                '<td><button type="button" class="btn btn-warning rmv" name="Remove"> <span class="ti-minus"></span></button> &nbsp;</td>' +
+    	                                '</tr>';
+    	                        }
+    	                        if (c == response.body.length) {
+    	                            if (c != 1) {
+    	                                table1 = '<tr class="tr_clone">' +
+    	                                    '<td><input type="hidden" id="hiddenInput_' + i + '" class="form-control assignItemId" value="' + response.body[i].itemId + '" />' +
+    	                                    '<input type="text" id="inputItemName_' + i + '" class="form-control assignItemName" value="' + response.body[i].itemName + '">' +
+    	                                    '<td><input type="text" id="inputSalePrice_' + i + '" readonly class="form-control assignSalePrice" value="' + response.body[i].itemSalePrice + '"></td>' +
+    	                                    '<td><input type="text" id="inputSpecialPrice_' + i + '" class="form-control assignSpecialPrice" value="' + response.body[i].itemSpecialPrice + '"></td>' +
+    	                                    '<td><button type="button" class="btn btn-warning rmv" name="Remove"> <span class="ti-minus"></span></button>' +
+    	                                    '&nbsp;<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button></td>' +
+    	                                    '</tr>';
+    	                            } else {
+    	                                table1 = '<tr class="tr_clone">' +
+    	                                    '<td><input type="hidden" id="hiddenInput_' + i + '" class="form-control assignItemId" value="' + response.body[i].itemId + '" />' +
+    	                                    '<input type="text" id="inputItemName_' + i + '" class="form-control assignItemName" value="' + response.body[i].itemName + '">' +
+    	                                    '<td><input type="text" id="inputSalePrice_' + i + '" readonly class="form-control assignSalePrice" value="' + response.body[i].itemSalePrice + '"></td>' +
+    	                                    '<td><input type="text" id="inputSpecialPrice_' + i + '" class="form-control assignSpecialPrice" value="' + response.body[i].itemSpecialPrice + '"></td>' +
+    	                                    '<td><button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button></td>' +
+    	                                    '</tr>';
+    	                            }
+
+    	                        }
+    	                        $('#tbodyData').append(table1);
+    	                    }
+    					} else {
+    						$("#tbodyTR").show();
+    						$("#tblBody").hide();
+    					}
+    				}, 
+    			error : function(error) {
+    				console.log(error)
+    			}
+    		});
+    	} else {
+    		$("#tbodyTR").show();
+    		$("#tblBody").hide();
+    	}
+    }
+    
+    function cancel() {
+        location.reload();
+    }
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Assign Stock Price</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Assign Stock Price</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Store</label> <input type="hidden" id="storeId">
+										<input type="text" class="form-control" id="store"
+											onkeyup="getStoreAutoSearch(event);">
+
+										<div id="suggesstion-box2"></div>
+									</div>
+								</div>
+							</div>
+
+
+							<!-- <div class="row">
+								<div class="col-lg-12">
+									<label id="trId" style="font-size: 20px;"><b>Assigned
+											Stock Transfer Price Per Item</b></label>
+									<table class="table table-bordered" id="table1"
+										style="width: 100%;">
+										<thead id="tblHead">
+											<tr style="width: 100%;">
+												<th>Item Name</th>
+												<th>Purchase Price</th>
+												<th>Stock Transfer Price</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody id="tblBody">
+
+										</tbody>
+										<tbody id="tbodyTR">
+											<tr>
+												<td style="color: #e30f0f;" valign="top" align="center"
+													colspan="9"><b>No records found</b></td>
+											</tr>
+										</tbody>
+									</table>
+									<div style="clear: both;"></div>
+								</div>
+							</div>  -->
+							<div class="row">
+								<div class="col-lg-12">
+									Select a Type &nbsp; &nbsp;<input type="radio" id="male"
+										name="selectType" value="1" checked>&nbsp; <label
+										for="all">All</label> &nbsp;&nbsp;<input type="radio"
+										id="item" name="selectType" value="3"> &nbsp;<label
+										for="item">Item Wise</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<label id="" style="font-size: 20px;"><b> Assign
+											Stock Transfer Price To Item</b></label>
+								</div>
+							</div>
+							<div class="row" id="all">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Price (In Percentage)</label> <input type="text"
+											size="4" id="priceAll" class="form-control priceAll" value=''>
+									</div>
+								</div>
+
+							</div>
+
+
+							<div class="row" id="itemWise">
+								<div class="col-lg-12">
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Item Name</th>
+												<th>Purchase Price</th>
+												<th>Stock Transfer Price</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<tr class="tr_clonloe">
+
+												<td><input type="hidden" size="8" id="hiddenInput_0"
+													class="form-control assignItemId" value=''> <input
+													type="text" size="8" id="inputItemName_0"
+													class="form-control assignItemName" value=''
+													onkeyup="getItemAutoSearch(event);">
+													<div id="suggesstion-box1_0"></div></td>
+												<td><input type="text" size="4" id="inputSalePrice_0"
+													class="form-control assignSalePrice" value='' readonly>
+												</td>
+												<td><input type="text" size="4"
+													id="inputSpecialPrice_0"
+													class="form-control assignSpecialPrice" value=''></td>
+
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+
+										</tbody>
+									</table>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="btnCancel" onclick="cancel()">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content" width="100%">
+					<div class="modal-header">
+						<h4 class="modal-title">Update Assigned Item</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="col-md-12">
+							<input type="hidden" id="vid">
+							<div class="form-group">
+								<label>Item Name</label> <input type="text" id="Iname"
+									class="form-control" readonly>
+							</div>
+							<div class="form-group">
+								<label>Item SalePrice</label> <input id="Saleprice"
+									class="form-control" readonly>
+							</div>
+							<div class="form-group">
+								<label>Item Special Price</label> <input id="specialprice"
+									class="form-control">
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-info" id="submitModal"
+							onclick="updateItem();">Submit</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

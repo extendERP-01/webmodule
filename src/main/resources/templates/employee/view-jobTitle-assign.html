@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	//Deleting the employee
+	
+	const ipAPI = 'https://api.ipify.org?format=json'
+	function deleteJobTitle(id){
+	 //var data = id.split(",");
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/employee/view-department-jobTitle-assign-delete?id=" +id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(data){
+				console.log(data);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-department-jobTitle-assign-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'tDepartment'
+			}, {
+				'data' : 'tJobTitle'
+			}, {
+				'data' : 'tDeptAssignDesc'
+			}, {
+				'data' : 'companyId'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+	
+	
+	
+	//modal view
+	function viewInModel(id) {
+
+		var deptName = '';
+		var jobTitle = '';
+		var desc = '';
+		var status = '';
+		$("#jobTitleTable").find('tbody > tr').each(function() {
+			$(this).find("td").eq(1).remove();
+		})
+		$.ajax({
+			type : "POST",
+			url : "view-department-jobTitle-assign-model",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response.body.tDeptAssignStatus);
+
+					var tDeptAssignStatus = "";
+					if (response.body.tDeptAssignStatus) {
+						tDeptAssignStatus = "Active";
+					} else {
+						tDeptAssignStatus = "InActive";
+					}
+					deptName = '<td>' + response.body.tDepartment + '</td>'
+					jobTitle = '<td>' + response.body.tJobTitle + '</td>'
+					desc = '<td>' + response.body.tDeptAssignDesc+ '</td>'
+					status = '<td>' + tDeptAssignStatus + '</td>'
+					$(".deptName").append(deptName);
+					$(".jobTitle").append(jobTitle);
+					$(".desc").append(desc);
+					$(".status").append(status);
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+
+	}
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/employee/add-department-jobTitle-assign}">Add Department Job Title Assign</a></li>
+					<li class="active"><span>View Department Job Title Assign </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Department Job Title Assign</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div id="demo" class="collapse">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-department-jobTitle-assign">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<div class="org-name">Department</div>
+								</div>
+								<div class="col-md-3">
+									<input id="param1" class="form-control" type="text"
+										placeholder="" name="" onkeyup="searchData()">
+								</div>
+								
+								<div class="col-md-2"></div>
+							</div>
+						</div>
+					</div>
+					<a data-toggle="collapse" data-target="#demo"
+						class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+					</a>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+									
+										<th>Department</th>
+										<th>Job Title</th>
+										<th>Description</th>
+										<th>Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Department Job Title Assign</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="jobTitleTable">
+							<tbody>
+								<tr class="deptName">
+									<td><b>Department Name :</b></td>
+								</tr>
+								<tr class="jobTitle">
+									<td><b>Job Title :</b></td>
+								</tr>
+								<tr class="desc">
+									<td><b>Description :</b></td>
+								</tr>
+								<tr class="status">
+									<td><b>Status :</b></td>
+								</tr>
+							</tbody>
+							<tbody id="tModelBody"></tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

@@ -1,0 +1,518 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<style type="text/css">
+.selectBox {
+	position: relative;
+}
+
+.selectBox select {
+	width: 100%;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+.checkClass {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+.checkClass1 {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+.checkClass label {
+	display: block;
+}
+
+.checkClass1 label {
+	display: block;
+}
+</style>
+
+<script type = "text/javascript" >
+    //Function for blank validation
+
+    function showCheckboxes(event) {
+
+        var cId = event.currentTarget.id;
+        var l = cId.split("_");
+        var counter = l[1];
+        $("#checkboxes_" + counter).toggle();
+
+    }
+
+function empAutoComplete(id) {
+    var l = id.split("_");
+    var counter = l[1];
+    $
+        .ajax({
+            type: "POST",
+            url: "add-employee-leave-get-emp",
+            dataType: 'json',
+            contentType: 'application/json',
+            data: $("#" + id).val(),
+            success: function(response) {
+                console.log(response);
+                if (response.message == "success") {
+                    if (response.body.length != 0) {
+                        $("#empId_0").css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list">';
+                        for (var i = 0; i < response.body.length; i++) {
+
+                            content += '<li onClick="selectAutocompleteValue(\'' + response.body[i].key + '\',\'' +
+                                counter +
+                                '\')">' +
+                                response.body[i].key + '</li>';
+
+                        }
+                        content += '</ul>';
+                        $("#suggesstion-box_" + counter).show();
+                        $("#suggesstion-box_" + counter).html(content);
+
+                    } else {
+                        console.log("else: " + response);
+                        $("#empId_0").css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list">';
+                        content += '<li onClick="selectAutocompleteValue(\'' + '' + '\')">' + "No Data Found" + '</li>';
+                        content += '</ul>';
+                        $("#suggesstion-box_" + counter).show();
+                        $("#suggesstion-box_" + counter).html(content);
+                    }
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+}
+
+
+function selectAutocompleteValue(key, counter) {
+    //alert(counter);
+    var counter = counter;
+    if (key) {
+        $("#emp_" + counter).val(key);
+        $("#empId_" + counter).val(key);
+        $("#empId_" + counter).attr('data-procat', key);
+        $("#suggesstion-box_" + counter).hide();
+        getEmpDtls(key, counter);
+
+
+    } else {
+        $("#emp_" + counter).val("");
+        $("#empId_" + counter).val("");
+        $("#empId_" + counter).attr('data-procat', "");
+        $("#suggesstion-box_" + counter).hide();
+        getEmpDtls(key, counter);
+
+    }
+}
+
+//For Getting invoice Details in List
+function getEmpDtls(key, counter) {
+    / var id = key /
+    //alert(id);
+    var apvStatus = 0;
+    if (key) {
+        $.ajax({
+            type: 'POST',
+            url: 'add-employee-dtls-through-ajax',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: window.btoa(key),
+            success: function(response) {
+                if (response.message == "success") {
+                    console.log(response.body.empName)
+                    console.log("#empName_" + counter)
+                    $("#empName_" + counter).val(response.body.empName);
+                    $("#leav_" + counter).val(response.body.avlLeave);
+                    var avlleave = response.body.avlLeave;
+                    if (avlleave <= 0) {
+                        apvStatus = 0;
+                        alert("less" + apvStatus);
+                    } else {
+                        apvStatus = 1;
+                        alert(apvStatus)
+                    }
+                    $("#apvStatus_" + counter).val(apvStatus);
+
+
+                }
+            },
+            error: function(e) {
+                console.log("error");
+            }
+        });
+    }
+
+
+}
+
+function checkEmpty() {
+    /* var componentValid =true;
+    $('.tSalaryComponentCls').each(function(){
+    if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Component Name")){
+    componentValid =false;
+    return false;
+    }
+    }); */
+
+
+    /* var caculationValid =true;
+    if(componentValid ){
+    $('.tCalculationTypeCls').each(function(){
+    if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Calculation Type")){
+    caculationValid =false;
+    return false;
+    }
+    });
+    } */
+
+    /* var amountValid =true;
+    if(componentValid && caculationValid){
+    $('.tAmountCls').each(function(){
+    if (!blankValidation($(this).attr('id'),"TextField" ,"Please define Amount ")){
+    amountValid =false;
+    return false;
+    }
+    });
+    } */
+
+   /*  / if(componentValid && caculationValid && amountValid){ / */
+
+    addMore();
+}
+
+
+//}
+
+//ADD MORE
+function addMore() {
+    var lengthOfTableRow = $("#tbodyData").children('tr').length;
+    var cloneHtml = $("#myTable tbody tr:first").clone();
+    $("#myTable tbody tr:last").find('td:last').html('');
+    $("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+    $("#myTable tbody tr td:last").html("");
+    var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+    var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+    $("#myTable tbody tr:last").find('td:last').append(addMore);
+    $("#myTable tbody tr:last").find('td:last').append(removeMore);
+
+    //$("#myTable tbody tr:last").find(".NameCls").append(new Option("--Select--",""));
+    $("#myTable tbody tr:last").find(".empCls1").val("");
+    $("#myTable tbody tr:last").find(".empNameCls").val("");
+    $("#myTable tbody tr:last").find(".leaveCls").val("");
+    $("#myTable tbody tr:last").find(".leaveStatusCls").val("");
+
+    var editTr = 0;
+
+    if (lengthOfTableRow > editTr) {
+        $("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+    }
+
+    $("#myTable tbody tr:last").find(".empCls1").empty();
+    $("#myTable tbody tr:last").find(".empCls1").val("");
+    $("#myTable tbody tr:last").find(".empCls").empty();
+    $("#myTable tbody tr:last").find(".empCls").val("");
+
+    $("#myTable > tbody > tr").each(function(i) {
+        var textInput = $(this).find('input');
+        var divInput = $(this).find('div');
+
+
+        textInput.eq(0).attr('id', "emp_" + i);
+        textInput.eq(1).attr('id', "empId_" + i);
+        textInput.eq(2).attr('id', "empName_" + i);
+        / textInput.eq(3).attr('id',"date_"+i); /
+        textInput.eq(3).attr('id', "leav_" + i);
+        textInput.eq(4).attr('id', "apvStatus_" + i);
+
+        divInput.eq(0).attr('id', "suggesstion-box_" + i);
+
+        $(".dateCls").datetimepicker({
+            format: 'd-m-Y',
+            closeOnDateSelect: true,
+            timepicker: false,
+        });
+
+
+    })
+
+}
+$(document).ready(function() {
+    $(".dateCls").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false,
+    });
+
+    $("#tDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false,
+    });
+
+
+    var fullDate = new Date();
+    var twoDigitMonth = ((fullDate.getMonth() + 1) >= 10) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
+    var twoDigitDate = ((fullDate.getDate()) >= 10) ? (fullDate.getDate()) : '0' + (fullDate.getDate());
+    var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+    $(".dateCls").val(currentDate);
+    $("#tDate").val(currentDate);
+
+    //for minus
+    var lengthOfTableRow = $("#tbodyData").children('tr').length;
+    $('.tbll').on('click', '.rmv', function() {
+        $(this).closest('tr').remove();
+
+        $("#myTable tbody tr:last").find('td:last').html('');
+        var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+        var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+
+
+        if ($("#tbodyData").children('tr').length > 1) {
+            $("#myTable tbody tr:last").find('td:last').append(add);
+            $("#myTable tbody tr:last").find('td:last').append(remove);
+        } else {
+            $("#myTable tbody tr:last").find('td:last').append(add);
+        }
+
+
+    });
+
+
+    //on change for description
+    $("#tGradeId").on('change', function() {
+        var tGradeId = $(this).val();
+
+        if (tGradeId) {
+            $.ajax({
+                type: 'POST',
+                url: 'add-grade-salary-master-getDesc-throughAjax',
+                contentType: false,
+                data: tGradeId,
+                success: function(response) {
+                    if (response.message == "success") {
+
+
+
+                        $("#tDescription").val(response.body[0].name);
+
+                    }
+
+                },
+                error: function(e) {
+                    console.log("error");
+                }
+            });
+        } else {
+            $("#tDescription").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("Select");
+            $("#tDescription").append(option);
+        }
+    });
+
+
+
+    //Function for saving data
+
+    $("#submitItems").click(function() {
+    	window.location.href = "/recruitment/view-training-vendor-sourcing" ;
+
+    });
+	$("#cancel").click(function(){
+		
+		window.location.href = "/recruitment/view-training-vendor-sourcing" ;
+	});
+    
+
+});
+
+
+function submitAddGradeSalary(dataset) {
+
+    console.log(dataset)
+    swal.fire({
+        title: "Are you sure want to Submit?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "add-employee-leave-ajax",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+                    console.log(response);
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            window.location.href = "/employee/view-employee-leave";
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(response) {
+                    swal(response.code);
+                }
+            }) //ajax ends
+        }
+    }) //swal function block ends
+} //submit function ends
+
+
+
+</script>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<!--Alert Box-->
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		<!--Alert Box-->
+
+		<ol class="breadcrumb breadcrumb-arrow">
+			<li><a href="index.html">Home</a></li>
+			<li class="active"><span>Add  Vendor Sourcing</span></li>
+			<!-- <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+		</ol>
+		<div class="card-title">
+			<h4>Add  Vendor Sourcing</h4>
+		</div>
+		<div class="col-md-12">
+			<div class="card">
+				<div class="card-body">
+					<div class="basic-elements">
+						<form action=""></form>
+							<!-- <input type="hidden" th:field="*{tTaxId}" /> -->
+						
+							<div class="row">
+								<div class="col-lg-4"></div>
+								<div class="col-lg-6"></div>
+
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<!-- id="table-data" -->
+									<!-- <label><h6>Tax Slabs Based On Selected Deduction
+Cycle</h6></label> -->
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="2" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Training Name</th>
+												<th>Training Type</th>
+												<th>Vendor</th>
+												
+												<th width="120">Action</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+
+									
+
+											<tr class="tr_clone" >
+
+
+						
+
+											
+												<td width="200"><select class="form-control">
+														<option value="">--Select--</option>
+														<option value="hiringManager1">LeaderShip</option>
+														<option value="hiringManager2">Technical</option>
+													
+
+												</select></td>
+												<td width="200"><select class="form-control">
+														<option value="">--Select--</option>
+														<option value="hiringManager1">TL</option>
+														<option value="hiringManager2">SDE</option>
+													
+
+												</select></td>
+											
+												
+												<td width="150">
+													<div
+														style="border: 1px solid #ccc; padding: 4px; height: 60px; overflow-y: scroll;">
+														<input type="checkbox" name="1" value="1"> Naukri
+														<br /> <input type="checkbox" name="1" value="2">
+														Indeed <br /> <input type="checkbox" name="1" value="3">
+														Monster
+													</div>
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"
+														>
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+										</tbody>
+									</table>
+
+
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="form-group">
+										<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="cancel"
+											onclick="returnToAddPage();">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div style="clear: both;"></div>
+
+</html>

@@ -1,0 +1,241 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<!-- BOLT Sandbox/test //-->
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 310px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+	//View 'Quotation Master' Modal Function
+	function viewInModel(index) {
+		$('#table1').empty();
+		$('#table2').empty();
+		$.ajax({
+			type : "POST",
+			url : "view-batch-code-modal",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : index,
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response.body);
+					span = '<tr><td>Batch ID : </td><td>'
+							+ response.body[0].batchId
+							+ '</td></tr>'
+							+ '<tr><td>GRN Invoice : </td><td>'
+							+ response.body[0].grnId
+							+ '</td></tr>'
+							+ '<tr><th><b>Details Of Batch Code</b></th></tr>';
+							
+					$('#myModal').modal('show');
+					$('#table1').append(span);
+					table2 = '<tr><th><b>Grade</b></th><th><b>Thickness</b></th><th><b>Pipe Size</b></th><th><b>Batch Code</b></th>';
+					$('#myModal').modal('show');
+					$('#table2').append(table2);
+					for (var i = 0; i < response.body.length; i++) {
+						table = '<tr><td>' + response.body[i].grade
+								+ '</td><td>'
+								+ response.body[i].thickness
+								+ '</td><td>'
+								+ response.body[i].pipeSize
+								+ '</td><td>'
+								+ response.body[i].batchCode
+								+ '</td><td></tr>';
+						$('#myModal').modal('show');
+						$('#table2').append(table);
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+	function pdfGatePass(id) {
+		window.open("/gatepass/view-gatepass-out-pdf?id=" + id, '_blank');
+	}
+
+	//(document).ready() Starts
+	$(document).ready(function() {
+		$("#param4").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		});
+		$("#param5").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		});
+		$('#table').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-batch-code-through-ajax',
+				'data' : function(d) {
+
+					d.param1 = $('#param1').val();
+					d.param4 = $('#param4').val();
+					d.param5 = $('#param5').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'grnId'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+
+	});
+	//(document).ready() Ends
+
+	//Search Function
+	function searchData() {
+		$('#table').DataTable().draw();
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li><a th:href="@{/inventory/add-batch-code}">Add Batch Code</a></li>
+				<li class="active"><span>View Batch Code</span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>View Batch Code</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+				<div class="search-field">
+					<div class="row">
+						<div class="col-md-1">
+							<div class="form-group">
+								<a class="btn btn-secondary" href="add-batch-code">Create</a>
+							</div>
+						</div>
+						<div class="col-md-1">
+							<div class="form-group">
+								<button class="btn btn-info">Import</button>
+							</div>
+						</div>
+						<div class="col-md-1">
+							<div class="form-group">
+								<button class="btn btn-warning">
+									<i class="fa fa-download"> </i>
+								</button>
+							</div>
+						</div>
+						<div class="col-md-1"></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>Gate Pass</label> <input type="text" class="form-control"
+									id="param1">
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>From Date</label> <input type="text" class="form-control"
+									id="param4" readonly>
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>To Date</label> <input type="text" class="form-control"
+									id="param5" readonly>
+							</div>
+						</div>
+						<div class="col-lg-2" style="margin-top: 26px;">
+							<div class="form-group">
+								<button class="btn btn-primary" onclick="searchData()">Search</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table  table-bordered">
+							<thead>
+								<tr>
+									<th>GRN Invoice</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content" width="100%">
+					<div class="modal-header">
+						<h4 class="modal-title">Batch Code Details</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+						</table>
+						<table width="100%" border="0" id="table2">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

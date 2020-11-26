@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 490px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+ 
+	//datepicker() Ends
+
+	//Validation Function (Two Date Field Must Required)
+	function validateForm() {
+		if (!blankValidation("param3", "TextField", "From Date Is Required"))
+			return false;
+		if (!blankValidation("param4", "TextField", "To Date Is Required"))
+			return false; 
+	}
+
+	//PDF Print pdf Function
+	function pdfCreation() {
+		window.open("/production/pipe-packaging-report-download?grade="
+				+ window.btoa($('#param1').val()) + "&thickness="
+				+ window.btoa($('#param2').val()) + "&param3="
+				+ window.btoa($('#param3').val())+ "&param4="
+				+ window.btoa($('#param4').val())+ "&slitWidth="
+				+ window.btoa($('#param5').val())+ "&pipeSize="
+				+ window.btoa($('#param6').val()), '_blank');
+	}
+
+	//PDF Print Preview Function
+	function pdfPreview() {
+		 window.open("/production/pipe-packaging-report-preview?grade="
+				+ window.btoa($('#param1').val()) + "&thickness="
+				+ window.btoa($('#param2').val()) + "&param3="
+				+ window.btoa($('#param3').val())+ "&param4="
+				+ window.btoa($('#param4').val())+ "&slitWidth="
+				+ window.btoa($('#param5').val())+ "&pipeSize="
+				+ window.btoa($('#param6').val()), '_self');
+	}
+function excelCreation(){
+	window.open("/production/pipe-packaging-report-excel?grade="
+			+ window.btoa($('#param1').val()) + "&thickness="
+			+ window.btoa($('#param2').val()) + "&param3="
+			+ window.btoa($('#param3').val())+ "&param4="
+			+ window.btoa($('#param4').val())+ "&slitWidth="
+			+ window.btoa($('#param5').val())+ "&pipeSize="
+			+ window.btoa($('#param6').val()), '_self');
+}
+	
+	//Reload Page Function
+	function funcLoad() {
+		location.reload();
+    }
+  
+  
+  
+  
+	function getThickness(){
+		  var grade = $("#param1").val(); 
+		  $("#param2").empty();
+				if (grade) {
+					$.ajax({
+						type : 'POST',
+						url : 'pipe-polishing-report-getthickness',
+						contentType : false,
+						data : grade,
+						success : function(response) {
+							if (response.message == "success") {	 
+								var option = $("<option></option>");
+								$(option).val(null);
+								$(option).html("--select--");
+								$("#param2").append(option);
+								for (var i = 0; i < response.body.length; i++) {
+									var option = $("<option></option>");
+									$(option).val(response.body[i].key);
+									$(option).html(response.body[i].name);
+									$("#param2").append(option);
+								}
+							}
+						},
+						error : function(e) {
+							alert("error");
+						}
+					});
+				} else { 
+					var option = $("<option></option>");
+					$(option).val(null);
+					$(option).html("--select--");
+					$("#param2").append(option);  
+				}
+			}
+ 
+
+ 
+	$(document).ready(function() {
+		$("#param3").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		})
+		$("#param4").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		})
+	});
+	
+ 
+	function getSlitWidth(){
+		 var mcoilthick = $("#param2").val();
+		 var grade = $("#param1").val(); 
+				if (mcoilthick) {
+					$.ajax({
+						type : 'POST',
+						url : 'pipe-polishing-report-getSlitWidth?grade='+ grade + '&thickness=' +mcoilthick,
+						contentType : false, 
+						success : function(response) {
+							if (response.message == "success") {	
+								console.log(response)
+								var option = $("<option></option>");
+								$(option).val(null);
+								$(option).html("--select--");
+								$("#param5").append(option);
+								for (var i = 0; i < response.body.length; i++) {
+									var option = $("<option></option>");
+									$(option).val(response.body[i].name);
+									$(option).html(response.body[i].name);
+									$("#param5").append(option);
+								}
+							}
+						},
+						error : function(e) {
+							alert("error");
+						}
+					});
+				} else { 
+					var option = $("<option></option>");
+					$(option).val(null);
+					$(option).html("--select--");
+					$("#param5").append(option);  
+				}
+	}
+	
+	function callMyfunction(){  
+		 var mcoilthick = $("#param2").val();
+		 var grade = $("#param1").val(); 
+		 var slitWidth = $("#param5").val(); 
+		 if(mcoilthick){
+			 
+				if(slitWidth){
+					$("#param6" ).empty(); 
+					$("#param6").append(new Option("--Select--",""))
+				 	$.ajax({
+						type 		:	"POST",
+						url 		:	'pipe-polishing-report-getPipeSize?grade='+ grade + '&thickness=' + mcoilthick +'&slitWidth=' + slitWidth,
+						dataType 	:	'json',
+						contentType :	'application/json', 
+						success 	: 	function(response){
+							var items = response.body;  
+							if(response.message=="success"){
+								if(items.length>0){
+									for(var i=0;i<items.length;i++){
+										var option	= i.toString();
+										option		= new Option(items[i].name,items[i].name)
+										$(option).html(items[i].name);
+										$("#param6" ).append(option);	
+										
+									}
+								}
+							}else{
+								swal("Please Try Again");
+							}
+						},
+						error : function(data) {
+							swal(data);
+						}
+					})
+				}
+		 }else{
+			 swal("Enter Slit SubGroup First");
+		 }
+		  
+	} 
+	
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="card-title">
+					<h4>Pipe Packaging Report Report</h4>
+				</div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>From Date</label> <input type="text"
+												class="form-control" id="param3" th:name="fromDate" readonly>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>To Date</label> <input type="text"
+												class="form-control" id="param4" th:name="toDate" readonly>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Grade</label> <select class="form-control" id="param1"
+												onchange="getThickness()">
+												<option th:value="NULL">--Select--</option>
+
+												<option th:each="c:${gradeList}" th:value='${c.key}'
+													th:text="${c.name}" onchange="getThickness()"></option>
+
+											</select>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Thickness</label> <select class="form-control"
+												id="param2" onchange="getSlitWidth()">
+												<option th:value="null">--Select--</option>
+											</select>
+
+										</div>
+									</div>
+								</div>
+
+
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Slit Width</label> <select class="form-control"
+												id="param5" onchange="callMyfunction()">
+												<option th:value="NULL">--Select--</option>
+
+											</select>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Pipe Size</label> <select class="form-control"
+												id="param6">
+												<option th:value="null">--Select--</option>
+											</select>
+
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="form-group">
+										<button class="btn btn-primary" onclick="funcLoad();">
+											Reset</button>
+										<button type="button" class="btn btn-primary"
+											onclick="pdfPreview();">Print Preview</button>
+										<button type="button" class="btn btn-primary"
+											onclick="pdfCreation();">Print</button>
+											<button type="button" class="btn btn-success"
+											onclick="excelCreation();">Download Excel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+</div>
+</html>

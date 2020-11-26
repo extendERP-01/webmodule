@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-offer-letter-dtls-generate-appointment'
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'tEmpFName'
+			}, {
+				'data' : 'tEmpDOB'
+			},{
+				'data' : 'tMobileNo'
+			},{
+				'data' : 'tEmpMName'
+			},{
+				'data' : 'tJobTitle'
+			}, {
+				'data' : 'tPayGrade'
+			}, {
+				'data' : 'action'
+			}]
+		}); 
+	});
+
+	/* function searchData() {
+		$('#tblTheme').DataTable().draw();
+	} */
+	
+	 function pdfCreate(id) {
+		 	window.open("/employee/View-offer-letter-dtls-genetate-offer-letter-pdf?id="+id,'_blank');
+		 	}
+function goToFeedback() {
+	window.location.href="/recruitment/view-employee-feedback-add";
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/employee/add-offer-letter-dtls}">Add
+							Offer Letter Details</a></li>
+					<li class="active"><span>View Offer Letter Details </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Offer Letter Details</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<!-- <div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-offer-letter-dtls">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Offer Letter</label>
+								
+									
+									<input type="text" id="param1" class="form-control" onkeyup="searchData()"/>
+								</div> 
+								<div class="col-md-2">
+									<div class="form-group">
+										<button type="search" class="btn btn-primary" value="Search" onclick="searchData()" >Search</button>
+										<input type="button" class="btn btn-info" value="Search"
+											onclick="searchData()" />
+									</div>
+								</div>
+							</div>
+						</div> -->
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+									<th>Employee Name</th>
+									<th>Date Of Birth</th>
+									<th>Mobile No.</th>
+									<th>Father's Name</th>
+									<th>Job Title</th>
+									<th>Pay Grade</th>
+									<th>Action</th>
+								</tr>
+								</thead>
+								<tbody>
+
+									<!-- <th><a href="add-offer-letter-dtls"><i class='fa fa-files-o' title='Generate Appointment Letter' style="font-size:20px"></i></a>
+										&nbsp;<a href=""><i class='fa fa-download' title='Download' style="font-size:20px"></i></a></th> -->
+								</tbody>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+
+</html>

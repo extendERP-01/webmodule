@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.mtop-10 {
+	margin-top: 15px;
+}
+</style>
+<script>
+$(document).ready(function() {
+	
+	//date time picker
+	$( "#lApplyStartDate" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		minDate : new Date(),
+		//beforeShowDay: function(date){ return [date.getDay() == 6 || date.getDay() == 0,""]}
+		timepicker : false,
+	})
+	
+	//date time picker
+	$( "#lApplyEndDate" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		minDate : new Date(),
+		//beforeShowDay: function(date){ return [date.getDay() == 6 || date.getDay() == 0,""]}
+		timepicker : false,
+	})
+	
+});
+
+function caldays(event){
+	 if (!blankValidation("lApplyStartDate","TextField", "Start Date can not be left blank"))
+		 
+	    return false; 
+
+	 var itemId = event.target.id;
+		var l = itemId.split("_");
+		var counter = l[1];
+		
+	    var startdate=$("#selectStart_"+counter).val();
+	  
+	    var start = startdate.split('-');
+	    var date1 = start[0];
+	    var month1 = start[1];
+	    var year1 = start[2];
+	    
+	    var startday=parseInt(date1);
+	    var startmonth=parseInt(month1)-1;
+	    var startyear=parseInt(year1);
+	    
+	    var enddate=$("#selectEnd_"+counter).val();
+		  
+	    var end = enddate.split('-');
+	    var date2 = end[0];
+	    var month2 = end[1];
+	    var year2 = end[2];
+	    
+	    var endday=parseInt(date2);
+	    var endmonth=parseInt(month2)-1;
+	    var endyear=parseInt(year2);
+	    
+	    var date1=startyear+'-'+startmonth+'-'+startday;
+	    var date2=endyear+'-'+endmonth+'-'+endday;
+	     
+	    date1 = date1.split('-');
+	    date2 = date2.split('-');
+	    
+	    // Now we convert the array to a Date object, which has several helpful methods
+	    date1 = new Date(date1[0], date1[1], date1[2]);
+	    date2 = new Date(date2[0], date2[1], date2[2]);
+
+	    /*We use the getTime() method and get the unixtime (in milliseconds,
+	      but we want seconds, therefore we divide it through 1000)*/
+	    		
+	    date1_unixtime = parseInt(date1.getTime() / 1000);
+	    date2_unixtime = parseInt(date2.getTime() / 1000);
+
+	    // This is the calculated difference in seconds
+	    var timeDifference = date2_unixtime - date1_unixtime;
+
+	    // in Hours
+	    var timeDifferenceInHours = timeDifference / 60 / 60;
+
+	    // and finaly, in days :)
+	    var timeDifferenceInDays = timeDifferenceInHours  / 24;
+	    
+	    if(timeDifferenceInDays<0){
+	    	//$('#lApplyEndDate').focus();
+	    	swal("Start Date should be less than End date");
+	    	 $('#selectEnd_'+counter).val(""); 
+	    	return false;
+	    }
+	    if(timeDifferenceInDays>=0){
+	    	//$('#totalLeave').val(timeDifferenceInDays); 
+	    	
+	    	var startD = new Date(date1);
+		    var endD = new Date(date2);
+		    var totalSundays = 0; 
+		    var count=0;
+		    //Get All Working Days
+		    while (date1 <= date2) {
+		        var dayOfWeek = date1.getDay();
+		        if(!((dayOfWeek == 6) || (dayOfWeek == 0)))
+		           count++;
+		        date1.setDate(date1.getDate() + 1);
+		    }
+		    $('#totalLeave_'+counter).val(count); 
+		   // console.log('count working day-----',count++);
+	    } 
+	    canApplyMoreLeaves(counter);
+}
+ 
+function validateForm(){ 
+	 if (!blankValidation("ltypeName","SelectBox", "Please Select Type Name"))
+        return false;
+	 
+	 if (!blankValidation("applyDate","TextField", "Applay Date can not be left blank"))
+        return false;
+	  
+}
+
+  
+	function countRemainLeave(event){
+		 var leaveId = event.currentTarget.value;
+		 var itemId = event.target.id;
+			var l = itemId.split("_");
+			var counter = l[1];
+		 var dataset=[];
+			 for(var i =0;i<1;i++){
+				var params ={};
+				params["leaveTypeName"]= leaveId;
+		     	params["empl"] = $('#empName').val();
+		     	dataset.push(params);
+		     	console.log(dataset);
+			 }
+
+		$.ajax({
+			type : "POST",
+			url : "apply-leave-getLeaveDetails-throughAjax",
+			dataType : 'json',
+			contentType : 'application/json',
+			data: JSON.stringify(dataset),
+			success : function(response) {
+				if (response.message == "success") { 
+					if(response.body.length != 0){
+						for (var i = 0; i < response.body.length; i++) { 
+							var totalLeaves=response.body[i].totalLeaveDays;
+							var totalApprove=response.body[i].totalApproved;
+							var totalAvailLeave=totalLeaves-totalApprove;
+						/* 	$('#bLeaveType').val(response.body[i].leaveTypeName); 
+							$('#bTotalleave').val("Total Leave :"+response.body[i].totalLeaveDays);
+							$('#bTotalPending').val("Total Pending :"+response.body[i].totalPending);
+							$('#bTtotalApproved').val("Total Approved :"+response.body[i].totalApproved);
+							$('#bTotalRejected').val("Total Rejected :"+response.body[i].totalRejected); 
+							$('#bTotalAvail').val("Available Leave :"+response.body[i].totalApplicableLeaves); 
+							$('#bTtlAvail').val(response.body[i].totalApplicableLeaves);  */
+							$("#selectAvail_" +counter).val(response.body[i].totalApplicableLeaves); 
+							$("#selectCanApply_" +counter).val(response.body[i].canApplyMoreLeave); 
+							 
+						}
+					}else{
+						$("#selectAvail_" +counter).val('0'); 
+					}
+					
+				}
+			},
+			error : function(data) {
+				console.log(data);	 
+			}
+		})
+	}
+
+	function canApplyMoreLeaves(counter){
+		
+			 var canApply = $("#selectCanApply_" +counter).val(); 
+			 console.log(canApply);
+			 var totalDaysApplied = $("#totalLeave_" +counter).val(); 
+			 var eligibleLeave = $("#selectAvail_" +counter).val(); 
+			 if(canApply==='false'){
+				 if(eligibleLeave < totalDaysApplied){
+					 swal("You are Not Allowed To Apply Leave.Your Leave Balance is "+eligibleLeave);
+					 $('#selectEnd_'+counter).val(""); 
+				 }
+				
+			 }
+	}
+</script>
+<script>
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add mtop-10" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	//$("#myTable tbody tr:last").find(".leaveTypeCls").append(new Option("--Select--","")); 
+	$("#myTable tbody tr:last").find(".leaveTypeCls").val("");
+	$("#myTable tbody tr:last").find(".endCls").val("");
+	$("#myTable tbody tr:last").find(".startCls").val("");
+	$("#myTable tbody tr:last").find(".descCls").val("");
+	$("#myTable tbody tr:last").find(".availCls").val("");
+	$("#myTable tbody tr:last").find(".totalLeaveCls").val("");
+	$("#myTable tbody tr:last").find(".canApplyCls").val("");
+	
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		var fileInput = $(this).find('file');
+		var divInput = $(this).find('div');
+		
+		selectInput.eq(0).attr('id',"selectLeaveType_"+i);
+		textInput.eq(0).attr('id',"selectStart_"+i);
+		textInput.eq(1).attr('id',"selectEnd_"+i);
+		textInput.eq(2).attr('id',"totalLeave_"+i);
+		textInput.eq(3).attr('id',"selectDesc_"+i);
+		textInput.eq(4).attr('id',"selectAvail_"+i);
+		textInput.eq(5).attr('id',"selectCanApply_"+i);
+		
+		
+	})
+	
+}
+
+function disableTableOption(){
+	
+	 $("#myTable > tbody > tr").each(function(i){
+	   $(".leaveTypeCls option").prop("disabled", false); //enable everything
+	
+	   var arr = $.map(
+	       $(".leaveTypeCls option:selected"), function (n) {
+	             return n.value;
+	   });
+	   
+	   $(".leaveTypeCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+	   }).hide();
+	
+	  
+	   $(".leaveTypeCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+	   }).show();
+	 })
+}	
+
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".leaveTypeCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".leaveTypeCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+$(document).ready(function(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add mtop-10" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+		});
+	
+	
+	
+
+	
+//submit button function
+	
+	$("#submit").click(function(){
+
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			assign = {};
+			/* assign['empName']		          =	$("#empName").val(); */
+			assign['applyId']		          =	$("#applyId").val();
+			assign['lApplyDate']		      =	$("#applyDate").val();
+			assign['ltypeName']	              =	$(this).find(".leaveTypeCls").val();
+			assign['lApplyStartDate']	      =	$(this).find(".startCls").val();
+			assign['lApplyEndDate']	          = $(this).find(".endCls").val();
+			assign['totalLeave']	          =	$(this).find(".totalLeaveCls").val();
+			assign['lReason']	              =	$(this).find(".descCls").val();
+			dataset.push(assign);
+			console.log(assign);
+			
+		});//table tbody tr loop ends
+
+		console.log(dataset);
+		var applyDate = true;
+		if (!blankValidation("applyDate","SelectBox" ,"Please Select Employee Name"))
+		      return false;
+
+		var qualifValid = true;
+		$(".leaveTypeCls").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select Leave Type")){
+				qualifValid = false;
+				return false;
+			}
+			
+		});
+		
+		var startDateValid = true;
+		if(qualifValid){
+			$('.startCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Select Start Date")){
+					startDateValid = false;
+					return false;
+				}
+			});
+		}
+		var endDateValid = true;
+		if(qualifValid && startDateValid){
+			$('.endCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Start Date")){
+					endDateValid = false;
+					return false;
+				}
+			});
+		}
+		
+		if(qualifValid && startDateValid && endDateValid){
+			submitLeave(dataset);
+		}
+											
+			
+		
+	})
+	
+	
+	
+	$("#applyDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+			minDate : new Date(),
+	})
+	
+	var fullDate = new Date();
+	var twoDigitMonth=((fullDate.getMonth()+1)>=10)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+	var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+	var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+	$("#applyDate").val(currentDate);
+		
+})
+
+	function submitLeave(dataset){
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "apply-leave-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/leave/view-apply-leave" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+	
+	// for date change in add more 
+	function dateChange(event)
+	{
+		var item = event.currentTarget.value;
+		var itemId=event.currentTarget.id;
+		var l = itemId.split("_");
+		var counter = l[1];
+		$( "#selectStart_" +counter).datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			timepicker : false,
+			minDate : new Date(),
+		})
+		$( "#selectEnd_" +counter).datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			timepicker : false,
+			minDate : new Date(),
+		})
+		
+		
+	}
+
+	 
+	
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="@{/index}">Home</a></li>
+					<li class="active"><a th:href="@{/leave/apply-leave}">Apply
+							Leave</a></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Apply Leave</h4>
+				<div class="topbtnright" align="right">
+					<div class="form-group">
+						<button type="button" id="submit" class="btn btn-success">Submit</button>
+						<input type="reset" value="Cancel" class="btn btn-warning"
+							onclick="window.location.reload();" />
+					</div>
+				</div>
+
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:object="${applyleave}" onsubmit="return validateForm();"
+								method="post" autocomplete="off">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<input th:each="c :${leaveAvailData}"
+											th:value="${c.key+ ' - ' + c.name}" id="bLeaveType"
+											class="btn btn-primary" style="margin: 0px 5px" readonly />&nbsp;
+
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<input type="hidden" th:if="${Edit}" id="applyId"
+												th:value="${applyleave[0].applyId}" /> <label>Employee
+												ID</label> <input class="form-control" th:if="${Edit}" type="text"
+												name="" value="" id="empName"
+												th:value="${applyleave[0].empName}" readonly /> <input
+												class="form-control" th:unless="${Edit}" type="text" name=""
+												value="" id="empName" th:field="*{empName}" readonly />
+
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Apply Date</label> <input type="text"
+												class="form-control" id="applyDate" th:unless="${Edit}"
+												disabled /> <input type="text" class="form-control"
+												id="applyDate" th:if="${Edit}"
+												th:value="${applyleave[0].lApplyDate}" readonly />
+
+										</div>
+									</div>
+
+
+								</div>
+
+
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Leave Type</th>
+													<th>From Date</th>
+													<th>To Date</th>
+													<th>Total Leave Days</th>
+													<th>Reason</th>
+													<th>Available Leave</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody id="tbodyData">
+
+												<tr class="tr_clone" th:if="${Edit}"
+													th:each="a,iter:${applyleave}">
+													<td><select id="selectLeaveType_"
+														class="form-control leaveTypeCls"
+														onchange="countRemainLeave(event);">
+															<option th:value="null">--Select--</option>
+															<option th:each="c:${leaveTypeData}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.ltypeName}'></option>
+
+													</select></td>
+													<td><input type="text" class="form-control startCls"
+														id="selectStart_" th:value="${a.lApplyStartDate}"
+														onclick="dateChange(event)" readonly /></td>
+													<td><input type="text" class="form-control endCls"
+														id="selectEnd_" th:value="${a.lApplyEndDate}"
+														onclick="dateChange(event)" readonly
+														onchange="caldays(event) ;" /></td>
+													<td><input type="text"
+														class="form-control totalLeaveCls" id="totalLeave_"
+														th:value="${a.totalLeave}" readonly /></td>
+													<td><input type="text" class="form-control descCls"
+														id="selectDesc_" th:value="${a.lReason}" /></td>
+
+													<td><input type="text" class="form-control availCls"
+														id="selectAvail_" th:value="${a.totalLeave}" /></td>
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+
+													</td>
+												</tr>
+
+												<tr class="tr_clone" th:unless="${Edit}">
+													<td><select id="selectLeaveType_"
+														class="form-control leaveTypeCls"
+														onchange="countRemainLeave(event);">
+															<option th:value="null">--Select--</option>
+															<option th:each="c:${leaveTypeData}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+
+													</select></td>
+													<td><input type="text" class="form-control startCls"
+														id="selectStart_" onclick="dateChange(event)" readonly /></td>
+													<td><input type="text" class="form-control endCls"
+														id="selectEnd_" onclick="dateChange(event)" readonly
+														onchange="caldays(event)" /></td>
+													<td><input type="text"
+														class="form-control totalLeaveCls" id="totalLeave_"
+														readonly /></td>
+													<td><input type="text" class="form-control descCls"
+														id="selectDesc_" /></td>
+
+													<td><input type="text" class="form-control availCls"
+														id="selectAvail_" readonly /> <input type="hidden"
+														class="form-control canApplyCls" id="selectCanApply_" /></td>
+
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add mtop-10" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+
+
+										</table>
+
+									</div>
+
+
+								</div>
+
+							</form>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

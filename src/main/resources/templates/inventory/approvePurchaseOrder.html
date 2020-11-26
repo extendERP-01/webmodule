@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script type="text/javascript">
+$(document).ready(function() {
+
+	$("#param3").datepicker({
+		format : "dd-mm-yyyy",
+		autoclose : true
+	})
+	$("#param4").datepicker({
+		format : "dd-mm-yyyy",
+		autoclose : true
+	})
+	//Method for listing of all the Purchase Order Records
+	$('#listPorder').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' :'approve-purchase-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					 d.param2 = $('#param2').val(); 
+					 d.param3 = $('#param3').val();
+					 d.param4 = $('#param4').val(); 
+					 d.param5 = $('#param5').val(); 
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [
+			 	{
+				'data' :'store'
+			 	 },{
+				'data' :'purchaseOrder'
+			 }, {
+				'data' : 'vendor'
+			
+			},   {
+				'data' : 'porderDate'
+			},   {
+				'data' : 'deliveryPeriod'
+			},
+			{
+				'data' : 'currentStageNo'
+			},
+			{
+				'data' : 'approveStatusName'
+			},
+			{
+				'data' : 'action'
+				
+			} ]
+		});
+	});
+	
+//Fuction to create All Report
+function createPdf() {
+
+	window.open("/download/inventory-purchase-order?param1="
+			+ window.btoa($('#param1').val()) + "&param2="
+			+ window.btoa($('#param2').val()) + "&param3="
+			+ window.btoa($('#param3').val()) + "&param4="
+			+ window.btoa($('#param4').val()), '_blank');
+}
+function pdfCreate(id) {
+
+	//window.open("download/view-one-purchase-order-pdf?id="+id,'_blank');
+	window.open("/download/view-purchase-order-one-pdf?id="+id,'_blank');
+	
+}
+//Method for Excel
+function downloadExcel(){
+	var param1 =$("#param1").val() ;
+	var param2 = $("#param2").val();
+	var param3 = $("#param3").val();
+	var paramp4 = $("#param4").val();
+	window.open("download-excel-purchase-order?param1="+window.btoa(param1)+"&param2="+window.btoa(param2)+"&param3="+window.btoa(param3)+"&param4="+window.btoa(param4), '_blank');
+}
+//Method For Searching Records In The List
+	function searchData() {
+		$('#listPorder').DataTable().draw();
+	}
+	// Method For View Details In Model
+	function viewInModelData(index) {
+		var id = window.atob(index);
+	$('#table1').empty();
+	$('#table2').empty();
+		$.ajax({
+				type : "POST",
+				url : "approve-purchase-order-model",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : id,
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						 console.log(response.body.pOStatus);
+						console.log(response.body);
+						
+						var pOStatus = "";
+						if (response.body[0].pOStatus) {
+							pOStatus = "Active";
+						} else {
+							pOStatus = "Inactive";
+						}
+						span = '<tr><td>Purchase Order  :</td>' + '<td>'
+						+ response.body[0].purchaseOrder + '</td>'
+						+ '</tr><tr><td>Vendor Name:</td>' + '<td>'
+						+ response.body[0].vendor
+						+ '</td></tr><tr><td>Purchase Order Date:</td>' + '<td>'
+						+ response.body[0].porderDate + '</td></tr>'
+						+'<tr><td>Delivery Period:</td>' + '<td>'
+						+ response.body[0].deliveryPeriod + '</td></tr>'
+						+'<tr><td>Terms And Conditions:</td>' + '<td>'
+						+ response.body[0].termsAndConditions + '</td></tr>'
+						+'<tr><td>Status:</td>' + '<td>'
+						+ pOStatus + '</td></tr><tr><th><b>Details Of Purchase Order :<b></th></tr>';  
+						$('#myModal1').modal('show');
+						$('#table1').append(span);
+							
+						table2 = '<tr><th><b>Category</b></th><th><b>Sub Category</b></th><th><b>Item Name</b></th>'+
+										'<th><b>Quantity</b></th>><th><b>Price</b></th>' ;
+						$('#myModal1').modal('show');
+						$('#table2').append(table2);
+						console.log('response for model by id == ',response);
+							
+						for (var i=0; i<response.body.length; i++) {
+							table =  '<tr><td>'
+								+ response.body[i].itemCategory
+								+ '</td><td>'
+								+ response.body[i].itemSubCategory
+								+ '</td><td>'
+								+ response.body[i].itemName
+								+ '</td><td>'
+								+ response.body[i].pOQty
+								+ '</td><td>'
+								+ response.body[i].price
+								+ '</td></tr>';
+							$('#myModal1').modal('show');
+							$('#table2').append(table);
+						}
+								
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+		})
+}
+	 
+	
+	
+	
+	const ipAPI = 'https://api.ipify.org?format=json';
+	function deletePurchaseOrder(index){
+		//alert(sid);
+	// alert(index);
+	swal({
+			title				: "Are you sure want to Delete this Purchase Order?",
+			text				: "Once Deleted,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : '<i class="fa fa-thumbs-down">cancel</i>',
+			cancelButtonAriaLabel : 'Thumbs down',
+			preConfirm: () => {
+			    return fetch(ipAPI)
+			      .then(response => response.json())
+			      .then(data => Swal.insertQueueStep(data.ip))
+			      .catch(() => {
+			        Swal.insertQueueStep({
+			          type: 'error',
+			          title: 'Unable to get your public IP'
+			        })
+			      })
+			 }  
+		}).then((result) => {
+			if(result.value){
+			$.ajax({
+			type		: "POST",
+			url 		: "delete-purchase-order-byId",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(index),
+			success		: function(response){
+				console.log(response);
+				if(response.message=="Success"){
+					swal({
+							title:"Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+							location.reload(); 
+					})
+				}else{
+					console.log('i m in unsuccess');
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+			}
+		})//swal function block ends
+		
+		
+	} 
+		
+	//Forward the Requisition 
+	function forwardPurchase(id){
+		swal.fire({
+			  title: "Are you sure want to forward?",
+			  text: "Once forward,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'forward',
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/inventory/approve-purchase-save?id="+ id,
+					    success: function(response) {
+					    	console.log(response);
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Purchase forwarded successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+		
+	}	
+	//Start Reject purchase
+	function rejectPurchase(id,rejectaction){
+		$("#rejectRequisitionId").val(id);
+		$("#rejectActionId").val(rejectaction);
+		if($("#rejectActionId").val() == '1'){
+			$("#modal-title-id").html("Reject Purchase");
+		}else if($("#rejectActionId").val() == '2'){
+			$("#modal-title-id").html("Return Purchase");
+		}else{
+			$("#modal-title-id").html("Resubmit Purchase");
+		}
+		$('#approvalActionModal').modal('show');
+		
+	}
+	//End of Reject Requisition
+	
+	//Save rejected Purchase comment
+	function saveRequisitionRejectComment(){
+		if($("#rejectActionId").val() == '1'){
+			var titleval = "Are you sure want to reject?";
+			var textval = "Once reject,Can't revert back !";
+			var confirmButtonTextval = 'reject';
+		}else if($("#rejectActionId").val() == '2'){
+			var titleval = "Are you sure want to return?";
+			var textval = "Once reject,Can't revert back !";
+			var confirmButtonTextval = 'return';
+		}else{
+			var titleval = "Are you sure want to resubmit?";
+			var textval = "Once resubmit,Can't revert back !";
+			var confirmButtonTextval = 'resubmit';
+		}
+		$('#approvalActionModal').modal('hide');
+		swal.fire({
+			  title: titleval,
+			  text: textval,
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: confirmButtonTextval,
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+					
+				 var requisitionId = $("#rejectRequisitionId").val();
+				 var rejectionComment = $("#rejectionCommentId").val();
+				 var rejectAction = $("#rejectActionId").val();
+				 $.ajax({
+					    type : "POST",
+						url : "approve-purchase-reject-action",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : JSON.stringify({'purchaseOrder':requisitionId,'pODescription':rejectionComment,'vendor':rejectAction}),
+					    success: function(response) {
+					    	console.log(response);
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Purchase  status successfully changed.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+	}
+	//End of save
+	
+	
+
+function mailSentToVendor(index) {
+	var data = index.split(",");
+	var vendorName = window.atob(data[1]);
+	var pOrder = window.atob(data[0]);
+	
+	swal.fire({
+        title: "Are you sure want to send mail to "+vendorName+"?",
+        text: "Once Sent, Can't Delete !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Send",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "approve-purchase-sent-mail-to-vendor",
+                dataType: "json",
+                contentType: "application/json",
+                data: pOrder,
+                success: function(response) {
+
+                    if (response.message == "success") {
+                        swal({
+                            title: "Mail Sent Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload();
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            }) 
+        }
+    })
+}	
+</script>
+</head>
+<div layout:fragment="content">
+
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${'/'+session.DASHBOARD}">Home</a></li>
+					<li><a href="/inventory/add-purchase-order">Add Purchase Order</a></li>
+					<li class="active"><span>View Purchase Order</span></li>
+				</ol>
+			</div>
+			 
+			<div class="container-fluid">
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+					 
+				</ul> 
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-purchase-order">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download" onclick="createPdf();" > </i>
+									</button>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Store</label>
+									<select class="form-control" id="param5">
+										<option value="">Select</option>
+										<option th:each="c:${storeList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div>
+								<div class="col-md-2">
+									<label>Purchase Order</label>
+									<select class="form-control" id="param1">
+										<option th:value="null">Select</option>
+										<option th:each="c:${purchaseOrder}" th:value='${c.key}'
+											th:text="${c.key}"></option>
+									</select>
+								</div>
+								<div class="col-md-2">
+									<label>Vendor Name</label>
+								
+									<select class="form-control" id="param2">
+										<option th:value="null">Select</option>
+										<option th:each="c:${vendorList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div>
+								<div class="col-md-2">
+									<label>From Date</label>
+								
+									<input class="form-control" type="text" placeholder="" name=""
+										id="param3">
+								</div>
+								 <div class="col-md-2">
+									<label>To Date</label>
+								
+									<input class="form-control" type="text" placeholder="" name=""
+										id="param4">
+								</div>
+								
+								<div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<button class="btn btn-info" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table id="listPorder" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Store</th>
+										<th>Purchase Order</th>
+										<th>Vendor Name</th>
+										<th>Purchase Date</th>
+										<th>Validity Period</th>
+										<th>Stage No</th>
+										<th>Approval Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Purchase Order</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%;" id="table1">
+						</table>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%;" id="table2">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start -->
+		<div id="approvalActionModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="modal-title-id">Reject Purchase</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="rejectRequisitionId" value="0">
+						<input type="hidden" id="rejectActionId" value="1">
+						<div class="form-group">
+							<label>Comment :</label> 
+							<textarea class="form-control" id="rejectionCommentId" rows="4"></textarea>
+						</div>
+					</div>
+					
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" onclick="saveRequisitionRejectComment()">Save</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End -->
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>
+

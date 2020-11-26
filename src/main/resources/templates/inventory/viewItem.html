@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style>
+.table td:last-child
+{
+width:80px;
+}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+		//Method for listing of all the Item Records
+		$('#itemList').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-items-throughAjax',
+				'data' : function(d) {
+					d.param1 	= 	$('#item').val();
+					d.param2 	= 	$('#param2').val();
+					d.param3	= 	$('#param3').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'itemName'
+			}, {
+				'data' : 'tAccountGroupType'
+			}, {
+				'data' : 'tPurchaseSubGroup'
+			}, {
+				'data' : 'tsalesSubGroup'
+			},{
+				'data' : 'itemCategory'
+			}, {
+				'data' : 'itemSubCategory'
+			}, {
+				'data' : 'serveType'
+			
+			}, {
+				'data' : 'itemMinStock'
+			}, {
+				'data' : 'itemMaxStock'
+			}, {
+				'data' : 'serviceType'
+			}, {
+				'data' : 'status'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+	
+	//Function to create All Report
+	
+	function createPdf() 
+	{
+		
+		window.open("/download/view-items-download-pdf?param1="+window.btoa($('#param1').val())+"&param2="+window.btoa($('#param2').val()),'_blank');
+	}
+	//Method For Searching Records In The List
+	
+	function searchData() {
+		$('#itemList').DataTable().draw();
+	}
+	// Method For View Details In Model
+	
+	function viewInModelData(index) {
+		$('#itemModel').empty();
+		var id = window.atob(index);
+		$.ajax({
+			type : "POST",
+			url : "view-items-model",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					var itemActive = "";
+					if (response.body[0].itemActive) {
+						itemActive = "Active";
+					} else {
+						itemActive = "InActive";
+					}
+
+					var tPurchaseSubGroup = response.body[0].tPurchaseSubGroup ;			
+					if(response.body[0].tPurchaseSubGroup !=null)
+					{
+					  tPurchaseSubGroup  = response.body[0].tPurchaseSubGroup ;
+					}
+					else {
+						tPurchaseSubGroup  = "NA";
+					  }
+									
+					var tsalesSubGroup = response.body[0].tsalesSubGroup ;			
+					if(response.body[0].tsalesSubGroup !=null)
+					  {
+						tsalesSubGroup  = response.body[0].tsalesSubGroup ;
+					  }
+					else {
+						tsalesSubGroup  = "NA";
+					   }
+					table = '<tr><td>Item Name: :</td>' + '<td>'
+							+ response.body[0].itemName + '</td>'
+							+'</tr><tr><td>Account Group :</td>' + '<td>'
+							+ response.body[0].tAccountGroupType + '</td>'
+							+'</tr><tr><td>Purchase SubGroup :</td>' + '<td>'
+							+ tPurchaseSubGroup + '</td>'
+							+'</tr><tr><td>Sales SubGroup :</td>' + '<td>'
+							+ tsalesSubGroup + '</td>'
+							+'</tr><tr><td>itemCategory Name :</td>' + '<td>'
+							+ response.body[0].itemCategory + '</td>'
+							+ '</tr><tr><td>Item SubCategory:</td>' + '<td>'
+							+ response.body[0].itemSubCategory
+							+ '</td></tr><tr><td> ServeType :</td>' + '<td>'
+							+ response.body[0].serveType
+							+ '</td></tr><tr><td>Item Name:</td>' + '<td>'
+							+ response.body[0].itemName
+							+ '</td></tr><tr><tr><td>Item Minimum Stock:</td>'
+							+ '<td>' + response.body[0].itemMinStock
+							+ '</td></tr><tr><tr><td>Item Max Stock:</td>'
+							+ '<td>' + response.body[0].itemMaxStock
+							+ '</td></tr><tr><tr><td>Service Type:</td>'
+							+ '<td>' + response.body[0].serviceType
+							+ '</td></tr><tr><tr><td>Price:</td>'
+							+ '<td>' + response.body[0].price
+							+ '</td></tr><tr><tr><td>Item Status:</td>' + '<td>'
+							+ itemActive + '</td></tr>';
+					$('#myModal1').modal('show');
+					$('#itemModel').append(table);
+		/* 			
+					table = '<tr><th><b>Item Quantity</b></th><th><b>Item Price</b></th>' ;
+					
+					$('#myModal').modal('show');
+					$('#itemModel').append(table);
+					for (var i=0; i<response.body.length; i++) {
+						table =  '<tr><td>'
+							+ response.body[i].itemQty
+							+ '</td><td>'  
+							+ response.body[i].price
+							+ '</td></tr>';
+						$('#myModal').modal('show');
+						$('#itemModel').append(table);
+					} */
+					
+				}
+			},
+			error : function(data) {
+			}
+		})
+	}
+
+	//Deleting the Item
+	
+	function deleteItem(id){
+		swal.fire({
+			  title: "Are you sure want to Delete?",
+			  text: "Once Deleted,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'Delete',
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/inventory/delete-item-byId?id="+ id,
+					    success: function(response) {
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Record Deleted Successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        	
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+	}
+	//function for auto complete
+	
+	function itemAutoComplete() {
+		$.ajax({
+			type : "POST",
+			url : "view-items-getItemNameAutocompleteList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#param1").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+				if(response.body.length!=0)	{
+					console.log("if: "+response);
+					$("#param1").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'('+ response.body[i].name+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+					
+				}
+				else {
+					console.log("else: "+response);
+					$("#param1").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+	function selectAutocompleteValue(key,name) {
+		if (key) {
+			$("#param1").val(name);
+			$("#item").val(key);
+			$("#param1").attr('data-procat', key);
+			$("#suggesstion-box").hide();
+			}
+		else {
+			$("#param1").val("");
+			$("#item").val("");
+			$("#param1").attr('data-procat', "");
+			$("#suggesstion-box").hide();
+		}
+	}
+
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a href="#">View User</a></li>
+                  <li><a href="#">Manage User</a></li> -->
+					<li><a href="add-items">Add Item</a></li>
+					<li class="active"><span>View Item</span></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+				</ul>
+				<div class="card">
+					<!-- <div align="right">
+						<a href="javascript:void(0)" target='blank' data-toggle='tooltip'
+							title='View Menu Items' data-placement='bootom'
+							onclick="createPdf()" data-orginal-title='Downlaod'> <i
+							class='fa fa-download' style='font-size: 40px'></i></a>
+					</div> -->
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-items">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<a href="javascript:createPdf()" class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</a>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Item Name</label>
+								
+									<input type="text" class="form-control" id="param1"
+										onkeyup="itemAutoComplete();" />
+										<input type="hidden"  id="item" />
+									<div id="suggesstion-box"></div>
+								</div>
+								<div class="col-md-2">
+									<label>Serve Type</label>
+								
+									<select class="form-control" id="param2">
+										<option th:value="null">Select</option>
+										<option th:each="c:${serveTypeList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div>
+									<div class="col-md-2">
+									<label>Item Category</label>
+								
+									<select class="form-control" id="param3">
+										<option th:value="null">Select</option>
+										<option th:each="c:${categoryList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div>	<!-- <div class="col-md-2">
+									<label>Store name</label>
+								
+									<select class="form-control" id="param4">
+										<option th:value="null">Select</option>
+										<option th:each="c:${storeName}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div> -->
+								<div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<button class="btn btn-info" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="itemList" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Item Name</th>
+										<th>Account Group</th>
+										<th>Purchase SubGroup</th>
+										<th>Sales SubGroup</th>
+										<th>Category</th>
+										<th>Sub Category</th>
+										<th>Serve Type</th>
+										<th>Item Min Stock</th>
+										<th>Item Max Stock</th>
+										<th>Service Type</th>
+										<th>Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Start-->
+
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Item Details</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="itemModel">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal End-->
+		<!-- /# row -->
+
+
+	</div>
+</div>
+</html>

@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.pagetitle {
+	font-size: 24px;
+	color: #266ef2;
+	padding: 10px 0px;
+	font-weight: bold;
+}
+
+.subtitle {
+	font-size: 14px;
+	color: #333;
+	padding: 10px 0px;
+}
+
+.prioritybox {
+	height: 30px;
+	width: 30px;
+	border-radius: 15px;
+	border: 1px solid #ccc;
+	text-align: center;
+}
+
+.summerybox {
+	border: 1px solid #ccc;
+	color: #333;
+	padding: 8px;
+	background: #f5f5f5;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover
+	{
+	color: #555;
+	cursor: default;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-bottom-color: transparent;
+}
+
+.mrt {
+	margin: 15px 0px;
+}
+
+.nav>li>a {
+	position: relative;
+	display: block;
+	padding: 10px 44px;
+}
+
+.nav-tabs {
+	background: #fbec86;
+}
+
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+	color: #495057;
+	background-color: #fff;
+	border-color: #ddd #ddd #fff;
+	background: #e7d558;
+}
+
+.nav-tabs>li>a {
+	margin-right: 2px;
+	line-height: 1.42857143;
+	border: 1px solid transparent;
+	border-radius: 4px 4px 0 0;
+}
+
+.tab-pane h5 {
+	padding: 15px 0px;
+}
+</style>
+<script>
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	//$("#myTable tbody tr:last").find(".langCls").append(new Option("--Select--","")); 
+	/* $("#myTable tbody tr:last").find(".slCls").val(""); */
+	$("#myTable tbody tr:last").find(".goalCls").val("");
+	$("#myTable tbody tr:last").find(".KeayAreaCls").val("");
+	$("#myTable tbody tr:last").find(".sprakCls").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		
+		textInput.eq(0).attr('id',"selectLang_"+i);
+		textInput.eq(1).attr('id',"selectPrice_"+i);
+		textInput.eq(2).attr('id',"selectWrite_"+i);
+		textInput.eq(3).attr('id',"selectSpeak_"+i);
+		//textInput.eq(0).attr('value',i+1);
+		
+	})
+	
+}
+
+function disableTableOption(){
+	
+	 $("#myTable > tbody > tr").each(function(i){
+	   $(".langCls option").prop("disabled", false); //enable everything
+	
+	   var arr = $.map(
+	       $(".langCls option:selected"), function (n) {
+	             return n.value;
+	   });
+	   
+	   $(".langCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+	   }).hide();
+	
+	  
+	   $(".langCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+	   }).show();
+	 })
+}	
+
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".langCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".langCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+$(document).ready(function(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+		});
+	
+	$("#fromDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	
+	$("#toDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	
+	
+//submit button function
+	
+	$("#submit").click(function(){
+		
+		var dataset = [];
+		var i = 0;
+		$("#tbodyData > tr").each(function(){   
+				 assign = {}; 
+					assign['startDate']		=	$("#fromDate").val();
+					assign['endDate']		=	$("#toDate").val();
+					assign['departmentId']	=	$("#departmentId").val();
+					assign['employeeId']	=	$(this).find(".empIdCls").val();
+					assign['designId']	    =	$(this).find(".desgnCls").val();
+					assign['newGradeId']	=	$(this).find(".newPayGradeCls").val();
+					assign['effectiveDate'] =	$(this).find(".effetiveDateCls").val();
+					assign['status']  		=	$("#status_" + i).is(":checked");;
+					 
+					dataset.push(assign);
+					console.log(assign); 
+			 i = i + 1;
+			
+		});//table tbody tr loop ends
+		
+		if (!blankValidation("employeeId","SelectBox" ,"Please Select Employee Name"))
+		      return false;
+		
+		var langValid = true;
+		$(".newPayGradeCls").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select Pay Grade")){
+				langValid = false;
+				return false;
+			}
+			
+		});
+		
+		var readValid = true;
+		if(langValid){
+			$('.desgnCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Select Designation")){
+					readValid = false;
+					return false;
+				}
+			});
+		}
+		var writeValid = true;
+		if(langValid && readValid){
+			$('.effetiveDateCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Select Effective Date")){
+					writeValid = false;
+					return false;
+				}
+			});
+		}
+		 
+		if(langValid && readValid && writeValid  ){
+			submitGradeRevision(dataset);
+		}
+											
+			
+		
+	})
+	
+	
+	$("#submit").click(function(){
+		
+		var dataset = [];
+		var i = 0;
+		var checkInbox = false;
+		$("#tbodyData > tr").each(function(){   
+				 assign = {}; 
+					assign['startDate']		=	$("#fromDate").val();
+					assign['endDate']		=	$("#toDate").val();
+					assign['departmentId']	=	$("#departmentId").val();
+					assign['employeeId']	=	$(this).find(".empIdCls").val();
+					assign['designId']	    =	$(this).find(".desgnCls").val();
+					assign['newGradeId']	=	$(this).find(".newPayGradeCls").val();
+					assign['effectiveDate'] =	$(this).find(".effetiveDateCls").val();
+					assign['status']  		=	$("#status_" + i).is(":checked");
+					 
+					dataset.push(assign); 
+					if($("#status_" + i).is(":checked")){
+						checkInbox = $("#status_" + i).is(":checked");
+					}
+			 i = i + 1;
+			
+		});//table tbody tr loop ends
+		
+		if (!blankValidation("employeeId","SelectBox" ,"Please Select Employee Name"))
+		      return false;
+		
+		var langValid = true;
+		$(".newPayGradeCls").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select Pay Grade")){
+				langValid = false;
+				return false;
+			}
+			
+		});
+		
+		var readValid = true;
+		if(langValid){
+			$('.desgnCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Select Designation")){
+					readValid = false;
+					return false;
+				}
+			});
+		}
+		var writeValid = true;
+		if(langValid && readValid){
+			$('.effetiveDateCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Select Effective Date")){
+					writeValid = false;
+					return false;
+				}
+			});
+		}
+		 if(!checkInbox){
+			 swal("Please Select Atleast One Employee")
+			 return false;
+		 }
+		if(langValid && readValid && writeValid && checkInbox ){
+			submitGradeRevision(dataset);
+		}
+											
+			
+		
+	})
+$("#submit1").click(function(){
+		
+		var dataset = []; 
+		$("#tbodyData1 > tr").each(function(){   
+				 assign = {}; 
+				 
+					assign['empId']				=	$(this).find(".empIdCls").val();
+					assign['componentId']	    =	$(this).find(".compIdCls").val();
+					assign['newMonthlyAmount']	=	$(this).find(".newMonthlyCls").val();
+					assign['newAnnualAmount']	=	$(this).find(".newAnnualCls").val();
+					assign['ctc']				=	$(this).find(".ctcCls").val();
+					assign['effectiveDate']   	=	$(this).find(".effectiveDateCls").val();
+					assign['amount']   			=	$(this).find(".amountCls").val();
+					assign['calculationType']   =	$(this).find(".calctypeIdCls").val();
+					  
+					dataset.push(assign);
+					console.log(assign); 
+			 
+			
+		}); 
+		
+			submitIncementSalary(dataset);
+		
+	})
+
+})
+
+	function submitGradeRevision(dataset){  
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){ 
+				$.ajax({
+				type		: "POST",
+				url 		: "view-grade-revision-promotion-save",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					console.log(response);
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+							save();
+							if(response.body.length != 0){
+		                		for (var i = 0; i < response.body.length; i++) {
+		                            var table = '<tr>' +
+		                                '<td><input type="hidden" id=compId_' + i + '" class="form-control compIdCls" value="' + response.body[i].componentId + '"> ' +
+		                                '<input type="text" id="compName_' + i + '" class="form-control compNameCls" value="' + response.body[i].componentName + '">'+
+		                                '<input type="hidden" id="ctc_' + i + '" class="form-control ctcCls" value="' + response.body[i].ctc + '">'+
+		                                '<input type="hidden" id="amount_' + i + '" class="form-control amountCls" value="' + response.body[i].amount + '">'+
+		                                '<input type="hidden" id="effectiveDate_' + i + '" class="form-control effectiveDateCls" value="' + response.body[i].effectiveDate + '">'+
+		                                '<input type="hidden" id="empId_' + i + '" class="form-control empIdCls" value="' + response.body[i].empId + '"> </td>'+
+		                                '<td><input type="hidden" id="calcTypeId_' + i + '" class="form-control calctypeIdCls" value="' + response.body[i].calculationType + '"/>'+
+		                                '<input type="text" id="calcType_' + i + '" class="form-control calctypeCls" value="' + response.body[i].calcTypeName + '"/></td>'+
+		                                '<td><input type="text" id="currentMonthlyAmount_' + i + '" class="form-control currentMonthlyAmountCls"  value="' + response.body[i].monthlyAmount + '" readonly /></td>' +
+		                                '<td><input type="text" id="currentAnnualAmount_' + i + '" class="form-control currentAnnualAmountCls"  value="' + response.body[i].annualAmount + '" readonly /></td>' +
+		                                '<td><input type="text" id="newMonthlyAmount_' + i + '" class="form-control  newMonthlyCls" value="' + response.body[i].newMonthlyAmount + '"  ></td>' + 
+		                                '<td><input type="text" id="newAnnualAmount_' + i + '" class="form-control  newAnnualCls" value="' + response.body[i].newAnnualAmount + '"  ></td>' + 
+		                                '</tr>';
+		                            $("#tbodyData1").append(table);
+		                        } 
+		                		
+		                	}
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends  
+		}
+		})//swal function block ends
+	}//submit function ends
+
+
+	
+	
+	function submitIncementSalary(dataset){  
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){ 
+				$.ajax({
+				type		: "POST",
+				url 		: "view-grade-revision-promotion-save-increment",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					console.log(response);
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+						    window.	location.reload();
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends  
+		}
+		})//swal function block ends
+	}//submit function ends
+
+	
+function funcLoad(){
+	location.href = "/employee/view-employee-language";
+}
+	
+</script>
+
+<script type="text/javascript">
+		
+		
+		function checkForDuplicate(event) {	
+				var item = event.currentTarget.value;
+				var count=0;
+				var itemId=event.currentTarget.id;
+				$(".langCls ").each(function(){
+	
+					if(item == $(this).val()){
+						count++;
+					}	
+				})	
+	
+				if(count>=2){
+					swal('Language is Already Selected');
+					$("#"+itemId).val("");
+				}	
+
+			}
+	
+		function getEmployeeDetails() {
+		    $("#tbodyData").empty();
+		    var jobTitleList = $("#jobTitleList").val();
+		    var payGradeList = $("#payGradeList").val() ; 
+		    var fromDate = $("#fromDate").val();
+		    var toDate = $("#toDate").val();
+		        $.ajax({
+		            type: "GET",
+		            url: "view-grade-revision-promotion-get-employee-details?departmentId=" + $("#departmentId").val() +"&employeeId=" +$("#employee").val()+"&fromDate=" + fromDate+ "&toDate="+toDate,
+		            dataType: 'json',
+		            contentType: 'application/json',
+		            success: function(response) { 
+		                if (response.message == "success") {  
+		                	var payGradeOption = $("#grdaeoption").html();
+		                	var jobtitleoption = $("#jobtitleoption").html(); 
+		                	   
+		                	if(response.body.length != 0){
+		                		for (var i = 0; i < response.body.length; i++) {
+		                            var table = '<tr>' +
+		                                '<td><input type="hidden" id="emp_' + i + '" class="form-control empIdCls" value="' + response.body[i].employeeId + '"> ' +
+		                                ' <input type="text" id="empName_' + i + '" class="form-control empNameCls" value="' + response.body[i].employeeName + '"> </td>'+
+		                                '<td><input type="hidden" id="currentPayGradeId_' + i + '" class="form-control attCls"   name="item_" value="' + response.body[i].currentGradeId + '"/>'+
+		                                '<input type="text" id="currentPayGradeName_' + i + '" class="form-control currentpayGradeCls"  value="' + response.body[i].currentGradeName + '" readonly /></td>' +
+		                                '<td><select id="newPaygradeId" class="form-control newPayGradeCls">'+ payGradeOption + '</select></td>' +
+		                                '<td><select id="design" class="form-control desgnCls"></select></td>' +
+		                                '<td><input type="text" id="effectiveDate_' + i + '" class="form-control  effetiveDateCls" readonly></td>' +
+		                                '<td><input type="checkbox" id="status_' + i + '" name="status" value="1" class="statusCls"> </td>' +
+		                                '</tr>';
+		                            $("#tbodyData").append(table);
+		                            getJobTitle(event);
+		                        }
+		                		$(".effetiveDateCls").datetimepicker({
+		                			   format:'d-m-Y',
+		                			   closeOnDateSelect: true,
+		                			   timepicker : false,
+		                		})
+		                		
+		                	}else{
+		                		 var table = '<tr>' +
+		                		 	'<td><input type="hidden" id="emp_" class="form-control empIdCls"> ' +
+	                                ' <input type="text" id="empName_" class="form-control empNameCls" > </td>'+
+	                                '<td><input type="hidden" id="currentPayGradeId_" class="form-control attCls"   name="item_"  />'+
+	                                '<input type="text" id="currentPayGradeName_" class="form-control currentpayGradeCls"    readonly /></td>' +
+	                                '<td><select id="design" class="form-control desgnCls"> </select></td>' +
+	                                '<td><select id="newPaygradeId" class="form-control newPayGradeCls"></select></td>' +
+	                                '<td><input type="text" id="effectiveDate_" class="form-control  effetiveDateCls" readonly></td>' +
+	                                '<td><input type="checkbox" id="status_" class="statusCls" </td>' +
+	                                '</tr>';
+		                     $("#tbodyData").append(table);
+		                	}
+		                    
+
+
+		                }else{
+		                	 var table = '<tr>' +
+		                	 '<td><input type="hidden" id="emp_" class="form-control empIdCls"> ' +
+                             ' <input type="text" id="empName_" class="form-control empNameCls" > </td>'+
+                             '<td><input type="hidden" id="currentPayGradeId_" class="form-control attCls"   name="item_"  />'+
+                             '<input type="text" id="currentPayGradeName_" class="form-control currentpayGradeCls"    readonly /></td>' +
+                             '<td><select id="design" class="form-control desgnCls"> </select></td>' +
+                             '<td><select id="newPaygradeId" class="form-control newPayGradeCls"></select></td>' +
+                             '<td><input type="text" id="effectiveDate_" class="form-control  effetiveDateCls" readonly></td>' +
+                             '<td><input type="checkbox" id="status_" class="statusCls" </td>' +
+                             '</tr>';
+		                 	$("#tbodyData").append(table);
+		                }
+		            },
+		            error: function(data) {
+		            	 var table = '<tr>' +
+		            	 '<td><input type="hidden" id="emp_" class="form-control empIdCls"> ' +
+                         ' <input type="text" id="empName_" class="form-control empNameCls" > </td>'+
+                         '<td><input type="hidden" id="currentPayGradeId_" class="form-control attCls"   name="item_"  />'+
+                         '<input type="text" id="currentPayGradeName_" class="form-control currentpayGradeCls"    readonly /></td>' +
+                         '<td><select id="design" class="form-control desgnCls"> </select></td>' +
+                         '<td><select id="newPaygradeId" class="form-control newPayGradeCls"></select></td>' +
+                         '<td><input type="text" id="effectiveDate_" class="form-control  effetiveDateCls" readonly></td>' +
+                         '<td><input type="checkbox" id="status_" class="statusCls" </td>' +
+                         '</tr>';
+		             $("#tbodyData").append(table);
+		            }
+		        })
+		    
+		}
+			 
+		
+		//For getting Item SubCategory onChange of Item CAtegory
+		function getEmployee() {
+		    var departmentId = $("#departmentId").val();
+		    var fromDate = $("#fromDate").val();
+		    var toDate = $("#toDate").val();
+		    $("#employee").empty();
+		    if (departmentId != null && fromDate && toDate) {  
+		        $.ajax({
+		            type: "GET",
+		            url: "view-grade-revision-promotion-get-employee?departmentId=" + departmentId +"&fromDate=" + fromDate+ "&toDate="+toDate,
+		            dataType: 'json',
+		            contentType: 'application/json',
+		            success: function(response) {
+		                var items = response.body;
+		                if (response.message == "success") {
+		                    if (items.length > 0) {
+		                    	 $("#employee").append("<option>--Select--</option>");
+		                    	   for (var i = 0; i < items.length; i++) {
+		                            var option = $("<option></option>");
+		                            $(option).val(items[i].key);
+		                            $(option).html(items[i].name);
+		                            $("#employee").append(option);
+		                        }
+		                        //getEmployeeDetails();
+		                    }
+		                } else {
+		                    swal("Please Try Again");
+		                }
+		            },
+		            error: function(data) {
+		                console.log(data);
+		            }
+		        })
+		    } else {
+		        $("#employee").empty();
+		           
+
+
+		    }
+		}
+ 
+	function getJobTitle(event){
+		var item = event.currentTarget.value;
+		var count=0;
+		var currentId=event.currentTarget.id;
+		
+	    var departmentId = $("#departmentId").val(); 
+	    $(currentId).empty();
+	    $(currentId).val('');
+	    if (departmentId) {  
+	        $.ajax({
+	            type: "GET",
+	            url: "view-grade-revision-promotion-get-job-titles-by-dept-id?departmentId=" + departmentId,
+	            dataType: 'json',
+	            contentType: 'application/json',
+	            success: function(response) {
+	                var items = response.body;
+	                if (response.message == "success") {
+	                    if (items.length > 0) {
+	                    	 $(currentId).append("<option>--Select--</option>");
+	                    	   for (var i = 0; i < items.length; i++) {
+	                            var option = $("<option></option>");
+	                            $(option).val(items[i].key);
+	                            $(option).html(items[i].name);
+	                            $(currentId).append(option);
+	                        }
+	                        //getEmployeeDetails();
+	                    }
+	                } else {
+	                    swal("Please Try Again");
+	                }
+	            },
+	            error: function(data) {
+	                console.log(data);
+	            }
+	        })
+	    } else {
+	        $(currentId).empty();
+	            
+	    }
+	}	
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		activaTab('menu1');
+	});
+
+	function activaTab(tab) {
+		$('.nav-tabs a[href="#' + tab + '"]').tab('show');
+	};
+	function save(){
+		$('.nav-tabs a[href="#menu2"]').tab('show');
+	}
+	function saveSalaryComponent(){
+		$('.nav-tabs a[href="#menu1"]').tab('show');
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Grade Revision And
+							Increment</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Grade Revision And Increment</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<section id="tabs" class="project-tab">
+							<div class="row">
+								<div class="col-md-12">
+
+									<ul class="nav nav-tabs">
+
+										<li class="nav-item"><a data-toggle="tab" href="#menu1"
+											class="nav-link">Grade Revision</a></li>
+										<li class="nav-item"><a data-toggle="tab" href="#menu2"
+											class="nav-link">Increment</a></li>
+
+									</ul>
+
+									<div class="tab-content">
+										<div id="menu1" class="container tab-pane fade">
+											<div class="row">
+
+												<div class="form-group" style="display: none;">
+													<select class="form-control" id="jobtitleoption">
+														<option th:value="NULL">--Select--</option>
+														<option th:each="c:${jobTitleList}" th:value='${c.key}'
+															th:text="${c.name}"></option>
+													</select>
+												</div>
+
+												<div class="form-group" style="display: none;">
+													<select class="form-control" id="grdaeoption">
+														<option th:value="NULL">--Select--</option>
+														<option th:each="c:${payGradeList}" th:value='${c.key}'
+															th:text="${c.name}"></option>
+													</select>
+												</div>
+
+												<div class="col-lg-6">
+
+													<div class="form-group">
+														<label>From Date</label> <input class="form-control"
+															type="text" id="fromDate" readonly />
+													</div>
+
+
+
+												</div>
+												<div class="col-lg-6">
+
+													<div class="form-group">
+														<label>To Date</label> <input class="form-control"
+															type="text" id="toDate" readonly />
+													</div>
+
+
+
+												</div>
+												<div class="col-lg-6">
+
+													<div class="form-group">
+														<label>Department</label> <select class="form-control"
+															id="departmentId" onchange="getEmployee()">
+															<option th:value="NULL">--Select--</option>
+															<option th:each="c:${DepartmentList}" th:value='${c.key}'
+																th:text="${c.name}"
+																th:selected="${c.key==employeeDepartment}"></option>
+														</select>
+													</div>
+												</div>
+
+												<div class="col-lg-6">
+
+													<div class="form-group">
+														<label>Employee</label> <select class="form-control"
+															id="employee" onchange="getEmployeeDetails()">
+															<option value="">--Select--</option>
+
+														</select>
+													</div>
+												</div>
+
+
+
+											</div>
+											<div class="row">
+												<div class="col-lg-12">
+
+													<table class="tbll" id="myTable" width="100%" border="0"
+														cellspacing="1" cellpadding="5">
+														<thead>
+															<tr>
+
+																<th>Employee Name</th>
+																<th>Current Grade</th>
+																<th>New Grade</th>
+																<th>Designation</th>
+																<th>Effective Date</th>
+																<th>Status</th>
+															</tr>
+														</thead>
+
+														<tbody id="tbodyData">
+															<tr>
+																<td><input type="hidden" id="emp_"
+																	class="form-control empIdCls"> <input
+																	type="text" id="empName_"
+																	class="form-control empNameCls"></td>
+																<td><input type="hidden" id="currentPayGradeId_"
+																	class="form-control attCls" name="item_" /> <input
+																	type="text" id="currentPayGradeName_"
+																	class="form-control currentpayGradeCls" readonly /></td>
+																<td><select id="design"
+																	class="form-control desgnCls">
+																</select></td>
+																<td><select id="newPaygradeId"
+																	class="form-control newPayGradeCls"></select></td>
+																<td><input type="text" id="effectiveDate_"
+																	class="form-control  effetiveDateCls" readonly></td>
+																<td><input type="checkbox" id="status_"
+																	class="statusCls" value="1"></td>
+															</tr>
+
+														</tbody>
+
+
+													</table>
+												</div>
+
+											</div>
+											<div>
+												<button class="btn btn-success" id="submit">Save</button>
+												<button class="btn btn-warning">Clear</button>
+												<button class="btn btn-danger">Close</button>
+											</div>
+										</div>
+										<div id="menu2" class="container tab-pane fade">
+											<h5>Increment</h5>
+
+											<table class="tbll" id="myTable" width="100%" border="0"
+												cellspacing="1" cellpadding="5">
+												<thead>
+													<tr>
+														<th>Component</th>
+														<th>Calculation Type</th>
+														<th>Current Annual</th>
+														<th>Current Monthly</th>
+														<th>New Annual</th>
+														<th>New Monthly</th>
+													</tr>
+												</thead>
+
+												<tbody id="tbodyData1">
+												</tbody>
+
+
+											</table>
+											<div>
+												<button class="btn btn-success" id="submit1">Save</button>
+												<button class="btn btn-warning">Clear</button>
+												<button class="btn btn-danger">Close</button>
+											</div>
+										</div>
+
+									</div>
+
+								</div>
+							</div>
+						</section>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</html>

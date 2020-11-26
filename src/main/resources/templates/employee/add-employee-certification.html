@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	
+	$("#myTable tbody tr:last").find(".certifCls").val("");
+	$("#myTable tbody tr:last").find(".instiCls").val("");
+	$("#myTable tbody tr:last").find(".grantCls").val("");
+	$("#myTable tbody tr:last").find(".validCls").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		
+		selectInput.eq(0).attr('id',"selectQulif_"+i);
+		textInput.eq(0).attr('id',"selectPrice_"+i);
+		textInput.eq(1).attr('id',"selectgrant_"+i);
+		textInput.eq(2).attr('id',"selectvalid_"+i);
+		
+	})
+	
+}
+
+function disableTableOption(){
+	
+	 $("#myTable > tbody > tr").each(function(i){
+	   $(".certifCls option").prop("disabled", false); //enable everything
+	
+	   var arr = $.map(
+	       $(".certifCls option:selected"), function (n) {
+	             return n.value;
+	   });
+	   
+	   $(".certifCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+	   }).hide();
+	
+	  
+	   $(".certifCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+	   }).show();
+	 })
+}	
+
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".certifCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".certifCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+$(document).ready(function(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+		});
+	
+	
+	
+
+	
+//submit button function
+	
+	$("#submit").click(function(){
+		
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			assign = {};
+			assign['editId']    =	$("#id").val();
+			assign['empId']		=	$("#empId").val();
+			assign['certifId']	=	$(this).find(".certifCls").val();
+			assign['insti']	    =	$(this).find(".instiCls").val();
+			assign['grantDate']  =	$(this).find(".grantCls").val();
+			assign['validDate']	=	$(this).find(".validCls").val();
+			dataset.push(assign);
+			console.log(assign);
+		});//table tbody tr loop valids
+		
+		if (!blankValidation("empId","SelectBox" ,"Please Select Employee Name"))
+		      return false;
+		
+		var certifValid = true;
+		$(".certifCls").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select certification")){
+				certifValid = false;
+				return false;
+			}
+			
+		});
+		var instituteValid = true;
+		if(certifValid){
+			$('.instiCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Institute Name")){
+					instituteValid = false;
+					return false;
+				}
+			});
+		}
+		var grantDateValid = true;
+		if(certifValid && instituteValid){
+			$('.grantCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Grand Date")){
+					grantDateValid = false;
+					return false;
+				}
+			});
+		}
+		
+		var validDateValid = true;
+		if(certifValid && instituteValid && grantDateValid){
+			$('.validCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Valid Thru Date")){
+					validDateValid = false;
+					return false;
+				}
+			});
+		}
+		
+		if(certifValid && instituteValid && grantDateValid && validDateValid){
+			submitAssignCertification(dataset);
+		}
+											
+			
+		
+	})
+})
+
+	function submitAssignCertification(dataset){
+	
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "add-employee-certification-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+		
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/employee/view-employee-certification" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax valids
+		}
+		})//swal function block valids
+	}//submit function valids
+
+
+function funcLoad(){
+	location.reload();
+}
+function funcReset(){
+	location.href = "/employee/view-employee-certification";
+}
+	function dateChange(event)
+	{
+		var item = event.currentTarget.value;
+		var itemId=event.currentTarget.id;
+		var l = itemId.split("_");
+		var counter = l[1];
+		$( "#selectgrant_" +counter).datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			//minDate: new Date() ,
+			timepicker : false,
+		})
+		$( "#selectvalid_" +counter).datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			//minDate: new Date() ,
+			timepicker : false,
+		})
+		
+		
+	}
+
+		function checkForDuplicate(event) {	
+				var item = event.currentTarget.value;
+				var count=0;
+				var itemId=event.currentTarget.id;
+				$(".certifCls ").each(function(){
+	
+					if(item == $(this).val()){
+						count++;
+					}	
+				})	
+	
+				if(count>=2){
+					swal('Certification is Already Selected');
+					$("#"+itemId).val("");
+				}	
+
+			}
+		//date validation 
+		function dateValidation(){
+			var validDate = event.currentTarget.value;
+			var itemId=event.currentTarget.id;
+			var l = itemId.split("_");
+			var counter = l[1];
+			var grantDate = $( "#selectgrant_" +counter).val();
+			
+			var parts =grantDate.split('-');
+			var d1 = Number(parts[2] + parts[1] + parts[0]);
+			parts =validDate.split('-');
+			var d2 = Number(parts[2] + parts[1] + parts[0]);
+			if(d1 <= d2){
+				return true;
+			}else{
+				swal("Certification Is OutDated.")
+				$( "#selectvalid_" +counter).val('');
+				return false;
+			}
+			
+		}
+		
+		
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Employee Certification </span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Employee Certification</h4>
+				<div class="topbtnright" align="right">
+					<div class="form-group">
+						<button type="button" id="submit" class="btn btn-success">Submit</button>
+						<button type="button" class="btn btn-warning"
+							onclick="funcReset();">Cancel</button>
+					</div>
+				</div>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${certiAssign}" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+
+									<div class="col-lg-6">
+
+										<input type="hidden" th:if="${Edit}" id="id"
+											th:value="${certiAssign[0].editId}" />
+
+										<div class="form-group">
+											<label>Employee Name</label> <select
+												class="form-control propertyCatName" id="empId">
+												<option value="">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${EmployeeList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==certiAssign[0].empId}'></option>
+												<option th:unless="${Edit}" th:each="c:${EmployeeList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+
+											</select>
+										</div>
+
+
+
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Certification Name</th>
+													<th>Institute Name</th>
+													<th>Grant Date</th>
+													<th>Valid Thru</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody id="tbodyData">
+
+												<tr class="tr_clone" th:if="${Edit}"
+													th:each="a,iter:${certiAssign}">
+													<td><select id="selectQulif_"
+														class="form-control certifCls"
+														onChange="checkForDuplicate(event);">
+															<option th:value="null">--select--</option>
+															<option th:each="c:${certifList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.certifId}'></option>
+
+													</select></td>
+
+													<td><input type="text" class="form-control instiCls"
+														id="selectInsti_" th:value="${a.insti}" /></td>
+													<td><input type="text" class="form-control grantCls"
+														id="selectgrant_" th:value="${a.grantDate}"
+														onclick="dateChange(event)" readonly /></td>
+													<td><input type="text" class="form-control validCls"
+														id="selectvalid_" th:value="${a.validDate}"
+														onclick="dateChange(event)"
+														onchange="dateValidation(event)" readonly /></td>
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+
+													</td>
+												</tr>
+
+
+												<tr class="tr_clone" th:unless="${Edit}">
+													<td><select id="selectQulif_"
+														class="form-control certifCls"
+														onChange="disableTableOption();">
+															<option value="">--Select--</option>
+															<option th:each="c:${certifList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+
+													<td><input type="text" class="form-control instiCls"
+														id="selectInsti_" /></td>
+
+													<td><input type="text" class="form-control grantCls"
+														id="selectgrant_" onclick="dateChange(event)" readonly /></td>
+													<td><input type="text" class="form-control validCls"
+														id="selectvalid_" onclick="dateChange(event)"
+														onchange="dateValidation(event)" readonly /></td>
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+
+
+										</table>
+									</div>
+								</div>
+								<div class="row">
+									<div class="form-group col-md-12"></div>
+								</div>
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</html>

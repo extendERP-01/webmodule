@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+
+	$("#myTable tbody tr:last").find(".specificCls").val("");
+	$("#myTable tbody tr:last").find(".commentCls").val("");
+	$("#myTable tbody tr:last").find(".questionCls").empty();
+	$("#myTable tbody tr:last").find(".remarkCls").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		
+		selectInput.eq(2).attr('id',"remark_"+i);
+		selectInput.eq(0).attr('id',"specific_"+i);
+		selectInput.eq(1).attr('id',"question_"+i);
+		textInput.eq(0).attr('id',"comment_"+i);
+		
+	})
+	
+}
+var counter = 0;
+function getQuestion(event){
+	var id = event.currentTarget.id;
+	
+	var parts = id.split('_');
+	counter = parts[1];
+	
+	var specId = $('#specific_'+counter).val();
+	
+	 $.ajax({
+			type		: "GET",
+			url 		: "add-employee-question?id=" + specId,
+			dataType	: "json",
+			contentType	: "application/json",
+			success		: function(response){
+				//console.log(response);
+				if(response.message=="Success"){
+					$('#question_'+counter).empty();
+					tag = '<option>-- Select Question --</option>'
+						$('#question_'+counter).append(tag);
+					for(var i=0; i<response.body.length; i++){
+						div = '<option>' + response.body[i].name + '</option>';
+						$('#question_'+counter).append(div);
+					}
+				}else{
+					div = '<option>-- No Data Found --</option>';
+					$('#question_'+counter).append(div);
+				}
+			},error		: function(data){
+				console.log(data);
+			}
+		}) //ajax ends 
+}
+
+
+$(document).ready(function(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		});
+
+	
+
+	
+//submit button function
+	
+	$("#submit").click(function(){
+		 var rate_value = 0;
+		if (document.getElementById('shortStatus1').checked) {
+			rate_value = document.getElementById('shortStatus1').value;
+		} else if (document.getElementById('shortStatus2').checked) {
+			rate_value = document.getElementById('shortStatus2').value;
+		} else if (document.getElementById('shortStatus3').checked) {
+			rate_value = document.getElementById('shortStatus3').value;
+		} 
+		var count = 0;
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			
+			assign = {};
+			assign['requisitionId'] = $('#requisitionId').val();
+			assign['candidateId'] = $('#candidateId').val();
+			assign['jobId'] = $('#jobId').val(); 
+			assign['status'] = rate_value;
+			assign['remark'] = $('#remark_'+count).find(":selected").val();
+			assign['specificId'] = $('#specific_'+count).find(":selected").val();
+			assign['question'] = $('#question_'+count).find(":selected").val();
+			assign['document'] = $('#comment_'+count).val();
+			assign['dob'] = $('#cmntId').val();
+				
+			dataset.push(assign);
+			console.log(assign);
+			count++;
+		});//table tbody tr loop ends
+		
+		
+		var langValid = true;
+		$(".specificCls").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select Specific Name")){
+				langValid = false;
+				return false;
+			}
+			
+		});
+		
+		var writeValid = true;
+		if(langValid){
+			$('.remarkCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Remark")){
+					writeValid = false;
+					return false;
+				}
+			});
+		}
+		
+		
+		var statusValid = true;
+		if(langValid && writeValid){
+			if(rate_value == null || rate_value == 0 || rate_value == ""){
+						statusValid = false;
+						swal.fire({
+							title				: "Please Select Status",
+							type 				: "warning"
+						})
+			}
+		}
+		if(langValid){
+			if(assign.question == null || assign.question == "" || assign.question == "-- Select Question --"){
+				swal.fire({
+					title				: "Please Select Question",
+					type 				: "warning"
+				})
+			}
+		}
+		
+		if(langValid && writeValid && statusValid){
+			submitAssignLanguage(dataset);
+		}
+											
+			
+		
+	})
+})
+
+	function submitAssignLanguage(dataset){
+	console.log(dataset);
+	
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				
+				$.ajax({
+					type		: "POST",
+					url 		: "add-employee-feedback-ajax",
+					dataType	: "json",
+					contentType	: "application/json",
+					data		: JSON.stringify(dataset),
+					success		: function(response){
+						//console.log(response);
+						if(response.message=="Success"){
+							swal({
+									title:"Data Saved Successfully.",
+									type: "success",
+							}).then(function(){
+									window.location.href = "/recruitment/view-employee-feedback" ;
+							})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+					},error		: function(data){
+						console.log(data);
+						
+					}
+				}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+
+function funcLoad(){
+	location.href = "/recruitment/view-employee-feedback";
+}
+function reload(){
+	location.href = "/recruitment/view-generate-offer-letter";
+}
+	
+</script>
+
+<style>
+.chkboxtxt {
+	position: relative;
+	top: -2px;
+	padding-left: 5px;
+	color: #2c61e1;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Interview Feedback</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Interview Feedback</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${feedback}" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row" th:unless="${isEdit}">
+
+									<input type="hidden"   th:field="*{requisitionId}">
+									<input type="hidden"   th:field="*{candidateId}">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Job Code</label> <input class="form-control"
+												type="text"   th:field="*{jobId}" readonly />
+										</div>
+
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Job Tittle</label> <input class="form-control"
+												type="text"   th:field="*{jobTitle}" readonly />
+										</div>
+
+									</div>
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Candidate Name</label> <input type="text"
+												th:field="*{candidateName}" class="form-control" readonly>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+
+										<div class="form-group" >
+											<label>Interviewer Name</label> <input type="text"
+												th:value="${employeeName}" th:id="${employeeId}" class="form-control" readonly>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Date</label> <input class="form-control" type="text" th:field="*{dob}"
+												readonly/>
+										</div>
+									</div>
+
+
+								</div>
+								
+								<div class="row" th:if="${isEdit}">
+
+									<input type="hidden"   th:id="${feedback.get(0).requisitionId}">
+									<input type="hidden"   th:id="${feedback.get(0).candidateId}">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Job Code</label> <input class="form-control"
+												type="text"   th:value="${feedback.get(0).jobId}" readonly />
+										</div>
+
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Job Tittle</label> <input class="form-control"
+												type="text"   th:value="${feedback.get(0).jobTitle}" readonly />
+										</div>
+
+									</div>
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Candidate Name</label> <input type="text"
+												th:value="${feedback.get(0).candidateName}" class="form-control" readonly>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+
+										<div class="form-group" >
+											<label>Interviewer Name</label> <input type="text"
+												th:value="${feedback.get(0).employeeName}" th:id="${feedback.get(0).employeeId}" class="form-control" readonly>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Date</label> <input class="form-control" type="text" th:value="${feedback.get(0).dob}"
+												readonly/>
+										</div>
+									</div> 
+								</div>
+								
+								<div class="row">
+									<div class="col-lg-12">
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Specific</th>
+													<th>Question</th>
+													<th>Remark</th>
+													<th>Comment</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody id="tbodyData">
+											
+												<tr class="tr_clone" th:if="${isEdit}" th:each="std,iter: ${feedback}">
+													<td>
+													<select class="form-control specificCls" th:id="${'specific_'+iter.index}" disabled>
+														<option value="">--Select Specific Name--</option>
+														<option th:each="c:${specificNameList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected="${c.key==std.specificId}" ></option>
+													</select>
+													</td>
+													<td>
+														<select class="form-control questionCls" th:id="${'question_'+iter.index}" disabled>
+														
+														<option  th:text="${std.question}"></option>
+
+													</select></td>
+													<td>
+													<select class="form-control remarkCls" id="${'remark_'+iter.index}" disabled>
+														<option value="">--Select Remark--</option>
+														<option value=1 th:selected="${std.remark == '1'}">Low</option>
+														<option value=2 th:selected="${std.remark == '2'}">Medium</option>
+														<option value=3 th:selected="${std.remark == '3'}">High</option>
+													</select>
+													</td>
+													<td><input type="text" class="form-control commentCls"
+														th:id="${'comment_'+iter.index}" th:value="${std.comment}" readonly/></td>
+													
+													<td th:if="${feedback}">
+														<button type="button" th:if="${iter.size == iter.index+1}"
+															class="btn btn-primary tr_clone_add" name="add" 
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button> 
+													</td>
+													
+													<td th:unless="${feedback}"><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;
+													</td>
+												</tr> 
+											
+												<tr class="tr_clone" th:unless="${isEdit}">
+													 <td> 
+													<select class="form-control specificCls" id="specific_0" onchange="getQuestion(event);">
+														<option value="">--Select Specific Name--</option>
+														<option th:each="c:${specificNameList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select>
+														</td>
+													<td>
+														<select class="form-control questionCls" id="question_0">
+														<option value="">--Select Question--</option>
+
+													</select></td>
+													<td>
+													<select class="form-control remarkCls" id="remark_0">
+														<option value="">--Select Remark--</option>
+														<option value=1 >Low</option>
+														<option value=2 >Medium</option>
+														<option value=3 >High</option>
+													</select>
+													</td>
+													<td><input type="text" class="form-control commentCls"
+														id="comment_0" /></td>
+
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;
+													</td>
+												</tr>
+
+											</tbody>
+
+
+										</table>
+									</div>
+
+								</div>
+								<div class="row">
+									<div class="col-md-6">
+										<div class="form-group" th:if="${isEdit}">
+											<label>Comment</label>
+											<textarea class="form-control" id="cmntId" th:text="${toTime}" readonly></textarea>
+										</div>
+										<div class="form-group" th:unless="${isEdit}">
+											<label>Comment</label>
+											<textarea class="form-control" id="cmntId"></textarea>
+										</div>
+									</div>
+									<div class="col-md-6">
+										<div class="form-group">
+											<label>Status</label>
+											<div th:unless="${isEdit}" >
+												<input type="radio" id="shortStatus1" name="status" value=1 /><span class="chkboxtxt">Hire</span>
+											
+												<input type="radio" id="shortStatus2" name="status" value=2 /><span class="chkboxtxt">Hold</span>
+											
+												<input type="radio" id="shortStatus3" name="status" value=3 /><span class="chkboxtxt">Reject</span>
+											</div> 
+											<div th:if="${isEdit}">
+											
+											<div th:if="${status}==1">	
+												<input type="radio" id="shortStatus1" name="status" value=1 checked/><span class="chkboxtxt">Hire</span>
+											
+												<input type="radio" id="shortStatus2" name="status" value=2 /><span class="chkboxtxt">Hold</span>
+											
+												<input type="radio" id="shortStatus3" name="status" value=3 /><span class="chkboxtxt">Reject</span>
+											</div>
+											<div th:if="${status}==2">
+												
+												<input type="radio" id="shortStatus1" name="status" value=1 /><span class="chkboxtxt">Hire</span>
+											
+												<input type="radio" id="shortStatus2" name="status" value=2 checked/><span class="chkboxtxt">Hold</span>
+											
+												<input type="radio" id="shortStatus3" name="status" value=3 /><span class="chkboxtxt">Reject</span>
+											</div>
+											<div th:if="${status}==3">
+												
+												<input type="radio" id="shortStatus1" name="status" value=1 /><span class="chkboxtxt">Hire</span>
+											
+												<input type="radio" id="shortStatus2" name="status" value=2 /><span class="chkboxtxt">Hold</span>
+											
+												<input type="radio" id="shortStatus3" name="status" value=3 checked/><span class="chkboxtxt">Reject</span>
+											</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12">
+										<div class="form-group" th:if="${isEdit}">
+											<button type="button" class="btn btn-warning"
+												onclick="reload();">Cancel</button>
+										</div>
+										<div class="form-group" th:unless="${isEdit}">
+											<button type="button" id="submit" class="btn btn-success">Submit</button>
+											<button type="button" class="btn btn-warning"
+												onclick="funcLoad();">Cancel</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+select {
+	width: 500px;
+}
+
+.selectBox {
+	position: relative;
+}
+
+.selectBox select {
+	width: 100%;
+	font-weight: bold;
+}
+
+.overSelect {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.staffDesign {
+	background-color: rgb(167, 188, 206);
+	background-color: rgba();
+	color: white;
+	text-align: center;
+	padding: 8px;
+	font-size: 14px;
+	display: block;
+}
+
+.staffDesign .fa-caret-down {
+	font-size: 17px;
+	position: relative;
+	top: 1px;
+	left: 101px;
+}
+
+#checkboxes {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+#checkboxes label {
+	display: block;
+}
+
+.middle {
+	transition: .5s ease;
+	opacity: 0;
+	position: absolute;
+	top: 26%;
+	left: 120px;
+	transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	text-align: center;
+}
+
+.dinning:hover .middle {
+	opacity: 1;
+}
+
+.text {
+	background-color: rgba(28, 245, 58, 0.8);
+	background-color: rgba();
+	color: white;
+	position: relative;
+	right: 68px;
+	border-radius: 50%;
+	padding: 10px;
+	font-size: 12px;
+	display: block;
+	width: 120px;
+}
+
+#checkboxes label:hover {
+	background-color: #1e90ff;
+}
+
+.ulbg {
+	background-color: rgba(66, 139, 202, 0.3);
+	color: #2c61e1;
+	width: 92%;
+}
+
+.ulbg li {
+	border-bottom: 1px solid #fff;
+	padding: 5px;
+}
+
+/* The container */
+.dinning {
+	display: block;
+	position: relative;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+/* Hide the browser's default checkbox */
+.dinning input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+/* Create a custom checkbox */
+.checkmark {
+	position: absolute;
+	top: 40px;
+	left: 35px;
+	height: 25px;
+	width: 25px;
+}
+
+.dinning  input:checked ~ .checkmark {
+	/*  background-color: #2196F3;*/
+	
+}
+
+.checkmark:after {
+	content: "";
+	position: absolute;
+	display: none;
+}
+/* Show the checkmark when checked */
+.dinning  input:checked ~ .checkmark:after {
+	display: block;
+}
+/* Style the checkmark/indicator */
+.dinning  .checkmark:after {
+	left: 6px;
+	top: -7px;
+	width: 18px;
+	height: 27px;
+	border: solid #6880fb;
+	border-width: 0 3px 3px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
+.table-tick {
+	width: 100%;
+}
+
+<
+style type ="text /css">#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	/* width: 570px; */
+	position: absolute;
+	z-index: 9999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f2f2f2;
+	border-bottom: 1px solid #373757;
+	color: #373757;
+	font-weight: 500;
+}
+
+#autocomplete-list li:hover {
+	background: #373757;
+	color: #f2f2f2;
+	cursor: pointer;
+}
+
+.panel-heading {
+	padding: 0;
+	border: 0;
+}
+
+.panel-title>a, .panel-title>a:active {
+	display: block;
+	padding: 9px;
+	color: #555;
+	font-size: 13px;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	word-spacing: 3px;
+	text-decoration: none;
+}
+
+.panel-heading  a:before {
+	font-family: 'FontAwesome';
+	content: "\f078";
+	float: right;
+	transition: all 0.5s;
+}
+
+.panel-heading.active a:before {
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
+</style>
+<script type="text/javascript">
+        
+     function validateForm(){
+    	 
+	  if (!blankValidation("tDepartment","TextField", "Department Name can not be left blank"))
+          return false;
+	 
+      if (!blankValidation("tDeptAssignDesc","TextField", "Description can not be left blank"))
+          return false;
+      if (!blankValidation("tDeptAssignStatus","TextField", "Status can not be left blank"))
+          return false;
+      var checkedCount = $('input:checkbox[name=userRole]:checked').length;
+		if (checkedCount == 0) {
+			swal({
+				title	: "Please Choose Job Title To Approve",
+			})
+			return false; 
+		}
+     }   
+ 	var expanded = false;
+ 	function showCheckboxes() {
+ 	  if (!expanded) {
+ 		  $("#checkboxes").show();
+ 	    expanded = true;
+ 	  } else {
+ 		  $("#checkboxes").hide();
+ 		 
+ 	    expanded = false;
+ 	  }
+ 	}
+ 	
+ 	
+
+ 	
+ 	//..............
+	$(document).ready(function() {
+
+		
+		
+		$("#submit").click(function(){
+		
+			var userRole=[];
+			$("input:checkbox[name=userRole]:checked").each(function(){userRole.push($(this).val());})
+				$("#roleList").val(userRole);  
+			
+		});
+		
+		
+
+	});
+
+    </script>
+</head>
+<div layout:fragment="content">
+
+        <div class="main mrt_20">
+            <!--Alert Box-->
+                <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+             <span th:text="${message}"></span>
+          </div>
+              <!--Alert Box-->
+ 
+       <ol class="breadcrumb breadcrumb-arrow">
+             <li><a href="index.html">Home</a></li>
+             <li class="active"><span>Add Department Job Title Assign</span></li>
+            <!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+        </ol>
+        <div class="card-title">
+                <h4>Add Department Job Title Assign</h4>
+            </div>  
+                <div class="card"> 
+                    <div class="card-body">
+                        <div class="basic-elements">
+                         <form th:action="@{/employee/add-department-jobTitle-assign}"th:object="${jobTitle}" 
+                         method="post" autocomplete="off" onsubmit=" return validateForm();">
+                           <input type="hidden" th:field="*{deptId}" />  
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                      <!--   <input type="hidden" id="isedit" th:value="${id}"> -->
+                                        					<!-- <input type="hidden" th:field="*{tJobTitle}" /> -->
+                                            <label>Department</label>
+                                            <select class="form-control" th:field="*{tDepartment}">
+												<option value="">--select--</option>
+												<option th:each="c:${deptList}" th:value='${c.key}'
+													th:text="${c.name}" th:selected="${c.key==tDepartment}"></option>
+											</select>
+                                        </div>
+                                        
+                                    <!--     ////////////////////////////////////////////////////////////////// -->
+                                        
+									<div class="multiselect" id="mselct">
+										<div class="wrapper center-block">
+											<div class="panel-group" id="accordion" role="tablist"
+												aria-multiselectable="true">
+												<div class="panel panel-default">
+													<div class="selectBox">
+														<div class="panel-heading active" role="tab"
+															id="headingOne" onclick="showCheckboxes()">
+															<h4 class="panel-title">
+																<a role="button" data-toggle="collapse"
+																	data-parent="#accordion" href="#collapseOne"
+																	aria-expanded="true" aria-controls="collapseOne"
+																	class="staffDesign"> Select Job Title</a>
+															</h4>
+														</div>
+														<div id="collapseOne" class="panel-collapse collapse in"
+															role="tabpanel" aria-labelledby="headingOne">
+															<div class="panel-body">
+																<div id="checkboxes">
+															  	<label th:if="*{tDepartment} != null"
+																		th:each="c,iter : ${jobTitleList}"> 
+																	
+																		<input
+																		type="checkbox" th:id="'staff_'+${iter.index}"
+																		name="userRole" class="userRoleCls"
+																		th:if="${#lists.contains(selectedRoles, c.key)}"
+																		th:checked="${#lists.contains(selectedRoles, c.key)}"
+																		th:value='${c.key}' th:text="${c.name}" /> <input
+																		type="checkbox" name="userRole"
+																		th:id="'staff_'+${iter.index}" class="userRoleCls"
+																		th:unless="${#lists.contains(selectedRoles, c.key)}"
+																		th:value='${c.key}' th:text="${c.name}"
+																		style="width: 16px;"> 
+																	</label>  
+																	
+																	  <label th:unless="*{tDepartment} != null"
+																			th:each="c,iter : ${jobTitleList}"> <input
+																			type="checkbox" name="userRole" class="userRoleCls"
+																			th:id="'staff_'+${iter.index}" th:value='${c.key}'
+																			th:text="${c.name}" th:attr="data-moduleId=${c.key}" /> 
+																		</label>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+										</div>
+										 <input type="hidden" th:field="*{roleList}"> 
+									</div>
+                                       <!--  ///////////////////////////////////////////////////////////////// -->
+                                      
+                                        
+                                     
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <textarea class="form-control textarea" th:field="*{tDeptAssignDesc}" ></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Status</label>
+                                               <select class="form-control"  th:field="*{tDeptAssignStatus}">
+                                                <option th:value=null>--select--</option>
+                                                <option th:value=true>Active</option>
+                                                <option th:value=false>Inactive</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <button type="submit"  id="submit" class="btn btn-success">submit</button>
+                           				<button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+                                    </div>
+                                  </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.modalIn {
+	border-bottom: 1px solid #e8e4e4;
+}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+ 		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-shortList-ThroughAjax'
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'jobId'
+			}, {
+				'data' : 'jobTitle'
+			}, {
+				'data' : 'jobType'
+			}, {
+				'data' : 'deptName'
+			}, {
+				'data' : 'hiringManager'
+			}, {
+				'data' : 'boardBy'
+			}, {
+				'data' : 'budget'
+			}, {
+				'data' : 'action'}
+			]
+		});
+	});
+
+	/* function searchData() {
+		$('#tblTheme').DataTable().draw();
+	} */
+	 
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a th:href="@{/recruitment/add-requistion}">Add
+							Requistion</a></li> -->
+					<li class="active"><span>View Resource ShortList</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Resource ShortList</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<!-- <div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-requistion">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Job Code</label> <select class="org-name form-control "
+									id="param1">
+									<option value="job1">JOB001</option>
+									<option value="job2">JOB002</option>
+									<option value="job3">JOB003</option>
+
+								</select>
+
+							</div>
+							<div class="col-md-2">
+								<label>Job Tittle </label> <select class="form-control">
+									<option value="">--Select--</option>
+									<option value="job1">Senior Developer</option>
+									<option value="job2">Developer</option>
+									<option value="job3">Fresher</option>
+
+								</select>
+
+							</div>
+							<div class="col-md-2">
+								<label>Department</label> <select class="form-control">
+									<option value="">--Select--</option>
+									<option value="department1">Account</option>
+									<option value="department2">HR</option>
+									<option value="department3">Development</option>
+
+
+								</select>
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group">
+									<input type="button" class="btn btn-info" value="Search"
+										onclick="searchData()" />
+								</div>
+							</div>
+						</div>
+					</div> -->
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblTheme" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Job Code</th>
+									<th>Job Tittle</th>
+									<th>Job Type</th>
+									<th>Department</th>
+									<th>Hiring Manager</th>
+									<th>On Board By</th>
+									<th>Budget</th> 
+									<th>Resume</th> 
+									<!-- <th>Sort List</th> -->
+
+								</tr>
+							</thead>
+							<!-- <tbody>
+								<tr>
+									<th>JOB001</th>
+									<th>Software Developer</th>
+									<th>Full Time</th>
+									<th>Development</th>
+									<th>Priyabrata Prusty</th>
+									<th>21-10-2020</th> 
+									<th>25000</th>
+									<th><a href="view-resource-upload-resume"
+										class="btn btn-danger">Upload</a></th>
+									<th><a href="view-resource-add-shortlist"
+										class="btn btn-primary">Sort list</a></th>
+
+								</tr>
+								<tr>
+									<th>JOB002</th>
+									<th>Full Stack Developer</th>
+									<th>Part Time</th>
+									<th>Development</th>
+									<th>Dipti Ranjan</th>
+									<th>21-10-2020</th>
+									<th>40000</th> 
+									<th><a href="view-resource-upload-resume"
+										class="btn btn-danger">Upload</a></th>
+									<th><a href="view-resource-add-shortlist"
+										class="btn btn-primary">Sort list</a></th>
+								</tr>
+							</tbody> -->
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+</html>

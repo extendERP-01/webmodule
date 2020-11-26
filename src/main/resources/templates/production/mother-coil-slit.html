@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+
+function gradeChange() { 
+	if ($("#mcoilgrade").val() != '') { 
+		$.ajax({
+			type : "POST",
+			url : "mother-coil-slit-onchange-mgrade-list",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#mcoilgrade").val(),
+			success : function(response) {
+				if (response.message == "success") {
+ 
+
+					$("#mcoilthick").empty();
+					var option = $("<option></option>");
+					$(option).val(null);
+					$(option).html("Select");
+					$("#mcoilthick").append(option);
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#mcoilthick").append(option);
+					}
+
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	 } else {
+		$("#mcoilthick").empty();
+		var option = $("<option></option>");
+		$(option).val(null);
+		$(option).html("Select");
+		$("#mcoilthick").append(option);
+	} 
+}
+
+
+// gate details from mother coil batch
+function getDetails() {  
+	if ($("#mcoilbatch").val() != '') { 
+		$.ajax({
+			type : "GET",
+			url : "mother-coil-slit-getDetails-by-batchCode?batchCode=" + $("#mcoilbatch").val(),
+			dataType : 'json',
+			contentType : 'application/json', 
+			success : function(response) {
+				if (response.message == "success") {
+  
+
+					 $("#mcoilgradeName").val(response.body[0].tMotherCoilGradeName);
+					 $("#mcoilgrade").val(response.body[0].tMotherCoilGrade);
+					 $("#mcoilthickName").val(response.body[0].tMotherCoilThicknessName);
+					 $("#mcoilthick").val(response.body[0].tMotherCoilThickness);
+					 $("#slitbatch").val(response.body[0].tPipeSlitBatch);
+					 getSlitWidth();
+					 setData();
+
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	 } else {
+		 $("#mcoilgradeName").val("");
+		 $("#mcoilgrade").val("");
+		 $("#mcoilthickName").val("");
+		 $("#mcoilthick").val("");
+		 $("#slitbatch").val("");
+
+	} 
+}
+
+//
+
+function checkEmpty()
+{	
+	var slitwt = true;
+	$(".SlitWtCls").each(function(){
+		if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Slit Width")){
+			slitwt = false;
+			return false;
+		}
+		
+	});
+	
+	var quantity = true;
+	if(slitwt){
+	$(".QuantityCls").each(function(){
+		if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Quantity")){
+			quantity = false;
+			return false;
+		}
+		
+	});
+	}
+	var size = true;
+	if(slitwt && quantity){
+	$(".SizeCls").each(function(){
+		if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Size")){
+			size = false;
+			return false;
+		}
+		
+	});
+	}
+
+
+	if(slitwt && quantity && size) {
+		addMore();
+	}
+}
+
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	$("#myTable tbody tr:last").find(".SlitWtCls").val("");
+	$("#myTable tbody tr:last").find(".QuantityCls").val("");
+	$("#myTable tbody tr:last").find(".SizeCls").val("");
+	$("#myTable tbody tr:last").find(".subBatchCls").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');  
+		selectInput.eq(0).attr('id',"slitWt_"+i);
+		textInput.eq(0).attr('id',"selectQuantity_"+i);
+		textInput.eq(1).attr('id',"selectSubBatch_"+i);
+		selectInput.eq(1).attr('id',"selectSize_"+i);
+		
+	})
+	count();
+	
+}
+
+function count()
+{
+	var slitbatch = $("#slitbatch").val();
+	$("#myTable > tbody > tr").each(function(i){  
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');  
+		selectInput.eq(0).attr('id',"slitWt_"+i);
+		textInput.eq(0).attr('id',"selectQuantity_"+i);
+		textInput.eq(1).attr('id',"selectSubBatch_"+i);
+		selectInput.eq(1).attr('id',"selectSize_"+i);
+		$("#selectSubBatch_"+i).val(slitbatch + "_"+ (i+1));
+	})
+}
+function setData(){
+	 var slitbatch = $("#slitbatch").val(); 
+	 $("#selectSubBatch_0" ).val(slitbatch + "_"  +1);
+}
+
+//********************************************************
+function disableTableOption(){
+	
+	 $("#myTable > tbody > tr").each(function(i){
+	   $(".NameCls option").prop("disabled", false); //enable everything
+	
+	   var arr = $.map(
+	       $(".NameCls option:selected"), function (n) {
+	             return n.value;
+	   });
+	   
+	   $(".NameCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+	   }).hide();
+	
+	  
+	   $(".NameCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+	   }).show();
+	 })
+}	
+
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".NameCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".NameCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+//********************************************
+$(document).ready(function(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+		count();
+		});
+	
+	$("#slitstart").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+
+	});
+	$("#slitend").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+
+	});
+	
+//submit button function
+	
+	$("#submit").click(function(){
+		
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			assign = {};
+			assign['tMotherCoilBatch']		=	$("#mcoilbatch").val();
+			assign['tMotherCoilThickness']	=	$("#mcoilthick").val();
+			assign['tMotherCoilGrade']		=	$("#mcoilgrade").val();
+			assign['tPipeSlitBatch']		=	$("#slitbatch").val();
+			assign['tPipeScrapWeight']		=	$("#scrapwt").val();
+			assign['tPipeSlitStartDate']	=	$("#slitstart").val();
+			assign['tPipeSlitEndDate']	    =	$("#slitend").val();
+			assign['tPipeSlitWidth']		=	$(this).find(".SlitWtCls").val();
+			assign['tPipeSlitQty']			=	$(this).find(".QuantityCls").val();
+			assign['tPipeSize']				=	$(this).find(".SizeCls").val();
+			assign['editId']				=	$("#edit").val();
+			assign['slitSubGroup']			=	$(this).find(".subBatchCls").val();
+			
+			dataset.push(assign);
+			console.log(dataset);
+		});//table tbody tr loop ends
+		
+		 if (!blankValidation("mcoilbatch","TextField" ,"Please Enter Mother Coil Batch"))
+		      return false;
+		if (!blankValidation("mcoilthick","TextField" ,"Please Enter Mother Coil Thickness"))
+		      return false;
+		if (!blankValidation("mcoilgrade","TextField" ,"Please Enter Mother Coil Grade"))
+		      return false;
+		if (!blankValidation("slitbatch","TextField" ,"Please Select Slit Batch"))
+		      return false;
+		if (!blankValidation("scrapwt","TextField" ,"Please Select Scrap Weight"))
+		      return false;
+		if (!blankValidation("slitstart","TextField" ,"Please Select Slit Start Date"))
+		      return false;
+		if (!blankValidation("slitend","TextField" ,"Please Select Slit End Date"))
+		      return false;
+		
+
+		var slitwt = true;
+		$(".SlitWtCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Slit Width")){
+				slitwt = false;
+				return false;
+			}
+			
+		});
+		
+		var quantity = true;
+		if(slitwt){
+		$(".QuantityCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Quantity")){
+				quantity = false;
+				return false;
+			}
+			
+		});
+		}
+		var size = true;
+		if(slitwt && quantity){
+		$(".SizeCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Pipe Size")){
+				size = false;
+				return false;
+			}
+			
+		});
+		}
+		
+		if(slitwt && quantity && size){
+			submitAddPlanning(dataset);
+		}
+											
+			
+		
+	})
+})
+ 
+	function submitAddPlanning(dataset){
+		console.log("ther data are "+dataset)
+			swal.fire({
+				title				: "Are you sure want to Submit?",
+				text				: "Once Submited,Can't revert back !",
+				type 				: "warning",
+				
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Submit",
+				reverseButtons : true,
+				confirmButtonAriaLabel : 'Thumbs up, great!',
+				cancelButtonText : 'Cancel',
+				cancelButtonAriaLabel : 'Thumbs down', 
+			}).then((result) => {
+				if(result.value){
+					$.ajax({
+					type		: "POST",
+					url 		: "mother-coil-slit-ajax",
+					dataType	: "json",
+					contentType	: "application/json",
+					data		: JSON.stringify(dataset),
+					success		: function(response){ 
+						console.log(response)
+						if(response.message=="Success"){
+							swal({
+									title:"Data Saved Successfully.",
+									type: "success",
+							}).then(function(){
+									window.location.href = "/production/view-mother-coil-slit" ;
+							})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+					},error		: function(data){
+						console.log(data);
+					}
+				}) //ajax ends
+			}
+			})//swal function block ends
+		}//submit function ends
+
+
+function funcLoad(){
+	location.reload();
+}
+    //for number check
+		function checkNum1(event) {
+			var currentId = event.currentTarget.id;
+			checkNum(currentId);
+			}
+/* 		
+		function getThickness(){
+			  var grade = $("#mcoilgrade").val();
+			  $("#mcoilthick").empty(); 
+					if (grade) {
+						$.ajax({
+							type : 'POST',
+							url : 'mother-coil-slit-getthickness',
+							contentType : false,
+							data : grade,
+							success : function(response) {
+								if (response.message == "success") {	 
+									var option = $("<option></option>");
+									$(option).val(null);
+									$(option).html("--select--");
+									$("#mcoilthick").append(option);
+									for (var i = 0; i < response.body.length; i++) {
+										var option = $("<option></option>");
+										$(option).val(response.body[i].key);
+										$(option).html(response.body[i].name);
+										$("#mcoilthick").append(option);
+									}
+								}
+							},
+							error : function(e) {
+								alert("error");
+							}
+						});
+					} else { 
+						var option = $("<option></option>");
+						$(option).val(null);
+						$(option).html("--select--");
+						$("#mcoilthick").append(option);  
+					}
+				} */
+				
+		function getSlitWidth(){
+			 var mcoilthick = $("#mcoilthick").val();
+			 var grade = $("#mcoilgrade").val();
+			  $(".SlitWtCls").empty(); 
+					if (mcoilthick) {
+						$.ajax({
+							type : 'POST',
+							url : 'mother-coil-slit-getSlitWidth?grade='+ grade + '&thickness=' +mcoilthick,
+							contentType : false, 
+							success : function(response) {
+								if (response.message == "success") {	 
+									var option = $("<option></option>");
+									$(option).val(null);
+									$(option).html("--select--");
+									$(".SlitWtCls").append(option);
+									for (var i = 0; i < response.body.length; i++) {
+										var option = $("<option></option>");
+										$(option).val(response.body[i].key);
+										$(option).html(response.body[i].name);
+										$(".SlitWtCls").append(option);
+									}
+								}
+							},
+							error : function(e) {
+								alert("error");
+							}
+						});
+					} else { 
+						var option = $("<option></option>");
+						$(option).val(null);
+						$(option).html("--select--");
+						$("#mcoilthick").append(option);  
+					}
+		}
+		function callMyfunction(event){
+			var slitWidth = event.currentTarget.value; 
+			var currentId = event.currentTarget.id;
+			var l = currentId.split("_");
+			var counter = l[1];
+			 var mcoilthick = $("#mcoilthick").val();
+			 var grade = $("#mcoilgrade").val(); 
+			 if(slitbatch){
+				 
+					if(slitWidth){
+						$("#selectSize_"+counter).empty(); 
+						$("#selectSize_"+counter).append(new Option("--Select--",""))
+					 	$.ajax({
+							type 		:	"POST",
+							url 		:	'/production/mother-coil-slit-getPipeSize?grade='+ grade + '&thickness=' + mcoilthick +'&slitWidth=' + slitWidth,
+							dataType 	:	'json',
+							contentType :	'application/json', 
+							success 	: 	function(response){
+								var items = response.body;  
+								if(response.message=="success"){
+									if(items.length>0){
+										for(var i=0;i<items.length;i++){
+											var option = $("<option></option>");
+											$(option).val(response.body[i].key);
+											$(option).html(response.body[i].name);
+											$("#selectSize_"+counter).append(option);	
+											
+										}
+									}
+								}else{
+									swal("Please Try Again");
+								}
+							},
+							error : function(data) {
+								swal(data);
+							}
+						})
+					}
+			 }else{
+				 swal("Enter Slit SubGroup First");
+			 }
+			  
+		} 
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Mother Coil Slit </span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Mother Coil Slit</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${mCoilList}">
+
+								<input type="hidden" th:if="${edit}" id="edit"
+									th:value="${mCoilList[0].editId}" />
+
+
+
+
+
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Mother Coil Batch</label> <select class="form-control"
+												id="mcoilbatch" onchange="getDetails()">
+												<option th:value="NULL">--Select--</option>
+												<option th:if="${edit}" th:each="c:${MCoilBatchLists}"
+													th:value='${c.name}' th:text="${c.name}"
+													th:selected="${c.name==mCoilList[0].tMotherCoilBatch}"></option>
+												<option th:unless="${edit}" th:each="c:${MCoilBatchLists}"
+													th:value='${c.name}' th:text="${c.name}"></option>
+
+											</select>
+
+										</div>
+									</div>
+									<div class="col-lg-4">
+
+
+
+										<div class="form-group">
+											<label>Mother Coil Grade</label> <input type="text"
+												th:unless="${edit}" class="form-control" id="mcoilgradeName"
+												readonly> <input type="hidden" class="form-control"
+												th:unless="${edit}" id="mcoilgrade"> <input
+												type="text" th:if="${edit}" class="form-control"
+												id="mcoilgradeName"
+												th:value='${mCoilList[0].tMotherCoilGradeName}' readonly>
+											<input type="hidden" class="form-control" th:if="${edit}"
+												id="mcoilgrade" th:value='${mCoilList[0].tMotherCoilGrade}'>
+
+
+										</div>
+
+
+									</div>
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Mother Coil Thickness</label> <input type="text"
+												th:unless="${edit}" class="form-control" id="mcoilthickName"
+												readonly> <input type="hidden" class="form-control"
+												th:unless="${edit}" id="mcoilthick"> <input
+												type="text" th:if="${edit}" class="form-control"
+												id="mcoilthickName"
+												th:value='${mCoilList[0].tMotherCoilThicknessName}' readonly>
+											<input type="hidden" class="form-control" th:if="${edit}"
+												id="mcoilthick"
+												th:value='${mCoilList[0].tMotherCoilThickness}'> <input
+												type="hidden" class="form-control" id="slitbatch"
+												onchange="setData()" th:unless="${edit}" /> <input
+												type="hidden" class="form-control" id="slitbatch"
+												th:if="${edit}" th:value="${mCoilList[0].tPipeSlitBatch}" />
+										</div>
+
+
+
+									</div>
+
+									<!-- <div class="col-lg-4">
+										<div class="form-group">
+											<label>Slit Batch</label> <input type="hidden"
+												class="form-control" id="slitbatch" onchange="setData()"
+												th:unless="${edit}" /> <input type="hidden"
+												class="form-control" id="slitbatch" th:if="${edit}"
+												th:value="${mCoilList[0].tPipeSlitBatch}"  />
+										</div>
+									</div> -->
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Scrap Weight</label> <input type="text"
+												class="form-control" id="scrapwt" th:unless="${edit}" /> <input
+												type="text" class="form-control" id="scrapwt"
+												th:if="${edit}" th:value="${mCoilList[0].tPipeScrapWeight}" />
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Slit Start Date</label> <input type="text"
+												class="form-control" id="slitstart" th:unless="${edit}"
+												readonly /> <input type="text" class="form-control"
+												id="slitstart" th:if="${edit}"
+												th:value="${mCoilList[0].tPipeSlitStartDate}" readonly />
+
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Slit End Date</label> <input type="text"
+												class="form-control" id="slitend" th:unless="${edit}"
+												readonly /> <input type="text" class="form-control"
+												id="slitend" th:if="${edit}"
+												th:value="${mCoilList[0].tPipeSlitEndDate}" readonly />
+
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Slit Width</th>
+													<th>Quantity</th>
+													<th>Slit Sub Batch</th>
+													<th>Pipe Size</th>
+												</tr>
+											</thead>
+											<tbody id="tbodyData">
+
+												<!-- Edit -->
+												<tr class="tr_clone" th:if="${edit}"
+													th:each="a,iter:${mCoilList}">
+													<td><select id="selectSlitWt_0"
+														class="form-control SlitWtCls"
+														onChange="callMyfunction(event)">
+															<option th:value="null">--select--</option>
+															<option th:each="c:${slitWidthList}" th:value='${c.key}'
+																th:text="${c.name}"
+																th:selected='${c.key==a.tPipeSlitWidth}'></option>
+
+													</select></td>
+
+													<td><input type="text"
+														class="form-control QuantityCls" id="selectQuantity_0"
+														th:value="${a.tPipeSlitQty}" /></td>
+													<td><input type="text"
+														class="form-control subBatchCls" id="selectSubBatch_0"
+														th:value="${a.slitSubGroup}" /></td>
+
+													<td><select id="selectSize_0"
+														class="form-control SizeCls">
+
+															<option th:each="c:${pipeSizeList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.tPipeSize}'></option>
+													</select></td>
+
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+
+													</td>
+												</tr>
+
+
+												<!-- add -->
+												<tr class="tr_clone" th:unless="${edit}">
+
+													<td><select id="selectSlitWt_0"
+														class="form-control SlitWtCls"
+														onchange="callMyfunction(event)">
+															<option value="">--Select--</option>
+													</select></td>
+
+													<td><input type="text" id="selectQuantity_0"
+														class="form-control QuantityCls" /></td>
+
+													<td><input type="text" id="selectSubBatch_0"
+														class="form-control subBatchCls" /></td>
+													<td><select id="selectSize_0"
+														class="form-control SizeCls">
+															<option value="">--Select--</option>
+													</select></td>
+
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+
+
+										</table>
+									</div>
+
+								</div>
+								<div class="row">
+									<div class="form-group col-md-12">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning"
+											onclick="funcLoad();">Cancel</button>
+									</div>
+								</div>
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</html>

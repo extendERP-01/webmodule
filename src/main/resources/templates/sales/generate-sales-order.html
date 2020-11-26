@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<title>Sales Order</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.logotext {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+}
+
+.heading {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.slogan {
+	font-size: 14px;
+	color: #f26304;
+	padding: 5px;
+}
+
+.containersec {
+	width: 100%;
+	margin: 0 auto;
+}
+
+.address {
+	font-size: 14px;
+	text-align: left;
+	padding-right: 0px;
+	line-height: 16px;
+}
+
+div {
+	padding: 4px 0px;
+}
+
+.maintbl tr td {
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	text-align: center;
+}
+
+.resturantname {
+	font-size: 16px;
+	font-weight: bold;
+	color: #2d1ea5;
+}
+
+.total {
+	background: #f9965a;
+	color: #FFF;
+	padding: 8px 5px;
+	text-align: left;
+	font-weight: bold;
+}
+
+.description {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+}
+
+.points {
+	padding: 20px 0px;
+	line-height: 26px;
+}
+
+.points span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+	padding: 5px 10px;
+	border-radius: 12px;
+	margin: 3px;
+}
+
+.bill {
+	color: #000;
+	text-align: right;
+	font-size: 18px;
+	font-weight: bold;
+	width: 690px;
+}
+
+.strip2 {
+	margin-top: 60px;
+	width: 800px;
+	height: 20px;
+	padding: 2px;
+	text-align: center;
+	background-color: #d0e6f8;
+	margin-bottom: 12px;
+}
+
+.lefttag {
+	width: 40px;
+	float: left;
+}
+
+.note {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.textarea {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.money {
+	text-align: right;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.borderCls {
+	border: 1px solid;
+}
+</style>
+<script type="text/javascript">
+lightbox.option({
+	'resizeDuration':200,
+	'wrapAround':true,
+	
+})
+//(document).ready() Starts 
+$(document).ready(function() {
+	$("#firstPayMode  option[value='PMOD002']").attr('selected','selected'); 
+    $("#payMode  option[value='PMOD001']").attr('selected','selected'); 
+	var approveActive = $('#approveActive').val();
+	  
+	if(approveActive=="true") {
+	} else {
+		$("#pOrderDate").datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			timepicker : false
+		});
+	 
+		$("#payMode").on('change', function() {
+			var payMode = $(this).val(); 
+			$('#checkId').val("");
+			$('#transId').val("");
+			$('#posNo').val("");
+			$('#posNumber').val("");
+			if(payMode=="PMOD001") {
+				$('#transTR').show();
+				$('#posTR').show();
+				$('#checkTR').hide();
+				$('#checkId').val("");
+			} else if(payMode=="PMOD003") {
+				$('#transTR').hide();
+				$('#posTR').hide();
+				$('#checkTR').show();
+				$('#transId').val("");
+				$('#posNo').val("");
+				$('#posNumber').val("");
+			} else {
+				$('#checkId').val("");
+				$('#transId').val("");
+				$('#posNo').val("");
+				$('#posNumber').val("");
+				$('#transTR').hide();
+				$('#checkTR').hide();
+				$('#posTR').hide();
+			}
+		})
+		
+		
+	
+		
+	}
+	
+	$("#submit").click(function() {
+	 
+		 
+		if (!blankValidation("fileUpload","TextField" ,"Please Select Some File"))
+		      return false;
+		
+		var paymode = $('#payMode').val();
+		if(paymode=="PMOD001") {
+			if (!blankValidation("transId","TextField" ,"Please Enter Transaction Number"))
+			      return false;
+			if (!blankValidation("posNo","TextField" ,"Please Enter Transaction Number"))
+			      return false;
+		}
+		if(paymode=="PMOD003") {
+			if (!blankValidation("checkId","TextField" ,"Please Enter Cheque Number"))
+			      return false;
+		}
+		
+		var quotationId = $('#quotationId').val();
+		//var pId = $('#purchaseOrder').val();
+		//var pDate = $('#pOrderDate').val();
+		var fileName = $('#fileUpload').val();
+		
+		var lastIndex = fileName.lastIndexOf("\\");
+		if(lastIndex >= 0) {
+			fileName = fileName.substring(lastIndex + 1);
+		}
+		
+		obj = {};
+		
+		obj.quotationId = $('#quotationId').val();
+		//obj.purchaseOrder = $('#purchaseOrder').val();
+		//obj.pOrderDate = $('#pOrderDate').val();
+		obj.pOrderImage = $('#fileUpload').val();
+		//obj.advAmount = parseFloat($('#advAmount').val());
+		obj.payMode = $('#payMode').val();
+		obj.firstPayMode = $('#firstPayMode').val();
+		obj.firstPayAmount = parseFloat($('#firstPayAmount').val());
+		obj.secondPayAmount = parseFloat($('#secondPayAmount').val());
+		obj.transId = $('#transId').val();
+		obj.checkId = $('#checkId').val();
+		obj.posNumber = $('#posNumber').val();
+		console.log(obj)
+		swal({
+			title				: "Are you sure want to Submit?",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	: "Submit",
+			showLoaderOnConfirm	: true,
+			reverseButtons 		: true,
+			preConfirm: () => {
+				return new Promise((resolve) => {
+					setTimeout(() => {
+						console.log("Doing async operation");
+						resolve()
+					}, 3000)
+				})
+			}
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+					type 		: "POST",
+					url 		: "/sales/view-quotation-master-generate-salesorder",
+					dataType 	: 'json',
+					contentType : 'application/json',
+					data 		: JSON.stringify(obj),
+					success : function(response){
+						swal({
+							title:"Sales Order Generated Successfully",
+							type: "success",
+						}).then(function(){
+							location.reload(); 
+						})
+					},	
+					error : function(data) {
+						console.log(data);
+					}
+				}) 
+			}
+		}) 
+	});
+})
+//(document).ready() Ends
+
+//Upload File(Image / PDF) Function
+function saveFile() {
+	$("#upload_prev").empty();
+	var uFile = $('#fileUpload')[0].files[0]; 
+	var fileName = $('#fileUpload').val();
+	
+	var lastIndex = fileName.lastIndexOf("\\");
+	if(lastIndex >= 0) {
+		fileName = fileName.substring(lastIndex + 1);
+	}
+	var iURL = URL.createObjectURL(uFile);
+	$("#uploadedImgDiv").html("");
+	
+	var LightImg =  "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' target='_blank'>Preview</a>";
+	$("#uploadedImgDiv").html(LightImg);
+	
+	var fileData = new FormData();
+	fileData.append('file',uFile);
+	fileData.append('path','none');
+	
+	$.ajax({
+		type        : "POST",
+		url         : "add-quotation-master-uploadFile",
+		enctype     : "multipart/form-data",
+		contentType : false,
+		data        : fileData,
+		processData : false,
+		cache       : false,
+		success     : function(response){
+						
+					},			  
+		error       : function(e) {
+			
+			  		}
+	});
+}
+
+//Quotation PDF Function
+function pdfCreation() {
+	var id = window.btoa($('#quotationId').val());
+	window.open("/download/view-sales-order-one-pdf?id="+id,'_blank');
+}
+
+//Advance Payment PDF Function
+function pdfAdvPayment() {
+	var id = window.btoa($('#salesOrder').val());
+	window.open("/download/view-sales-order-advance-payment-pdf?id="+id,'_blank');
+}
+
+//"View Sales Order" Default Page Open On Click 'Close' Button
+function cancel() {
+	window.location.href = "/sales/view-sales-order" ;
+}
+
+//GET POS NUMBER FUNCTION
+function posAutoComplete() {
+		$.ajax({
+				type : "POST",
+				url : "view-quotation-master-posAutoComplete",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#posNo").val(),
+				success : function(response) {
+					if (response.message == "success") {
+
+						if (response.body.length != 0) {
+							$("#posNo").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							for (var i = 0; i < response.body.length; i++) {  //For Loop Starts
+								content += '<li onClick="selectAutocompleteValue(\''
+										+ response.body[i].key
+										+ '\',\''
+										+ response.body[i].name
+										+ '\')">'
+										+ response.body[i].key +' ('+ response.body[i].name +')'+ '</li>';
+							}  //For Loop Ends
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+
+						} else {
+							$("#posNo").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							content += '<li onClick="selectAutocompleteValue(\''
+									+ ''
+									+ '\',\''
+									+ ''
+									+ '\')">'
+									+ "No Data Found" + '</li>';
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+					$("#posNo").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''
+							+ ''
+							+ '\',\''
+							+ ''
+							+ '\')">'
+							+ "Try Again" + '</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+			})
+}
+function selectAutocompleteValue(key, name) {
+	if (key) {
+		$("#posNumber").val(key);
+		$("#posNo").val(key+' ('+name+')');
+		$("#posNo").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+	} else {
+		$("#posNumber").val("");
+		$("#posNo").val("");
+		$("#posNo").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+}
+function amountToPay1(){ 
+		var totalAmount = parseFloat($("#grandTotalt").val().replace(/\,/g,''));
+		var advAmount = parseFloat($("#advAmount").val().replace(/\,/g,''));
+		 var amountToPay = totalAmount - advAmount;
+		 if(amountToPay >0){
+			 $("#amountToPay").val(amountToPay);
+		 }else{
+			 $("#advAmount").val("0.00")
+			 $("#amountToPay").val(totalAmount);
+			 swal("Advance Amount Can't Be More Than Total Amount.")
+		 }
+		  
+}
+$(document).ready(function() {
+	amountToPayOnLoad();
+	});
+	
+function amountToPayOnLoad(){
+	var totalAmount = parseFloat($("#grandTotalt").val().replace(/\,/g,''));
+	var advAmount =$("#advAmount").html();
+	if(advAmount){
+		advAmount = parseFloat(advAmount.replace(/\,/g,''));
+	}else{
+		advAmount = 0;
+	}
+	
+	//alert("totalAmount" + totalAmount +" advAmount "+advAmount);
+	 var amountToPay = totalAmount - advAmount;
+	 $("#amountToPay").val(amountToPay);
+}
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+			<div class="content-wrap">
+				<div class="main mrt_20">
+					<div class="col-md-12">
+						<ol class="breadcrumb breadcrumb-arrow">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="view-quotation-master">View Quotation
+									Master</a></li>
+
+						</ol>
+					</div>
+					<div class="card-title">
+						<h4>Sales Order</h4>
+					</div>
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<form th:object="${quotation}" autocomplete="off">
+									<div class="containersec">
+										<table width="100%" height="100%">
+											<tr>
+												<td colspan="2"><input type="hidden" id="quotationId"
+													th:value="${quotation[0].quotationId}" /> <input
+													type="hidden" id="approveActive"
+													th:value="${quotation[0].approveActive}" /> <input
+													type="hidden" id="salesOrder"
+													th:value="${quotation[0].salesOrder}" /></td>
+											</tr>
+
+											<tr>
+												<td colspan="2">
+													<div class="bill">Sales Order</div>
+												</td>
+											</tr>
+											<tr>
+												<td><img th:src="${logoImage}" height="150" width="250"
+													style="margin: 20px 0px;" /></td>
+												<td align="left" class="address" width="250">
+													<div class="resturantname"></div> <!-- <div class="lefttag">Invoice:</div>
+												<div
+													th:text="${gymTransactionModel.invoice}"></div> -->
+													<div class="lefttag">Date :</div>
+													<div th:text="${quotation[0].curDate}"></div>
+												</td>
+											</tr>
+
+											<tr>
+												<td colspan="2" bgcolor="#cedefd"></td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<table width="100%" class="innertable">
+														<tr>
+															<td colspan="2">
+
+																<table width="100%">
+
+																	<tr>
+																		<!-- <td width="150px;"><label><b>Quotation
+																					Id</b></label></td>
+																		<td width="200px;"><label id="quotationId"
+																			th:text="${quotation[0].quotationId}"
+																			class="form-control quotationId"></label></td>
+																		<td width="150px;"></td> -->
+
+
+																		<td width="150px;"><label><b>Customer
+																					Name</b></label></td>
+																		<td width="200px;"><input type="hidden"
+																			id="customerId" th:value="${quotation[0].customerId}">
+																			<label id="customerName"
+																			th:text="${quotation[0].customerName}"
+																			class="form-control quotationId"></label></td>
+																		<td width="200px;">&nbsp;</td>
+																		<!-- d b r -->
+																		<td width="150px;"><label><b>Sale
+																					Order</b></label></td>
+																		<td width="200px;"><label id="salesOrder"
+																			th:text="${quotation[0].salesOrder}"
+																			class="form-control quotationId"></label></td>
+																	</tr>
+																	<tr>
+
+																		<!-- <td width="150px;"></td> -->
+																		<!-- <td width="150px;"><label><b>Quotation Name</b></label></td>
+																		<td width="200px;"><label id="quotationName"
+																			th:text="${quotation[0].quotationName}"
+																			class="form-control quotationId"></label></td>
+																		<td width="150px;"></td> -->
+																		<!-- <td width="150px;"><label><b>Quotation Valid
+																				Upto</b></label></td>
+																		<td width="200px;"><label id="quotationVDate"
+																			th:text="${quotation[0].quotationVDate}"
+																			class="form-control quotationVDate"></label></td> -->
+																	</tr>
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td colspan="2">
+																<table id="id_td" class="maintbl" cellpadding="0"
+																	cellspacing="0" border="1" style="width: 100%;">
+																	<thead>
+																		<tr>
+																			<th class="tableheader">SL No.</th>
+																			<th class="tableheader">ITEM NAME</th>
+																			<th class="tableheader">ITEM CODE</th>
+																			<th class="tableheader">PRICE</th>
+																			<th class="tableheader">QUANTITY</th>
+																			<th class="tableheader">DISCOUNT</th>
+																			<th class="tableheader">GST</th>
+																			<th class="tableheader">SERVE TYPE</th>
+																			<th class="tableheader">TOTAL</th>
+																		</tr>
+																	</thead>
+																	<tbody>
+																		<tr th:each="other,iter : ${quotation}">
+																			<td th:text=" ${iter.index+1}"></td>
+																			<td th:text="${other.itemName}"></td>
+																			<td th:text="${other.itemCode}"></td>
+																			<td class="money"
+																				th:text="${#numbers.formatDecimal(other.unitPrice, 0, 'COMMA', 2, 'POINT')}"></td>
+																			<td th:text="${other.quantity}"></td>
+																			<td class="money" th:unless="${other.discount!=0.0}">0.00</td>
+																			<td class="money" th:if="${other.discount!=0.0}"
+																				th:text="${#numbers.formatDecimal(other.discount, 0, 'COMMA', 2, 'POINT')}"></td>
+																			<td class="" th:unless="${other.itemGST!=0.0}">0</td>
+																			<td class="" th:if="${other.itemGST!=0.0}"
+																				th:text="${other.itemGST}"></td>
+																			<td th:text="${other.qServeType}"></td>
+																			<td class="money"
+																				th:text="${#numbers.formatDecimal(other.lineTotal, 0, 'COMMA', 2, 'POINT')}"></td>
+																		</tr>
+
+																		<tr>
+																			<td colspan="7" rowspan="4" valign="top">
+																				<div>
+																					<strong>Note</strong>
+																				</div>
+																				<div>
+																					<textarea class="form-control textarea"
+																						th:text="${quotation[0].qNote}" readOnly></textarea>
+																				</div>
+																			</td>
+
+
+																			<td width="115" align="right"><b>SUB TOTAL</b></td>
+
+																			<td><input type="text" style="border: none"
+																				id="subtotal" class="form-control money"
+																				th:value="${#numbers.formatDecimal(quotation[0].subTotal, 0, 'COMMA', 2, 'POINT')}" /></td>
+																		</tr>
+																		<tr id="IgstTR" th:if="${quotation[0].taxType}">
+																			<td width="115" align="right"><b>IGST</b></td>
+
+																			<td width="130"><input type="text"
+																				style="border: none" id="igst"
+																				class="form-control money"
+																				th:value="${#numbers.formatDecimal(quotation[0].qIGST, 0, 'COMMA', 2, 'POINT')}" /></td>
+																		</tr>
+																		<tr id="CgstTR" th:if="${!quotation[0].taxType}">
+																			<td id="getCGST" width="115" align="right"><b>CGST</b></td>
+
+																			<td width="130"><input type="text"
+																				style="border: none" id="cgst"
+																				class="form-control money"
+																				th:value="${#numbers.formatDecimal(quotation[0].qCGST, 0, 'COMMA', 2, 'POINT')}" /></td>
+																		</tr>
+
+																		<tr id="SgstTR" th:if="${!quotation[0].taxType}">
+																			<td width="115" align="right"><b>SGST</b></td>
+
+																			<td width="130"><input type="text"
+																				style="border: none" id="sgst"
+																				class="form-control money"
+																				th:value="${#numbers.formatDecimal(quotation[0].qSGST, 0, 'COMMA', 2, 'POINT')}" /></td>
+																		</tr>
+																		<tr>
+																			<td width="115" align="right"><b>GRAND TOTAL</b></td>
+
+																			<td width="130"><input type="text"
+																				style="border: none" id="grandTotalt"
+																				class="form-control money"
+																				th:value="${#numbers.formatDecimal(quotation[0].grandTotal, 0, 'COMMA', 2, 'POINT')}" /></td>
+
+																		</tr>
+
+																	</tbody>
+																</table>
+															</td>
+														</tr>
+													</table>
+										</table>
+										<div class="row">
+											<div class="col-lg-6">
+												<div class="form-group">
+													<label><b>Tax Type</b></label> <label id="taxType"
+														th:if="${quotation[0].taxType}"
+														class="form-control taxType">Center Tax</label> <label
+														id="taxType" th:if="${!quotation[0].taxType}"
+														class="form-control taxType">State Tax</label>
+
+												</div>
+
+												<div class="form-group">
+													<label><b>GST Rate</b></label> <label id="gstRate"
+														th:text="${quotation[0].gstRate}"
+														class="form-control gstRate"></label>
+
+												</div>
+
+											</div>
+											<div class="col-lg-6">
+												<div class="form-group"
+													th:if="${quotation[0].approveActive} and ${quotation[0].pOrderImage!='null'}">
+													<label><b>Invoice</b></label><a class='example-image-link'
+														th:href="${'/document/purchaseOrder/'+ quotation[0].pOrderImage}"
+														th:title="${quotation[0].pOrderImage}" target="_blank">
+														<img src="../assets/images/invoice-bill.png" height="56"
+														width="50" />
+													</a>
+
+												</div>
+												<div class="form-group"
+													th:if="${!quotation[0].approveActive}">
+													<label><b>Image</b></label> <input type="file"
+														id="fileUpload" style="display: block;"
+														onchange="saveFile()">
+													<div id="uploadedImgDiv"></div>
+													<span class="fornerrormsg" id="subcategory_photoerr"></span>
+												</div>
+
+
+												<div class="form-group">
+													<label><b>Amount To Pay</b></label> <input type="text"
+														class="form-control money" id="amountToPay" readonly>
+												</div>
+											</div>
+										</div>
+										<div class="row" th:unless="${saleOrderAdvancePaymentModelList !=null && saleOrderAdvancePaymentModelList !=''}">
+											<div class="col-lg-6">
+
+												<div class="form-group"
+													th:if="${!quotation[0].approveActive}">
+													<label><b>First Payment Mode</b></label> <select
+														class="form-control" id="firstPayMode">
+														<option th:each="c:${payModeList}" th:value='${c.key}'
+															th:text="${c.name}"></option>
+													</select>
+												</div>
+
+												<div class="form-group">
+													<label><b>First Payment Amount</b></label> <input
+														type="text" id="firstPayAmount"
+														onkeyup="checkAlphabetAndNumber('transId')"
+														class="form-control">
+												</div>
+											</div>
+
+
+
+
+											<div class="col-lg-6">
+
+												<div class="form-group"
+													th:if="${!quotation[0].approveActive}">
+													<label><b>Second Payment Mode</b></label> <select
+														class="form-control" id="payMode">
+														<option value="">--Select--</option>
+														<option th:each="c:${payModeList}" th:value='${c.key}'
+															th:text="${c.name}"></option>
+													</select>
+												</div>
+
+												<div class="form-group"
+													th:if="${!quotation[0].approveActive}">
+													<label><b>Second Payment Amount</b></label> <input
+														type="text" id="secondPayAmount"
+														onkeyup="checkAlphabetAndNumber('secondPayAmount')"
+														class="form-control">
+												</div>
+
+
+
+												<div class="form-group"
+													th:if="${!quotation[0].approveActive}" id="transTR">
+													<label><b>Transaction Number</b></label> <input type="text"
+														id="transId" onkeyup="checkAlphabetAndNumber('transId')"
+														class="form-control">
+												</div>
+
+
+
+												<div class="form-group"
+													th:if="${!quotation[0].approveActive}" id="posTR">
+													<label><b>POS Number</b></label> <input type="hidden"
+														id="posNumber"> <input type="text" id="posNo"
+														onkeyup="posAutoComplete();" class="form-control">
+													<div id="suggesstion-box"></div>
+												</div> 
+												 
+											</div>
+										</div>
+
+
+
+										<div th:if="${saleOrderAdvancePaymentModelList !=null && saleOrderAdvancePaymentModelList !='' }">
+											<div class="row borderCls"
+												th:each="a : ${saleOrderAdvancePaymentModelList}">
+												<div class="col-lg-3">
+													<div class="form-group">
+														<label><b>Payment Mode</b></label> <label
+															class="form-control" id="firstPayMode"
+															th:text="${a.paymentModel}"></label>
+													</div>
+												</div>
+												<div class="col-lg-3">
+
+													<div class="form-group">
+														<label><b>Payment Amount</b></label> <label
+															id="secondPayAmount" class="form-control"
+															th:text="${a.amount}"></label>
+													</div>
+												</div>
+												<div class="col-lg-3">
+													<div class="form-group" th:if="${a.transId!=null}">
+														<label><b>Transaction Number</b></label> <label
+															id="transId" class="form-control" th:text="${a.transId}"></label>
+													</div>
+												</div>
+												<div class="col-lg-3">
+													<div class="form-group" th:if="${a.posNo!=null}">
+														<label><b>POS Number</b></label> <label id="posNo"
+															class="form-control" th:text="${a.posNo}"></label>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div th:if="${!quotation[0].approveActive}" align="center">
+
+										<button type="button" id="submit" class="btn btn-success">Save</button>
+									</div>
+									<div th:if="${quotation[0].approveActive}" align="right">
+
+
+										<button type="button" class="btn btn-primary"
+											data-dismiss="modal" onclick="pdfCreation();">Print</button>
+										<!-- <button type="button" class="btn btn-primary"
+											th:if="${quotation[0].advAmount!=0.0}" data-dismiss="modal"
+											onclick="pdfAdvPayment();">Print Payment</button> -->
+										<button type="button" class="btn btn-warning"
+											data-dismiss="modal" onclick="cancel();">Close</button>
+									</div>
+									<div></div>
+							</div>
+							</form>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /# row -->
+	</div>
+	</div>
+</body>
+</html>

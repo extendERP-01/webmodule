@@ -1,0 +1,625 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 570px;
+	position: absolute;
+	z-index: 9999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f2f2f2;
+	border-bottom: 1px solid #373757;
+	color: #373757;
+	font-weight: 500;
+}
+
+#autocomplete-list li:hover {
+	background: #373757;
+	color: #f2f2f2;
+	cursor: pointer;
+}
+
+.overSelect {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.selectBox {
+	position: relative;
+}
+
+.selectBox select {
+	width: 100%;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+.checkClass {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+.checkClass1 {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+.checkClass label {
+	display: block;
+}
+
+.checkClass1 label {
+	display: block;
+}
+</style>
+<script type="text/javascript">
+	
+</script>
+<script>
+	
+</script>
+
+
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+<script>
+$(document).ready(function () {
+
+	
+	$("#tEffectiveDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true, 
+		timepicker : false,
+	})
+	
+	$("#submitItems").click(function () {
+
+		var salaryList = [];
+		
+		$("#tbodyData > tr").each(function () {
+			salary = {};
+			salary['employeeId'] = $("#tEmployeeId").val();
+			salary['jobTitleId'] = $("#tJobTitle").val();
+			salary['payGradeId'] = $("#tPayGrade").val();
+			salary['effectiveDate'] = $("#tEffectiveDate").val();
+			salary['salaryComponent'] = $(this).find(".tComponentIdCls").val();
+			salary['annualCtc'] = $("#tAnnualCTC").val();
+			salary['caltype'] = $(this).find(".calculationTypeIdCls").val();
+			salary['monthlyAmount'] = $(this).find(".monthlyAmntCls").val();
+			salary['annualAmount'] = $(this).find(".annualAmntCls").val();
+			salary['variableAmount'] = $(this).find(".variableAmntCls").val();
+			salaryList.push(salary);
+			console.log(salaryList)
+		});
+		
+
+
+		submitUpdateSalaryDetails(salaryList);
+	});
+	
+	
+	$("#tPayGrade").on('change', function() {
+		var tPayGrade = $(this).val();
+		
+		console.log(tPayGrade);
+		if (tPayGrade) {
+			
+			$.ajax({
+				type : 'POST',
+				url : 'add-offer-letter-dtls-salaryComponent-ajax',
+				contentType : false,
+				data : tPayGrade,
+				success : function(response) {
+					if (response.message == "success") {
+						$('#tbodyData').empty();
+						$('#tAnnualCTC').val(''); 
+						var divContent=[];
+						var j=0;
+						cnt=0;
+					if(response.body.length > 0){
+						for (var i = 0; i < response.body.length; i++) {
+							 var calType = "";
+								if (response.body[i].calculationType==1) {
+									calType = "flat amount";
+								} else if (response.body[i].calculationType==2) {
+									calType = "% of basic pay";
+								} else{
+									calType = "% of CTC ";
+								}
+							cnt=cnt+1;
+							divContent.push("<tr>"
+									+"<td><input type='text' id='slNo_"+i+"'  class='form-control slNoCls'  value='" + ++j +"'readonly></td>"
+									+ "<td><input type='text' id='salaryComponent_"+i+"' value='" + response.body[i].salaryComponent + "' class='form-control salaryComponentCls'  readonly /><input type='hidden' id='tComponentId_"+i+"' value='" + response.body[i].tComponentId + "' class='form-control tComponentIdCls' /> </td>"
+									+ "<td><input type='text' id='calculationType_"+i+"' value='"+calType+ "' class='form-control calculationTypeCls' readonly /> <input type='hidden' id='calculationTypeId_"+i+"' value='" + response.body[i].calculationType + "' class='form-control calculationTypeIdCls' /></td>"
+									+"<td><input type='text' id='monthlyAmnt_"+i+"'  class='form-control monthlyAmntCls' readonly/></td>"
+									+"<td><input type='text' id='tAnnualAmount_"+i+"'  class='form-control annualAmntCls'  onkeyup='calculateAnnualAmount(event);' readonly/> <input type='hidden' id='variableAmnt_"+i+"' value='" + response.body[i].variableAmnt + "' class='form-control variableAmntCls' /></td>"
+							 		+ " </tr>");
+					
+						}
+					}else{
+						divContent.push("<tr><td colspan='5' align='center'>No Details Found.</td></tr>");
+					}
+											
+						$("#tbodyData").append(divContent);
+					}
+				},
+				error : function(e) {
+					alert("error");
+				}
+			});
+		} else {
+			$("#salaryComponent").empty();
+			var option = $("<option></option>");
+			$(option).val(null);
+			$(option).html("Select");
+			$("#ChairName").append($("<option value> select</option>"));
+			$("#tUser").empty();
+			$("#tUser").append("<option value='NULL'>Select</option>");
+			$("#status").empty();
+			$("#status").append("<option value='NULL'>Select</option>");
+			}
+	});
+	
+	
+});
+
+function submitUpdateSalaryDetails(salaryList) {
+
+	console.log(salaryList)
+	swal.fire({
+		title: "Are you sure want to Submit?",
+		text: "Once Submited,Can't revert back !",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#DD6BB5",
+		confirmButtonText: "Submit",
+
+		reverseButtons: true,
+		confirmButtonAriaLabel: 'Thumbs up, great!',
+		cancelButtonText: 'Cancel',
+		cancelButtonAriaLabel: 'Thumbs down',
+		showLoaderOnConfirm: true,
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+
+	}).then((result) => {
+		if (result.value) {
+			$.ajax({
+				type: "POST",
+				url: "view-employee-update-salary-components",
+				dataType: "json",
+				contentType: "application/json",
+				data: JSON.stringify(salaryList),
+				success: function (response) {
+					console.log(response);
+					if (response.message == "Success") {
+						swal({
+							title: "Data Saved Successfully.",
+							type: "success",
+						}).then(function () {
+							window.location.href = "/employee/view-employee";
+						})
+					} else {
+						swal({
+							title: response.code,
+							text: response.message,
+							type: "warning"
+						})
+					}
+				},
+				error: function (response) {
+					swal(response.code);
+				}
+			}) //ajax ends
+		}
+	}) //swal function block ends
+} //submit function ends
+
+function calculateMonthlyAmount(){
+	
+  	var amnt = 0;
+	var total = 0;
+	var grandTotal = 0;
+	cnt=0;
+  	$(".variableAmntCls").each(function(i){
+  		amnt = parseFloat($(this).val());
+  		var varAmnt=$("#variableAmnt_"+cnt).val();
+  		var calType=$("#calculationTypeId_"+cnt).val();
+  		var ctc=$("#tAnnualCTC").val();
+     	var basic=$("#tAnnualAmount_0").val(); 
+  		if (calType==1) { 
+  			grandTotal = varAmnt-0;
+  			total = grandTotal/12;
+		} else if (calType== 2 ) { 
+			grandTotal = (varAmnt/100)*parseFloat(basic);
+			total = grandTotal/12;
+		} else{ 
+			grandTotal =(varAmnt/100)*parseFloat(ctc);
+			total = grandTotal/12;
+		} 
+  		$('#tAnnualAmount_'+cnt).val((grandTotal).toFixed(2));
+  		$('#monthlyAmnt_'+cnt).val((total).toFixed(2));
+  	
+  		cnt=cnt+1;
+
+  	})	  	
+  
+ 
+	
+  }
+
+
+//Annual amount
+
+  function calculateAnnualAmount(event){
+		var crrentId = event.currentTarget.id;
+		var crrentValue = event.currentTarget.valua
+		var l = crrentId.split("_");
+		var cnt = l[1];	
+		  var totalAnnualAmount = 0;
+	  var ctc=$("#tAnnualCTC").val();
+	  var yearly=$("#tAnnualAmount_"+cnt).val();
+	
+	  var amnt=yearly/12;
+	$("#monthlyAmnt_"+cnt).val((amnt).toFixed(2));
+	  var total = 0;
+	  var monthlyTotal = 0;
+	 	$(".annualAmntCls").each(function(i){
+	 		totalAnnualAmount = parseFloat($(this).val());
+	 		total=total+totalAnnualAmount;
+	 	
+	 		$('#tAnnualAmnt').val((total).toFixed(2));
+	 	
+	 		cnt=cnt+1;
+	 		
+	 	})	 
+	
+	  if (total!=ctc) {
+		  $("#modalDiv").show();
+		} else {
+		$("#modalDiv").hide();
+		}
+	  }
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Update Salary </span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Update Salary</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Employee First Name</label> <input type="text"
+											th:value="${salaryDetails[0].empFirstName}"
+											class="form-control" id="employeeFname" readonly>
+									</div>
+									<div class="form-group">
+
+										<!-- <input type="hidden" id="tPayGrade"
+											th:value="${salaryDetails[0].payGradeId}" /> -->
+										<input type="hidden" id="tJobTitle"
+											th:value="${salaryDetails[0].jobTitleId}" /> <label>Employee
+											Id</label> <input type="text"
+											th:value="${salaryDetails[0].employeeId}"
+											class="form-control" id="tEmployeeId" readonly>
+
+									</div>
+
+									<div class="form-group">
+										<label>Annual CTC</label> <input type="text"
+											class="form-control" id="tAnnualCTC"
+											onkeyup="calculateAnnualAmount(event); calculateMonthlyAmount();"
+											th:value="${salaryDetails[0].annualCtc}">
+									</div>
+
+									<!-- 	<div class="form-group">
+										<label>Annual CTC</label> <input type="text"
+											th:value="${salaryDetails[0].annualCtc}" class="form-control"
+											id="tAnnualCTC"
+											onkeyup="calculateMonthlyAmount();calculateAnnualAmount(event);">
+									</div> -->
+
+
+
+								</div>
+								<div class="col-lg-6">
+
+									<div class="form-group">
+										<label>Employee Last Name</label> <input type="text"
+											th:value="${salaryDetails[0].empLastName}"
+											class="form-control" id="employeeFname" readonly>
+									</div>
+
+
+									<div class="form-group">
+										<label>Pay Grade</label><select class="form-control"
+											id="tPayGrade">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${payGradeList}" th:value='${c.key}'
+												th:text="${c.name}"
+												th:selected="${c.key== salaryDetails[0].payGradeId}"></option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Effective Date</label> <input type="text"
+											th:value="${salaryDetails[0].effectiveDate}"
+											class="form-control" id="tEffectiveDate" readonly>
+
+									</div>
+									<!-- <div class="form-group">
+										<select class="form-control" id="tJobTitle">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${payGradeList}" th:value='${c.key}'
+												th:text="${c.name}"
+												th:selected="${c.key== salaryDetails[0].payGradeId}"></option>
+										</select>
+									</div> -->
+
+								</div>
+							</div>
+						</div>
+						<!-- <div class="card-title">
+							<div style="font-size: 20px; text-align: center">Salary
+								Details</div>
+						</div> -->
+						<!-- <div class="row">
+							<div class="col-lg-6">
+
+								<div class="form-group">
+									<label>Basic Pay</label> <input type="text"
+										th:value="${salaryDetails.tBasicPay}" class="form-control"
+										id="tBasicPay" >
+								</div>
+
+								<div class="form-group">
+									<label>House Rent Allowance</label> <input type="text"
+										th:value="${salaryDetails.tHouseRentAllowance}"
+										class="form-control" id="tHouseRentAllowance" >
+								</div>
+								<div class="form-group">
+									<label>Conveyance Allowance</label> <input type="text"
+										th:value="${salaryDetails.tConveyanceAllowance}"
+										class="form-control" id="tConveyanceAllowance" >
+								</div>
+								<div class="form-group">
+									<label>Provident Fund</label> <input type="text"
+										th:value="${salaryDetails.tEmployeeProvidentFund}"
+										class="form-control" id="tEmployeeProvidentFund" >
+								</div>
+								<div class="form-group">
+									<label>Perquisites</label> <input type="text"
+										th:value="${salaryDetails.tPerquisites}" class="form-control"
+										id="tPerquisites" >
+								</div>
+							</div>
+							<div class="col-lg-6">
+
+								<div class="form-group">
+									<label>Dearness Allowance</label> <input type="text"
+										th:value="${salaryDetails.tDearnessAllowance}"
+										class="form-control" id="tDearnessAllowance" >
+								</div>
+								<div class="form-group">
+									<label>Medical Allowance</label> <input type="text"
+										th:value="${salaryDetails.tMedicalAllowance}"
+										class="form-control" id="tMedicalAllowance" >
+								</div>
+								<div class="form-group">
+									<label>Leave Travel Allowance</label> <input type="text"
+										th:value="${salaryDetails.tLeaveTravelAllowance}"
+										class="form-control" id="tLeaveTravelAllowance" >
+								</div>
+								<div class="form-group">
+									<label>ESIC scheme</label> <input type="text"
+										th:value="${salaryDetails.tESICscheme}" class="form-control"
+										id="tESICscheme" >
+								</div>
+							</div>
+						</div> -->
+
+
+						<!-- <div class="col-md-12">
+							id="table-data"
+							<table class="tbll" id="myTableSalary" width="100%" border="0"
+								cellspacing="2" cellpadding="5">
+								<thead>
+									<tr>
+										<th>Sl No.</th>
+										<th>Salary Component</th>
+										<th>Calculation Type</th>
+										<th>Monthly Amount</th>
+										<th>Annual Amount</th>
+
+									</tr>
+								</thead>
+
+								<tbody id="tbodyData">
+
+									<tr class="tr_clone" th:if="${salaryDetails != null}"
+										th:each="a,iter:${salaryDetails}">
+
+										<td><input type="text" class="form-control" readonly
+											th:value="${iter.index + 1}"></td>
+
+
+										<td><input type="text"
+											th:id="salaryComponent_+${iter.index}"
+											class="form-control salaryComponentCls"
+											th:value="${a.salaryComponentName}" /> <input type='hidden'
+											id="tComponentId_+${iter.index}"
+											th:value="${a.salaryComponent}"
+											class='form-control tComponentIdCls' /></td>
+
+										<td><input type="text"
+											th:id="calculationType_+${iter.index}"
+											class="form-control calculationTypeCls"
+											th:value="${a.caltypeName}" /> <input type="hidden"
+											th:id="calculationTypeId_+${iter.index}"
+											class="form-control calculationTypeIdCls"
+											th:value="${a.caltype}" /></td>
+
+										<td><input type="text" th:id="monthlyAmnt_+${iter.index}"
+											class="form-control monthlyAmntCls"
+											th:value="${a.monthlyAmount}" /></td>
+
+										<td><input type="text"
+											th:id="tAnnualAmount_+${iter.index}"
+											class="form-control annualAmntCls"
+											th:value="${a.annualAmount}" /> <input type="hidden"
+											th:id="variableAmnt_+${iter.index}"
+											class="form-control variableAmntCls"
+											th:value="${a.variableAmount}" /></td>
+
+									</tr>
+
+
+
+								</tbody>
+							</table>
+						</div> -->
+
+						<!-- <div class="row">
+							<div class="col-lg-8">
+								<div class="form-group">
+									<label>Taxable Amount</label> <input type="text"
+										th:value="${taxableAmnt}" class="form-control"
+										id="tTaxableAmount" readonly>
+								</div>
+								<div class="form-group">
+									<label>Payable Amount</label> <input type="text"
+										th:value="${payable}" class="form-control" id="tPayableAmount"
+										readonly>
+								</div>
+							</div>
+						</div> -->
+
+						<div class="row">
+							<!-- 	<div class="col-md-4">
+								<label>Annual CTC</label> <input type="text"
+									class="form-control" id="tAnnualCTC"
+									onkeyup="calculateAnnualAmount(event); calculateMonthlyAmount();"
+									th:value="${salaryDetails[0].annualCtc}">
+							</div> -->
+
+							<div class="col-md-12">
+								<!-- id="table-data" -->
+								<table class="tbll" id="myTableSalary" width="100%" border="0"
+									cellspacing="2" cellpadding="5">
+									<thead>
+										<tr>
+											<th>Sl No.</th>
+											<th>Salary Component</th>
+											<th>Calculation Type</th>
+											<th>Monthly Amount</th>
+											<th>Annual Amount</th>
+
+										</tr>
+									</thead>
+
+									<tbody id="tbodyData">
+
+										<tr class="tr_clone" th:if="${salaryDetails != null}"
+											th:each="a,iter:${salaryDetails}">
+
+											<td><input type="text" class="form-control" readonly
+												th:value="${iter.index + 1}"></td>
+
+
+											<td><input type="text"
+												th:id="salaryComponent_+${iter.index}"
+												class="form-control salaryComponentCls"
+												th:value="${a.salaryComponentName}" readonly /> <input
+												type='hidden' id="tComponentId_+${iter.index}"
+												th:value="${a.salaryComponent}"
+												class='form-control tComponentIdCls' /></td>
+
+											<td><input type="text"
+												th:id="calculationType_+${iter.index}"
+												class="form-control calculationTypeCls"
+												th:value="${a.caltypeName}" readonly /> <input type="hidden"
+												th:id="calculationTypeId_+${iter.index}"
+												class="form-control calculationTypeIdCls"
+												th:value="${a.caltype}" /></td>
+
+											<td><input type="text"
+												th:id="monthlyAmnt_+${iter.index}"
+												class="form-control monthlyAmntCls"
+												th:value="${a.monthlyAmount}" readonly /></td>
+
+											<td><input type="text"
+												th:id="tAnnualAmount_+${iter.index}"
+												class="form-control annualAmntCls"
+												th:value="${a.annualAmount}" readonly /> <input
+												type="hidden" th:id="variableAmnt_+${iter.index}"
+												class="form-control variableAmntCls"
+												th:value="${a.variableAmount}" /></td>
+
+										</tr>
+
+
+
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+									<button type="button" class="btn btn-warning"
+										onclick="returnToAddPage();">Cancel</button>
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<div style="clear: both;"></div>
+</html>

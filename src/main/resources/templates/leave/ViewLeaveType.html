@@ -1,0 +1,250 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+ 
+ 
+    function viewInModel(index){
+		$('#table1').empty();
+			$.ajax({
+				type 		:	"POST",
+				url 		:	"view-leave-type-mstr-model",
+				dataType 	:	'json',
+				contentType :	'application/json',
+				data 		:	index,
+				success 	: 	function(response) {
+					
+					   if(response.message=="success"){
+						 
+						var leaveStatus = "";
+						if(response.body.lTypeStatus){
+							leaveStatus = "Active";	
+						}else{
+							leaveStatus = "Inactive";	
+						}
+						
+						var carriedfwd = "";
+						if(response.body.lCarriedFwd){
+							carriedfwd = "Yes";	
+						}else{
+							carriedfwd = "No";	
+						}
+						
+						 table = '<tr><td>Leave Type Name:</td>'+'<td align="left">'
+						    +response.body.lTypeName+'</td>'+'</tr><tr><td>Leave Period:</td><td align="left">'
+							+response.body.lTypePeriod+'</td>'+'</tr><tr><td>Carried Forward  Percentage:</td><td align="left">'
+							+response.body.lCarriedFwdPercnt+'</td>'+'</tr><tr><td>Carried Forward  Amount:</td><td align="left">'
+							+response.body.maxCaryFwdAmt+'</td>'+'</tr><tr><td>Status:</td><td align="left">'
+							+leaveStatus+'</td></tr>';
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+					}				
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+		}  
+  
+ 	$(document).ready(function() {	
+ 		
+ 		
+ 		$('#table').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-leave-type-mstr-through-ajax',
+					'data' : function(d) { 
+						d.param1 = $('#param1').val();
+						 
+					}
+				},
+				'dataSrc' : "",
+			'columns' : [
+				{'data' : 'lTypeName'},
+				{'data' : 'lTypeShowAccrue'},
+				{'data' : 'lTypeShowCarried'},
+				{'data' : 'lTypePeriod'},
+				{'data' : 'lTypeShowActive'},
+				{'data' : 'action'}
+					]	
+			});
+		  });
+	
+	function searchData() {
+		$('#table').DataTable().draw();
+	}	
+	
+	  const ipAPI = 'https://api.ipify.org?format=json';
+	  function DeleteItem(index){
+	//	  alert(index);
+	  swal({
+			title				: "Are you sure to Delete this Leave Type?",
+			text				: "Once Deleted,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : '<i class="fa fa-thumbs-down">cancel</i>',
+			cancelButtonAriaLabel : 'Thumbs down',
+			preConfirm: () => {
+			    return fetch(ipAPI)
+			      .then(response => response.json())
+			      .then(data => Swal.insertQueueStep(data.ip))
+			      .catch(() => {
+			        Swal.insertQueueStep({
+			          type: 'error',
+			          title: 'Unable to get your public IP'
+			        })
+			      })
+			 }  
+		}).then((result) => {
+			if(result.value){
+			$.ajax({
+			type		: "POST",
+			url 		: "delete-leave-type-mstr",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(index),
+			success		: function(response){
+				console.log(response);
+				if(response.message=="Success"){
+					swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+					}).then(function(){
+							location.reload(); 
+					})
+				}else{
+					console.log('i m in unsuccess');
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+			}
+		})//swal function block ends
+	  }
+	  
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="@{/index}">Home</a></li>
+					<li class="active"><a th:href="@{/leave/add-leave-type-mstr}">Add
+							Leave Type</a></li>
+					<li class="inactive"><span>View Leave Type</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>List of Leave Type</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="search-field">
+					<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-leave-type-mstr">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Leave Type Name</label>
+
+								<!--   <input type="text" class="form-control" id="param1" />   -->
+								<select class="org-name form-control" id="param1">
+									<option th:value="NULL">Select</option>
+									<option th:each="c:${lTypeData}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+								</select>
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Leave Type</th>
+									<th>Leave Accrue Enable</th>
+									<th>Leave Carried Forward</th>
+									<th>Leave Period</th>
+									<th>Status</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+
+
+					<!-- Modal Start-->
+					<div id="myModal" class="modal fade" role="dialog">
+						<div class="modal-dialog">
+
+							<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title">View Details of Leave Type Master</h4>
+									<button type="button" class="close" data-dismiss="modal">
+										<i class="fa fa-close fa-2x"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<table width="100%" border="0" id="table1">
+									</table>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Modal End-->
+					<!-- /# row -->
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

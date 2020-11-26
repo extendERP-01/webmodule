@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.search-field{
+ float: left;
+ width: 100%;
+}
+</style>
+<script type="text/javascript">
+		//Method for listing of all the Country Records
+		
+		$(document).ready(function() {
+			$('#listAllCountry').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-category-throughAjax',
+					'data' : function(d) {
+						d.param1 = $('#param1').val();
+						
+		
+					}
+				},
+				'dataSrc' : "",
+				'columns' : [ {
+					'data' : 'category'
+				}, {
+					'data' : 'categoryName'
+				}, {
+					'data' : 'description'
+				}, {
+					'data' : 'action'
+				}
+		
+				]
+			});
+		});
+		
+		//Method For Searching Records In The List
+
+		function searchData() {
+			$('#listAllCountry').DataTable().draw();
+		}
+
+		// Method For View Details In Model
+
+		function viewInModelData(index) {
+		$('#categoryModel').empty();
+		var id = window.atob(index);
+		$.ajax({
+			type : "POST",
+			url : "view-category-model",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					table = '<tr><td>Category  :</td>' + '<td align="left">'
+							+ response.body.category + '</td>'
+							+ '</tr><tr><td>Category Name :</td><td>' + response.body.categoryName
+							+ '</td></tr><tr><td>Description :</td><td>' + response.body.description
+							+ '</td></tr>';
+					$('#myModal').modal('show');
+					$('#categoryModel').append(table);
+				}
+			},
+			error : function(data) {
+			}
+		})
+
+	}
+		//Deleting the Category
+
+		function deleteCategory(id){
+		swal.fire({
+			  title: "Are you sure want to Delete?",
+			  text: "Once Deleted,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'Delete',
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/master/delete-category?id="+ id,
+					    success: function(response) {
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Record Deleted Successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        	
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+	} 
+	
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="add-category">Add Category</a></li>
+					<li class="active"><span>View Category</span></li>
+				</ol>
+			</div>
+			<!-- <div class="card-title">
+				<h4>Listing of Item (1.5.2.3.2)</h4>
+			</div> -->
+			<div class="container-fluid">
+				<!-- <ul class="nav nav-tabs" id="myTab" role="tablist">
+					<li class="nav-item"><a class="nav-link active"
+						href="view-item-category" role="tab">View ItemCategory</a></li>
+					<li class="nav-item"><a class="nav-link "
+						href="add-item-category" role="tab">Add ItemCategory</a></li>
+				</ul> -->
+				<div class="card">
+					<div id="demo" class="collapse">
+						<div class="search-field">
+							<div class="row">
+								<div class="col-md-2">
+									<div class="org-name">Category Name</div>
+								</div>
+								<div class="col-md-3">
+									<input class="form-control" type="text" placeholder="" name=""
+										id="param1">
+								</div>
+								
+								<div class="col-md-2">
+									<div class="form-group">
+										<button class="btn btn-primary" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<a data-toggle="collapse" data-target="#demo"
+						class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+					</a>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table class="table table-bordered" id="listAllCountry">
+								<thead>
+									<tr>
+										<th>Category</th>
+										<th>Category Name</th>
+										<th>Description</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+						</div>
+						</div>
+						</div>
+						</div>
+						<!-- Modal Start-->
+						<div id="myModal" class="modal fade" role="dialog">
+							<div class="modal-dialog">
+								<!-- Modal content-->
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">View Details of category</h4>
+									</div>
+									<div class="modal-body">
+									<table width="100%" border="0" id="categoryModel">
+										<tbody>
+										<!--  
+											<tr class="countryName"><td><b>Country Name :</b></td></tr>
+											<tr class="countryCode"><td><b>Country Code:</b></td></tr>
+											<tr class="countryStatus"><td><b>Country Status :</b></td></tr>
+										-->
+										</tbody>
+									</table>
+									</div>
+									<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+								</div>
+								</div>
+							</div>
+						</div>
+						<!-- Modal End-->
+						<!-- /# row -->
+		</div>
+	</div>
+</html>

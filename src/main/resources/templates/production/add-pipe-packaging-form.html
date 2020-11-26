@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+
+function checkEmpty() {
+	var bundle = true;
+	$(".BundlesCls").each(function(){
+		if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Bundle Number")){
+			bundle = false;
+			return false;
+		}
+		
+	});
+	
+	var quantity = true;
+	if(bundle){
+	$(".QuantityCls").each(function(){
+		if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Quantity")){
+			quantity = false;
+			return false;
+		}
+		
+	});
+	}
+	var wt = true;
+	if(bundle && quantity){
+	$(".WtCls").each(function(){
+		if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Weight")){
+			wt = false;
+			return false;
+		}
+		
+	});
+	}
+
+
+	if(bundle && quantity && wt)
+	{
+	   addMore();
+	}
+}
+
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	$("#myTable tbody tr:last").find(".BundlesCls").val("");
+	$("#myTable tbody tr:last").find(".QuantityCls").val("");
+	$("#myTable tbody tr:last").find(".WtCls").val(""); 
+	$("#myTable tbody tr:last").find(".NameCls").val(""); 
+	$("#myTable tbody tr:last").find(".NoCls").val(""); 
+	$("#myTable tbody tr:last").find(".pDtls").val(""); 
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){ 
+		var textInput = $(this).find('input');     
+		var btnInput = $(this).find('button');
+		textInput.eq(0).attr('id',"selectBundel_"+i);
+		textInput.eq(1).attr('id',"selectQuantity_"+i);
+		textInput.eq(2).attr('id',"selectWt_"+i);
+		textInput.eq(3).attr('id',"selectBCName_"+i);
+		textInput.eq(4).attr('id',"selectBCNo_"+i);
+		btnInput.eq(0).attr('id',"productDtls_"+i); 
+		$("#selectBundel_"+i).val(i+1);
+		
+		//$("#selectBundel_"+i).val('1');
+		
+		/* $("#selectQuantity_"+i).val("");
+		$("#selectWt_"+i).val("");
+		$("#selectBCName_"+i).val("");
+		$("#selectBCNo_"+i).val(""); */ 
+	})
+	
+}
+
+function count()
+{
+	$("#myTable > tbody > tr").each(function(i){  
+		var textInput = $(this).find('input');  
+		//var buttonInput = $(this).find('button');  
+		var btnInput = $(this).find('button');
+		textInput.eq(0).attr('id',"selectBundel_"+i);
+		textInput.eq(1).attr('id',"selectQuantity_"+i);
+		textInput.eq(2).attr('id',"selectWt_"+i);
+		textInput.eq(3).attr('id',"selectBCName_"+i);
+		textInput.eq(4).attr('id',"selectBCNo_"+i);
+		textInput.eq(5).attr('id',"productDtls_"+i);
+		 btnInput.eq(0).attr('id',"productDtls_"+i); 
+		$("#selectBundel_"+i).val(i+1);
+	})
+}
+ 
+ 
+//********************************************
+$(document).ready(function(){
+	
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		 
+		count(); 
+		});
+	
+ 
+	$("#PackagingStartDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+
+	});
+	$("#PackagingEndDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+
+	});
+//submit button function
+	
+	$("#submit").click(function(){
+		
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			assign = {};
+  	
+			assign['planId']		=	$("#planId").val();
+			assign['prodId']	=	$("#prodId").val(); 
+			assign['batchId']		=	$("#batchId").val();  
+			assign['batchQty']		=	$("#batchQty").val(); 
+			assign['prodItemId']				=	$("#prodItemId").val();  
+			assign['packageingStartDate']	=	$("#PackagingStartDate").val();
+			assign['packageingEndtDate']		=	$("#PackagingEndDate").val();
+			assign['packagingQty']			=	$(this).find(".QuantityCls").val();
+			assign['packagingWt']			=	$(this).find(".WtCls").val();
+			assign['noOfBundles']	    	=	$(this).find(".BundlesCls").val(); 
+			assign['barcodeImageName']	   	=	$(this).find(".NameCls").val(); 
+			assign['barcodeImageNumber'] 	=	$(this).find(".NoCls").val(); 
+			
+			dataset.push(assign); 
+		});//table tbody tr loop ends
+		
+		 if (!blankValidation("PackagingStartDate","TextField" ,"Please Enter Packaging Start Date"))
+		      return false;
+		if (!blankValidation("PackagingEndDate","TextField" ,"Please Enter Packaging End Date"))
+		      return false;
+		 
+		var slitwt = true;
+		$(".BundlesCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Slit Width")){
+				slitwt = false;
+				return false;
+			}
+			
+		});
+		
+		var quantity = true;
+		if(slitwt){
+		$(".QuantityCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Quantity")){
+				quantity = false;
+				return false;
+			}
+			
+		});
+		}
+		var size = true;
+		if(slitwt && quantity){
+		$(".WtCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Pipe Size")){
+				size = false;
+				return false;
+			}
+			
+		});
+		}
+		
+		
+		
+		var name = true;
+		if(slitwt && quantity){
+		$(".NameCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Generate Token")){
+				name = false;
+				return false;
+			}
+			
+		});
+		}
+		
+		var no = true;
+		if(slitwt && quantity){
+		$(".NoCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Generate Token")){
+				no = false;
+				return false;
+			}
+			
+		});
+		}
+		
+		
+		
+		if(slitwt && quantity && size && name && no){
+			submitAddPlanning(dataset);
+		}
+											
+			
+		
+	})
+	// for draft save data 
+		$("#draft").click(function(){
+		
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			assign = {};
+  	
+			assign['tMotherCoilBatch']		=	$("#mcoilbatch").val();
+			assign['tMotherCoilThickness']	=	$("#mcoilthick").val(); 
+			assign['tPipeSlitBatch']		=	$("#slitbatch").val();  
+			assign['tPipeSlitWidth']		=	$("#slitWidth").val(); 
+			assign['tPipeSize']				=	$("#pipeSize").val();  
+			assign['packageingStartDate']	=	$("#PackagingStartDate").val();
+			assign['packageingEndtDate']		=	$("#PackagingEndDate").val();
+			assign['slitSubGroup']		    =	$("#slitSubGroup").val();
+			assign['packagingQty']			=	$(this).find(".QuantityCls").val();
+			assign['packagingWt']			=	$(this).find(".WtCls").val();
+			assign['noOfBundles']	    	=	$(this).find(".BundlesCls").val(); 
+			assign['barcodeImageName']	   	=	$(this).find(".NameCls").val(); 
+			assign['barcodeImageNumber'] 	=	$(this).find(".NoCls").val(); 
+			
+			dataset.push(assign); 
+		});//table tbody tr loop ends
+		
+		 if (!blankValidation("PackagingStartDate","TextField" ,"Please Enter Packaging Start Date"))
+		      return false;
+		if (!blankValidation("PackagingEndDate","TextField" ,"Please Enter Packaging End Date"))
+		      return false;
+		 
+		var slitwt = true;
+		$(".BundlesCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Slit Width")){
+				slitwt = false;
+				return false;
+			}
+			
+		});
+		
+		var quantity = true;
+		if(slitwt){
+		$(".QuantityCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Quantity")){
+				quantity = false;
+				return false;
+			}
+			
+		});
+		}
+		var size = true;
+		if(slitwt && quantity){
+		$(".WtCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Pipe Size")){
+				size = false;
+				return false;
+			}
+			
+		});
+		}
+		
+		if(slitwt && quantity && size){
+			submitDraftData(dataset);
+		}
+											
+			
+		
+	})
+	
+})
+ // save planning data
+	function submitAddPlanning(dataset){ 
+			swal.fire({
+				title				: "Are you sure want to Submit?",
+				text				: "Once Submited,Can't revert back !",
+				type 				: "warning",
+				
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Submit",
+				reverseButtons : true,
+				confirmButtonAriaLabel : 'Thumbs up, great!',
+				cancelButtonText : 'Cancel',
+				cancelButtonAriaLabel : 'Thumbs down', 
+			}).then((result) => {
+				if(result.value){
+					$.ajax({
+					type		: "POST",
+					url 		: "view-productions-packaging-add-ajax",
+					dataType	: "json",
+					contentType	: "application/json",
+					data		: JSON.stringify(dataset),
+					success		: function(response){  
+						if(response.message=="Success"){
+							swal({
+									title:"Data Saved Successfully.",
+									type: "success",
+							}).then(function(){
+									window.location.href = "/production/view-productions-packaging" ;
+							})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+					},error		: function(data){
+						console.log(data);
+					}
+				}) //ajax ends
+			}
+			})//swal function block ends
+		}//submit function ends
+
+		
+		 //save draft data
+		function submitDraftData(dataset){ 
+				swal.fire({
+					title				: "Are you sure to Save as a Draft ?",
+					text				: "Once Submited,Can't revert back !",
+					type 				: "warning",
+					
+					showCancelButton	: true,
+					confirmButtonColor	: "#DD6BB5",
+					confirmButtonText	:"Make Draft",
+					reverseButtons : true,
+					confirmButtonAriaLabel : 'Thumbs up, great!',
+					cancelButtonText : 'Cancel',
+					cancelButtonAriaLabel : 'Thumbs down', 
+				}).then((result) => {
+					if(result.value){
+						$.ajax({
+						type		: "POST",
+						url 		: "view-pipe-packaging-draft-ajax",
+						dataType	: "json",
+						contentType	: "application/json",
+						data		: JSON.stringify(dataset),
+						success		: function(response){  
+							if(response.message=="Success"){
+								swal({
+										title:"Data Saved Successfully.",
+										type: "success",
+								}).then(function(){
+										window.location.href = "/production/view-pipe-packaging" ;
+								})
+							}else{
+								swal({
+									title:response.code,
+									text: response.message,
+									type:"warning"
+								})
+							}
+						},error		: function(data){
+							console.log(data);
+						}
+					}) //ajax ends
+				}
+				})//swal function block ends
+			}//submit function ends
+
+
+function funcLoad(){
+	location.reload();
+}
+    //for number check
+		function checkNum1(event) {
+			var currentId = event.currentTarget.id;
+			checkNum(currentId);
+			}
+ 
+		function generateChallan(event){ 
+			var currentId = event.currentTarget.id;
+			var l = currentId.split("_");
+			var counter = l[1];     
+			if($("#selectBCName_"+counter).val()){
+				assign = {};
+				assign['planId']		=	$("#planId").val();
+				assign['batchId']	=	$("#batchId").val(); 
+				assign['prodItemName']		=	$("#prodItemName").val();  
+				assign['prodItemId']		=	$("#prodItemId").val(); 
+				assign['packagingQty']			=	$("#selectQuantity_"+counter).val(); 
+				assign['packagingWt']			=	$("#selectWt_"+counter).val(); 
+				assign['barcodeImageName']		=	$("#selectBCName_"+counter).val(); 
+				assign['barcodeImageNumber']	=	$("#selectBCNo_"+counter).val(); 
+				generateToken(assign); 
+			}else{
+				swal("Generate Token After Save ...");
+			}
+			    
+				 
+		}
+		function generateToken(assign){
+			$.ajax({
+				type		: "POST",
+				url 		: "view-productions-packaging-generate-token",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(assign),
+				success		: function(response){ 
+					window.location.href = "/production/view-productions-packaging-generate-token-form" ;
+				},error		: function(data){
+					console.log(data);
+				}
+			}) 
+		}
+		
+		
+
+		//function for details of polishing
+		function generateTokenSingle(event) {
+			var currentId = event.currentTarget.id;
+			var l = currentId.split("_");
+			var counter = l[1];  
+			var qty = $("#selectQuantity_"+counter).val(); 
+			var wt =  $("#selectWt_"+counter).val(); 
+			if(qty !=null && wt != null){
+				$.ajax({
+					type : "GET",
+					url : "view-productions-packaging-generate-token",
+					dataType : 'json',
+					contentType : 'application/json', 
+					success : function(response) {
+						if (response.message == "success") { 
+							
+							
+							$("#selectBCName_"+counter).val(response.body.barcodeImageName); 
+							$("#selectBCNo_"+counter).val(response.body.barcodeImageNumber); 
+							 
+						 
+							
+							var planId		=	$("#planId").val();
+							var batchId 	=	$("#batchId").val(); 
+							var prodItemName 		=	$("#prodItemName").val();  
+							var prodItemId 		=	$("#prodItemId").val(); 
+							var packagingQty 		=	$("#selectQuantity_"+counter).val(); 
+							var packagingWt 			=	$("#selectWt_"+counter).val();  
+							var bcName = $("#selectBCName_"+counter).val();
+							
+							 window.open("/production/view-productions-packaging-generate-token-form?planId=" + planId + "&batchId=" + batchId + "&prodItemName=" + prodItemName +  "&packagingQty=" + packagingQty + "&packagingWt=" + packagingWt +"&bcName="+bcName, '_blank');
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+			}else{
+				swal("Enter Quantity And Weight Then Generate Token");
+			}
+		
+
+		}
+		
+		function dateVaidate(){
+			if($("#PackagingStartDate").val() && $("#PackagingEndDate").val()){
+				dateValidation('PackagingStartDate' , 'PackagingEndDate' ,"Start Date " ,"End Date");
+			}
+		}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Packaging Details</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Packaging Details</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+
+							<div class="row">
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Plan ID</label> <input type="text" class="form-control"
+											id="planId" th:value="${prodList[0].planId}" readonly />
+
+									</div>
+								</div>
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Batch ID</label> <input type="hidden"
+											class="form-control" id="prodId"
+											th:value="${prodList[0].prodId}" /> <input type="text"
+											class="form-control" id="batchId"
+											th:value="${prodList[0].batchId}" readonly />
+
+									</div>
+
+
+
+								</div>
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Batch Quantity</label> <input type="text"
+											class="form-control" id="batchQty"
+											th:value="${prodList[0].batchQty}" readonly />
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Item Name</label> <input type="hidden"
+											class="form-control" id="prodItemId"
+											th:value="${prodList[0].prodItemId}" readonly /> <input
+											type="text" class="form-control" id="prodItemName"
+											th:value="${prodList[0].prodItemName}" readonly />
+									</div>
+								</div>
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Production Quantity</label> <input type="text"
+											class="form-control" id="prodoductionQty"
+											th:value="${prodList[0].prodoductionQty}" readonly />
+
+
+
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Production Weight</label><input type="text"
+											class="form-control" id="prodoductionWt"
+											th:value="${prodList[0].prodoductionWt}" readonly />
+
+
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label> Packaging Start Date</label> <input type="text"
+											id="PackagingStartDate" readonly class="form-control"
+											onchange="dateVaidate()" />
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label> Packaging End Date</label> <input type="text"
+											id="PackagingEndDate" readonly class="form-control"
+											onchange="dateVaidate()" />
+									</div>
+								</div>
+
+
+
+
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>No of Bundles</th>
+													<th>Quantity</th>
+													<th>Weight</th>
+													<th></th>
+													<th>Barcode No</th>
+												</tr>
+											</thead>
+											<tbody id="tbodyData">
+
+												<!-- <tr class="tr_clone" th:if="${edit}"
+													th:each="a,iter:${packagingModel}">
+													<td><input type="text" class="form-control BundlesCls"
+														id="selectBundel_0" th:value="${a.noOfBundles}" /></td>
+
+													<td><input type="text"
+														class="form-control QuantityCls" id="selectQuantity_0"
+														th:value="${a.packagingQty}" /></td>
+													<td><input type="text" class="form-control WtCls"
+														id="selectWt_0" th:value="${a.packagingWt}" /> <input
+														type="hidden" class="form-control NameCls"
+														id="selectBCName_0" th:value="${a.barcodeImageName}" /></td>
+
+													<td><button id="productDtls_0"
+															class="btn btn-info pDtls"
+															onclick="generateTokenSingle(event);">Generate</button>
+														&nbsp;</td>
+													<td><input type="text" class="form-control NoCls"
+														id="selectBCNo_0" th:value="${a.barcodeImageNumber}" /></td>
+
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+
+													</td>
+												</tr> -->
+
+												<tr class="tr_clone">
+													<td><input type="text" class="form-control BundlesCls"
+														id="selectBundel_0" th:value="1" /></td>
+
+													<td><input type="text"
+														class="form-control QuantityCls" id="selectQuantity_0" /></td>
+													<td><input type="text" class="form-control WtCls"
+														id="selectWt_0" /> <input type="hidden"
+														class="form-control NameCls" id="selectBCName_0" /></td>
+													<!-- <td class="bcNoCls"><input type="text"
+													class="form-control NoCls" id="selectBCNo_0" /></td> -->
+
+													<td><button id="productDtls_0"
+															class="btn btn-info pDtls"
+															onclick="generateTokenSingle(event);">Generate</button>
+														&nbsp;</td>
+													<td><input type="text" class="form-control NoCls"
+														id="selectBCNo_0" /></td>
+													<!-- <td><button class="btn btn-info" id="btnCheck_0">Exp</button></td> -->
+													<td>
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+
+											</tbody>
+
+
+										</table>
+									</div>
+
+								</div>
+								<div class="row">
+									<div class="form-group col-md-12">
+										<!-- <button type="button" id="draft" class="btn btn-info">Save
+											As Draft</button> -->
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning"
+											onclick="funcLoad();">Cancel</button>
+									</div>
+								</div>
+
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</html>

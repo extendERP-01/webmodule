@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	//modal view	
+ function viewInModel(index){
+	    $('#table1').empty();
+	    $('#table2').empty();
+	    $('#table3').empty();   
+	    $.ajax({
+		 	type    :  "POST",
+		 	url     :  "view-inventory-goodsreturns-modal-view-goodsreturn",
+		 	dataType:  'json',
+		 	contentType:'application/json',
+		 	data       :index,
+		 	success    :function(response) {
+		 		if(response.message=="success"){
+					
+					var gRtNActive = "";
+					if(response.body[0].gRtNActive){
+						gRtNActive= "Active";
+					} else {
+						gRtNActive="Inactive";
+					}
+					var gstType = "";
+					if (response.body[0].gstType) {
+						gstType = "Center Tax";
+					span = '<tr><td>GRN Number :</td>'
+						+ '<td align="left">'
+						+ response.body[0].goodsReturnNote
+						+ '</td>'
+						+ '</tr><tr><td>Purchase Order :</td><td align="left">'
+						+ response.body[0].purchaseOrder
+						+ '</td></tr><tr><td>Invoice Number:</td>'
+						+ '<td align="left">'
+						+ response.body[0].gRNInvoiceId
+						+'</td>'
+						+'</tr><tr><td>Status:</td><td align="left">'
+						+ gRtNActive
+						+ '</tr><tr><td>GST Type:</td><td align="left">'
+						+ gstType
+						+ '</td>'
+						+ '</tr>'
+						+ '<tr><th><b>Details Of Goods Return Note :<b></th></tr>';  
+					$('#myModal1').modal('show');
+					$('#table1').append(span);
+					table2 = '<tr><th><b>Category</b></th><th><b>Sub Category</b></th><th><b>Item Name</b></th>'+
+					'<th><b>Quantity</b></th>' ;
+	              $('#myModal1').modal('show');
+	              $('#table2').append(table2);
+	              for (var i=0; i<response.body.length; i++) {
+						table =  '<tr><td>'
+							+ response.body[i].itemCategory
+							+ '</td><td>'
+							+ response.body[i].itemSubCategory
+							+ '</td><td>'
+							+ response.body[i].itemName
+							+ '</td><td>'
+							+ response.body[i].gRtNQty
+							+ '</td></tr>';
+						$('#myModal1').modal('show');
+						$('#table2').append(table);
+					}
+	              table3 = '<tr><td colspan="5" align="right" width="480px"><b>Sub Total :</b></td>'
+						+ '<td align="left">'
+						+ (response.body[0].rcvSubTotal).toFixed(2)
+						+ '</td>'
+						+ '</tr><tr><td colspan="5" align="right"><b>IGST :</b></td>'
+						+ '<td align="left">'
+						+ (response.body[0].igst).toFixed(2)
+						+ '</td>'
+						+ '</tr><tr><td colspan="5" align="right"><b>Cess :</b></td>'
+						+ '<td align="left">'
+						+ (response.body[0].totalCess).toFixed(2)
+						+ '</td>'
+						+ '</tr><tr><td colspan="5" align="right"><b>Grand Total :</b></td>'
+						+ '<td align="left">'
+						+ (response.body[0].grandTotal).toFixed(2)
+						+ '</td>'
+						+ '</tr>';
+					$('#table3').append(table3);
+							
+				}else{
+					gstType = "State Tax";
+					span = '<tr><td>GRN Number :</td>'
+						+ '<td align="left">'
+						+ response.body[0].goodsReturnNote
+						+ '</td>'
+						+ '</tr><tr><td>Purchase Order :</td><td align="left">'
+						+ response.body[0].purchaseOrder
+						+ '</td></tr><tr><td>Invoice Number:</td>'
+						+ '<td align="left">'
+						+ response.body[0].gRNInvoiceId
+						+'</td>'
+						+'</tr><tr><td>Status:</td><td align="left">'
+						+ gRtNActive
+						+ '</tr><tr><td>GST Type:</td><td align="left">'
+						+ gstType
+						+ '</td>'
+						+ '</tr>'
+						+ '<tr><th><b>Details Of Item :<b></th></tr>';  
+						$('#myModal1').modal('show');
+						$('#table1').append(span);
+						table2 = '<tr><th><b>Category</b></th><th><b>Sub Category</b></th><th><b>Item Name</b></th>'+
+						'<th><b>Quantity</b></th>' ;
+		              $('#myModal1').modal('show');
+		              $('#table2').append(table2);
+		              for (var i=0; i<response.body.length; i++) {
+							table =  '<tr><td>'
+								+ response.body[i].itemCategory
+								+ '</td><td>'
+								+ response.body[i].itemSubCategory
+								+ '</td><td>'
+								+ response.body[i].itemName
+								+ '</td><td>'
+								+ response.body[i].gRtNQty
+								+ '</td></tr>';
+							$('#myModal1').modal('show');
+							$('#table2').append(table);
+						}
+
+	              
+	              table3 = '<tr><td colspan="5" align="right" width="500px"><b>Sub Total :</b></td>'
+						+ '<td align="left">'
+						+ (response.body[0].rcvSubTotal).toFixed(2)
+						+ '</td>'
+						+ '</tr><tr><td colspan="5" align="right"><b>SGST :</b></td>'
+						+ '<td align="left">'
+						+ (response.body[0].sgst).toFixed(2)
+						+ '</td>'
+						+ '</tr><tr><td colspan="5" align="right"><b>CGST :</b></td>'
+						+ '<td align="left">'
+						+ (response.body[0].cgst).toFixed(2)
+						+ '</td>'
+						+ '</tr><tr><td colspan="5" align="right"><b>Cess :</b></td>'
+						+ '<td align="left">'
+						+ (response.body[0].totalCess).toFixed(2)
+						+ '</td>'
+						+ '</tr><tr><td colspan="5" align="right"><b>Grand Total :</b></td>'
+						+ '<td align="left">'
+						+ (response.body[0].grandTotal).toFixed(2)
+						+ '</td>'
+						+ '</tr>';
+	              $('#table3').append(table3);
+		 		}
+		 	}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+			   
+		   
+		 })
+ }
+//view all list
+
+  $(document).ready(function() {      	 
+	  $('#data-table-export').DataTable({
+		  'processing'  : true,
+		  'serverSide'  : true,
+		  'searching'   : false,
+		  'ordering'    : false,
+		  "ajax"  : {
+		  'url': 'view-inventory-goodsreturns-throughAjax',
+		  'data': function(d) {
+		   d.param1 = $('#param1').val();
+		   d.param2 = $('#param2').val();
+		   d.param3=  $('#param3').val();
+		   d.param4=  $('#param4').val();
+		   
+			       }
+		  },
+		  'dataSrc' :"",
+		  'columns' : [
+			  {'data' :'goodsReturnNote'},
+			  {'data' :'purchaseOrder'},
+			  {'data' :'gRNInvoiceId'},
+			  {'data' :'activity'},
+			  {'data' :'action'}
+		  ]
+	  });
+	});
+	//method to create pdf
+	function createPdf() {
+		window.open("/download/inventory-goods-returns-pdf?param1="+window.btoa($('#param1').val())+"&param2="+window.btoa($('#param2').val())+"&param3="+window.btoa($('#param3').val())+"&param4="+window.btoa($('#param4').val()),'_blank');
+
+	}
+	// method to create pdf
+	function pdfCreate(id) 
+	{
+	   window.open("/download/inventory-view-goods-returns-pdf?id="+window.btoa(id),'_blank');
+	}
+	//method to create pdf
+	
+	function searchData() {
+		$('#data-table-export').DataTable().draw();
+	} 
+//date picker
+$(document).ready(function() {
+	 $("#param3").datepicker({
+	 format : 'dd-mm-yyyy',
+	 autoclose : true
+	 })
+	 
+	 $("#param4").datepicker({
+	 format : 'dd-mm-yyyy',
+	 autoclose : true
+	 })
+
+	 });
+
+
+//Deleting the Goods Return note
+
+function deleteReturnnote(id){
+		swal.fire({
+			  title: "Are you sure want to Delete?",
+			  text: "Once Deleted,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'Delete',
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/inventory/delete-goodsreturn-note?id="+ id,
+					    success: function(response) {
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Record Deleted Successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        	
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+		}
+		
+		
+//function for search param of purchase Order
+
+function purchaseOrderNoAutoComplete() {
+	$.ajax({
+		type : "POST",
+		url : "view-inventory-goodsreturns-getPurchseNo",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param1").val(),
+		success : function(response) {
+			if (response.message == "success") {
+			if(response.body.length!=0)	{
+				$("#param1").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+					content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+				} 
+				content += '</ul>';
+				$("#suggesstion-box1").show();
+				$("#suggesstion-box1").html(content);
+				
+			}
+			else {
+				$("#param1").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box1").show();
+				$("#suggesstion-box1").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+}
+function selectAutocompleteValue(key,name) {
+	if (key) {
+		$("#param1").val(key);
+		$("#param1").attr('data-procat', key);
+		$("#suggesstion-box1").hide();
+		}
+	else {
+		$("#param1").val("");
+		$("#param1").attr('data-procat', "");
+		$("#suggesstion-box1").hide();
+	}
+}
+//function for search param of invoice Number
+function invoiceNumberAutoComplete() {
+	$.ajax({
+		type : "POST",
+		url : "view-inventory-goodsreturns-getSuggestioninvoiceNos",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param2").val(),
+		success : function(response) {
+			if (response.message == "success") {
+			if(response.body.length!=0)	{
+				$("#param2").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+					content += '<li onClick="selectAutocompleteValues(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+				} 
+				content += '</ul>';
+				$("#suggesstion-box2").show();
+				$("#suggesstion-box2").html(content);
+				
+			}
+			else {
+				$("#param2").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValues(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box2").show();
+				$("#suggesstion-box2").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+}
+function selectAutocompleteValues(key,name) {
+	if (key) {
+		$("#param2").val(key);
+		$("#param2").attr('data-procat', key);
+		$("#suggesstion-box2").hide();
+		}
+	else {
+		$("#param2").val("");
+		$("#param2").attr('data-procat', "");
+		$("#suggesstion-box2").hide();
+	}
+}
+	
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+<div class="content-wrap">
+         <div class="main mrt_20">
+            <div class="col-md-12">
+               <ol class="breadcrumb breadcrumb-arrow">
+                  <li><a th:href="${session.DASHBOARD}">Home</a></li>                 
+					  <li><a href="add-inventory-goodsreturns">Add Goods Return Notes</a></li> 
+				<li class="active"><span>View Goods Return Notes</span></li>
+               </ol>            
+            </div>
+            <div class="container-fluid">
+          
+               <div class="card">
+              
+           <!-- <div align="right">  <a href="javascript:void(0)"  target='blank' data-toggle='tooltip' title='Download Pdf' data-placement='bootom' onclick="createPdf();" data-orginal-title='Download'>
+					<i class='fa fa-download' style='font-size:40px'></i></a></div> -->
+               
+                     <div class="search-field">
+                     <div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-inventory-goodsreturns">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning" onclick="createPdf();">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div>
+                        <div class="row">
+							<div class="col-md-2">
+								<label> Purchase Order Number</label> <input type="text"
+									class="form-control" id="param1"
+									onkeyup="purchaseOrderNoAutoComplete();" />
+								<div id="suggesstion-box1"></div>
+
+							</div>
+							<div class="col-md-2">
+								<label>Invoice Number</label> <input type="text"
+									class="form-control" id="param2"
+									onkeyup="invoiceNumberAutoComplete();" />
+								<div id="suggesstion-box2"></div>
+							</div>
+							<div class="col-md-2">
+								<label>From Date</label> 
+								<input id="param3"
+									class="form-control" type="text" placeholder=" From Date"
+									name="" readonly>
+							</div>
+							<div class="col-md-2">
+								<label>To Date</label>
+								 <input id="param4" class="form-control" type="text" placeholder="To Date" name="" readonly>
+							</div>
+
+							<div class="col-md-2 mrt_10">
+                              <div class="form-group filtersearch">
+                                <input type="button"  class="btn btn-info" value="Search" onclick="searchData()" />
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="table-responsive" style="width: 100%;">
+                        <table id="data-table-export" class="table table-bordered">
+                           <thead>
+                              <tr>
+                                 <th>GRN Number</th>
+                                 <th>Purchase Order Number</th>
+                                 <th>Invoice Number</th>
+                                 <th>Status</th>
+                                 <th>Action</th>
+                              </tr>
+                           </thead>
+                          
+                        </table>
+                        
+                     </div>
+                     <div style="clear:both;"></div>
+               </div>
+            </div>
+         </div>
+         <!-- Modal Start-->
+         <div id="myModal1" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+               
+               <!-- Modal content-->
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <h4 class="modal-title">View Details of Good Return</h4>
+                     <button type="button" class="close" data-dismiss="modal"><i class="fa fa-close fa-2x"></i></button>
+                  </div>
+                  <div class="modal-body">
+						 <table width="100%" border="0" id="table1">
+							
+						 </table>
+					
+						 <table width="100%" border="0" id="table2">
+							
+						 </table>
+					</div>
+					<div class="modal-footer">
+						 <table width="100%" border="0" id="table3">
+
+						 </table>
+					</div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <!-- Modal End-->      
+      </div>
+</div>
+</html>

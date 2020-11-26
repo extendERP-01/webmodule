@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.modalIn {
+	border-bottom: 1px solid #e8e4e4;
+}
+</style>
+<script>
+	//Deleting the travelingType
+	
+	const ipAPI = 'https://api.ipify.org?format=json'
+	function deleteEmployeeExit(id){
+	 //var data = id.split(",");
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/employee/view-exist-management-delete?id=" +id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(data){
+				console.log(data);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+	
+
+	
+	function viewInModel(index) {
+		$('#table1').empty();
+		$.ajax({
+					type : "POST",
+					url : "view-exist-finance-settlement-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+						 console.log(response);
+							table = '<tr><td>Employee Id :</td>'
+									+ '<td align="left">'
+									+ response.body.employeeId
+									+ '</td>'
+									+ '</tr><tr><td>Employee Name :</td><td align="left">'
+									+ response.body.empName
+									+ '</tr><tr><td>Department:</td><td align="left">'
+									+ response.body.empDepartmentName
+									+ '</tr><tr><td>Salary :</td><td align="left">'
+									+ response.body.salary
+									+ '</tr><tr><td>Manager :</td><td align="left">'
+									+ response.body.manager
+									+ '</tr><tr><td>Recovery :</td><td align="left">'
+									+ response.body.recovery
+									+ '</tr><tr><td>Notice Period :</td><td align="left">'
+									+ response.body.noticePeriod
+									+ '</tr><tr><td>Bonus :</td><td align="left">'
+									+ response.body.bonus
+									+ '</tr><tr><td>Other :</td><td align="left">'
+									+ response.body.other
+									+ '</td></tr><tr><td>Comment :</td><td align="left">'
+									+ response.body.comment
+									+ '</td></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+                            
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+	
+
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblExitFinance').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-exist-finance-settlement-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'employeeId'
+			},{
+				'data' : 'empName'
+			},{
+				'data' : 'manager'
+			},{
+				'data' : 'empDepartmentName'
+			},{
+				'data' : 'noticePeriod'
+			},{
+				'data' : 'salary'
+			}, {
+				'data' : 'bonus'
+			}, {
+				'data' : 'recovery'
+			}, {
+				'data' : 'other'
+			}, {
+				'data' : 'comment'
+			}, {
+				'data' : 'action'
+			} ]
+		}); 
+	});
+
+	 function searchData() {
+		$('#tblExitFinance').DataTable().draw();
+	}
+</script>
+<style>
+.mt-20{
+margin-top:20px;}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/recruitment/add-exist-finance}">Add
+							Exit Finance</a></li>
+					<li class="active"><span>View Exit Finance </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Exit Finance</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<!-- <div class="form-group">
+									<a class="btn btn-secondary" href="add-exist-finance">Create</a>
+								</div> -->
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Employee Id</label> <select
+									class="org-name form-control " id="param1">
+									<option value="">--Select--</option>
+									
+												<option th:each="c:${EmployeeList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+								</select>
+
+							</div>
+							
+							<div class="col-md-2 mrt_10">
+								 <div class="form-group">
+                                <input type="button"  class="btn btn-info  mt-20" value="Search" onclick="searchData()" />
+                              </div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblExitFinance" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Employee Id</th>
+									<th>Employee Name</th>
+									<th>Manager</th>
+									<th>Department</th>
+									<th>Notice Period</th>
+									<th>Salary</th>
+									<th>Bonus</th>
+									<th>Recovery</th>
+									<th>Other</th>
+									<th>Comment</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+				<!-- 			<tbody>
+								<tr>
+									<th>Rajesh</th>
+									<th>SDE-I</th>
+									<th>10-09-2020</th>
+									<th>11-09-2020</th>
+									<th>34000</th>
+									<th>10000</th>
+									<th>5000</th>
+									<th align="center"><a title='Edit'
+										href="add-exist-management"><i class='fa fa-edit edit'></i></a></th>
+								</tr>
+								<tr>
+									<th>Suresh</th>
+									<th>SDE-II</th>
+									<th>10-09-2020</th>
+									<th>11-09-2020</th>
+									<th>35000</th>
+									<th>10000</th>
+									<th>6000</th>
+									<th align="center"><a title='Edit'
+										href="add-exist-management"><i class='fa fa-edit edit'></i></a></th>
+								</tr>
+							</tbody> -->
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Employee Exit</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+
+		<!-- Modal Start-->
+		
+		<!-- Modal End-->
+
+	</div>
+</div>
+</html>

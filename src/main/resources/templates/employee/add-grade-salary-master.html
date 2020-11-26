@@ -1,0 +1,630 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+//Check Duplicate
+/* function checkDuplicateComponent(event){
+
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	//Duplicate check
+	var count =0;
+	$(".tSalaryComponentCls").each(function(i){
+		var id = //$(this).val();
+		var lastId = $("#myTable tbody tr:last").find(".tSalaryComponentCls").val();
+		alert("lastId=="+lastId)
+		if(lastId == id){
+			count = count + 1;
+		}
+	})
+	if(count > 1) {
+		swal({
+			title : "Duplicate Component Selected",
+			type : "warning",
+		})
+		$("#myTable tbody tr:last").find(".tSalaryComponentCls").val("");
+		$("#myTable tbody tr:last").find(".tComponentTypeCls").val("");
+		$("#myTable tbody tr:last").find(".tCalculationTypeCls").val("");
+		$("#myTable tbody tr:last").find(".tAmountCls").val("");
+	} 
+	
+} */
+//end
+//Function for blank validation
+function checkEmpty(){
+	var componentValid =true;
+	$('.tSalaryComponentCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Component Name")){
+			componentValid =false;
+			return false;
+		}
+	});
+	
+	
+	var caculationValid =true;
+	if(componentValid  ){
+		$('.tCalculationTypeCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Calculation Type")){
+				caculationValid =false;
+				return false;
+			}
+		});
+	}
+	
+	var amountValid =true;
+	if(componentValid  && caculationValid){
+		$('.tAmountCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please define Amount ")){
+				amountValid =false;
+				return false;
+			}
+		});
+	}
+	
+    if(componentValid && caculationValid && amountValid){
+
+  		addMore();
+  	}
+}
+
+//ADD MORE
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	 
+	$("#myTable tbody tr:last").find(".tSalaryComponentCls").val("");
+	$("#myTable tbody tr:last").find(".tComponentTypeCls").val(""); 
+	$("#myTable tbody tr:last").find(".tCalculationTypeCls").val("");
+	$("#myTable tbody tr:last").find(".tAmountCls").val("");
+	$("#myTable tbody tr:last").find(".monthlyAmountCls").val("");
+	$("#myTable tbody tr:last").find(".annualAmountCls").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	
+	$("#myTable tbody tr:last").find(".tSalaryComponentCls").val("");
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		
+		selectInput.eq(0).attr('id',"tSalaryComponent_"+i);
+		selectInput.eq(1).attr('id',"tCalculationType_"+i);
+		textInput.eq(0).attr('id',"tComponentType_"+i); 
+		textInput.eq(1).attr('id',"tAmount_"+i);
+		textInput.eq(2).attr('id',"monthlyAmount_"+i);
+		textInput.eq(3).attr('id',"annualAmount_"+i);
+		
+		
+	})
+	
+}
+$(document).ready(function(){
+	
+	
+	//for minus
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+	
+
+	});
+	
+	
+	//on change for description
+	$("#tGradeId").on('change', function() {
+		var tGradeId = $(this).val();
+		
+		if (tGradeId) {
+			$.ajax({
+				type : 'POST',
+				url : 'add-grade-salary-master-getDesc-throughAjax',
+				contentType : false,
+				data : tGradeId,
+				success : function(response) {
+					if (response.message == "success") {
+					
+						
+						
+							$("#tDescription").val(response.body[0].name);
+					
+					}
+
+				},
+				error : function(e) {
+					console.log("error");
+				}
+			});
+		} else {
+			$("#tDescription").empty();
+			var option = $("<option></option>");
+			$(option).val(null);
+			$(option).html("Select");
+			$("#tDescription").append(option);
+		}
+	});
+
+
+
+
+
+
+	
+
+	//Function for saving data
+
+			$("#submitItems").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+		    item = {};
+			item['tGradeSalaryId']	        	 		 =	$("#tGradeSalaryId").val();
+			item['basicSalary']	        	 		     =	$("#basicSalary").val();
+			item['ctc']	        	 		             =	$("#ctc").val();
+			item['tGradeId']	        	 			 =	$("#tGradeId").val();
+			item['tSalaryComponent']	                 =	$(this).find(".tSalaryComponentCls").val();
+			item['tCalculationType']	             	 =	$(this).find(".tCalculationTypeCls").val();
+			item['tAmount']   	          				 =	$(this).find(".tAmountCls").val();
+			
+			
+			dataset.push(item);
+		console.log(item);
+		});//table tbody tr loop ends
+		
+		submitAddGradeSalary(dataset);
+	
+	if (!blankValidation("tGradeId","SelectBox", "Please Select Grade "))
+	return false;
+	
+	var componentValid =true;
+	$('.tSalaryComponentCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Component Name")){
+		componentValid =false;
+	return false;
+	}
+	});
+	
+	var caculationValid =true;
+	if(componentValid ){
+	$('.tCalculationTypeCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Calculation Type")){
+		caculationValid =false;
+	return false;
+	}
+	});
+	}
+	var amountValid =true;
+	if(componentValid && caculationValid){
+	$('.tAmountCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"TextField" ,"Please define Amount ")){
+		amountValid =false;
+	return false;
+	}
+	});
+	}
+	if(componentValid  && caculationValid && amountValid){
+		
+		submitAddGradeSalary(dataset);
+		
+		}
+			});
+	});
+
+
+function submitAddGradeSalary(dataset){
+
+	console.log(dataset)
+	swal.fire({
+		title				: "Are you sure want to Submit?",
+		text				: "Once Submited,Can't revert back !",
+		type 				: "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+	
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+		showLoaderOnConfirm	: true,
+		preConfirm: () => {
+						return new Promise((resolve) => {
+							setTimeout(() => {
+								console.log("Doing async operation");
+								resolve()
+							}, 3000)
+						})
+					}
+
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+			type		: "POST",
+			url 		: "add-grade-salary-master",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(dataset),
+			success		: function(response){
+				console.log(response);
+				if(response.message=="Success"){
+					swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+					}).then(function(){
+							window.location.href = "/employee/view-grade-salary-master" ;
+					})
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	}
+	})//swal function block ends
+}//submit function ends
+
+
+//on change for Component Type
+ function componentType(event) {
+
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	var counter = l[1];
+	
+	if (currentValue) {
+		$.ajax({
+			type : 'POST',
+			url : 'add-grade-salary-master-getComponentType-throughAjax',
+			contentType : false,
+			data : currentValue,
+			success : function(response) {
+				console.log(response);
+				if (response.message == "success") {
+					var status = "";
+					if (response.body[0].tComponentType==1) {
+						status = "Earning";
+					} else {
+						status = "Deduction";
+					} 
+					$("#tComponentType_"+counter).val(status);
+				}
+
+			},
+			error : function(e) {
+				console.log("error");
+			}
+		});
+	} else {
+		$("#tComponentType").empty();
+		var option = $("<option></option>");
+		$(option).val(null);
+		$(option).html("Select");
+		$("#tComponentType").append(option);
+	}
+}
+
+function calculate(event){
+	var ctc = $("#ctc").val();
+  	var currentId = event.currentTarget.id;
+  	var currentValue = event.currentTarget.value;
+  	var l = currentId.split("_");
+  	
+  	var counter = l[1];
+  	
+  	var monthlyAmount = 0;
+  	var annualAmount = 0;
+  	
+  	var calculationType = $("#tCalculationType_"+counter).val();
+  	var percentageAmount = currentValue; 
+	if(ctc){
+		if(calculationType==='3'){
+			annualAmount = parseFloat(ctc)/100 * parseFloat(percentageAmount);
+			monthlyAmount = parseFloat(annualAmount)/12;
+		}else if(calculationType==='2'){
+			var basic = $("#annualAmount_0").val();
+			console.log(basic + " percentageAmount " + percentageAmount + " counter" + counter)
+			annualAmount = parseFloat(basic)/100 * parseFloat(percentageAmount);
+			monthlyAmount =   parseFloat(annualAmount)/12; 
+		}else if(calculationType==='1'){
+			annualAmount =  parseFloat(percentageAmount);
+			monthlyAmount = parseFloat(percentageAmount/12);
+		}
+		
+		$("#monthlyAmount_"+counter).val(monthlyAmount.toFixed(2));
+		$("#annualAmount_"+counter).val(annualAmount.toFixed(2));
+	}else{
+		swal("Enter CTC Amount First.")
+	}
+}
+
+function checkBasic(event){
+  	var currentId = event.currentTarget.id;
+  	var currentValue = event.currentTarget.value;
+  	var l = currentId.split("_");
+  	
+  	var counter = l[1]; 
+  	if(counter === '0'){ 
+  		if(currentValue != 'EEM001'){ 
+  	  		swal("First Chose Basic");
+  	  		$("#tSalaryComponent_0").val('');
+  		}else{
+  			$("#tCalculationType_0").val(3);
+  		}
+
+  	}
+}
+
+
+function checkForDuplicate() {
+	
+  	var currentId = event.currentTarget.id;
+  	var currentValue = event.currentTarget.value;
+  	var l = currentId.split("_"); 
+  	var counter = l[1]; 
+  	
+	 var item=currentValue;
+	 var count=0;
+	 var itemId=event.currentTarget.id;
+	 $(".tSalaryComponentCls").each(function(){
+		 if(item == $(this).val()){
+			 count++;
+		 }
+	 })
+	 if(count>=2){
+		 //swal('item already selected');
+		 swal({
+			title:"Copmonent Are Already Selected",
+			text:"So You Can't Select It Again...!!!",
+			type: "warning",
+			})
+		 $("#"+currentId).val("");					   					    		 
+		 $("#tComponentType_"+counter).val("");		
+		 $("#tCalculationType_"+counter).val("");	
+		 $("#tAmount_"+counter).val("");	
+	 }					    	
+}
+
+    </script>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<!--Alert Box-->
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		<!--Alert Box-->
+
+		<ol class="breadcrumb breadcrumb-arrow">
+			<li><a href="index.html">Home</a></li>
+			<li class="active"><span>Add Grade Salary Master</span></li>
+			<!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+		</ol>
+		<div class="card-title">
+			<h4>Add Grade Salary Details</h4>
+			<div class="topbtnright" align="right">
+							<div class="form-group">
+								<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+								<button type="button" class="btn btn-warning"
+									onclick="returnToAddPage();">Cancel</button>
+							</div>
+						</div>
+		</div>
+		<div class="card">
+			<div class="card-body">
+				<div class="basic-elements">
+					<form th:action="@{/employee/add-grade-salary-master}"
+						th:object="${gradeSalaryMaster}" method="post" autocomplete="off"
+						onsubmit="return validateForm();">
+						<!-- 		<input type="hidden" th:field="*{tTaxId}" /> -->
+						<input type="hidden" id="tGrade" th:value="${id}">
+						<div class="row">
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>Grade</label> <select class="form-control" id="tGradeId" >
+										<option th:value="null">--Select--</option>
+										<option th:if="${id}" th:each="c:${gradeList}"
+											th:value='${c.key}' th:text="${c.name}"
+											th:selected="${c.name==gradeSalaryMasterList[0].tGradeId}"></option>
+										<option th:unless="${id}" th:each="c:${gradeList}"
+											th:value='${c.key}' th:text="${c.name}"></option>
+									</select>
+								</div>
+
+
+
+							</div>
+							<div class="col-lg-6">
+
+
+								<div class="form-group">
+									<label>Description</label> <input type="text" th:if="${id}"
+										class="form-control" id="tDescription"
+										th:value="${gradeSalaryMasterList[0].tDescription}" readonly>
+									<input type="text" th:unless="${id}" class="form-control"
+										id="tDescription">
+								</div>
+
+
+
+							</div>
+						</div>
+						<!-- <div class="row">
+
+							<div class="col-lg-6">
+
+
+								<div class="form-group">
+									<label>CTC</label> <input type="text" th:if="${id}"
+										class="form-control" id="ctc"
+										th:value="${gradeSalaryMasterList[0].ctc}" readonly> <input
+										type="text" th:unless="${id}" class="form-control" id="ctc">
+								</div>
+
+
+
+							</div>
+
+						</div> -->
+						<div class="row">
+							<div class="col-lg-12">
+								<!-- id="table-data" -->
+								<!-- 	<label><h6>Tax Slabs Based On Selected Deduction
+										Cycle</h6></label> -->
+								<table class="tbll" id="myTable" width="100%" border="0"
+									cellspacing="2" cellpadding="5">
+									<thead>
+										<tr>
+											<th>Component</th>
+											<th>Component Type</th>
+											<th>Calculation Type</th>
+											<th>Percentage</th>
+											<!-- <th>Monthly Amount</th>
+											<th>Annual Amount</th> -->
+											<th>Action</th>
+										</tr>
+									</thead>
+									<tbody id="tbodyData">
+
+										<!-- FOR EDIT	 -->
+
+
+
+										<tr class="tr_clone" th:if="${id}"
+											th:each="a,iter:${gradeSalaryMasterList}">
+
+											<td><select th:id="tSalaryComponent_+${iter.index}"
+												class="form-control tSalaryComponentCls" onchange="componentType(event);checkBasic(event);checkForDuplicate(event);">
+													<option value="">--Select--</option>
+													<option th:each="c:${componentList}" th:value='${c.key}'
+														th:text="${c.name}"
+														th:selected="${c.key ==a.tSalaryComponent}"></option>
+											</select></td>
+
+											<td th:if="${a.tComponentType==1}"><input type="text"
+												th:id="tComponentType_+${iter.index}" class="form-control tComponentTypeCls"
+												value="Earning" /></td>
+											<td th:if="${a.tComponentType==2}"><input type="text"
+												th:id="tComponentType_+${iter.index}" class="form-control tComponentTypeCls"
+												value="Deduction" /></td>
+
+											<td><select th:id="tCalculationType_+${iter.index}"
+												class="form-control tCalculationTypeCls">
+													<option th:value="null">--Select--</option>
+													<option th:value="1" th:selected="${a.tCalculationType==1}">Flat
+														Amount</option>
+													<option th:value="2" th:selected="${a.tCalculationType==2}">%
+														of Basic Pay</option>
+													<option th:value="3" th:selected="${a.tCalculationType==3}">%
+														of CTC</option>
+											</select></td>
+
+
+											<td><input type="text" th:id="tAmount_+${iter.index}"
+												class="form-control tAmountCls" th:value="${a.tAmount}" /></td>
+
+
+											<td>
+												<button th:if="${iter.size == iter.index+1}" type="button"
+													class="btn btn-primary tr_clone_add" name="add"
+													onclick="checkEmpty();">
+													<span class="ti-plus"></span>
+												</button>
+												<button th:if="${iter.size != 1}" type="button"
+													class="btn btn-warning rmv" name="Remove">
+													<span class="ti-minus"></span>
+												</button>
+											</td>
+										</tr>
+										<!-- /////////////////////////////////////////////////////////////////////// -->
+
+										<tr class="tr_clone" th:unless="${id}">
+
+											<td><select id="tSalaryComponent_0"
+												class="form-control tSalaryComponentCls"
+												onChange="componentType(event); checkBasic(event); checkForDuplicate(event);">
+													<option value="">--Select--</option>
+													<option th:each="c:${componentList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+											</select></td>
+											<td><input type="text" id="tComponentType_0"
+												class="form-control tComponentTypeCls" /></td>
+
+											<td><select id="tCalculationType_0"
+												class="form-control tCalculationTypeCls">
+													<option th:value="null">--Select--</option>
+													<option th:value="1">Flat Amount</option>
+													<option th:value="2">% of Basic Pay</option>
+													<option th:value="3">% of CTC</option>
+											</select></td>
+											<td><input type="text" id="percentageAmount_0"
+												class="form-control tAmountCls" /></td>
+
+
+											<!-- 	<td><input type="text" id="monthlyAmount_0"
+												class="form-control monthlyAmountCls" /></td>
+
+											<td><input type="text" id="annualAmount_0"
+												class="form-control annualAmountCls" /></td> -->
+
+
+											<td><button type="button"
+													class="btn btn-primary tr_clone_add" name="add"
+													onclick="checkEmpty();">
+													<span class="ti-plus"></span>
+												</button>&nbsp;</td>
+										</tr>
+									</tbody>
+								</table>
+
+
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="row">
+					<div class="col-lg-12">
+
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div style="clear: both;"></div>
+
+</html>

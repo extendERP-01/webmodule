@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script>
+/* 
+ * For ViewDetails of Subcategory
+ */
+	function viewInModel(index){
+	    $('#table1').empty();
+	    $.ajax({			
+		    type : "POST",
+			url : "view-item-subcategory-modal",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : index,
+			success : function(response) {
+					if (response.message == "success") {
+						console.log(response.body.itmSubActive);
+						var itmSubActive = "";
+						if (response.body.itmSubActive) {
+							itmSubActive = "Active";
+						} else {
+							itmSubActive = "InActive";
+						}
+						table = '<tr><td>Sub Category Name :</td>' + '<td align="left">'
+								+ response.body.itmSubCategoryName + '</td>'
+								+ '</tr><tr><td>Category Name:</td>' + '<td align="left">'
+								+ response.body.itmCategoryName
+								+ '</td></tr><tr><td>Status :</td>' + '<td align="left">' 
+								+ itmSubActive
+								/*  + '</td>' + '</tr><tr><td>Description:</td>' + '<td align="left">'
+								+ response.body.districtDescription;  */
+						
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+		})
+
+    }
+	/*
+	 * For ViewAll Subcategory list 
+	 */
+ 	$(document).ready(function() {
+		$('#listAllSubItem').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-item-subcategory-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val(); 
+				
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [
+				{'data' : 'itmSubCategoryName'},
+				{'data' : 'itmCategoryName'},
+				{'data' : 'status'},
+				{'data' : 'action'}
+				
+			]
+		});
+	});
+	
+	//method to delete sub category
+	
+	 function DeleteSubCategory(id){
+		
+				swal.fire({
+				title	: "Are you sure want to Delete?",
+				text	: "Once Deleted,Can't revert back !",
+				type : "warning",
+		
+				showCancelButton	: true,
+				confirmButtonColor	: "RED",
+				confirmButtonText	:"Delete",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+			}).then((result) => {
+			if(result.value)
+			{
+			
+				$.ajax({
+					
+					type	: "GET",
+					url : "/inventory/delete-item-sub-category?id=" + id,
+					dataType	: "json",
+					contentType	: "application/json",
+					data	: JSON.stringify(id),
+					success	: function(response){
+						console.log(response);
+						if(response.message=="success"){
+							
+							swal({
+								title	: "Data Deleted Successfully.",
+								type: "success",
+						}).then(function(){
+							location.reload(); 
+						})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+				},error	: function(response){
+					console.log(response.code);	
+				}
+			}) //ajax ends
+		  }
+		 });//swal function block ends
+		}
+	 
+ 	/*
+ 	 * For Searching of Subcategory
+ 	 */		
+	function searchData() {
+		$('#listAllSubItem').DataTable().draw();	
+	}		
+</script> 
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+					 <li><a href=add-item-subcategory>Add Item Sub Category</a></li>
+						<li class="active"><span>View Item Sub Category</span></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+				
+			<div class="card">
+					<div class="search-field">
+					<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-item-subcategory">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div> 
+						<div class="row">
+							<div class="col-md-2">
+								<label>Sub Category Name</label>
+							
+								<input class="form-control" type="text" placeholder="" name="" id="param1" >
+							</div>
+							<div class="col-md-2">
+								<label>Category Name</label>
+							
+								<select class="form-control" id="param2">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${tblmstr}" th:value='${c.key}'
+														th:text="${c.name}" ></option>
+											</select>
+							</div>
+							<div class="col-md-2 mrt_10">
+								   <div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table  class="table table-bordered" id="listAllSubItem" >
+							<thead>
+								<tr>
+									<th>Item Sub Category</th>
+									<th>Item Category</th>
+									<th>Status</th>
+									<th>Action</th>
+							    </tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				
+			</div>
+   		</div>
+   	</div>
+	<!-- Modal Start-->
+	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+				 <div class="modal-header">
+					 <h4 class="modal-title">View Details of Item Sub Category</h4>
+					 <button type="button" class="close" data-dismiss="modal">
+						<i class="fa fa-close fa-2x"></i>
+					</button>
+				</div>
+				<div class="modal-body">
+					<table width="100%" border="0" id="table1" >
+							<tbody>
+							      <tr class="itmSubCategoryName"><td><b>Item Sub Category :</b></td></tr>
+							      <tr class="itmCategory"><td><b>Item Category :</b></td></tr>
+							      <tr class="itmSubActive"><td><b>Status :</b></td></tr>
+							</tbody>
+						<tbody id="tModelBody"></tbody>
+			        </table> 
+				</div>
+				 <div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				 </div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal End-->
+	<!-- /# row -->
+	</div>
+ </div>
+</html>

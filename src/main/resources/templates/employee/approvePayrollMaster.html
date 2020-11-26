@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+ 
+		
+		$('#payrollList').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-payroll-master-approval-list-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'paymentDate'
+			}, {
+				'data' : 'monthName'
+			},{
+				'data' : 'totalPaymentAmount'
+			}, {
+				'data' : 'approveStatusName'
+			},{
+				'data' : 'status'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+	
+	//Method For Searching Records In The List
+	function searchData() {
+		$('#requisitionList').DataTable().draw();
+	}
+	
+	//Function to create All Report
+  	function createPdf() {
+		
+		window.open("/download/view-item-requisitions-pdf?param1="+window.btoa($('#param1').val())+"&param2="+window.btoa($('#param2').val())+"&param3="+window.btoa($('#param3').val())+"&param4="+window.btoa($('#param4').val())+"&param5="+window.btoa($('#param5').val()),'_blank');
+	} 
+	
+	//Function to create Individual Report
+	function pdfCreate(id) {
+		window.open("/download/inventory-view-one-item-requisitions-pdf?id="+id,'_blank');
+	}	
+	
+	
+	//Method for Excel
+	function downloadExcel() {
+		var param1 = $("#param1").val();
+		var param2 = $("#param2").val();
+		var param3 = $("#param3").val();
+		var param4 = $("#param4").val();
+		var param5 = $("#param5").val();
+		window.open("download-excel-item-requisitions?param1="
+				+ window.btoa(param1) + "&param2=" + window.btoa(param2)
+				+ "&param3=" + window.btoa(param3) + "&param4="
+				+ window.btoa(param4) + "&param5="
+				+ window.btoa(param5), '_blank');
+	}
+
+	// Method For View Details In Model
+	function viewInModelData(index) {
+		var id = window.atob(index);
+		$('#table1').empty();
+		$('#table2').empty();
+		//approve-item-requisitions-model
+		$.ajax({
+				type : "POST",
+				url : "view-payroll-master-approval-modal",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : id,
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						//console.log(response.body.iRStatus);
+						console.log(response.body);
+						
+						/* var iRStatus = "";
+						if (response.body[0].iRStatus) {
+							iRStatus = "Active";
+						} else {
+							iRStatus = "Inactive";
+						}
+					
+						if(response.body[0].approveStatus == 3)
+							approveStatusName = "Returned";
+						else if(response.body[0].approveStatus == 1)
+							approveStatusName = "Approved";
+						else if(response.body[0].approveStatus == 2)
+							approveStatusName = "Rejected";
+						else
+							approveStatusName = "Open"; */
+					
+							span = '<tr><td >Employee Name:</td>'
+								+ '<td align="left" id="nameCls">'
+								+ response.body[0].tEmployeeName
+								+ '</td>'
+								+ '<td align="left" id="idCls"><input type="hidden" id ="empId" value="'+response.body[0].tEmployeeId+'">'
+								+ '</td>'
+								+ '</tr><tr><td>Pay Grade:</td>'
+								+ '<td align="left" id="gradeCls">'
+								+ response.body[0].tPayGrade
+								+ '</tr><tr><td>City :</td>'
+								+ '<td align="left" id="cityCls">'
+								+ response.body[0].tCity
+								+ '</td></tr>'
+								+ '</tr><tr><td>Mobile No. :</td>'
+								+ '<td align="left" id="mobileCls">'
+								+ response.body[0].tMobile
+								+ '</td></tr>'
+								+ '</tr><tr><td>Email Id:</td>'
+								+ '<td align="left" id="emailCls">'
+								+ response.body[0].tEmailId
+								+ '</td></tr>'
+								+ '</tr>'
+								+ '<th><b>Details Of Salary Components</b></th></tr>';
+						$('#myModal').modal('show');
+						$('#table1').append(span);
+
+						span2 = '<tr><td>Basic Pay:</td>'
+							+ '<td align="left" id="basicCls">'
+							+ response.body[0].tBasicPay
+							+ '</td>'
+							+ '</tr><tr><td>Dearness Allowance:</td>'
+							+ '<td align="left" id="dearnessCls">'
+							+ response.body[0].tDearnessAllowance
+							+ '</tr><tr><td>House Rent Allowance :</td>'
+							+ '<td align="left" id="hraCls">'
+							+ response.body[0].tHouseRentAllowance
+							+ '</td></tr>'
+							+ '</tr><tr><td>Conveyance Allowance:</td>'
+							+ '<td align="left" id="conveyanceCls">'
+							+ response.body[0].tConveyanceAllowance
+							+ '</td></tr>'
+							+ '</tr><tr><td>Leave Travel Allowance:</td>'
+							+ '<td align="left" id="travelCls">'
+							+ response.body[0].tLeaveTravelAllowance
+							+ '</td></tr>'
+							+ '</tr><tr><td>Medical Allowance:</td>'
+							+ '<td align="left" id="medicalCls">'
+							+ response.body[0].tMedicalAllowance
+							+ '</td></tr>'
+							+ '</tr><tr><td>Employee Provident Fund:</td>'
+							+ '<td align="left" id="epfCls">'
+							+ response.body[0].tEmployeeProvidentFund
+							+ '</td></tr>'
+							+ '</tr><tr><td>ESIC scheme:</td>'
+							+ '<td align="left" id="schemeCls">'
+							+ response.body[0].tESICscheme
+							+ '</td></tr>'
+							+ '</tr><tr><td>Perquisites:</td>'
+							+ '<td align="left" id="perquisitesCls">'
+							+ response.body[0].tPerquisites
+							+ '</td></tr>'
+							+ '</tr>'
+							+ '</tr><th><b>Total Earning</b>'
+							+ '<td align="left" id="ctcCls">'
+							+ response.body[0].tCTC
+							+ '</td></tr>'
+							+ '</th><th><b>Total Deduction</b>'
+							+ '<td align="left" id="deductionCls">'
+							+ response.body[0].tBasicPay
+							+ '</td></tr>'
+							+ '</th><th><b>Taxable Amount</b>'
+							+ '<td align="left" id="taxableCls">'
+							+ response.body[0].tBasicPay
+							+ '</td></tr>'
+							+ '</th><th><b>Net Pay Salary</b>'
+							+ '<td align="left" id="netCls">'
+							+ response.body[0].tNetSalary
+							+ '</td></tr>'
+							+ '</th>';
+					$('#myModal').modal('show');
+							$('#table2').append(span2);
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+	}
+	
+	//Deleting the ItemRequisition
+	function deleteItemRequisition(id){
+		swal.fire({
+			  title: "Are you sure want to Delete?",
+			  text: "Once Deleted,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'Delete',
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/inventory/delete-requisitions-byId?id="+ id,
+					    success: function(response) {
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Record Deleted Successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        	
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+		
+	} 
+	
+	function itemRequisitionAutoComplete() {
+		$.ajax({
+			type : "POST",
+			url : "view-item-requisitions-getReqNo",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#param1").val(),
+			success : function(response) {
+				if (response.message == "success") {
+				if(response.body.length!=0)	{
+					$("#param1").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+					} 
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+					
+				}
+				else {
+					$("#param1").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+	
+	function selectAutocompleteValue(key,name) {
+		if (key) {
+			$("#param1").val(key);
+			$("#param1").attr('data-procat', key);
+			$("#suggesstion-box").hide();
+			}
+		else {
+			$("#param1").val("");
+			$("#param1").attr('data-procat', "");
+			$("#suggesstion-box").hide();
+		}
+	}
+	
+	//Forward the Requisition 
+	function forwardPayRoll(id){
+		swal.fire({
+			  title: "Are you sure want to forward?",
+			  text: "Once forward,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'forward',
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/employee/view-payroll-master-approval-save-action?id="+ id,
+					    success: function(response) {
+					    	console.log(response);
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Payroll forwarded successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+		
+	}
+	//end 
+	
+	//Start Reject Requisition
+	function rejectRequisition(id,rejectaction){
+		$("#rejectRequisitionId").val(id);
+		$("#rejectActionId").val(rejectaction);
+		if($("#rejectActionId").val() == '1'){
+			$("#modal-title-id").html("Reject Requisition");
+		}else if($("#rejectActionId").val() == '2'){
+			$("#modal-title-id").html("Return Requisition");
+		}else{
+			$("#modal-title-id").html("Resubmit Requisition");
+		}
+		$('#approvalActionModal').modal('show');
+		
+	}
+	//End of Reject Requisition
+	
+	//Save rejected Requisition comment
+	function saveRequisitionRejectComment(){
+		if($("#rejectActionId").val() == '1'){
+			var titleval = "Are you sure want to reject?";
+			var textval = "Once reject,Can't revert back !";
+			var confirmButtonTextval = 'reject';
+		}else if($("#rejectActionId").val() == '2'){
+			var titleval = "Are you sure want to return?";
+			var textval = "Once reject,Can't revert back !";
+			var confirmButtonTextval = 'return';
+		}else{
+			var titleval = "Are you sure want to resubmit?";
+			var textval = "Once resubmit,Can't revert back !";
+			var confirmButtonTextval = 'resubmit';
+		}
+		$('#approvalActionModal').modal('hide');
+		swal.fire({
+			  title: titleval,
+			  text: textval,
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: confirmButtonTextval,
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+					
+				 var requisitionId = $("#rejectRequisitionId").val();
+				 var rejectionComment = $("#rejectionCommentId").val();
+				 var rejectAction = $("#rejectActionId").val();
+				 $.ajax({
+					    type : "POST",
+						url : "view-payroll-master-approval-reject-action",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : JSON.stringify({'tId':requisitionId,'tPayGrade':rejectionComment,'tCity':rejectAction}),
+					    success: function(response) {
+					    	console.log(response);
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Requisition status successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+	}
+	//End of save
+	function pdfCreate(id) {
+
+	window.open("/employee/view-payroll-master-approval-EmpPDF?id=" +id,'_blank');
+}
+	
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a href="#">View User</a></li>
+                  <li><a href="#">Manage User</a></li> -->
+					<!-- <li><a href="add-item-requisitions">Add Item Requisition</a></li> -->
+					<li class="active"><span>Payroll Approval</span></li>
+				</ol>
+			</div>
+			<!-- <div class="card-title">
+				<h4>Listing of Item Requisition (1.5.2.5.2)</h4>
+			</div> -->
+			<div class="container-fluid">
+
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+
+				</ul>
+				<div class="card">
+
+					<div id="demo" class="collapse">
+						<div class="search-field">
+							<div class="row">
+								<div class="col-md-2">
+									<div class="org-name">Employee Id</div>
+								</div>
+								<div class="col-md-3">
+									<input id="param1" class="form-control" type="text"
+										placeholder="" name="" onkeyup="searchData()">
+								</div>
+
+							</div>
+
+						</div>
+					</div>
+					<a data-toggle="collapse" data-target="#demo"
+						class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+					</a>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="payrollList" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Payment Date</th>
+										<th>Month</th>
+										<th>Total Salary</th>
+										<th>Approve Status</th>
+										<th>Status</th>
+										<th align="center">Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start -->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Payroll Details</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+						</table>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table2">
+
+						</table>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End -->
+
+		<!-- Modal Start -->
+		<div id="approvalActionModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="modal-title-id">Reject
+							Requisition</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="rejectRequisitionId" value="0"> <input
+							type="hidden" id="rejectActionId" value="1">
+						<div class="form-group">
+							<label>Comment :</label>
+							<textarea class="form-control" id="rejectionCommentId" rows="4"></textarea>
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success"
+							onclick="saveRequisitionRejectComment()">Save</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End -->
+
+		<!-- /# row -->
+	</div>
+</div>
+</html>

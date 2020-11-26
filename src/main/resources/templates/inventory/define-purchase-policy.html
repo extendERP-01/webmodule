@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+
+<style>
+
+.multiselect {
+  width: 200px;
+}
+
+.selectBox {
+  position: relative;
+}
+
+.selectBox select {
+  width: 100%; 
+}
+
+.overSelect {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+#checkBoxes {
+	display: none;
+	border: 2px #f7f7f7 solid;
+}
+
+#checkBoxes label {
+	display: block;
+}
+
+#checkBoxes label:hover {
+	background-color: #4F615E;
+}
+
+#checkBoxes1 {
+	display: none;
+	border: 2px #f7f7f7 solid;
+}
+
+#checkBoxes1 label {
+	display: block;
+}
+
+#checkBoxes1 label:hover {
+	background-color: #4F615E;
+}
+</style>
+<script>
+	var show = true;
+
+	function showCheckboxes() {
+		var checkboxes = document.getElementById("checkBoxes");
+
+		if (show) {
+			checkboxes.style.display = "block";
+			show = false;
+		} else {
+			checkboxes.style.display = "none";
+			show = true;
+		}
+	}
+
+	var show1 = true;
+
+	function showCheckboxes1() {
+		var checkboxes = document.getElementById("checkBoxes1");
+
+		if (show1) {
+			checkboxes.style.display = "block";
+			show1 = false;
+		} else {
+			checkboxes.style.display = "none";
+			show1 = true;
+		}
+	}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Define Purchase Policy</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Define Purchase Policy</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Category</label> <select class="form-control">
+												<option>--Select--</option>
+												<option>Electronics</option>
+												<option>Electrical</option>
+											</select>
+										</div>
+
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="multipleSelection">
+											<div class="selectBox form-group" onclick="showCheckboxes()">
+												<label>Select Vendor</label><select class="form-control">
+													<option>Select Vendor</option>
+												</select>
+												<div class="overSelect"></div>
+											</div>
+
+											<div id="checkBoxes">
+												<label for="first"> <input type="checkbox"
+													id="first" /> Gupta Distributors
+												</label> <label for="second"> <input type="checkbox"
+													id="second" /> Patra Electronics
+												</label> 
+											</div>
+										</div>
+
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="multipleSelection">
+											<div class="selectBox form-group" onclick="showCheckboxes1()">
+												<label>Select Policy</label><select class="form-control">
+													<option value=0>Select Policy</option>
+												</select>
+												<div class="overSelect"></div>
+											</div>
+
+											<div id="checkBoxes1">
+												<label for="Policy1"> <input type="checkbox"
+													id="Policy1" />Policy1
+												</label> <label for="Policy2"> <input type="checkbox"
+													id="Policy2" /> Policy2
+												</label> <label for="Policy3"> <input type="checkbox"
+													id="Policy3" /> Policy3
+												</label> <label for="Policy4"> <input type="checkbox"
+													id="Policy4" /> Policy4
+												</label>
+											</div>
+										</div>
+
+									</div>
+
+								</div>
+
+							</form>
+						</div>
+						<div class="row">
+							<div class="form-group col-lg-6">
+								<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+								<button type="button" class="btn btn-warning"
+									onclick="returnToAddPage();">Cancel</button>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div style="clear: both;"></div>
+</html>

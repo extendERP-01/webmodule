@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.recordsTotal {
+	font-size: 30px;
+}
+
+.hlf {
+	float: left;
+	width: 50%;
+	padding: 10px;
+	height: 30px; /* Should be removed. Only for demonstration */
+}
+height
+
+
+:
+
+ 
+
+100
+vh
+
+ 
+
+!
+important
+
+
+;
+}
+</style>
+<style type="text/css">
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 150px;
+	position: absolute;
+	z-index: 999;
+	overflow-y: scroll;
+	height: 150px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 3px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 570px;
+	position: absolute;
+	width: 94%;
+	height: 100px;
+	overflow: auto;
+	overflow-y: scroll;
+	z-index: 99;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.red {
+	background-color: #b3ccff;
+}
+</style>
+<script>
+function addMore(ele) {
+	var check = '';
+	$('.subGrpCls').each(function() {
+		var subGrp = $(this).val();
+		if(subGrp == 'SS3' || subGrp == 'PS3') {
+			check = 'notCheck';
+		} else {
+			check = 'check';
+		}
+	});
+	var itemValid = true;
+	$('.itemCls').each(function() {
+		if(!blankValidation($(this).attr('id'), "SelectBox", "Please Select Item ")) {
+			itemValid = false;
+			return false;
+		}
+	});
+	var qtyValid = true;
+	if(itemValid && check == 'check') {
+		$('.pOQtyCls').each(function() {
+			if(!blankValidation($(this).attr('id'), "TextField", "Please Enter Quantity")) {
+				qtyValid = false;
+				return false;
+			}
+		});
+	}
+	var priceValid = true;
+	if(itemValid && qtyValid) {
+		$('.priceCls').each(function() {
+			if(!blankValidation($(this).attr('id'), "TextField", "Please Enter Price")) {
+				priceValid = false;
+				return false;
+			}
+		});
+	}
+	if(!itemValid || !qtyValid || !priceValid) {
+		return false;
+	}
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	$("#myTable tbody tr td:last").html("");
+	var addMore = '<button type="button" class="btn btn-primary tr_clone_add" id="addbtn_0" name="add" onclick="addMore(this);"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	// BLANK FIELD START
+	//$("#tbodyData").children('tr').length;
+	$("#myTable tbody tr:last").find(".menuItemCls").empty();
+	$("#myTable tbody tr:last").find(".minStockCls").val("");
+	$("#myTable tbody tr:last").find(".totalReqCls").val("");
+	$("#myTable tbody tr:last").find(".availQntCls").val("");
+	$("#myTable tbody tr:last").find(".pOQtyCls").val("");
+	$("#myTable tbody tr:last").find(".priceCls").val("");
+	$("#myTable tbody tr:last").find(".itemCls1").val("");
+	$("#myTable tbody tr:last").find(".itemCls").val("");
+	$("#myTable tbody tr:last").find(".itemCategoryCls").val("");
+	$("#myTable tbody tr:last").find(".subGrpCls").val("");
+	if(lengthOfTableRow > 0) {
+		$("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i) {
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		var btnid = $(this).find('button');
+		var divInput = $(this).find('div');
+		textInput.eq(0).attr('id', "itemCategory_" + i);
+		textInput.eq(1).attr('id', "itemSubCategory_" + i);
+		textInput.eq(2).attr('id', "itemId_" + i);
+		textInput.eq(3).attr('id', "itemName_" + i);
+		textInput.eq(4).attr('id', "minStock_" + i);
+		textInput.eq(5).attr('id', "totalReq_" + i);
+		textInput.eq(6).attr('id', "availQnt_" + i);
+		textInput.eq(7).attr('id', "pOQty_" + i);
+		textInput.eq(8).attr('id', "price_" + i);
+		textInput.eq(9).attr('id', "subGrp_" + i);
+		btnid.eq(0).attr('id', "addbtn_" + i);
+		divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+	})
+}
+
+function funcLoad() {
+	location.reload();
+}
+
+function checkForDuplicate(itemName, counter) {
+	var item = itemName;
+	var count = 0;
+	var itemId = counter;
+	$(".itemCls1").each(function() {
+		if(item == $(this).val()) {
+			count++;
+		}
+	})
+	if(count >= 2) {
+		swal('Item already selected');
+		$("#itemName_" + counter).val("");
+		$("#itemSubCategory_" + counter).val("");
+		$("#itemCategory_" + counter).val("");
+		$("#itemId_" + counter).val("");
+		$("#minStock_" + counter).val("");
+		$("#totalReq_" + counter).val("");
+		$("#availQnt_" + counter).val("");
+		$("#pOQty_" + counter).val("");
+		$("#price_" + counter).val("");
+		$("#subGrp_" + counter).val("");
+		$("#item_" + counter).attr('data-procat', "");
+	}
+}
+$(document).ready(function() {
+		$(".porderDateCls").datetimepicker({
+			format: 'd-m-Y',
+			closeOnDateSelect: true,
+			timepicker: false,
+			minDate: new Date(),
+		})
+		var fullDate1 = new Date();
+		var twoDigitMonth1 = ((fullDate1.getMonth().length + 1) === 1) ? (fullDate1.getMonth() + 1) : +(fullDate1.getMonth() + 1);
+		var twoDigitDate1 = ((fullDate1.getDate()) >= 10) ? (fullDate1.getDate()) : '0' + (fullDate1.getDate());
+		var currentDate1 = twoDigitDate1 + "-" + twoDigitMonth1 + "-" + fullDate1.getFullYear();
+		$(".porderDateCls").val(currentDate1);
+		$(".deliveryPeriodCls").datetimepicker({
+			format: 'd-m-Y',
+			closeOnDateSelect: true,
+			timepicker: false,
+			minDate: new Date(),
+		})
+		var fullDate2 = new Date();
+		var twoDigitMonth2 = ((fullDate2.getMonth().length + 1) === 1) ? (fullDate2.getMonth() + 1) : +(fullDate2.getMonth() + 1);
+		var twoDigitDate2 = ((fullDate2.getDate()) >= 10) ? (fullDate2.getDate()) : '0' + (fullDate2.getDate());
+		var currentDate2 = twoDigitDate2 + "-" + twoDigitMonth2 + "-" + fullDate2.getFullYear();
+		$(".deliveryPeriodCls").val(currentDate1);
+		var editTimeIfId = $('#purchaseOrder').val();
+		if(editTimeIfId) {
+			$("#tbl").show();
+			$("#dtlsform").show();
+		}
+		const ipAPI = 'https://api.ipify.org?format=json';
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		$('.tbll').on('click', '.rmv', function() {
+			$(this).closest('tr').remove();
+			$("#myTable tbody tr:last").find('td:last').html('');
+			var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore(this);"><span class="ti-plus"></span></button>&nbsp;'
+			var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+			if($("#tbodyData").children('tr').length > 1) {
+				$("#myTable tbody tr:last").find('td:last').append(add);
+				$("#myTable tbody tr:last").find('td:last').append(remove);
+			} else {
+				$("#myTable tbody tr:last").find('td:last').append(add);
+			}
+		});
+		$("#submitItems").click(function() {
+			var y = "";
+			var checkboxlist = [];
+			$.each($("input[name='checkedPOComplete']:checked"), function() {
+				checkboxlist.push($(this).val());
+				y = y + $(this).val();
+				y = y + ",";
+			});
+			var lastChar = y.slice(-1);
+			if(lastChar == ',') {
+				y = y.slice(0, -1);
+			}
+			var allcheckboxlist = [];
+			$.each(checkboxlist, function(index, value) {
+				allchecked = {};
+				allchecked['checkedItem'] = value;
+				allcheckboxlist.push(allchecked);
+			});
+			var dataset = [];
+			$("#tbodyData > tr").each(function() {
+				item = {};
+				item['purchaseOrder'] = $("#purchaseOrder").val();
+				item['store'] = $("#store").val();
+				item['vendor'] = $("#vendorId").val();
+				item['pODescription'] = $("#descId").val();
+				item['pOStatus'] = $("#statusId").val();
+				item['itemCategory'] = $(this).find(".itemCategoryCls").val();
+				item['porderDate'] = $("#porderDate").val();
+				item['deliveryPeriod'] = $("#deliveryPeriod").val();
+				item['termsAndConditions'] = $("#termsAndConditions").val();
+				item['itemSubCategory'] = $(this).find(".itemSubCategoryCls").val();
+				item['itemName'] = $(this).find(".itemCls").val();
+				item['subGroup'] = $(this).find(".subGrpCls").val();
+				if($(this).find(".pOQtyCls").val() == '') {
+					item['pOQty'] = parseFloat(1);
+				} else {
+					item['pOQty'] = parseFloat($(this).find(".pOQtyCls").val());
+				}
+				item['price'] = parseFloat($(this).find(".priceCls").val());
+				//item['checkedPoStatus']	   =    y;
+				dataset.push(item);
+				console.log(dataset);
+			});
+			if(!blankValidation("vendor_", "SelectBox", "Please Select Vendor")) return false;
+			if(!blankValidation("descId", "TextArea", "Please Enter Description")) return false;
+			var check = '';
+			$('.subGrpCls').each(function() {
+				var subGrp = $(this).val();
+				if(subGrp == 'SS3' || subGrp == 'PS3') {
+					check = 'notCheck';
+				} else {
+					check = 'check';
+				}
+			});
+			var itemValid = true;
+			$('.itemCls').each(function() {
+				if(!blankValidation($(this).attr('id'), "SelectBox", "Please Select Item ")) {
+					itemValid = false;
+					return false;
+				}
+			});
+			var qtyValid = true;
+			if(itemValid && check == 'check') {
+				$('.pOQtyCls').each(function() {
+					if(!blankValidation($(this).attr('id'), "TextField", "Please Enter Quantity")) {
+						qtyValid = false;
+						return false;
+					}
+				});
+			}
+			var priceValid = true;
+			if(itemValid && qtyValid) {
+				$('.priceCls').each(function() {
+					if(!blankValidation($(this).attr('id'), "TextField", "Please Enter Price")) {
+						priceValid = false;
+						return false;
+					}
+				});
+			}
+			if(itemValid && qtyValid && priceValid) {
+				submitPurchaseOrder(dataset);
+			}
+		});
+		var categoryID = '';
+		var subCategoryID = '';
+		var itemNameID = '';
+		var clickcountSearch = 0;
+
+		function submitPurchaseOrder(dataset) {
+			swal.fire({
+					title: "Are you sure want to Submit?",
+					text: "Once Submited,Can't revert back !",
+					type: "warning",
+					showCancelButton: true,
+					confirmButtonColor: "#DD6BB5",
+					confirmButtonText: "Submit",
+					showLoaderOnConfirm: true,
+					preConfirm: () => {
+						return new Promise((resolve) => {
+							setTimeout(() => {
+								console.log("Doing async operation");
+								resolve()
+							}, 3000)
+						})
+					},
+					reverseButtons: true,
+					confirmButtonAriaLabel: 'Thumbs up, great!',
+					cancelButtonText: 'Cancel',
+					cancelButtonAriaLabel: 'Thumbs down',
+				}).then((result) => {
+					if(result.value) {
+						$.ajax({
+								type: "POST",
+								url: "add-purchase-order",
+								dataType: "json",
+								contentType: "application/json",
+								data: JSON.stringify(dataset),
+								success: function(response) {
+									if(response.message == "Success") {
+										swal({
+											title: "Data Saved Successfully.",
+											type: "success",
+										}).then(function() {
+											window.location.href = "/inventory/view-purchase-order";
+										})
+									} else {
+										swal({
+											title: response.code,
+											text: response.message,
+											type: "warning"
+										})
+									}
+								},
+								error: function(response) {
+									swal(response.code);
+								}
+							}) //ajax ends
+					}
+				}) //swal function block ends
+		} //submit function ends */
+		var tmp = [];
+		$('input[type="checkbox"]').change(function() {
+			var val = $(this).val();
+			if($(this).is(':checked')) {
+				tmp.push(val);
+			} else {
+				tmp.splice($.inArray(val, tmp), 1);
+			}
+			$("#checkedItem").text(tmp.length);
+		})
+	})
+
+function itemAutoComplete(event) {
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	var vendorId = $("#vendorId").val();
+	var counter = l[1];
+	currentValue = currentValue + "," + vendorId;
+	if(vendorId) {
+		$.ajax({
+			type: "POST",
+			url: "add-purchase-order-get-item",
+			dataType: 'json',
+			contentType: 'application/json',
+			data: currentValue,
+			success: function(response) {
+				if(response.message == "success") {
+					if(response.body.length != 0) {
+						$(currentId).css("background", "#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						for(var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue1(\'' + response.body[i].itemName + '\',\'' + response.body[i].item_p + '\',\'' + response.body[i].subCategoryName + '\',\'' + response.body[i].categoryName + '\',\'' + counter + '\')">' + response.body[i].itemName + '(' + response.body[i].item_p + ')' + '</li>';
+						}
+						content += '</ul>';
+						$("#suggesstion-box1_" + counter).show();
+						$("#suggesstion-box1_" + counter).html(content);
+					} else {
+						$(currentId).css("background", "#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						content += '<li onClick="selectAutocompleteValue(\'' + counter + '\')">' + "No Data Found" + '</li>';
+						content += '</ul>';
+						$("#suggesstion-box1_" + counter).show();
+						$("#suggesstion-box1_" + counter).html(content);
+					}
+				}
+			},
+			error: function(data) {
+				console.log(data);
+			}
+		})
+	} else {
+		swal("Select Vendor first.");
+		$(currentId).css("background", "#FFF");
+		var content = '<ul id="autocomplete-list1">';
+		content += '<li onClick="selectAutocompleteValue(\'' + counter + '\')">' + "No Data Found" + '</li>';
+		content += '</ul>';
+		$("#suggesstion-box1_" + counter).show();
+		$("#suggesstion-box1_" + counter).html(content);
+	}
+}
+
+function selectAutocompleteValue1(itemName, item_p, subCategoryName, categoryName, counter) {
+	if(item_p) {
+		$("#itemId_" + counter).val(item_p);
+		$("#itemSubCategory_" + counter).val(subCategoryName);
+		$("#itemCategory_" + counter).val(categoryName);
+		$("#itemName_" + counter).val(itemName);
+		$("#item_" + counter).attr('data-procat', item_p);
+		$("#suggesstion-box1_" + counter).hide();
+		checkForDuplicate(itemName, counter);
+		getMinStock(item_p, counter);
+		getTotalPrice(item_p, counter);
+	} else {
+		$("#itemName_" + counter).val("");
+		$("#itemSubCategory_" + counter).val("");
+		$("#itemCategory_" + counter).val("");
+		$("#itemId_" + counter).val("");
+		$("#item_" + counter).attr('data-procat', "");
+		$("#suggesstion-box1_" + counter).hide();
+	}
+}
+
+function selectAutocompleteValue(counter) {
+	$("#itemName_" + counter).val("");
+	$("#itemSubCategory_" + counter).val("");
+	$("#itemCategory_" + counter).val("");
+	$("#item_" + counter).val("");
+	$("#item_" + counter).attr('data-procat', "");
+	$("#suggesstion-box1_" + counter).hide();
+}
+
+function getMinStock(name, counter) {
+	var itemList = name;
+	var counter = counter;
+	var store = $("#store").val();
+	if(itemList != "") {
+		$("#minStock_" + counter).empty();
+		$.ajax({
+			type: "GET",
+			url: "/inventory/add-purchase-order-getMinStock-throughAjax?itemId=" + itemList + "&store=" + store,
+			dataType: 'json',
+			contentType: 'application/json',
+			success: function(response) {
+				var items = response.body;
+				if(response.message == "success") {
+					if(items.length > 0) {
+						var minStockk = items[0].minStock;
+						var totalReq = items[0].totalReq;
+						var availQnt = items[0].availQnt;
+						var availQnt1 = 0;
+						if(items[0].subGruop != 'PS3' && items[0].saleSubGruop != 'SS3') {
+							if(items[0].subGruop == null) {
+								$("#subGrp_" + counter).val(items[0].saleSubGruop);
+							} else {
+								$("#subGrp_" + counter).val(items[0].subGruop);
+							}
+							$("#minStock_" + counter).val(minStockk);
+							$("#totalReq_" + counter).val(totalReq);
+							if(availQnt == null) {
+								$("#availQnt_" + counter).val(0);
+							} else {
+								$("#availQnt_" + counter).val(availQnt);
+							}
+							if(totalReq == null) {
+								$("#totalReq_" + counter).val(0);
+							} else {
+								$("#totalReq" + counter).val(totalReq);
+							}
+							$("#minStock_" + counter).prop('disabled', true);
+							$("#totalReq_" + counter).prop('disabled', true);
+							$("#availQnt_" + counter).prop('disabled', true);
+						} else {
+							$("#minStock_" + counter).val("");
+							$("#totalReq_" + counter).val("");
+							$("#availQnt_" + counter).val("");
+							$("#minStock_" + counter).prop('disabled', true);
+							$("#totalReq_" + counter).prop('disabled', true);
+							$("#availQnt_" + counter).prop('disabled', true);
+							if(items[0].subGruop == null) {
+								$("#subGrp_" + counter).val(items[0].saleSubGruop);
+							} else {
+								$("#subGrp_" + counter).val(items[0].subGruop);
+							}
+						}
+					}
+				} else {
+					swal("Please Try Again");
+				}
+			},
+			error: function(data) {
+				swal(data);
+			}
+		})
+	}
+}
+
+function getTotalPrice(itemName, counter) {
+	var vendor = $("#vendor_").val();
+	if(itemName != "") {
+		$.ajax({
+			type: "GET",
+			url: "/inventory/add-purchase-order-getTotalPrice-throughAjax?itemId=" + itemName + "&vendor=" + vendor,
+			dataType: 'json',
+			contentType: 'application/json',
+			//data 		:	JSON.stringify(itemList),
+			success: function(response) {
+				var items = response.body;
+				if(response.message == "success") {
+					$("#subGrp_" + counter).text('');
+					$("#price_" + counter).val(response.body.totalReq);
+					$("#subGrp_" + counter).append(response.body.totalReq);
+					//incValue(counter);
+				} else {
+					swal("Please Try Again");
+				}
+			},
+			error: function(data) {
+				swal(data);
+			}
+		})
+	}
+}
+
+function checkQty(event) {
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	var counter = l[1];
+	checkNum(currentId);
+}
+
+function changeValue(event) {
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	var counter = l[1];
+	var quantity = $("#pOQty_" + counter).val();
+	var price = $("#subGrp_" + counter).text();
+	var totalPrice = price * quantity;
+	$("#price_" + counter).val(price);
+}
+//function to validate amount field
+function extractNumber(obj, decimalPlaces, allowNegative) {
+	var temp = obj.value;
+	// avoid changing things if already formatted correctly
+	var reg0Str = '[0-9]*';
+	if(decimalPlaces > 0) {
+		reg0Str += '\\.?[0-9]{0,' + decimalPlaces + '}';
+	} else if(decimalPlaces < 0) {
+		reg0Str += '\\.?[0-9]*';
+	}
+	reg0Str = allowNegative ? '^-?' + reg0Str : '^' + reg0Str;
+	reg0Str = reg0Str + '$';
+	var reg0 = new RegExp(reg0Str);
+	if(reg0.test(temp)) return true;
+	// first replace all non numbers
+	var reg1Str = '[^0-9' + (decimalPlaces != 0 ? '.' : '') + (allowNegative ? '-' : '') + ']';
+	var reg1 = new RegExp(reg1Str, 'g');
+	temp = temp.replace(reg1, '');
+	if(allowNegative) {
+		// replace extra negative
+		var hasNegative = temp.length > 0 && temp.charAt(0) == '-';
+		var reg2 = /-/g;
+		temp = temp.replace(reg2, '');
+		if(hasNegative) temp = '-' + temp;
+	}
+	if(decimalPlaces != 0) {
+		var reg3 = /\./g;
+		var reg3Array = reg3.exec(temp);
+		if(reg3Array != null) {
+			// keep only first occurrence of .
+			//  and the number of places specified by decimalPlaces or the entire string if decimalPlaces < 0
+			var reg3Right = temp.substring(reg3Array.index + reg3Array[0].length);
+			reg3Right = reg3Right.replace(reg3, '');
+			reg3Right = decimalPlaces > 0 ? reg3Right.substring(0, decimalPlaces) : reg3Right;
+			temp = temp.substring(0, reg3Array.index) + '.' + reg3Right;
+		}
+	}
+	obj.value = temp;
+}
+//for vendor auto search 
+function venderAutoComplete() {
+	$.ajax({
+		type: "POST",
+		url: "add-purchase-order-get-vendor-auto-complete",
+		dataType: 'json',
+		contentType: 'application/json',
+		data: $("#vendorName").val(),
+		success: function(response) {
+			if(response.message == "success") {
+				if(response.body.length != 0) {
+					$("#vendorName").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for(var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="VenderAutocompleteValue(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].name + '</li>';
+					}
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				} else {
+					$("#vendorName").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="VenderAutocompleteValue(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+			}
+		},
+		error: function(data) {
+			console.log(data);
+		}
+	})
+}
+
+function VenderAutocompleteValue(key, name) {
+	if(key) {
+		$("#vendorId").val(key);
+		$("#vendorName").val(name);
+		$("#vendorName").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+	} else {
+		$("#vendorId").val(key);
+		$("#vendorName").val("");
+		$("#vendorName").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+}
+
+function dateValid() {
+	if($("#porderDate").val() && $("#deliveryPeriod").val()) dateValidation('porderDate', 'deliveryPeriod', 'Delivery Period', 'Purchase Date');
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap" id="mainDiv">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="@{/index}">Home</a></li>
+					<li class="inactive"><a
+						th:href="@{/inventory/add-purchase-order}">Add Purchase Order</a></li>
+				</ol>
+			</div>
+			<div id="dtlsform">
+				<div class="card">
+					<div class="card-title">
+						<h4>Add Purchase Order</h4>
+					</div>
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<div class="basic-elements">
+									<form th:object="${purchaseList}" autocomplete="off"
+										id="frm-example">
+										<input type="hidden" id="purchaseOrder" th:value="${purchase}" />
+										<div class="row">
+											<span style="color: red;" id="errorMsg"></span>
+											<div th:if="${message != null}">
+												<span th:text="${message}" style="color: red;"></span>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-lg-6">
+												<div class="form-group" id="">
+													<label>Store</label> <select class="org-name form-control "
+														id="store">
+														<option value="">--Select--</option>
+														<option th:each="c:${storeList}" th:value='${c.key}'
+															th:text="${c.name}"></option>
+													</select>
+												</div>
+												<!-- 	<div class="form-group" id="">
+													<label>Category Name</label> <select
+														class="org-name form-control " id="itemCategory_"
+														onchange="getVendorNAme();">
+														<option th:value="NULL">--Select--</option>
+														<option th:each="c:${itemCategoryList}"
+															th:value='${c.key}' th:text="${c.name}"></option>
+													</select>
+												</div> -->
+												<div class="form-group" id="">
+													<label>Vendor Name</label> <input type="text"
+														id="vendorName" onkeyup="venderAutoComplete()"
+														class="form-control vendorCls" /> <input type="hidden"
+														id="vendorId" class="form-control vendorIdCls" />
+													<div id="suggesstion-box"></div>
+												</div>
+												<div class="form-group">
+													<label id="porder">Description</label>
+													<textarea style="height: 70px;" cols="50" rows="4"
+														id="descId" class="form-control textarea"></textarea>
+												</div>
+											</div>
+											<div class="col-lg-6">
+												<div class="form-group" style="display: none;">
+													<label>Status</label> <select class="form-control"
+														id="statusId">
+														<option value=true>Active</option>
+													</select>
+												</div>
+												<div class="form-group">
+													<label>Purchase Order Date</label> <input type="text"
+														class="form-control porderDateCls" id="porderDate"
+														placeholder="Date" readonly onchange="dateValid()">
+
+												</div>
+												<div class="form-group">
+													<label>Delivery Period</label> <input type="text"
+														class="form-control deliveryPeriodCls" id="deliveryPeriod"
+														placeholder="Date" onchange="dateValid()" readonly />
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-lg-12">
+												<!-- id="table-data" -->
+												<table class="tbll" id="myTable" width="100%" border="0"
+													cellspacing="1" cellpadding="5">
+													<thead>
+														<tr>
+															<th>Item Name</th>
+															<th>Min. Stock</th>
+															<th>Total Request</th>
+															<th>Avail Qnty</th>
+															<th>Quantity</th>
+															<th>Price</th>
+															<!-- <th>Purchase Order Date</th>
+															<th>Delivery Period</th> -->
+															<th id="actionth">Action</th>
+														</tr>
+													</thead>
+													<tbody id="tbodyData">
+
+														<tr class="tr_clone">
+															<td><input type="hidden" id="itemCategory_0"
+																class="form-control itemCategoryCls" /> <input
+																type="hidden" id="itemSubCategory_0"
+																class="form-control itemSubCategoryCls" /> <input
+																type="hidden" id="itemId_0"
+																class="form-control itemCls"> <input type="text"
+																id="itemName_0" class="form-control itemCls1"
+																onkeyup="itemAutoComplete(event);" name="item_" />
+																<div id="suggesstion-box1_0"></div></td>
+															<td><input type="text" id="minStock_0"
+																class="form-control  minStockCls" value=''></td>
+															<td><input type="text" id="totalReq_0"
+																class="form-control  totalReqCls" value=''></td>
+															<td><input type="text" id="availQnt_0"
+																class="form-control  availQntCls" value=''></td>
+															<td><input type="text" id="pOQty_0"
+																class="form-control  pOQtyCls" value=''
+																onkeyup="checkQty(event);changeValue(event);"></td>
+															<td><input type="text" id="price_0"
+																class="form-control  priceCls right-align" readonly> <input
+																type="hidden" id="subGrp_0"
+																class="form-control  subGrpCls"></td>
+															<td>
+																<button type="button" id="addbtn_0" name="add"
+																	class="btn btn-primary tr_clone_add"
+																	onclick="addMore(this);">
+																	<span class="ti-plus"></span>
+																</button>
+															</td>
+														</tr>
+													</tbody>
+												</table>
+												<div>&nbsp;</div> 
+												
+											</div>
+											<div class="col-lg-6">
+													<div class="form-group">
+														<label id="porder">Terms & Conditions</label>
+														<textarea style="height: 40px;" cols="20" rows="2"
+															id="termsAndConditions" class="form-control textarea"></textarea>
+													</div>
+												</div>
+										</div>
+									</form>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="form-group">
+											<button type="button" id="submitItems"
+												class="btn btn-success">Submit</button>
+											<button type="button" class="btn btn-warning"
+												onclick="funcLoad();">Cancel</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+	</div>
+</div>
+</html>
+
+
+
+

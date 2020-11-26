@@ -1,0 +1,702 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<!-- <style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0; /
+	width: 570px; /
+	position: absolute;
+	z-index: 9999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f2f2f2;
+	border-bottom: 1px solid #373757;
+	color: #373757;
+	font-weight: 500;
+}
+
+#autocomplete-list li:hover {
+	background: #373757;
+	color: #f2f2f2;
+	cursor: pointer;
+}
+</style> -->
+<script type="text/javascript">
+	function itemAutoComplete(id) {
+		var l = id.split("_");
+		var counter = l[1];
+		$
+				.ajax({
+					type : "POST",
+					url : "add-damaged-items-get-item",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#" + id).val(),
+					success : function(response) {
+						console.log(response);
+						if (response.message == "success") {
+							if (response.body.length != 0) {
+								$("#itemName_0").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) {
+									content += '<li onClick="selectAutocompleteValue1(\''
+											+ response.body[i].key
+											+ '\',\''
+											+ id
+											+ '\',\''
+											+ response.body[i].name
+											+ '\')">'
+											+ response.body[i].key
+											+ '('
+											+ response.body[i].name
+											+ ')'
+											+ '</li>';
+								}
+								content += '</ul>';
+								$("#suggesstion-box1_" + counter).show();
+								$("#suggesstion-box1_" + counter).html(content);
+
+							} else {
+								console.log("else: " + response);
+								$("#itemName_0").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteValue1(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box1_" + counter).show();
+								$("#suggesstion-box1_" + counter).html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+	}
+
+	function selectAutocompleteValue1(key, id, name) {
+		var l = id.split("_");
+		var counter = l[1];
+
+		if (key) {
+
+			$("#item_" + counter).val(key);
+			//$("#itemCategory_"+counter).val(dlItemCategory);
+			//$("#itemSubCategory_"+counter).val(dlItemSubCategory);
+			$("#itemName_" + counter).val(name);
+
+			$("#itemName_" + counter).attr('data-procat', key);
+			$("#suggesstion-box1_" + counter).hide();
+			//checkForDuplicate(key,counter);
+
+		} else {
+
+			$("#item_" + counter).val("");
+			//$("#itemCategory_"+counter).val("");
+			//$("#itemSubCategory_"+counter).val("");
+			$("#itemName_" + counter).val("");
+			$("#itemName_" + counter).attr('data-procat', "");
+			$("#suggesstion-box1_" + counter).hide();
+
+		}
+
+	}
+</script>
+<script>
+
+//Function for blank validation
+
+function checkEmpty()
+{
+	var itemValid =true;
+	$('.itemCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"TextField" ,"Please enter Item")){
+
+		itemValid =false;
+	return false;
+	}
+
+	});
+
+	var SerialNoValid =true;
+	if(itemValid){
+	$('.tItemSlNoCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"TextField" ,"Please define Serial No.")){
+
+		SerialNoValid =false;
+	return false;
+	}
+
+	});
+	}
+	var descValid =true;
+	if(itemValid && SerialNoValid){
+	$('.tDamagedDescCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"TextField" ,"Please enter Description ")){
+		descValid =false;
+	return false;
+	}
+
+	});
+	}
+	var statusValid =true;
+	if(itemValid && SerialNoValid&& descValid){
+	$('.tStatusCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please select Status ")){
+		statusValid =false;
+	return false;
+	}
+
+	});
+	}
+	var reSaleValid =true;
+	if(itemValid && SerialNoValid&& descValid && statusValid){
+	$('.tItemReSaleValueCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"TextField" ,"Please define reSale Value ")){
+		reSaleValid =false;
+	return false;
+	}
+
+	});
+	}
+	var vendorValid =true;
+	if(itemValid && SerialNoValid&& descValid && statusValid&&reSaleValid){
+	$('.tVendorCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please select vendor ")){
+		vendorValid =false;
+	return false;
+	}
+
+	});
+	}
+	if(itemValid && SerialNoValid&& descValid && statusValid&&reSaleValid&&vendorValid){
+
+addMore();
+}
+}
+
+//ADD MORE
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	//$("#myTable tbody tr:last").find(".NameCls").append(new Option("--Select--","")); 
+	$("#myTable tbody tr:last").find(".itemCls").val("");
+	$("#myTable tbody tr:last").find(".tItemSlNoCls").val("");
+	$("#myTable tbody tr:last").find(".tDamagedDescCls").val("");
+	$("#myTable tbody tr:last").find(".tStatusCls").val("");
+	$("#myTable tbody tr:last").find(".tItemReSaleValueCls").val("");
+	$("#myTable tbody tr:last").find(".tVendorCls").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	
+	$("#myTable tbody tr:last").find(".itemCls1").empty();
+	$("#myTable tbody tr:last").find(".itemCls1").val("");
+	$("#myTable tbody tr:last").find(".itemCls").empty();
+	$("#myTable tbody tr:last").find(".itemCls").val("");
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput 	= $(this).find('input') ;
+		var labelInput 	= $(this).find('label') ;
+		var divInput = $(this).find('div');
+		
+		textInput.eq(0).attr('id',"item_"+i);
+		textInput.eq(1).attr('id',"itemName_"+i);
+		textInput.eq(2).attr('id',"tItemSlNo"+i);
+		textInput.eq(3).attr('id',"tDamagedDesc"+i);
+		selectInput.eq(0).attr('id',"tStatus"+i);
+		textInput.eq(4).attr('id',"tItemReSaleValue"+i);
+		selectInput.eq(1).attr('id',"tVendor"+i);
+		divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+		
+	})
+	
+}
+$(document).ready(function(){
+		
+	//for minus
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+	
+	
+	});
+	
+	
+
+	//Function for saving data
+
+			$("#submitItems").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+		    item = {};
+			
+			item['tDamagedItemId']         		 =  $("#tDamagedItemId").val();
+			item['tItem']	                	 =	$(this).find(".itemCls").val();
+			item['tItemSlNo']	        		 =	$(this).find(".tItemSlNoCls").val();
+			item['tDamagedDesc']   				 =	$(this).find(".tDamagedDescCls").val();
+			item['tStatus']	                	 =	$(this).find(".tStatusCls").val();
+			item['tItemReSaleValue']	         =	$(this).find(".tItemReSaleValueCls").val();
+			item['tVendor']   				 	 =	$(this).find(".tVendorCls").val();
+			
+			console.log(item);
+			dataset.push(item);
+			
+		});//table tbody tr loop ends
+		
+		submitDamagedItems(dataset);
+		
+		
+		var itemValid =true;
+		$('.itemCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please enter Item")){
+
+			itemValid =false;
+		return false;
+		}
+
+		});
+
+		var SerialNoValid =true;
+		if(itemValid){
+		$('.tItemSlNoCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please define Serial No.")){
+
+			SerialNoValid =false;
+		return false;
+		}
+
+		});
+		}
+		var descValid =true;
+		if(itemValid && SerialNoValid){
+		$('.tDamagedDescCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please enter Description ")){
+			descValid =false;
+		return false;
+		}
+
+		});
+		}
+		var statusValid =true;
+		if(itemValid && SerialNoValid&& descValid){
+		$('.tStatusCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please select Status ")){
+			statusValid =false;
+		return false;
+		}
+
+		});
+		}
+		var reSaleValid =true;
+		if(itemValid && SerialNoValid&& descValid && statusValid){
+		$('.tItemReSaleValueCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please define reSale Value ")){
+			reSaleValid =false;
+		return false;
+		}
+
+		});
+		}
+		var vendorValid =true;
+		if(itemValid && SerialNoValid&& descValid && statusValid&&reSaleValid){
+		$('.tVendorCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please select vendor ")){
+			vendorValid =false;
+		return false;
+		}
+
+		});
+		}
+		if(itemValid && SerialNoValid&& descValid && statusValid&&reSaleValid&&vendorValid)
+			{
+				submitDamagedItems(dataset);
+		    }
+		 });
+	
+	
+			//Function for modifying data
+
+			$("#modifyItems").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+		    item = {};
+			
+			item['tDamagedItemId']         		 =  $("#tDamagedItemId").val();
+			item['tDamagedDesc']   				 =	$(this).find(".tDamagedDescCls").val();
+			item['tStatus']	                	 =	$(this).find(".tStatusCls").val();
+			item['tItemReSaleValue']	         =	$(this).find(".tItemReSaleValueCls").val();
+			item['tVendor']   				 	 =	$(this).find(".tVendorCls").val();
+			
+			console.log(item);
+			dataset.push(item);
+			
+		});//table tbody tr loop ends
+		
+		modifyDamagedItems(dataset);
+
+		var descValid =true;
+
+		$('.tDamagedDescCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please enter Description ")){
+			descValid =false;
+		return false;
+		}
+
+		});
+	
+		var statusValid =true;
+		if( descValid){
+		$('.tStatusCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please select Status ")){
+			statusValid =false;
+		return false;
+		}
+
+		});
+		}
+		var reSaleValid =true;
+		if(descValid && statusValid){
+		$('.tItemReSaleValueCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please define reSale Value ")){
+			reSaleValid =false;
+		return false;
+		}
+
+		});
+		}
+		var vendorValid =true;
+		if( descValid && statusValid&&reSaleValid){
+		$('.tVendorCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please select vendor ")){
+			vendorValid =false;
+		return false;
+		}
+
+		});
+		}
+		if(descValid && statusValid&&reSaleValid&&vendorValid)
+			{
+			modifyDamagedItems(dataset);
+		    }
+		 });
+	
+	
+	
+	
+  	});	
+	
+
+function submitDamagedItems(dataset){
+
+	console.log(dataset)
+	swal.fire({
+		title				: "Are you sure want to Submit?",
+		text				: "Once Submited,Can't revert back !",
+		type 				: "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+	
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+		showLoaderOnConfirm	: true,
+		preConfirm: () => {
+						return new Promise((resolve) => {
+							setTimeout(() => {
+								console.log("Doing async operation");
+								resolve()
+							}, 3000)
+						})
+					}
+
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+			type		: "POST",
+			url 		: "add-damaged-items",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(dataset),
+			success		: function(response){
+				console.log(response);
+				if(response.message=="Success"){
+					swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+					}).then(function(){
+							window.location.href = "/inventory/view-damaged-items" ;
+					})
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	}
+	})//swal function block ends
+}//submit function ends
+
+
+//function to validate Quantity field
+
+function checkQty(event){
+		var currentId = event.currentTarget.id;
+	checkNum(currentId);
+	}
+function modifyDamagedItems(dataset){
+
+	console.log(dataset)
+	swal.fire({
+		title				: "Are you sure want to Submit?",
+		text				: "Once Submited,Can't revert back !",
+		type 				: "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+	
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+		showLoaderOnConfirm	: true,
+		preConfirm: () => {
+						return new Promise((resolve) => {
+							setTimeout(() => {
+								console.log("Doing async operation");
+								resolve()
+							}, 3000)
+						})
+					}
+
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+			type		: "POST",
+			url 		: "add-damaged-items",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(dataset),
+			success		: function(response){
+				console.log(response);
+				if(response.message=="Success"){
+					swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+					}).then(function(){
+							window.location.href = "/inventory/view-damaged-items" ;
+					})
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	}
+	})//swal function block ends
+}//submit function ends
+
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Damaged Item Details</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Damaged Item Details</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+
+							<input type="hidden" id="tDamagedItemId" th:value="${id}" />
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-lg-12">
+									<!-- id="table-data" -->
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="2" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Item</th>
+												<th>Serial No.</th>
+												<th>Description</th>
+												<th>Vendor</th>
+												<th>ReSale value</th>
+												<th>Status</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+
+											<!-- FOR EDIT	 -->
+											<tr class="tr_clone" th:if="${id}"
+												th:each="a,iter:${damagedItem}">
+												<td><input type="hidden" id="item_0"
+													class="form-control itemCls"> <input type="text"
+													id="itemName_0" class="form-control itemCls1"
+													th:value='${a.tItem}' readonly />
+													<div id="suggesstion-box1_0"></div></td>
+
+												<td><input type="text" id="tItemSlNo"
+													class="form-control tItemSlNoCls" th:value="${a.tItemSlNo}"
+													readonly /></td>
+
+												<td><input type="text" id="tDamagedDesc"
+													class="form-control tDamagedDescCls"
+													th:value="${a.tDamagedDesc}" /></td>
+
+												<td><select id="tVendor"
+													class="form-control tVendorCls">
+														<option value="">--Select--</option>
+														<option th:each="c:${vendorName}" th:value='${c.key}'
+															th:text="${c.name}" th:selected="${c.key ==a.tVendor}"></option>
+												</select></td>
+
+												<td><input type="text" id="tItemReSaleValue"
+													class="form-control tItemReSaleValueCls"
+													th:value="${a.tItemReSaleValue}" onkeyup="checkQty(event)" /></td>
+												<td><select id="tStatus"
+													class="form-control tStatusCls">
+														<option th:value="null">--Select--</option>
+														<option th:value="false" th:selected="${!a.tStatus}">Scraped</option>
+														<option th:value="true" th:selected="${a.tStatus}">ReSale</option>
+												</select></td>
+
+											</tr>
+
+											<!-- FOR ADD	 -->
+
+											<tr class="tr_clone" th:unless="${id}">
+
+												<td><input type="hidden" id="item_0"
+													class="form-control itemCls"> <input type="text"
+													id="itemName_0" class="form-control itemCls1"
+													onkeyup="itemAutoComplete(this.id);" />
+													<div id="suggesstion-box1_0"></div></td>
+
+
+												<td><input type="text" id="tItemSlNo"
+													class="form-control tItemSlNoCls" /></td>
+
+												<td><input type="text" id="tDamagedDesc"
+													class="form-control tDamagedDescCls" /></td>
+
+												<td><select id="tVendor"
+													class="form-control tVendorCls">
+														<option value="">--Select--</option>
+														<option th:each="c:${vendorName}" th:value='${c.key}'
+															th:text="${c.name}" th:selected="${c.key ==tVendor}"></option>
+												</select></td>
+												<td><input type="text" id="tItemReSaleValue"
+													class="form-control tItemReSaleValueCls"
+													onkeyup="checkQty(event)" /></td>
+
+												<td><select id="tStatus"
+													class="form-control tStatusCls">
+														<option th:value="null">--Select--</option>
+														<option th:value="false" th:selected="${tStatus}">Scraped</option>
+														<option th:value="true" th:selected="${tStatus}">ReSale</option>
+												</select></td>
+
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="checkEmpty();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="form-group" th:unless="${id}">
+								<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+								<button type="button" class="btn btn-warning"
+									onclick="returnToViewPage();">Cancel</button>
+							</div>
+							<div class="form-group" th:if="${id}">
+								<button type="button" id="modifyItems" class="btn btn-success">Modify</button>
+								<button type="button" class="btn btn-warning"
+									onclick="returnToViewPage();">Cancel</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div style="clear: both;"></div>
+	</div>
+</div>
+</html>

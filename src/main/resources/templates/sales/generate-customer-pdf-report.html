@@ -1,0 +1,310 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+	<script type="text/javascript">
+		$(document).ready(function() {
+		
+			$("#param4").datepicker({
+				format : "dd-mm-yyyy",
+				autoclose : true
+			})
+			$("#param5").datepicker({
+				format : "dd-mm-yyyy",
+				autoclose : true
+			})
+			
+			//Method for listing of all the Customer Records
+			
+			$('#listAllCustomer').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-customer-throughAjax',
+					'data' : function(d) {
+						d.param1 = $('#param1').val();
+						d.param2 = $('#param2').val();
+						d.param3 = $('#param3').val();
+						d.param4 = $('#param4').val();
+						d.param5 = $('#param5').val();
+					}
+				},
+				'dataSrc' : "",
+				'columns' : [ {
+					'data' : 'customerName'
+				}, {
+					'data' : 'customerEmail'
+				}, {
+					'data' : 'customerPhone'
+				}, {
+					'data' : 'customerAddress'
+				}, {
+					'data' : 'customerCity'
+				}, {
+					'data' : 'customerDistrict'
+				}, {
+					'data' : 'customerState'
+				}, {
+					'data' : 'customerCountry'
+				}, {
+					'data' : 'customerZipCode'
+				}, {
+					'data' : 'customerGSTNo'
+				}, {
+					'data' : 'customerContactPerson'
+				}, {
+					'data' : 'status'
+				}, {
+					'data' : 'action'
+				}
+		
+				]
+			});
+		});
+		
+		function createPdf() {
+		
+			window.open("/download/sales-customer-generate-pdf?param1="
+					+ window.btoa($('#param1').val()) + "&param2="
+					+ window.btoa($('#param2').val()) + "&param3="
+					+ window.btoa($('#param3').val()) + "&param4="
+					+ window.btoa($('#param4').val()) + "&param5="
+					+ window.btoa($('#param5').val()), '_blank');
+		}
+		
+		function funcLoad() {
+			location.reload();
+		}
+		
+		function validate(){
+			var param1 = $('#param1').val();
+			var param2 = $('#param2').val();
+		    var param3 = $('#param3').val();
+		    var param4 = $('#param4').val();
+		    var param5 = $('#param5').val();
+			if( ($('#param1').val()=="")&&($('#param2').val()=="")&&($('#param3').val()=="")&&($('#param4').val()=="")&&($('#param5').val()==""))
+			{
+			swal({
+			title : "Select Any One from search Field.."
+			})
+			}
+			 if(param4>param5){
+				swal({
+					title : "From Date Must be less Than from To date.."
+					})
+			}
+			else{
+				createPdf();
+			}
+		}
+			
+		//function for auto complete
+		
+		function customerAutoComplete() {
+					$.ajax({
+						type : "POST",
+						url : "view-customer-generateCustomerNameListByAutoSearch",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : $("#param1").val(),
+						success : function(response) {
+						if (response.message == "success") {
+							console.log(response);
+							if(response.body.length!=0)	{
+								console.log("if: "+response);
+								$("#param1").css("background","#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) {
+									content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'('+ response.body[i].name+')'+'</li>';
+								} 
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+							}
+							else {
+								console.log("else: "+response);
+								$("#param1").css("background","#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+							}
+						}
+					},
+					error : function(data) {
+					console.log(data);
+				}
+			})
+		}
+			
+		function selectAutocompleteValue(key,name) {
+			
+				if (key) {
+					$("#param1").val(key);
+					$("#param1").attr('data-procat', key);
+					$("#suggesstion-box").hide();	
+				}
+				else {
+					$("#param1").val("");
+					$("#param1").attr('data-procat', "");
+					$("#suggesstion-box").hide();
+				}
+		}
+			
+		// function for onChange District DropDown
+		
+		$(document).ready(function() {  
+			 
+			$("#param2").on('change', function() {
+				var districtList = $(this).val();
+				if (districtList) {
+						$.ajax({
+							type : 'POST',
+							url : 'get-district-list',
+							contentType : 'application/json',
+							data : districtList,
+							success : function(response) {
+							if (response.message == "success") {
+									$("#param3").empty();
+									var option = $("<option></option>");
+									$(option).val(null);
+									$(option).html("--Select--");
+									$("#param3").append(option);
+									if(response.body.length>0){
+										for (var i = 0; i < response.body.length; i++) {
+											var option = $("<option></option>");
+											$(option).val(response.body[i].key);
+											$(option).html(response.body[i].name);
+											$("#param3").append(option);
+										}
+									}else{
+										
+										$("#param3").empty();
+										var option = $("<option></option>");
+										$(option).val(null);
+										$(option).html("--Select--");
+										$("#param3").append(option);
+								}
+							}else{
+	
+								$("#param3").empty();
+								var option = $("<option></option>");
+								$(option).val(null);
+								$(option).html("--Select--");
+								$("#param3").append(option);	
+							}
+								 
+						},
+						error : function(e) {
+							alert("error");
+						}
+					});
+				}
+			else{
+					$("#param3").empty();
+					var option = $("<option></option>");
+					$(option).val(null);
+					$(option).html("--Select--");
+					$("#param3").append(option);
+				}
+			});
+		});
+	</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="card-title">
+					<h4>Customer Report </h4>
+				</div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="row">
+											<div class="col-md-6">
+												<div class="org-name">Customer Name</div>
+											</div>
+											<div class="col-md-6">
+												<input type="text" class="form-control" id="param1" onkeyup="customerAutoComplete();" />
+												<div id="suggesstion-box"></div>
+											</div>	
+										</div>
+										<div class="row">
+											<div class="col-md-6">
+												<div class="org-name">Customer State</div>
+											</div>
+											<div class="col-md-6">
+												<select class="form-control" id="param2">
+													<option th:value="null">Select</option>
+													<option th:each="c:${stateList}" th:value='${c.key}' th:text="${c.name}" ></option>
+												</select>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-6">	
+												<div class="org-name">Customer District</div>
+											</div>
+											<div class="col-md-6">
+												<select class="form-control" id="param3">
+													<option th:value="null">Select</option>
+													<option th:each="c:${districtList}" th:value='${c.key}' th:text="${c.name}" ></option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="row">
+											<div class="col-md-6">
+												<div class="org-name">From Date</div>
+											</div>
+											<div class="col-md-6">
+												<input class="form-control" type="text" placeholder="" name=""
+													id="param4">
+											</div>
+										</div>
+										<div class="row">
+											 <div class="col-md-6">
+												<div class="org-name">To  Date</div>
+											</div>
+											<div class="col-md-6">
+												<input class="form-control" type="text" placeholder="" name=""
+													id="param5">
+											</div> 
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<button class="btn btn-primary" onclick="funcLoad();">
+									Reset</button>
+								<button type="button" class="btn btn-primary"
+									onclick="validate()">Print Preview</button>
+								<button type="button" class="btn btn-primary"
+									onclick="validate()">Print</button>
+								<!-- <input name="" type="reset" class="btn warning" value="Cancel"> -->
+							</div>
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- /# row -->
+	</div>
+</html>

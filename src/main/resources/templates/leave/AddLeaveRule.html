@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	function validateForm() {
+
+		if (!blankValidation("leaveType", "SelectBox",
+				"Please Select Leave Type Name."))
+			return false;
+
+		if (!blankValidation("jobTitle", "SelectBox",
+				"Please Select Job Title."))
+			return false;
+
+		if (!blankValidation("emplmntStatus", "SelectBox",
+				"Please Select Employement Status."))
+			return false;
+
+		if (!blankValidation("empl", "SelectBox", "Please Select Employee."))
+			return false;
+
+		if (!blankValidation("department", "SelectBox",
+				"Please Select Department Name."))
+			return false;
+
+		if (!blankValidation("leaveType", "SelectBox",
+				"Please Select Leave Period."))
+			return false;
+
+		if (!blankValidation("leavePerPeriod", "TextField",
+				"Leave Per Period can not be left blank"))
+			return false;
+
+		if (!blankValidation("isadminAssign", "SelectBox",
+				"Please Select Is Admin Can Assign."))
+			return false;
+
+		if (!blankValidation("isEmpApply", "SelectBox",
+				"Please Select Is Employee Apply."))
+			return false;
+
+		if (!blankValidation("isEmpAlyMoreThanALeave", "SelectBox",
+				"Please Select  Is Employee Apply More than Leave Avail."))
+			return false;
+
+		if (!blankValidation("isAccrueEnb", "SelectBox",
+				"Please Select Leave Accrue Enable."))
+			return false;
+
+		if (!blankValidation("isCarriedFwd", "SelectBox",
+				"Please Select Leave carried Forward."))
+			return false;
+
+		if (!blankValidation("carriedFwdPercnt", "TextField",
+				"Carried Forward Percent can not be left blank"))
+			return false;
+
+		if (!blankValidation("maxCaryFwdAmt", "TextField",
+				"Max Carried Forward Amount can not be left blank"))
+			return false;
+
+		if (!blankValidation("carryFwdPeriod", "SelectBox",
+				"Please Select Carried Forward period."))
+			return false;
+
+		if (!blankValidation("properLeaveJDate", "SelectBox",
+				"Please Select Proportionate date Joining."))
+			return false;
+
+	}
+// for job title list department change  
+	/* function departmentChange() {
+		var employeeDepartment = $("#department").val();
+		$("#jobTitle").empty();
+		$("#jobTitle").append($("<option value>--Select--</option>"));
+		$("#empl").empty();
+		$("#empl").append($("<option value>--Select--</option>"));
+		$("#emplmntStatus").empty();
+		$("#emplmntStatus").append($("<option value>--Select--</option>"));
+		if (employeeDepartment) {
+
+			$.ajax({
+				type : "POST",
+				url : "add-leave-rule-mstr-jobtitle",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : employeeDepartment,
+				success : function(response) {
+					if (response.message == "success") {
+
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#jobTitle").append(option);
+
+						}
+					}
+				},
+				error : function(data) {
+
+				}
+			})
+		} else {
+			$("#jobTitle").empty();
+			$("#jobTitle").append($("<option value>--Select--</option>"));
+			$("#empl").empty();
+			$("#empl").append($("<option value>--Select--</option>"));
+			$("#emplmntStatus").empty();
+			$("#emplmntStatus").append($("<option value>--Select--</option>"));
+		}
+	} */
+// for list of employee list on job title change
+	/* function jobtitleChange() {
+		var employeejobTitle = $("#jobTitle").val();
+		$("#empl").empty();
+		$("#empl").append($("<option value>--Select--</option>"));
+		$("#emplmntStatus").empty();
+		$("#emplmntStatus").append($("<option value>--Select--</option>"));
+		if (employeejobTitle) {
+
+			$.ajax({
+				type : "POST",
+				url : "add-leave-rule-mstr-employeeList",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : employeejobTitle,
+				success : function(response) {
+					if (response.message == "success") {
+
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#empl").append(option);
+
+						}
+					}
+				},
+				error : function(data) {
+
+				}
+			})
+		} else {
+			$("#empl").empty();
+			$("#empl").append($("<option value>--Select--</option>"));
+			$("#emplmntStatus").empty();
+			$("#emplmntStatus").append($("<option value>--Select--</option>"));
+		}
+	} */
+	// for list of status on employee change
+	/* function employeeChange() {
+		var employee = $("#empl").val();
+		$("#emplmntStatus").empty();
+		$("#emplmntStatus").append($("<option value>--Select--</option>"));
+		if (employee) {
+
+			$.ajax({
+				type : "POST",
+				url : "add-leave-rule-mstr-employmentStatus",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : employee,
+				success : function(response) {
+					if (response.message == "success") {
+
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#emplmntStatus").append(option);
+
+						}
+					}
+				},
+				error : function(data) {
+
+				}
+			})
+		} else {
+			$("#emplmntStatus").empty();
+			$("#emplmntStatus").append($("<option value>--Select--</option>"));
+		}
+	} */
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="@{/index}">Home</a></li>
+					<li class="active"><a th:href="@{/leave/add-leave-rule-mstr}">Add
+							Leave Rule</a></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Leave Rule</h4>
+				<div class="topbtnright" align="right">
+					<div class="form-group">
+						<input type="submit" value="Submit" class="btn btn-success" /> <input
+							type="reset" value="Cancel" class="btn btn-warning"
+							onclick="window.location.reload();" />
+					</div>
+				</div>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:action="@{add-leave-rule-mstr}" th:object="${leaverule}"
+								onsubmit="return validateForm();" method="post"
+								autocomplete="off">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-lg-6">
+										<input type="hidden" th:field="*{ruleId}" />
+										<div class="form-group">
+											<label>Leave Type</label> <select
+												class="org-name form-control" th:field="*{leaveType}">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${leaveTypeData}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Department</label> <select
+												class="org-name form-control" th:field="*{department}"
+												onchange="departmentChange()">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${deptData}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Job Title</label> <select
+												class="org-name form-control" th:field="*{jobTitle}"
+												onchange="jobtitleChange()">
+												<option th:value="NULL">--Select--</option>
+												<!-- <option th:if="${ruleId==null}" th:each="c:${jobTitleData}"
+													th:value='${c.key}' th:text="${c.name}"></option> -->
+												<option value="JOB002">Manager</option>
+												<option value="JOB004">Sr Manager</option>
+												<option value="JOB006">Asst Manager</option>
+												<option value="JOB007">Supervisor</option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label> Employee</label> <select
+												class="org-name form-control" th:field="*{empl}"
+												onchange="employeeChange()">
+												<option th:value="NULL">--Select--</option>
+												<!-- <option th:if="${ruleId==null}" th:each="c:${emplData}"
+													th:value='${c.key}' th:text="${c.name}"></option> -->
+												<option value="ABHO/110321">PRIYABRATA PRUSTY</option>
+												<option value="ABHO/110322">DIPTI RANJAN JENA</option>
+												<option value="ABHO/111121">PRASANNA SATPATHY</option>
+												<option value="ABHO/120811">LABAKUMAR SHAHA</option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label> Employment Status</label> <select
+												class="org-name form-control" th:field="*{emplmntStatus}">
+												<option th:value="NULL">--Select--</option>
+												<!-- <option th:if="${ruleId==null}" th:each="c:${emplStatusData}" th:value='${c.key}'
+													th:text="${c.name}"></option> -->
+												<option value="EMPT001">Full Time</option>
+												<option value="EMPT002">Part Time</option>
+											</select>
+										</div>
+									</div>
+
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Leave Period</label> <select
+												class="org-name form-control" th:field="*{leavePeriod}">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${leavePeriodData}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Leave Per Leave Period</label> <input type="text"
+												class="form-control" name="" value=""
+												th:field="*{leavePerPeriod}">
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Admin can assign leave to employee</label> <select
+												class="form-control" th:field="*{isadminAssign}">
+												<option th:value="NULL">--Select--</option>
+												<option th:value="true">Yes</option>
+												<option th:value="false">No</option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Employee can apply for this leave type</label> <select
+												class="form-control" th:field="*{isEmpApply}">
+												<option th:value="NULL">--Select--</option>
+												<option th:value="true">Yes</option>
+												<option th:value="false">No</option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Employee can apply beyond the current leave
+												balance</label> <select class="form-control"
+												th:field="*{isEmpAlyMoreThanALeave}">
+												<option th:value="NULL">--Select--</option>
+												<option th:value="true">Yes</option>
+												<option th:value="false">No</option>
+											</select>
+										</div>
+									</div>
+
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Leave Accrue Enable</label> <select
+												class="form-control" th:field="*{isAccrueEnb}">
+												<option th:value="NULL">--Select--</option>
+												<option th:value="true">Yes</option>
+												<option th:value="false">No</option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Leave Carried Forward</label> <select
+												class="form-control" th:field="*{isCarriedFwd}">
+												<option th:value="NULL">--Select--</option>
+												<option th:value="true">Yes</option>
+												<option th:value="false">No</option>
+											</select>
+										</div>
+									</div>
+
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Percentage of Leave Carried Forward</label> <input
+												type="text" class="form-control" name="" value=""
+												th:field="*{carriedFwdPercnt}">
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Maximum Carried Forward Amount</label> <input
+												type="text" class="form-control" name="" value=""
+												th:field="*{maxCaryFwdAmt}">
+										</div>
+									</div>
+
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Carried Forward Leave Availability Period</label> <select
+												class="org-name form-control" th:field="*{carryFwdPeriod}">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${availPeriod}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Proportionate Leave on joining date</label> <select
+												class="form-control" th:field="*{properLeaveJDate}">
+												<option th:value="NULL">--Select--</option>
+												<option th:value="true">Yes</option>
+												<option th:value="false">No</option>
+											</select>
+										</div>
+									</div>
+
+									<div class="form-group col-md-12"></div>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

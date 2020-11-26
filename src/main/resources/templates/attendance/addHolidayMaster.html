@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	//form validation
+	function validateForm() {
+		if (!blankValidation("tHolidayName", "TextField",
+				"Holiday Name can not be left blank"))
+			return false;
+
+		if (!blankValidation("tHolidayFromDate", "TextField",
+				"From Date can not be left blank"))
+			return false;
+
+		if (!blankValidation("tHolidayToDate", "TextField",
+				"To Date can not be left blank"))
+			return false;
+
+		if (!blankValidation("tHolidayStatus", "TextField",
+				"Holiday Status can not be left blank"))
+			return false;
+
+	}
+
+	function dateValidation() {
+		var joinDate = $("#tHolidayFromDate").val();
+		var confirmDate = $("#tHolidayToDate").val();
+
+		var parts = joinDate.split('-');
+		var d1 = Number(parts[2] + parts[1] + parts[0]);
+		parts = confirmDate.split('-');
+		var d2 = Number(parts[2] + parts[1] + parts[0]);
+		if (d1 <= d2) {
+			return true;
+		} else if(d1 > d2){
+			swal("From Date Can't  be Larger Than To Date.")
+			$("#tHolidayToDate").val('');
+			return false;
+		}else{
+			swal("Please Select a Date.")
+			return false;
+		}
+
+	}
+	function nullToDate(){
+		$("#tHolidayToDate").val('');
+	}
+	//date function
+	$(document).ready(function() {
+
+		$("#tHolidayFromDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			minDate : new Date(),
+			timepicker : false,
+		})
+
+		$("#tHolidayToDate").datetimepicker({
+
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			minDate : new Date(),
+			timepicker : false,
+		})
+
+	});
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class="active"><span>Add Holidays List </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Holidays List</h4>
+
+				<div class="topbtnright" align="right">
+					<div class="form-group">
+						<input type="submit" value="Submit" class="btn btn-success" /> <input
+							type="reset" value="Cancel" class="btn btn-warning"
+							onclick="window.location.reload();" />
+					</div>
+				</div>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form action="#" th:action="@{add-holiday-master}"
+								th:object="${holidayListMaster}" method="post"
+								onsubmit="return validateForm();" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"> </span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"> </span>
+									</div>
+								</div>
+								<input type="hidden" th:field="*{tHoliday}" />
+								<div class="row">
+									<div class="col-lg-6">
+
+
+										<div class="form-group">
+											<label>Holiday Name</label> <input type="text"
+												class="form-control" name="tHolidayName" value=""
+												th:field="*{tHolidayName}">
+										</div>
+										<div class="form-group">
+											<label>Holiday From</label> <input class="form-control"
+												name="tHolidayFromDate" value=""
+												th:field="*{tHolidayFromDate}" id="tHolidayFromDate"
+												autocomplete='off' readonly onchange="nullToDate()">
+										</div>
+										<div class="form-group">
+											<label>Holiday Till</label> <input class="form-control"
+												name="tHolidayToDate" value="" th:field="*{tHolidayToDate}"
+												id="tHolidayToDate" autocomplete='off' readonly
+												onchange="dateValidation()">
+										</div>
+										<div class="form-group">
+											<label>Holiday Status</label> <select class="form-control"
+												th:field="*{tHolidayStatus}">
+												<option value="">Select</option>
+												<option th:each="c:${holidayStatus}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="form-group row col-md-12"></div>
+							</form>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

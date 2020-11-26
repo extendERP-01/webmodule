@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 490px;
+	position: absolute;
+	z-index: 999;
+	height: 100px; 
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 170px;
+	position: absolute;
+	z-index: 999;
+	height: 100px; 
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+.money {
+	text-align: right;
+}
+</style>
+<script>
+
+//ADD MORE FUNCTION
+
+function addMore(){
+	
+	var itemNameValid = true;
+	$(".itemName").each(function(){
+		var current_id = $(this).attr("id");
+		if (!blankValidation(current_id,"TextField" ,"Please Enter Item Name")){
+			itemNameValid = false;
+			return false;
+		}
+		
+	});
+	
+	var itemCodeValid = true;
+	if(itemNameValid){
+		$('.itemCode').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Item Code")){
+				itemCodeValid = false;
+				return false;
+			}
+				  	
+		});
+	}
+	
+	var unitPriceValid = true;
+	if(itemNameValid && itemCodeValid){
+		$('.unitPrice').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Unit Price")){
+				unitPriceValid = false;
+				return false;
+			}
+				  	
+		});
+	}
+	
+	var quantityValid = true;
+	if(itemNameValid && itemCodeValid && unitPriceValid){
+		$('.quantity').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+				quantityValid = false;
+				return false;
+			}
+				  	
+		});
+	}
+	
+	var discountValid = true;
+	if(itemNameValid && itemCodeValid && unitPriceValid && quantityValid){
+		$('.discount').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Discount")){
+				discountValid = false;
+				return false;
+			}
+				  	
+		});
+	}
+	
+	var serveTypeValid = true;
+	if(itemNameValid && itemCodeValid && unitPriceValid && quantityValid && discountValid){
+		$('.qServeType').each(function(){
+			if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Serve Type")){
+				serveTypeValid = false;
+				return false;
+			}
+				  	
+		});
+	}
+	
+	if(itemNameValid && itemCodeValid && unitPriceValid && quantityValid && discountValid && serveTypeValid){ 
+		
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+		
+		$("#myTable tbody tr td:last").html("");
+		var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+		
+		var editTr = 0;
+		
+		if(lengthOfTableRow>editTr){
+			$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+		}
+		
+		$("#myTable tbody tr:last").find(".itemName").val("");
+		$("#myTable tbody tr:last").find(".itemCode").val("");
+		$("#myTable tbody tr:last").find(".unitPrice").val("");
+		$("#myTable tbody tr:last").find(".quantity").val("");
+		$("#myTable tbody tr:last").find(".discount").val("");
+		$("#myTable tbody tr:last").find(".itemGSTRate").val("");
+		$("#myTable tbody tr:last").find(".qServeType").empty();
+		$("#myTable tbody tr:last").find(".qServeType").append(new Option("--Select--",""));
+		$("#myTable tbody tr:last").find(".lineTotal").html("0.00");
+		
+		$("#myTable > tbody > tr").each(function(i){
+			
+			var textInput 	= $(this).find('input') ;
+			var labelInput = $(this).find('label');
+			var selectInput = $(this).find('select');
+			var divInput = $(this).find('div');
+			
+			textInput.eq(0).attr('id',"qItemCode_"+i);
+			textInput.eq(1).attr('id',"qItemName_"+i);
+			textInput.eq(2).attr('id',"qUnitPrice_"+i);
+			textInput.eq(3).attr('id',"qQuantity_"+i);
+			textInput.eq(4).attr('id',"qDiscount_"+i);
+			textInput.eq(5).attr('id',"qItemGST_"+i);
+			selectInput.eq(0).attr('id',"qSType_"+i);
+			labelInput.eq(0).attr('id',"qLineTotal_"+i) ;
+			divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+		})
+	}
+	
+}
+
+//CUSTOMER AUTO SEARCH FUNCTION
+
+function customerAutoComplete() {
+	var cust = $("#customerName").val();
+	if(cust) {
+	$.ajax({
+		type : "POST",
+		url : "add-quotation-master-getCustomerAutocompleteList  ",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#customerName").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				
+				if(response.body.length!=0)	{
+					$("#customerName").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'('+ response.body[i].key+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+					
+				}
+				else {
+					$("#customerName").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+	} else {
+		$("#customerName").css("background","#FFF");
+		var content = '<ul id="autocomplete-list">';
+		content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#suggesstion-box").show();
+		$("#suggesstion-box").html(content);
+	}
+}
+function selectAutocompleteValue(key,name) {
+	if (key) {
+		$("#customerId").val(key);
+		$("#customerName").val(name);
+		$("#customerName").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+		}
+	else {
+		$("#customerId").val("");
+		$("#customerName").val("");
+		$("#customerName").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+}
+
+//(document).ready() STARTS
+
+$(document).ready(function() {
+	
+	$(document).click(function() {
+		$("#suggesstion-box").hide();
+		var customerId = $("#customerId").val();
+		if(!customerId) {
+			$("#customerName").val("");
+		}
+    });
+	
+	/* $("#suggesstion-box").click(function(e) {
+		e.stopPropagation();
+	} */
+	//var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var id = $("#quotationId").val();
+	var taxType = $("input[name='tax']:checked").val();
+	if(id) {
+		if(taxType=="true") {
+			$('#IgstTR').show();
+			$('#CgstTR').hide();
+			$('#SgstTR').hide();
+			var igst = $('#igst').html();
+			$('#igst').html((parseFloat(igst)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+			
+		} else {
+			$('#IgstTR').hide();
+			$('#CgstTR').show();
+			$('#SgstTR').show();
+			var cgst = $('#cgst').html();
+			var sgst = $('#sgst').html();
+			$('#cgst').html((parseFloat(cgst)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+			$('#sgst').html((parseFloat(sgst)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+		}
+		$("#myTable > tbody > tr").each(function(i){
+			var price = $("#qUnitPrice_"+i).val();
+			var discount = $("#qDiscount_"+i).val();
+			var linetotal = $("#qLineTotal_"+i).html();
+			$("#qUnitPrice_"+i).val((parseFloat(price)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+			$("#qDiscount_"+i).val((parseFloat(discount)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+			$("#qLineTotal_"+i).html((parseFloat(linetotal)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+		})
+		
+		//Fixed Double Digit After Point At Edit Time
+		//var gstRate = $('#gstRate').val();
+		//$('#gstRate').val(parseFloat(gstRate));
+		var subTotal = $('#subTotal').html();
+		var grandTotal = $('#grandTotal').html();
+		$('#subTotal').html((parseFloat(subTotal)).toFixed(2));
+		$('#grandTotal').html((parseFloat(grandTotal)).toFixed(2));
+		
+		// --> View Quotation Master Page On Click --> 'Cancel' Button At Edit Time
+		$("#btnCancel").click(function(){
+		   window.location.href = "/sales/view-quotation-master";
+		}); 
+	} else {
+		$('#IgstTR').hide();
+		
+		// --> Page Reload On Click --> 'Cancel' Button At Add Time
+		$("#btnCancel").click(function(){
+		  location.reload();
+		}); 
+	}
+	
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		
+		calculateSubTotal();
+		getGSTRate();
+	});
+	
+	$("#quotationVDate").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+		/* minDate : new Date() */
+	});
+		
+	$("#submit").click(function(){
+		var taxType = $("input[name='tax']:checked").val();
+		if(taxType=="true") {
+			$("#cgst").text("0.00");
+			$("#sgst").text("0.00");
+		} else {
+			$("#igst").text("0.00");
+		}
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			item = {};
+			item['quotationId']		=	$("#quotationId").val();
+			item['quotationName']	=	$("#quotationName").val();
+			item['customerId']		=	$("#customerId").val();
+			item['qDescription']	=	$("#qDescription").val();
+			item['quotationVDate']	=	$("#quotationVDate").val();
+			item['qStatus']			=	$("#qStatus").val();
+			item['qNote']			=	$("#qNote").val();
+			item['taxType']			=	$("input[name='tax']:checked").val();
+			item['gstRate']			=	parseFloat($("#gstRate").val());
+			item['subTotal']		=	parseFloat($("#subTotal").text());
+			item['qIGST']			=	parseFloat($("#igst").text());
+			item['qCGST']			=	parseFloat($("#cgst").text());
+			item['qSGST']			=	parseFloat($("#sgst").text());
+			item['grandTotal']		=	parseFloat($("#grandTotal").text());
+			
+			item['itemCode']		=	$(this).find(".itemCode").val();
+			item['unitPrice']		=	parseFloat($(this).find(".unitPrice").val());
+			item['quantity']		=	parseFloat($(this).find(".quantity").val());
+			item['discount']		=	parseFloat($(this).find(".discount").val());
+			item['itemGST']			=	parseFloat($(this).find(".itemGSTRate").val());
+			item['qServeType']		=	$(this).find(".qServeType").val();
+			item['lineTotal']		=	parseFloat($(this).find(".lineTotal").text());
+			dataset.push(item);
+		})
+		
+		if (!blankValidation("quotationName","TextField" ,"Please Enter Quotation Name"))
+		      return false;
+		if (!blankValidation("customerId","TextField" ,"Please Enter Customer Name"))
+		      return false;
+		if (!blankValidation("quotationVDate","TextField" ,"Please Enter Quotation Valid Upto"))
+		      return false;
+		if (!blankValidation("qDescription","TextArea" ,"Description Can't Be Left Blank"))
+		      return false;
+		if (!blankValidation("gstRate","TextField" ,"Please Enter GST Rate"))
+		      return false;
+		if (!blankValidation("qNote","TextArea" ,"Note Can't Be Left Blank"))
+		      return false;
+		
+		var itemNameValid = true;
+		$(".itemName").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"TextField" ,"Please Enter Item Name")){
+				itemNameValid = false;
+				return false;
+			}
+			
+		});
+		
+		var itemCodeValid = true;
+		if(itemNameValid){
+			$('.itemCode').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Item Code")){
+					itemCodeValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		
+		var unitPriceValid = true;
+		if(itemNameValid && itemCodeValid){
+			$('.unitPrice').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Unit Price")){
+					unitPriceValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		
+		var quantityValid = true;
+		if(itemNameValid && itemCodeValid && unitPriceValid){
+			$('.quantity').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+					quantityValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		
+		var discountValid = true;
+		if(itemNameValid && itemCodeValid && unitPriceValid && quantityValid){
+			$('.discount').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Discount")){
+					discountValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		
+		var serveTypeValid = true;
+		if(itemNameValid && itemCodeValid && unitPriceValid && quantityValid && discountValid){
+			$('.qServeType').each(function(){
+				if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Serve Type")){
+					serveTypeValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		
+		if(itemNameValid && itemCodeValid && unitPriceValid && quantityValid && discountValid && serveTypeValid){
+			submitQuotationItem(dataset);
+		}
+	});
+});  
+//(document).ready() ENDS
+
+
+//SUBMIT QUOTATION FUNCTION
+
+function submitQuotationItem(dataset){
+	console.log(dataset)
+	swal.fire({
+		title					: "Are you sure want to Submit?",
+		text					: "Once Submited,Can't revert back !",
+		type 					: "warning",
+		showCancelButton		: true,
+		confirmButtonColor		: "#DD6BB5",
+		confirmButtonText		: "Submit",
+		showLoaderOnConfirm		: true,
+		reverseButtons 			: true,
+		confirmButtonAriaLabel 	: 'Thumbs up, great!',
+		cancelButtonText 		: 'Cancel',
+		cancelButtonAriaLabel 	: 'Thumbs down',	
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "add-quotation-master-save-quotation",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					if(response.message=="Success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							window.location.href = "/sales/view-quotation-master" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			}) //ajax ends
+		}
+	})//swal function block ends
+}
+
+//CHECK QUANTITY & PRICE VALUE IS NOT ALPHABET OR SPECIAL CHARACTER
+
+function checkNumber(event) {
+	var currentId = event.currentTarget.id;
+	checkNum(currentId);
+}
+
+//CHECK ALPHABET AND NUMBER
+
+function checkAlphabetNumber(event) {
+	var currentId = event.currentTarget.id;
+	var fieldId = event.currentTarget.value;
+	var tempVal = fieldId.replace(/[^a-zA-Z0-9]/g,'');
+	$("#"+currentId).val(tempVal);
+} 
+
+//CHECK ITEM NAME
+
+function checkItemName(event) {
+	var currentId = event.currentTarget.id;
+	var fieldId = event.currentTarget.value;
+	var tempVal = fieldId.replace(/[^a-zA-Z0-9 -]/g,'');
+	$("#"+currentId).val(tempVal);
+}
+
+//CHECK QUOTATION NAME
+
+function checkAlphaNumber() {
+	var tempVal = $("#quotationName").val().replace(/[^a-zA-Z0-9 -]/g,'');
+	$("#quotationName").val(tempVal);
+}
+
+//CHECK GST RATE VALUE IS NOT ALPHABET OR SPECIAL CHARACTER
+
+function checkGSTRate() {
+	checkNum("gstRate");
+}
+
+//CALCULATE AMOUNT FUNCTION (QUANTITY * PRICE)
+
+function calculateLineTotal(event) {
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	
+	var counter = l[1];
+	var price = $("#qUnitPrice_"+counter).val();
+	var quantity = $("#qQuantity_"+counter).val();
+	var discount = $("#qDiscount_"+counter).val();
+	
+	if(price && quantity) {
+		
+		 var mul = price * quantity;
+		 
+		 if(discount > mul) {
+			 swal({
+				 title: "Discount Can't Be Greater Than Total Amount",
+				 text: "Please Enter Discount Again !!!",
+				 type: "warning",
+			 })
+			 $("#qDiscount_"+counter).val("0");
+			 var total = mul - discount;
+			 $("#qLineTotal_"+counter).html((mul).toFixed(2));
+		 } else {
+			 var total = mul - discount;
+			 $("#qLineTotal_"+counter).html((total).toFixed(2));
+		 }
+		 calculateSubTotal();
+	} else {
+		var mul = 0;
+		 $("#qLineTotal_"+counter).html((mul).toFixed(2));
+		 calculateSubTotal();
+	}
+}
+
+//CALCULATE SUB TOTAL FUNCTION
+
+function calculateSubTotal(){
+	var sum = 0;
+	$(".lineTotal").each(function(i){
+		sum = sum + parseFloat($(this).html());
+	})
+	$('#subTotal').html((sum).toFixed(2));
+	$('#grandTotal').html((sum).toFixed(2));
+}
+
+//HIDE IGST TR FUNCTION
+
+function ShowHideTrS(){
+	$("#igst").val("0.00");
+	$('#IgstTR').hide();
+	$('#CgstTR').show();
+	$('#SgstTR').show();
+	getGSTRate();
+}
+
+//HIDE CGST SGST TR FUNCTION
+
+function ShowHideTrC(){
+	$('#IgstTR').show();
+	$("#cgst").val("0.00");
+	$("#sgst").val("0.00");
+	$('#CgstTR').hide();
+	$('#SgstTR').hide();
+	getGSTRate();
+}
+
+//CALCULATE SUB TOTAL, IGST,CGST, SGST & GRAND TOTAL AFTER GST RATE VALUE
+
+function getGSTRate() {
+	//var gstRate = $('#gstRate').val();
+	var gstRate = 0.0 ;
+	var itemCGST = 0.0;
+	var itemIGST = 0.0;
+	//$(".itemGSTRate").each(function(i){
+	$("#tbodyData > tr").each(function(i){
+		var gstVal = parseFloat($(this).find(".itemGSTRate").val());
+		var lineAmt = parseFloat($(this).find(".lineTotal").html());
+		//lineAmt = parseFloat(lineAmt);
+		gstRateHalf = parseFloat(gstVal)/2;
+		var cgstval = (lineAmt * parseFloat(gstRateHalf)) / 100;
+		var igstval = (lineAmt * parseFloat(gstVal)) / 100;
+		itemCGST = parseFloat(itemCGST) + parseFloat(cgstval);
+		itemIGST = parseFloat(itemIGST) + parseFloat(igstval);
+	})
+	if(gstRate<=100) {
+		var value = gstRate / 2 ;
+		//if(gstRate!=0){
+			$('#labelIgst').html("IGST");
+			$('#labelCgst').html("CGST");
+			$('#labelSgst').html("SGST");
+		//} else {
+			//$('#labelIgst').html("IGST");
+			//$('#labelCgst').html("CGST");
+			//$('#labelSgst').html("SGST");
+		//}
+		var subTotal = $('#subTotal').html();
+		subTotal=subTotal.replace(/\,/g,'');
+			var igst = (subTotal * gstRate)/100;
+			var gst = igst/2;
+			var gstType = $("input[name='tax']:checked").val();
+			if(gstType=="true") {
+				$('#igst').html((itemIGST).toFixed(2));
+				var grandTotal = parseFloat(subTotal) + parseFloat(itemIGST);
+				$('#grandTotal').html((Math.round(grandTotal)).toFixed(2));
+			} else{
+				$('#cgst').html((itemCGST).toFixed(2));
+				$('#sgst').html((itemCGST).toFixed(2));
+				var grandTotal = parseFloat(subTotal) + parseFloat(itemCGST) + parseFloat(itemCGST);
+				$('#grandTotal').html((Math.round(grandTotal)).toFixed(2));
+			}
+			
+	} else {
+		swal({
+			title	: "GST Rate Can't Be Greater Than 100.",
+			type	: "warning",
+		})
+		$('#gstRate').val("");
+		$('#labelIgst').html("IGST");
+		$('#labelCgst').html("CGST");
+		$('#labelSgst').html("SGST");
+	}
+}
+
+function itemAutoComplete(event) {
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	var counter = l[1];
+	if(currentValue) {
+		$.ajax({
+			type : "POST",
+			url : "add-quotation-master-get-item",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : currentValue,
+			success : function(response) {
+				if (response.message == "success") {
+					
+					if(response.body.length!=0)	{
+						$(currentId).css("background","#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue1(\''+response.body[i].key+'\',\''+response.body[i].name+'\','+counter+')">'+response.body[i].name+'('+ response.body[i].key+')'+'</li>';
+						} 
+						content += '</ul>';
+						$("#suggesstion-box1_"+counter).show();
+						$("#suggesstion-box1_"+counter).html(content);
+						
+					} else {
+						$(currentId).css("background","#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#suggesstion-box1_"+counter).show();
+						$("#suggesstion-box1_"+counter).html(content);
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	} else {
+		$(currentId).css("background","#FFF");
+		var content = '<ul id="autocomplete-list1">';
+		content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#suggesstion-box1_"+counter).show();
+		$("#suggesstion-box1_"+counter).html(content);
+	}
+}
+function selectAutocompleteValue1(key,name,counter) {
+	if (key) {
+ 		$("#qItemCode_"+counter).val(key);
+    	$("#qItemName_"+counter).val(name+"("+key+")");
+    	$("#qItemName_"+counter).attr('data-procat', key);
+    	$("#suggesstion-box1_"+counter).hide();
+    	getServeType(counter);
+	} else {
+    	$("#qItemCode_"+counter).val("");
+    	$("#qItemName_"+counter).val("");
+    	$("#qItemName_"+counter).attr('data-procat', "");
+    	$("#suggesstion-box1_"+counter).hide();
+    	$("#qSType_"+counter).empty();
+		$("#qSType_"+counter).append(new Option("--Select--",""));
+		$("#qUnitPrice_"+counter).val("");
+		$("#qQuantity_"+counter).val("");
+		$("#qDiscount_"+counter).val("");
+		$("#qLineTotal_"+counter).html("0.00");
+	}
+}
+
+function getServeType(counter) {
+	var key = $('#qItemCode_'+counter).val();
+	if(key) {
+		$.ajax({
+			type : "POST",
+			url : "add-quotation-master-get-servetype",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : key,
+			success : function(response) {
+				if (response.message == "success") {
+					if(response.body.length!=0)	{
+						console.log(response.body)
+						$("#qSType_"+counter).empty();
+						$("#qSType_"+counter).append(new Option(response.body[0].serveType,response.body[0].serveTypeId));
+						$("#qItemGST_"+counter).val(response.body[0].itemGST);
+					} else {
+						$("#qSType_"+counter).empty();
+						$("#qSType_"+counter).append(new Option("--Select--",""));
+						$("#qItemGST_"+counter).val("");
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+				$("#qSType_"+counter).empty();
+				$("#qSType_"+counter).append(new Option("--Select--",""));
+				$("#qItemGST_"+counter).val("");
+			}
+		})
+	} else {
+		$("#qSType_"+counter).empty();
+		$("#qSType_"+counter).append(new Option("--Select--",""));
+		$("#qItemGST_"+counter).val("");
+	}
+}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Quotation</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12">
+				<!--Alert Box-->
+				<div class="alert alert-success alert-dismissible"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action.
+				</div>
+				<div class="alert alert-danger alert-dismissible"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action.
+				</div>
+				<div class="alert alert-warning alert-dismissible"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action.
+				</div>
+			</div>
+			<div class="card-title">
+				<h4>Add Quotation</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+						<form th:object="${quotation}" autocomplete="off">
+							 <input type="hidden" id="quotationId" th:value="${quotationId}">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Quotation Name</label> 
+										<input type="text" class="form-control" id="quotationName" th:if="${quotationId}" th:value="${quotation[0].quotationName}" onkeyup="checkAlphaNumber();">
+										<input type="text" class="form-control" id="quotationName" th:unless="${quotationId}" onkeyup="checkAlphaNumber();">
+									</div>
+									<div class="form-group">
+										<label>Customer Name</label> 
+										<input type="hidden" id="customerId" th:if="${quotationId}" th:value="${quotation[0].customerId}">
+										<input type="text" class="form-control" id="customerName" onkeyup="customerAutoComplete();" th:if="${quotationId}" th:value="${quotation[0].customerName}">
+										<input type="hidden" id="customerId" th:unless="${quotationId}">
+										<input type="text" class="form-control" id="customerName" onkeyup="customerAutoComplete();" th:unless="${quotationId}" >
+										<div id="suggesstion-box"></div>
+									</div>
+									<div class="form-group">
+										<label>Description</label> 
+										<textarea name="" cols="" rows="" th:if="${quotationId}" th:text="${quotation[0].qDescription}"
+													class="form-control textarea" id="qDescription"></textarea>
+										<textarea name="" cols="" rows="" th:unless="${quotationId}"
+													class="form-control textarea" id="qDescription"></textarea>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Quotation Valid Upto</label> 
+										<input type="text" class="form-control" id="quotationVDate" th:if="${quotationId}" th:value="${quotation[0].quotationVDate}" readonly>
+										<input type="text" class="form-control" id="quotationVDate" th:unless="${quotationId}" readonly>
+									</div>
+									<div class="form-group">
+										<label>Status</label> <select class="form-control"
+											id="qStatus">
+											<option th:value="true" th:if="${quotationId}" th:selected="${quotation[0].qStatus}">Active</option>
+											<option th:value="false" th:if="${quotationId}" th:selected="${!quotation[0].qStatus}">Inactive</option>
+											<option th:value="true" th:unless="${quotationId}" >Active</option>
+											<option th:value="false" th:unless="${quotationId}" >Inactive</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<h4>Quotation Item Details</h4>
+								</div>
+							</div>
+							<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Item Name</th>
+													<!-- <th>Item Code</th> -->
+													<th>Unit Price</th>
+													<th>Quantity</th>
+													<th>Discount</th>
+													<th>GST</th>
+													<th>Serve Type</th>
+													<th>Amount</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+										<tbody id="tbodyData">
+											<tr class="tr_clone" th:if="${quotationId}" th:each="a,iter:${quotation}">
+												<td><input type="hidden" th:id="'qItemCode_'+${iter.index}"
+													class="form-control  itemCode" value='' th:value="${a.itemCode}">
+													<input type="text" th:id="'qItemName_'+${iter.index}" onkeyup="checkItemName(event);itemAutoComplete(event);"
+													class="form-control  itemName" value='' th:value="${a.itemName}" >
+													<div th:id="'suggesstion-box1_'+${iter.index}"></div></td>
+												<!-- <td><input type="text" th:id="'qItemCode_'+${iter.index}"
+													class="form-control  itemCode" value='' th:value="${a.itemCode}"></td> -->
+												<td><input type="text" th:id="'qUnitPrice_'+${iter.index}"
+													class="form-control  unitPrice money" value='' onkeyup="calculateLineTotal(event);getGSTRate();checkNumber(event);" th:value="${a.unitPrice}"></td>
+												<td><input type="text" th:id="'qQuantity_'+${iter.index}"
+													class="form-control  quantity" value='' onkeyup="calculateLineTotal(event);getGSTRate();checkNumber(event);" th:value="${a.quantity}"></td>
+												<td><input type="text" th:id="'qDiscount_'+${iter.index}" th:value="${a.discount}"
+													class="form-control  discount money" value='' onkeyup="checkNumber(event);calculateLineTotal(event);getGSTRate();"></td>
+												<td><input type="text" th:id="'qItemGST_'+${iter.index}" readonly size="4"
+													class="form-control  itemGSTRate" value='' th:value="${a.itemGST}"></td>
+												<td><select th:id="'qSType_'+${iter.index}" class="form-control qServeType" disabled="disabled">
+													<option value="">--Select--</option> 
+													<option th:each="c:${serveTypeList}" th:value='${c.key}'
+														th:text="${c.name}" th:selected="${c.key==a.qServeType}"></option>
+													</select></td>
+												<td><label th:id="'qLineTotal_'+${iter.index}" class="form-control lineTotal money"
+													th:text="${a.lineTotal}">0.00</label></td>
+												<td><button th:if="${iter.size == iter.index+1}" type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>
+													<button th:if="${iter.size != 1}" type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>
+												</td>
+											</tr>
+											
+											<tr class="tr_clone" th:unless="${quotationId}">
+												<td><input type="hidden" id="qItemCode_0"
+													class="form-control  itemCode" value=''>
+													<input type="text" id="qItemName_0" onkeyup="checkItemName(event);itemAutoComplete(event);"
+													class="form-control  itemName" value=''>
+													<div id="suggesstion-box1_0"></div></td>
+												<!-- <td><input type="text" id="qItemCode_"
+													class="form-control  itemCode" value='' onkeyup="checkAlphabetNumber(event);"></td> -->
+												<td><input type="text" id="qUnitPrice_0"
+													class="form-control  unitPrice money" value='' onkeyup="calculateLineTotal(event);getGSTRate();checkNumber(event);"></td>
+												<td><input type="text" id="qQuantity_0"
+													class="form-control  quantity" value='' onkeyup="calculateLineTotal(event);getGSTRate();checkNumber(event);"></td>
+												<td><input type="text" id="qDiscount_0"
+													class="form-control  discount money" value='' onkeyup="checkNumber(event);calculateLineTotal(event);getGSTRate();"></td>
+												<td><input type="text" id="qItemGST_0" size="4" readonly
+													class="form-control  itemGSTRate" value=''></td>
+												<td><select id="qSType_0" class="form-control qServeType">
+													<option value="">--Select--</option>
+													</select></td>
+												<td><label id="qLineTotal_0"
+													class="form-control lineTotal money">0.00</label></td>
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+											
+										</tbody>
+									</table>
+									</div>
+								</div>
+							<div class="row">
+								<div class="col-lg-6"></div>
+								<div class="col-lg-6">
+									<table width="450px">
+										<tbody>
+											<tr th:if="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label>Sub Total</label></td>
+												<td width="10%"><label id="subTotal"
+													class="form-control subTotal money"  th:text="${quotation[0].subTotal}">0.00</label></td>
+											</tr>
+											<tr  th:unless="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label>Sub Total</label></td>
+												<td width="40%"><label id="subTotal"
+													class="form-control subTotal money">0.00</label></td>
+											</tr>
+											<tr id="IgstTR" th:if="${quotationId} and ${quotation[0].taxType}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelIgst">IGST</label></td>
+												<td width="40%"><label id="igst"
+													class="form-control igst money"  th:text="${quotation[0].qIGST}">0.00</label></td>
+											</tr>
+											<tr id="IgstTR" th:if="${quotationId} and ${!quotation[0].taxType}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelIgst">IGST</label></td>
+												<td width="40%"><label id="igst"
+													class="form-control igst money"  th:text="${quotation[0].qIGST}">0.00</label></td>
+											</tr>
+											<tr id="IgstTR" th:unless="${quotationId}" >
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelIgst">IGST</label></td>
+												<td width="40%"><label id="igst"
+													class="form-control igst money">0.00</label></td>
+											</tr>
+											<tr id="CgstTR" th:if="${quotationId} and ${quotation[0].taxType}" >
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelCgst">CGST</label></td>
+												<td width="40%"><label id="cgst"
+													class="form-control cgst money"  th:text="${quotation[0].qCGST}">0.00</label></td>
+											</tr>
+											<tr id="CgstTR" th:if="${quotationId} and ${!quotation[0].taxType}" >
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelCgst">CGST</label></td>
+												<td width="40%"><label id="cgst"
+													class="form-control cgst money"  th:text="${quotation[0].qCGST}">0.00</label></td>
+											</tr>
+											<tr id="CgstTR" th:unless="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelCgst">CGST</label></td>
+												<td width="40%"><label id="cgst"
+													class="form-control cgst money" >0.00</label></td>
+											</tr>
+											<tr id="SgstTR" th:if="${quotationId} and ${quotation[0].taxType}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelSgst">SGST</label></td>
+												<td width="40%"><label id="sgst"
+													class="form-control sgst money"  th:text="${quotation[0].qSGST}">0.00</label></td>
+											</tr>
+											<tr id="SgstTR" th:if="${quotationId} and ${!quotation[0].taxType}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelSgst">SGST</label></td>
+												<td width="40%"><label id="sgst"
+													class="form-control sgst money"  th:text="${quotation[0].qSGST}">0.00</label></td>
+											</tr>
+											<tr id="SgstTR" th:unless="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelSgst">SGST</label></td>
+												<td width="40%"><label id="sgst"
+													class="form-control sgst money">0.00</label></td>
+											</tr>
+											<tr th:if="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label>Grand Total</label></td>
+												<td width="40%"><label id="grandTotal"
+													class="form-control grandTotal money"  th:text="${quotation[0].grandTotal}">0.00</label></td>
+											</tr>
+											<tr th:unless="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label>Grand Total</label></td>
+												<td width="40%"><label id="grandTotal"
+													class="form-control grandTotal money">0.00</label></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Tax Type</label>&nbsp;&nbsp;&nbsp;
+											<input type="radio" th:if="${quotationId}" th:checked="${!quotation[0].taxType}" id="taxS" name="tax" value="false" onclick="ShowHideTrS()" checked />&nbsp;<label th:if="${quotationId}">State Tax</label>&nbsp;&nbsp;&nbsp;
+            								<input type="radio" th:if="${quotationId}" th:checked="${quotation[0].taxType}" id="taxC" name="tax" value="true" onclick="ShowHideTrC()" />&nbsp;<label th:if="${quotationId}">Center Tax</label>
+            								
+            								<input type="radio" th:unless="${quotationId}" id="taxS" name="tax" value="false" onclick="ShowHideTrS()" checked />&nbsp;<label th:unless="${quotationId}">State Tax</label>&nbsp;&nbsp;&nbsp;
+            								<input type="radio" th:unless="${quotationId}" id="taxC" name="tax" value="true" onclick="ShowHideTrC()" />&nbsp;<label th:unless="${quotationId}">Center Tax</label>
+										</div>
+										<!-- <div class="form-group">
+											<label>GST Rate</label>
+											<input type="text" id="gstRate" th:if="${quotationId}" th:value="${quotation[0].gstRate}"
+													class="form-control  gstRate" value='' onkeyup="getGSTRate();checkGSTRate();">
+											<input type="text" id="gstRate" th:unless="${quotationId}"
+													class="form-control  gstRate" value='' onkeyup="getGSTRate();checkGSTRate();">
+										</div> -->
+										<div class="form-group">
+											<label>Notes</label> <textarea name="" cols="" rows="" th:if="${quotationId}" th:text="${quotation[0].qNote}"
+														class="form-control textarea" id="qNote"></textarea>
+											<textarea name="" cols="" rows="" th:unless="${quotationId}"
+														class="form-control textarea" id="qNote"></textarea>
+										</div>
+									</div>
+								</div>
+							</form> 
+								<div class="row">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+									</div>
+								</div>
+							<!-- </form> onclick="funcLoad();" -->
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

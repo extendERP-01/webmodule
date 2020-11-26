@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+	
+		//Method for listing of all the Invoice Records
+		
+		$('#requisitionList').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-goods-receive-approval-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					 d.param2 = $('#param2').val();
+					d.param3 = $('#param3').val();
+					d.param4 = $('#param4').val();
+ 
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [
+				{'data' :'gRNInvoiceId'},
+				{'data' :'gRNPurchaseOrderId'},
+				{'data' :'gRnInvoiceNumber'},
+				/* {'data' :'invImg'}, */
+				{'data' : 'currentStageNo'},
+				{'data' : 'approveStatusName'},
+				{'data' : 'action'}
+
+			]
+		});
+	});
+	
+	//Method For Searching Records In The List
+	function searchData() {
+		$('#requisitionList').DataTable().draw();
+	}
+	
+	function viewInModelData(index) {
+	$('#table1').empty();
+	$('#table2').empty();
+	$('#table3').empty();
+		$.ajax({
+				type : "POST",
+				url : "view-goods-receive-approval-model",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : index,
+				success : function(response) {
+					if (response.message == "success") {
+						
+						var gRnInvoiceActive = "";
+						if (response.body[0].gRnInvoiceActive) {
+							gRnInvoiceActive = "Active";
+						} else {
+							gRnInvoiceActive = "Inactive";
+						}
+
+						if(response.body[0].approveStatus == 3)
+							approveStatusName = "Returned";
+						else if(response.body[0].approveStatus == 1)
+							approveStatusName = "Approved";
+						else if(response.body[0].approveStatus == 2)
+							approveStatusName = "Rejected";
+						else
+							approveStatusName = "Open";
+						var gstType = "";
+						if (response.body[0].gstType) {
+							gstType = "Center Tax";
+		
+						span = '<tr><td>GRN Number:</td>'
+							+ '<td align="left">'
+							+ response.body[0].gRNInvoiceId
+							+ '</td>'
+							+ '</tr><tr><td>Purchase Order :</td><td align="left">'
+							+ response.body[0].gRNPurchaseOrderId
+							+ '</td></tr><tr><td>Invoice Number:</td>'
+							+ '<td align="left">'
+							+ response.body[0].gRnInvoiceNumber
+							+ '</td>'
+							+ '</tr><tr><td>Status :</td><td align="left">'
+							+ gRnInvoiceActive
+							+ '</tr><tr><td>Driver Name:</td><td align="left">'
+							+ response.body[0].driverName	+ '</td>'
+							+ '</tr><tr><td>Driver Mobile No:</td><td align="left">'
+							+ response.body[0].mobileNo+ '</td>'
+							+ '</tr><tr><td>Vehicle Number:</td><td align="left">'
+							+ response.body[0].vehicleNo + '</td>'
+							+ '</tr><tr><td>GST Type:</td><td align="left">'
+							+ gstType
+							+'</td></tr><tr><td>GST Rate:</td><td align="left">'
+							+ response.body[0].gstRate +'%'						
+							+'</td></tr><tr><td>Discount:</td><td align="left">'
+							+ response.body[0].discount						
+							+ '</td>'
+							+ '</tr><tr><td>Approve Status:</td><td align="left">'
+							+approveStatusName						
+							+ '</td>'
+							+ '</tr>'
+							+ '<tr><th><b>Details Of Item :<b></th></tr>';  
+						$('#myModal1').modal('show');
+						$('#table1').append(span);
+							
+						table2 = '<tr><th><b>Category</b></th><th><b>Sub Category</b></th><th><b>Item Name</b></th>'+
+										'<th><b>Quantity</b></th><th><b>PO Price</b></th><th><b>Inv Price</b></th><th><b>Total Price</b></th>' ;
+						$('#myModal1').modal('show');
+						$('#table2').append(table2);
+							
+						for (var i=0; i<response.body.length; i++) {
+							table =  '<tr><td>'
+								+ response.body[i].itmCategory
+								+ '</td><td>'
+								+ response.body[i].itmSubCategory
+								+ '</td><td>'
+								+ response.body[i].gRnInvoiceItmName
+								+ '</td><td>'
+								+ response.body[i].gRnInvoiceQuantity
+								+ '</td><td>'
+								+ response.body[i].gRnPrice
+								+ '</td><td>'
+								+ response.body[i].invPrice
+								+ '</td><td>'
+								+ response.body[i].lineTotal
+								+ '</td></tr>';
+							$('#myModal1').modal('show');
+							$('#table2').append(table);
+						}
+						table3 = '<tr><td colspan="5" align="right" width="480px"><b>Sub Total :</b></td>'
+							+ '<td align="left">'
+							+ (response.body[0].gsubTotal).toFixed(2)
+							+ '</td>'
+							+ '</tr><tr><td colspan="5" align="right"><b>Discount :</b></td>'
+							+ '<td align="left">'
+							+ (response.body[0].discount).toFixed(2)
+							+ '</td>'
+							+ '</tr><tr><td colspan="5" align="right"><b>IGST :</b></td>'
+							+ '<td align="left">'
+							+ (response.body[0].igst).toFixed(2)
+							+ '</td>'
+							+ '</tr><tr><td colspan="5" align="right"><b>Grand Total :</b></td>'
+							+ '<td align="left">'
+							+ (response.body[0].grandTotal).toFixed(2)
+							+ '</td>'
+							+ '</tr>';
+						$('#table3').append(table3);
+								
+					}else{
+						gstType = "State Tax";
+						span = '<tr><td>GRN Number:</td>'
+							+ '<td align="left">'
+							+ response.body[0].gRNInvoiceId
+							+ '</td>'
+							+ '</tr><tr><td>Purchase Order :</td><td align="left">'
+							+ response.body[0].gRNPurchaseOrderId
+							+ '</td></tr><tr><td>Invoice Number:</td>'
+							+ '<td align="left">'
+							+ response.body[0].gRnInvoiceNumber
+							+ '</td>'
+							+ '</tr><tr><td>Status :</td><td align="left">'
+							+ gRnInvoiceActive
+							+ '</tr><tr><td>Driver Name:</td><td align="left">'
+							+ response.body[0].driverName	+ '</td>'
+							+ '</tr><tr><td>Driver Mobile No:</td><td align="left">'
+							+ response.body[0].mobileNo+ '</td>'
+							+ '</tr><tr><td>Vehicle Number:</td><td align="left">'
+							+ response.body[0].vehicleNo + '</td>'
+							+ '</tr><tr><td>  GST Type:</td><td align="left">'
+							+ gstType
+							+'</td></tr><tr><td>Average GST Rate:</td><td align="left">'
+							+ response.body[0].gstRate +'%'
+							+'</td></tr><tr><td>Discount:</td><td align="left">'
+							+ response.body[0].discount						
+							+ '</td>'
+							+ '</tr><tr><td>Approve Status:</td><td align="left">'
+							+ approveStatusName						
+							+ '</td>'
+							+ '</tr>'
+							+ '<tr><th><b>Details Of Item :<b></th></tr>';  
+						$('#myModal1').modal('show');
+						$('#table1').append(span);
+							
+						table2 = '<tr><th><b>Category</b></th><th><b>Sub Category</b></th><th><b>Item Name</b></th>'+
+										'<th><b>Quantity</b></th><th><b>PO Price</b></th><th><b>Inv Price</b></th><th><b>Total Price</b></th>' ;
+						$('#myModal1').modal('show');
+						$('#table2').append(table2);
+							
+						for (var i=0; i<response.body.length; i++) {
+							table =  '<tr><td>'
+								+ response.body[i].itmCategory
+								+ '</td><td>'
+								+ response.body[i].itmSubCategory
+								+ '</td><td>'
+								+ response.body[i].gRnInvoiceItmName
+								+ '</td><td>'
+								+ response.body[i].gRnInvoiceQuantity
+								+ '</td><td>'
+								+ response.body[i].gRnPrice
+								+ '</td><td>'
+								+ response.body[i].invPrice
+								+ '</td><td>'
+								+ response.body[i].lineTotal
+								+ '</td></tr>';
+							$('#myModal1').modal('show');
+							$('#table2').append(table);
+						
+						
+					}
+						table3 = '<tr><td colspan="5" align="right" width="500px"><b>Sub Total :</b></td>'
+							+ '<td align="left">'
+							+ (response.body[0].gsubTotal).toFixed(2)
+							+ '</td>'
+							+ '</tr><tr><td colspan="5" align="right"><b>Discount :</b></td>'
+							+ '<td align="left">'
+							+ (response.body[0].discount).toFixed(2)
+							+ '</td>'
+							+ '</tr><tr><td colspan="5" align="right"><b>SGST :</b></td>'
+							+ '<td align="left">'
+							+ (response.body[0].sgst).toFixed(2)
+							+ '</td>'
+							+ '</tr><tr><td colspan="5" align="right"><b>CGST :</b></td>'
+							+ '<td align="left">'
+							+ (response.body[0].cgst).toFixed(2)
+							+ '</td>'
+							+ '</tr><tr><td colspan="5" align="right"><b>Grand Total :</b></td>'
+							+ '<td align="left">'
+							+ (response.body[0].grandTotal).toFixed(2)
+							+ '</td>'
+							+ '</tr>';
+						$('#table3').append(table3);
+						
+						
+					}
+						
+					}
+				},
+				error : function(data) {
+					
+				}
+		})
+	}
+
+	//method to view documengt	
+	function viewDocument(id) {
+		var l = id.split(".");
+		var counter = l[1];
+		if(counter== "xls" || counter== "docx"){
+		window.open("/document/excel/"+id,'_blank');
+		}
+		else{
+			window.open("/document/image/"+id,'_blank');
+			}
+		}
+	 
+	 function pdfCreatePurchase(id) {
+		 window.open("/download/view-purchase-order-one-pdf?id="+window.btoa(id),'_blank');
+		}
+
+		 //method to delete receive list
+		 
+		function DeleteGoods(id){
+			var index = window.atob(id);
+				swal.fire({
+				title	: "Are you sure want to Delete?",
+				text	: "Once Deleted,Can't revert back !",
+				type : "warning",
+		
+				showCancelButton	: true,
+				confirmButtonColor	: "RED",
+				confirmButtonText	:"Delete",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+			}).then((result) => {
+			if(result.value)
+			{
+				
+				$.ajax({
+					
+					type	: "GET",
+					url : "/inventory/delete-goodsreceive-note?id="+id,
+					dataType	: "json",
+					contentType	: "application/json",
+					data	: JSON.stringify(id),
+					success	: function(response){
+						
+						if(response.message=="success"){
+							
+							swal({
+								title	: "Data Deleted Successfully.",
+								type: "success",
+						}).then(function(){
+							location.reload(); 
+						})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+				},error	: function(response){
+					console.log(response.code);	
+				}
+			}) //ajax ends
+		  }
+		 });//swal function block ends
+		}
+		//method to create pdf
+		
+		function pdfCreation() 
+		{
+			window.open("/download/download-goods-receive-note?param1="+window.btoa($('#param1').val())+"&param2="+window.btoa($('#param2').val())+"&param3="+window.btoa($('#param3').val())+"&param4="+window.btoa($('#param4').val()),'_blank');
+		}
+		//method to create individual report
+		
+		function pdfCreate(id) 
+		{
+			window.open("/download/view-inventory-goods-receives-pdfs?id="+window.btoa(id),'_blank');
+		}
+		//method to create purchase Order report
+		
+		function porderPdfCreate(id) 
+		{
+			
+			window.open("download/view-purchase-order-one-pdf?id="+window.btoa(id),'_blank');
+		}
+	 //method to get purchase order in auto search
+	 function purchaseOrderNumberSuggestions() {
+			$.ajax({
+				type : "POST",
+				url : "add-good-receive-note-getsprchs-number",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#param1").val(),
+				success : function(response) {
+					if (response.message == "success") {
+					if(response.body.length!=0)	{
+						$("#param1").css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+						} 
+						content += '</ul>';
+						$("#suggesstion-box1").show();
+						$("#suggesstion-box1").html(content);
+						
+					}
+					else {
+						$("#param1").css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#suggesstion-box1").show();
+						$("#suggesstion-box1").html(content);
+					}
+					}
+				},
+				error : function(data) {
+					
+				}
+			})
+		}
+		function selectAutocompleteValue(key,name) {
+			if (key) {
+				$("#param1").val(key);
+				$("#param1").attr('data-procat', key);
+				$("#suggesstion-box1").hide();
+				}
+			else {
+				$("#param1").val("");
+				$("#param1").attr('data-procat', "");
+				$("#suggesstion-box1").hide();
+			}
+		}
+		
+		 //method to get invoice number in auto search
+		function invoiceNumberSuggestions() {
+			$.ajax({
+				type : "POST",
+				url : "add-good-receive-note-getinvoice-number-autosuggest",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#param2").val(),
+				success : function(response) {
+					if (response.message == "success") {
+					if(response.body.length!=0)	{
+						$("#param2").css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValues(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+						} 
+						content += '</ul>';
+						$("#suggesstion-box2").show();
+						$("#suggesstion-box2").html(content);
+						
+					}
+					else {
+						$("#param2").css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValues(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#suggesstion-box2").show();
+						$("#suggesstion-box2").html(content);
+					}
+					}
+				},
+				error : function(data) {
+					
+				}
+			})
+		}
+		function selectAutocompleteValues(key,name) {
+			if (key) {
+				$("#param2").val(key);
+				$("#param2").attr('data-procat', key);
+				$("#suggesstion-box2").hide();
+				}
+			else {
+				$("#param2").val("");
+				$("#param2").attr('data-procat', "");
+				$("#suggesstion-box2").hide();
+			}
+		}
+			
+	//Forward the Invoice 
+	function forwardInvoice(id){
+		swal.fire({
+			  title: "Are you sure want to forward?",
+			  text: "Once forward,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'forward',
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/inventory/view-goods-receive-approval-forward-action?id="+ id,
+					    success: function(response) {
+					    	console.log(response);
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Invoice forwarded successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+		
+	}
+	//end 
+	
+	//Start Reject Invoice
+	function rejectInvoice(id,rejectaction){
+		$("#rejectInvoiceId").val(id);
+		$("#rejectActionId").val(rejectaction);
+		if($("#rejectActionId").val() == '1'){
+			$("#modal-title-id").html("Reject Invoice");
+		}else if($("#rejectActionId").val() == '2'){
+			$("#modal-title-id").html("Return Invoice");
+		}else{
+			$("#modal-title-id").html("Resubmit Invoice");
+		}
+		$('#approvalActionModal1').modal('show');
+		
+	}
+	//End of Reject Invoice
+	
+	//Save rejected Invoice comment
+	function saveInvoiceRejectComment(){
+		if($("#rejectActionId").val() == '1'){
+			var titleval = "Are you sure want to reject?";
+			var textval = "Once reject,Can't revert back !";
+			var confirmButtonTextval = 'reject';
+		}else if($("#rejectActionId").val() == '2'){
+			var titleval = "Are you sure want to return?";
+			var textval = "Once reject,Can't revert back !";
+			var confirmButtonTextval = 'return';
+		}else{
+			var titleval = "Are you sure want to resubmit?";
+			var textval = "Once resubmit,Can't revert back !";
+			var confirmButtonTextval = 'resubmit';
+		}
+		$('#approvalActionModal1').modal('hide');
+		swal.fire({
+			  title: titleval,
+			  text: textval,
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: confirmButtonTextval,
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+					
+				 var invoiveId = $("#rejectInvoiceId").val();
+				 var rejectionComment = $("#rejectionCommentId").val();
+				 var rejectAction = $("#rejectActionId").val();
+				 $.ajax({
+					    type : "POST",
+						url : "view-goods-receive-approval-reject-action",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : JSON.stringify({'gRNInvoiceId':invoiveId,'gRnInvoiceDescription':rejectionComment,'approverStageNo':rejectAction}),
+					    success: function(response) {
+					    	console.log(response);
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Invoice  status  changed successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+	}
+	//End of save
+	
+	//Show modal
+	//date picker
+	 $(document).ready(function() {
+		 $("#param3").datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				//minDate: new Date() ,
+				timepicker : false,
+	})  
+	
+		 
+		 $("#param4").datetimepicker({
+					format:'d-m-Y',
+					closeOnDateSelect: true,
+					//minDate: new Date() ,
+					timepicker : false,
+		})  
+		
+	 })  
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a href="#">View User</a></li>
+                  <li><a href="#">Manage User</a></li> -->
+					<li><a href="add-goods-receive-note">Add Goods Receive</a></li>
+					<li class="active"><span>View Goods Receive</span></li>
+				</ol>
+			</div>
+			<!-- <div class="card-title">
+				<h4>Listing of Item Requisition (1.5.2.5.2)</h4>
+			</div> -->
+			<div class="container-fluid">
+
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+
+				</ul>
+				<div class="card">
+					<!-- 
+				<div align="right"><a href="javascript:void(0)" target='blank' data-toggle='tooltip' title='View Menu Items' data-placement='bootom' onclick="createPdf()" data-orginal-title='Downlaod'>
+					<i class='fa fa-download' style='font-size:40px'></i></a></div>
+				
+					<div align="right"><a href="javascript:void(0)" data-toggle="tooltip" title="Download Excel" target="_blank" data-placement="bottom"  onclick="downloadExcel()">
+					<i class="fa fa-file-pdf-o" style='font-size:50px'></i></a></div>
+				-->
+					<div id="demo" class="collapse">
+						<div class="search-field">
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="row">
+										<div class="col-md-6">
+											<div class="org-name">Purchase Order Number</div>
+										</div>
+										<div class="col-md-6">
+											<input type="text" class="form-control" id="param1"
+												onkeyup="purchaseOrderNumberSuggestions();" />
+											<div id="suggesstion-box1"></div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<div class="org-name">Invoice Number</div>
+										</div>
+										<div class="col-md-6">
+											<input type="text"
+											class="form-control" id="param2"
+											onkeyup="invoiceNumberSuggestions();"/>
+												<div id="suggesstion-box2"></div>
+										</div>
+									</div>
+									
+								</div>
+								<div class="col-lg-6">
+									<div class="row">
+										<div class="col-md-6">
+											<div class="org-name">From Date</div>
+										</div>
+										<div class="col-md-6">
+											<input class="form-control" type="text"
+												placeholder="From Date" name="" id="param3" readonly>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<div class="org-name">To Date</div>
+										</div>
+										<div class="col-md-6">
+											<input class="form-control" type="text" placeholder="To Date"
+												name="" id="param4" readonly>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<button class="btn btn-primary" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<a data-toggle="collapse" data-target="#demo"
+						class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+					</a>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="requisitionList" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>GRN Number</th>
+										<th>PurchaseOrder Number</th>
+										<th>Invoice Number</th>
+										<!-- <th>File</th> -->
+										<th>Stage No</th>
+										<th>Approval Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of GRN</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						 <table width="100%" border="0" id="table1">
+							
+						 </table>
+					
+						 <table width="100%" border="0" id="table2">
+							
+						 </table>
+					</div>
+					 <div class="modal-footer">
+						 <table width="100%" border="0" id="table3">
+
+						 </table>
+					</div>
+					 <div class="modal-footer">
+						 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					 </div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- Modal End -->
+
+		<!-- Modal Start -->
+		<div id="approvalActionModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="modal-title-id">Reject
+							Invoice</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="rejectInvoiceId" value="0"> <input
+							type="hidden" id="rejectActionId" value="1">
+						<div class="form-group">
+							<label>Comment :</label>
+							<textarea class="form-control" id="rejectionCommentId" rows="4"></textarea>
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success"
+							onclick="saveInvoiceRejectComment()">Save</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End -->
+
+		<!-- /# row -->
+	</div>
+</div>
+</html>

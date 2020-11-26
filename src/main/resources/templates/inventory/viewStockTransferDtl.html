@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script type="text/javascript">
+//Method For View Details In Model
+function viewInModelData(index) {
+    var id = window.atob(index);
+    $('#table1').empty();
+    $('#table2').empty();
+    $('#table3').empty();
+    $.ajax({
+        type: "POST",
+        url: "view-item-stock-transfer-model",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: id,
+        success: function(response) {
+            if (response.message == "success") {
+                console.log(response);
+
+                var iRStatus = "";
+                if (response.body[0].tTransferStatus) {
+                    iRStatus = "Active";
+                } else {
+                    iRStatus = "Inactive";
+                }
+                span = '<tr><td>Transfer Id:</td>' +
+                    '<td align="left">' +
+                    response.body[0].tStockTransferId +
+                    '</td>' +
+                    '</tr><tr><td>From Store:</td><td align="left">' +
+                    response.body[0].tFromStore +
+                    '</td></tr><tr><td>To Store:</td>' +
+                    '<td align="left">' +
+                    response.body[0].tToStore +
+                    '</td>' +
+                    '</tr>' +
+                    '<tr><td>Transfer Date:</td>' +
+                    '<td align="left">' +
+                    response.body[0].tTransferDate +
+                    '</td>' +
+                    '<tr><td>Serial No:</td>' +
+                    '<td align="left">' +
+                    response.body[0].tSerialNo +
+                    '</td>' +
+                    '</tr>' +
+                    '<tr><td>Transfer No:</td>' +
+                    '<td align="left">' +
+                    response.body[0].tTransferNo +
+                    '</td>' +
+                    '</tr>' +
+                    '<tr><td>Description:</td>' +
+                    '<td align="left">' +
+                    response.body[0].tDescription +
+                    '</td>' +
+                    '</tr><th><b>Details Of Stock Transfer:<b></th></tr>';
+                $('#myModal2').modal('show');
+                $('#table1').append(span);
+
+                table2 = '<tr><th><b>Item</b></th><th><b>Unit</b></th>' +
+                    '<th><b>Price</b></th><th><b>Quantity</b></th><th><b>Total</b></th>';
+                $('#myModal2').modal('show');
+                $('#table2').append(table2);
+
+                for (var i = 0; i < response.body.length; i++) {
+                    table = '<tr><td>' +
+                        response.body[i].tItem +
+                        /* '</td><td>' +
+                        response.body[i].tItemDescription + */
+                        '</td><td>' +
+                        response.body[i].tItemUnit +
+                        '</td><td>' +
+                        (response.body[i].price).toFixed(2) +
+                        '</td><td>' +
+                        response.body[i].tItemQuantity +
+                        /* '</td><td>' +
+                        response.body[i].taxRate + */
+                        '</td><td>' +
+                        (response.body[i].total).toFixed(2) +
+                        '</td></tr>';
+                    $('#myModal2').modal('show');
+                    $('#table2').append(table);
+
+                }
+                table3 = '<tr><td colspan="5" align="right" width="480px"><b>Sub Total :</b></td>' +
+                    '<td align="left">' +
+                    (response.body[0].subTotal).toFixed(2) +
+                    '</td>' +
+                    '</tr>';
+                $('#table3').append(table3);
+
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+//method to view all receive list
+
+$(document).ready(function() {
+
+    $("#param3").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        //minDate: new Date() ,
+        timepicker: false,
+    })
+
+    $('#listAllStock').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'view-item-stock-transfer-throughAjax',
+            'data': function(d) {
+                d.param1 = $('#param1').val();
+                d.param2 = $('#param2').val();
+                d.param3 = $('#param3').val();
+            }
+        },
+        'dataSrc': "",
+        'columns': [{
+                'data': 'tStockTransferId'
+            },
+            {
+                'data': 'tFromStore'
+            },
+            {
+                'data': 'tToStore'
+            },
+            {
+                'data': 'tTransferDate'
+            },
+             
+            {
+                'data': 'tDescription'
+            },
+            {
+                'data': 'status'
+            },
+            {
+                'data': 'action'
+            }
+        ]
+    });
+});
+
+
+//method to delete Stock list
+
+function DeleteStock(id) {
+    var index = window.atob(id);
+    swal.fire({
+        title: "Are you sure want to Delete?",
+        text: "Once Deleted,Can't revert back !",
+        type: "warning",
+
+        showCancelButton: true,
+        confirmButtonColor: "RED",
+        confirmButtonText: "Delete",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "GET",
+                url: "/inventory/delete-item-stock-transfer?id=" + id,
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(id),
+                success: function(response) {
+
+                    if (response.message == "success") {
+                        swal({
+                            title: "Data Deleted Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload();
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(response) {
+                    console.log(response.code);
+                }
+            }) //ajax ends
+        }
+    }); //swal function block ends
+}
+
+
+function changeStockStatus(id) {
+    swal.fire({
+        title: "Are you sure want to Change?",
+        text: "Once Changed, Can't Revert Back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "RED",
+        confirmButtonText: "Change",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "GET",
+                url: "/inventory/view-item-stock-transfer-change-status?id=" + id,
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(id),
+                success: function(response) {
+                    if (response.message == "success") {
+                        swal({
+                            title: "Items Received Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload();
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(response) {
+                    console.log(response.code);
+                }
+            }) //ajax ends
+        }
+    }); //swal function block ends
+}
+
+function searchData() {
+    $('#listAllStock').DataTable().draw();
+}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+					<li><a href="add-item-stock-transfer">Add Stock Transfer</a></li>
+					<li class="active"><span>View Stock Transfer</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Listing of Stock Transferred</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-item-stock-transfer">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning" onclick="pdfCreation()">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>From Store</label> <select class="form-control"
+									id="param1">
+									<option value="">Select</option>
+									<option th:each="c:${fromStoreList}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<label>To Store</label> <select class="form-control" id="param2">
+									<option value="">Select</option>
+									<option th:each="c:${toStoreList}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<label>Transfer Date</label> <input id="param3"
+									class="form-control" type="text" placeholder=" Transfer Date"
+									name="" readonly>
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="listAllStock" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Transfer Id</th>
+									<th>From Store</th>
+									<th>To Store</th>
+									<th>Transfer Date</th>
+									 
+									<th>Description</th>
+									<th>Status</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+
+							</tbody>
+						</table>
+
+					</div>
+					<div style="clear: both;"></div>
+
+
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal2" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Stock Transfer Detail</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+						</table>
+
+						<table width="100%" border="0" id="table2">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<table width="100%" border="0" id="table3">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<table width="100%" border="0" id="table3">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

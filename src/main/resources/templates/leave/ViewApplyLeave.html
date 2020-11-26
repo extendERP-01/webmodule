@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+ 
+
+function viewInModel(index){
+	$('#table1').empty();
+		$.ajax({
+			type 		:	"POST",
+			url 		:	"view-apply-leave-model",
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	index,
+			success 	: 	function(response) {
+				
+				   if(response.message=="success"){
+					 
+					var total = 2;
+					
+					 table = '<tr><td>Employee Name:</td>'+'<td align="left">'
+					    +response.body[0].empName+'</td>'+'</tr><tr><td>Leave Apply Date:</td><td align="left">'
+						+response.body[0].lApplyDate+'</td></tr>';
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+						table = '<tr><th><b>Leave Type </b></th><th><b>From Date</b></th><th><b>To Date</b></th><th><b>Total Days</b></th><th><b>Reason</b></th>' ;
+					$('#myModal').modal('show');
+					$('#table1').append(table);
+						for (var i=0; i<response.body.length; i++) {
+							table =  '<tr><td>'
+								+ response.body[i].ltypeName
+								+ '</td><td>'
+								+ response.body[i].lApplyStartDate
+								+ '</td><td>'
+								+ response.body[i].lApplyEndDate
+								+ '</td><td>'
+								+ response.body[i].totalLeave
+								+ '</td><td>'
+								+ response.body[i].lReason
+								+ '</td></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(table); 
+						
+					 }
+           
+					
+				}				
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}  
+
+ 	$(document).ready(function() {	
+ 		
+ 		
+ 		$('#table').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-apply-leave-through-ajax',
+					'data' : function(d) { 
+						d.param1 = $('#param1').val();
+						
+					}
+				},
+				'dataSrc' : "",
+			'columns' : [
+				{'data' : 'empName'},
+				{'data' : 'applyId'},
+				{'data' : 'lApplyDate'},
+				{'data' : 'statusName'},
+				{'data' : 'action'}
+					]	
+			});
+		  });
+	
+	function searchData() {
+		$('#table').DataTable().draw();
+	}	
+	
+	 
+	
+	  const ipAPI = 'https://api.ipify.org?format=json';
+	  function CancelApplication(index){
+	//	  alert(index);
+	  swal({
+			title				: "Are you sure to Cancel this Leave Request?",
+			text				: "Once Cancel,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Confirm",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : '<i class="fa fa-thumbs-down">No</i>',
+			cancelButtonAriaLabel : 'Thumbs down',
+			preConfirm: () => {
+			    return fetch(ipAPI)
+			      .then(response => response.json())
+			      .then(data => Swal.insertQueueStep(data.ip))
+			      .catch(() => {
+			        Swal.insertQueueStep({
+			          type: 'error',
+			          title: 'Unable to get your public IP'
+			        })
+			      })
+			 }  
+		}).then((result) => {
+			if(result.value){
+			$.ajax({
+			type		: "POST",
+			url 		: "view-apply-leave-cancel-leave",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(index),
+			success		: function(response){
+				console.log(response);
+				if(response.message=="Success"){
+					console.log('i m in success');
+					swal({
+							title:"Leave Request Cancel Successfully.",
+							type: "success",
+					}).then(function(){
+							location.reload(); 
+					})
+				}else{ 
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+			}
+		})//swal function block ends
+		
+		
+	  }
+	 
+	  function viewHistoryInModel(index) {
+			$('#table2').empty();
+			$.ajax({
+						type : "POST",
+						url : "view-apply-leave-history",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : index,
+						success : function(response) {
+							if (response.message == "success") {
+								var travelingTypeStatus = "";
+								
+								table = '<tr class="modalIn"><th><b>Date </b></th><th><b>Action Taken</b></th><th><b>From</b></th><th><b>To</b></th><th><b>Action Comment</b></th>' ;
+								
+								$('#myModal2').modal('show');
+								$('#table2').append(table);
+								if(response.body.length >0){
+									for (var i=0; i<response.body.length; i++) {
+										table =  '<tr><td>'
+											+ response.body[i].date
+											+ '</td><td>'
+											+ response.body[i].action
+											+ '</td><td>'
+											+ response.body[i].actionTakenFrom
+											+ '</td><td>'
+											+ response.body[i].actionTakenTo
+											+ '</td><td>'
+											+ response.body[i].comment
+											+ '</td></tr>';
+										$('#myModal2').modal('show');
+										$('#table2').append(table);
+									}
+								}else{
+									table = '<tr><td colspan= "5" style="font-size:20px; color:#1379de; text-align:center;">Not Processed Yet...!</td></tr>';
+									$('#myModal2').modal('show');
+									$('#table2').append(table);
+								}
+								
+							}
+						},
+						error : function(data) {
+							console.log(data);
+						}
+					})
+
+		}
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="@{/index}">Home</a></li>
+					<li class="inactive"><a th:href="@{/leave/apply-leave}">Apply
+							Leave</a></li>
+					<li class="inactive"><span>View
+							Leave Applied</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>List of Leave Applied</h4>
+			</div>
+			<div class="container-fluid">
+
+
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="apply-leave">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Employee Name</label>
+								
+									<input id="param1" class="form-control" type="text"
+										placeholder="" name="" onkeyup="searchData()">
+								</div>
+
+
+
+							</div>
+						</div>
+						<div th:object="${leaveApply}">
+							<input type="hidden" th:field="*{empName}" />
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table id="table" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Employee Name</th>
+										<th>Leave Id</th>
+										<th>Leave Apply Date</th>
+										<th>Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+
+							</table>
+
+						</div>
+						<div style="clear: both;"></div>
+
+					<!-- Modal Start-->
+					<div id="myModal" class="modal fade" role="dialog">
+						<div class="modal-dialog">
+
+							<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title">View Details of Leave Apply
+										Request</h4>
+									<button type="button" class="close" data-dismiss="modal">
+										<i class="fa fa-close fa-2x"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<table width="100%" border="0" id="table1">
+
+									</table>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<!-- Modal End-->
+					<!-- Modal Start-->
+					<div id="myModal2" class="modal fade" role="dialog">
+						<div class="modal-dialog modal-lg">
+							<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title" style="color: #007bff;">View Leave
+										Approval Process Details</h4>
+									<button type="button" class="close" data-dismiss="modal">&times;</button>
+								</div>
+								<div class="modal-body">
+									<table style="width: 100%; border: 0;" id="table2">
+									</table>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Modal End-->
+					<!-- /# row -->
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+</html>

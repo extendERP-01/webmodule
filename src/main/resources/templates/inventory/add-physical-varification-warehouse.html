@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.brd-btm{
+border-bottom: 1px solid #ccc;
+    padding: 4px 2px;
+}
+#autocomplete-list2 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 440px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list2 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list2 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.amount_align_right {
+	width: 40%;
+	text-align: right;
+}
+
+.noBorder {
+	border: none !important;
+}
+</style>
+<script>
+$(document).ready(function() {
+	$("#invDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	$("#payDueDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	var fullDate = new Date();
+	var twoDigitMonth = ((fullDate.getMonth() + 1) >= 10) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
+	var twoDigitDate = ((fullDate.getDate()) >= 10) ? (fullDate.getDate()) : '0' + (fullDate.getDate());
+	var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+	$("#invDate").val(currentDate);
+	
+	$("#submit").click(function(){
+		
+		if (!blankValidation("invNo","TextField" ,"Please Enter Invoice Number"))
+		      return false;
+		if (!blankValidation("payDueDate","TextField" ,"Please Enter Payment Due Date"))
+		      return false;
+		
+		obj = {};
+		//obj['vendorId']		=	$("#vendorId").val();
+		//obj['pOrder']		=	$("#pOrder").val();
+		obj['invNo']		=	$("#invNo").val();
+		obj['invDate']		=	$("#invDate").val();
+		obj['payDueDate']	=	$("#payDueDate").val();
+		obj['storeId']	    =	$("#storeId").val();
+		/* obj['amount']		=	$("#subTotal").text();
+		obj['totalCGST']	=	$("#sCGST").text();
+		obj['grandTotal']	=	$("#grandTotal").text(); */
+		
+		console.log(obj)
+		submitMultipleInvoice(obj);
+	})
+	$("#btnCancel").click(function(){
+		window.location.href = "/inventory/view-physical-varification-warehouse" ;
+	});
+})
+
+function submitMultipleInvoice(obj){
+	
+	swal.fire({
+		title				: "Are you sure want to Submit?",
+		text				: "Once Submited,Can't revert back !",
+		type 				: "warning",
+				
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+			
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		swal({
+			title	: "Data Saved Successfully.",
+			type	: "success",
+		}).then(function(){
+			window.location.href = "/inventory/view-physical-varification-warehouse" ;
+		})
+/* 		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "add-multiple-grn-invoice-submit",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(obj),
+				success		: function(response){
+					
+					//if(response.message=="Success"){
+						console.log(response.body);
+						swal({
+							title	: "Data Saved Successfully.",
+							type	: "success",
+						}).then(function(){
+							window.location.href = "/inventory/view-physical-varification-warehouse" ;
+						})
+						/* } else {
+						swal({
+							title	: response.code,
+							text	: response.message,
+							type	: "warning"
+						})
+					} 
+				}, error		: function(response){
+					swal(response.code);	
+				}
+			}) //ajax ends
+		} */
+	})//swal function block ends
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Physical Verification Of WareHouse</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Physical Verification Of WareHouse</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group" id="">
+										<label>Store</label> <select class="org-name form-control "
+											id="storeId">
+											<option th:value="1">Store 1</option>
+												  <option th:value="2">Store 2</option>
+												    <option th:value="3">Store 3</option>
+										</select>
+									</div>
+
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Sub Inventory</label><select class="org-name form-control "
+											id="subInventory">
+												<option th:value="1">Sub Inventory 1</option>
+											    <option th:value="2">Sub Inventory 2</option>
+											    <option th:value="3">Sub Inventory 3</option>
+										</select>
+									</div>
+								</div>
+
+							
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Rack</label> <select  class="org-name form-control ">  <option th:value="1" >Rack 1</option>
+												  <option th:value="2">Rack 2</option>
+												  <option th:value="3">Rack 3</option>
+												</select>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label> Date</label> <input type="text"
+											class="form-control" id="invDate" readonly>
+									</div>
+								</div>
+								
+							</div>
+							<div class="row">
+								<div class="col-md-12" style="padding-top:10px;">
+									<table class="tbll table table-bordered" id="myTable1"
+										width="100%" border="0" cellspacing="1" cellpadding="5" >
+										<thead>
+											<tr class="trCls">
+												<th colspan="5" style="font-size:18px;"><b>Details</b></th>
+											</tr>
+										</thead>
+										<thead class="theadCls">
+											<tr>
+												<th>Item</th>
+												<th>Description</th>
+												<th>Bar Code</th>
+												<th width="100">Physical Verification</th>
+												
+											</tr>
+										</thead>
+										<tbody id="tbodyShow">
+											
+											 <tr>
+												<td>16B046 Small</td>
+												<td>Description of 16B046 Small</td>
+												<td>
+													<div class="brd-btm"> Bar Code 1</div>
+													<div class="brd-btm"> Bar Code 2</div>
+													<div class="brd-btm"> Bar Code 3</div>
+													<div class="brd-btm"> Bar Code 4</div>
+														<div class="brd-btm"> Bar Code 5</div>
+														</td>
+												<td align="center"><div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div></td>
+												
+											</tr> 
+											 <tr>
+												<td>16B096 Large</td>
+												<td>Description of 16B096 Large</td>
+													<td>
+													<div class="brd-btm"> Bar Code 1</div>
+													<div class="brd-btm"> Bar Code 2</div>
+													<div class="brd-btm"> Bar Code 3</div>
+													<div class="brd-btm"> Bar Code 4</div>
+														<div class="brd-btm"> Bar Code 5</div>
+														</td>
+												<td align="center">
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+														</td>
+											</tr> 
+											 <tr>
+												<td>Bk Choco Strands</td>
+												<td>Description of Bk Choco Strands</td>
+													<td>
+													<div class="brd-btm"> Bar Code 1</div>
+													<div class="brd-btm"> Bar Code 2</div>
+													<div class="brd-btm"> Bar Code 3</div>
+													<div class="brd-btm"> Bar Code 4</div>
+														<div class="brd-btm"> Bar Code 5</div>
+														</td>
+												<td align="center">
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+														</td>
+											</tr> 
+						<!-- 					<tr>
+												<td colspan="5"
+													style="border: 1px solid #FFF; margin-left: 2px; padding: 0; padding-top:10px;">
+													<table
+														width="350" align="right" class="noBorder" >
+														<tbody>
+															<tr>
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label>Sub
+																		Total</label></td>
+																<td class="amount_align_right noBorder" style="padding:0;"><label
+																	id="subTotal" class="form-control subTotal money"
+																	th:text="${#numbers.formatDecimal(GRNList[0].subTotal, 0, 'COMMA', 2, 'POINT')}"></label></td>
+
+															</tr>
+															<tr id="CgstTR">
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label
+																	id="labelCgst">CGST</label></td>
+																<td class="amount_align_right noBorder" style="padding:0;"
+																	th:if="${GRNList[0].totalCGST!=0.0}"><label
+																	id="sCGST" class="form-control cgst money"
+																	th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+																<td th:unless="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
+																	id="sCGST" class="form-control cgst money noBorder">0.00</label></td>
+
+															</tr>
+															<tr id="SgstTR">
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label
+																	id="labelSgst">SGST</label></td>
+																<td class="amount_align_right noBorder noBorder"
+																	th:if="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
+																	id="sSGST" class="form-control sgst money  "
+																	th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+																<td th:unless="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
+																	id="sSGST" class="form-control sgst money noBorder">0.00</label></td>
+
+															</tr>
+															<tr>
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label>Grand
+																		Total</label></td>
+																<td class="amount_align_right noBorder" style="padding:0;"><label
+																	id="grandTotal" class="form-control total money"
+																	th:text="${#numbers.formatDecimal(GRNList[0].grandTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+
+															</tr>
+														</tbody>
+													</table></td>
+
+
+											</tr> -->
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<!-- <div class="row">
+								<div class="col-lg-6"></div>
+								<div class="col-lg-6">
+									<table width="450" style="margin-left: 140px;">
+										<tbody>
+											<tr>
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label>Sub Total</label></td>
+												<td class="amount_align_right"><label id="subTotal"
+													class="form-control subTotal money"
+													th:text="${#numbers.formatDecimal(GRNList[0].subTotal, 0, 'COMMA', 2, 'POINT')}"></label></td>
+												<td width="20%"></td>
+											</tr>
+											<tr id="CgstTR">
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label id="labelCgst">CGST</label></td>
+												<td class="amount_align_right" width="40%"
+													th:if="${GRNList[0].totalCGST!=0.0}"><label id="sCGST"
+													class="form-control cgst money"
+													th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+												<td width="40%" th:unless="${GRNList[0].totalCGST!=0.0}"><label
+													id="sCGST" class="form-control cgst money">0.00</label></td>
+												<td width="20%"></td>
+											</tr>
+											<tr id="SgstTR">
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label id="labelSgst">SGST</label></td>
+												<td class="amount_align_right"
+													th:if="${GRNList[0].totalCGST!=0.0}"><label id="sSGST"
+													class="form-control sgst money"
+													th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+												<td width="40%" th:unless="${GRNList[0].totalCGST!=0.0}"><label
+													id="sSGST" class="form-control sgst money">0.00</label></td>
+												<td width="20%"></td>
+											</tr>
+											<tr>
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label>Grand
+														Total</label></td>
+												<td class="amount_align_right"><label id="grandTotal"
+													class="form-control total money"
+													th:text="${#numbers.formatDecimal(GRNList[0].grandTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+												<td width="20%"></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div> -->
+							<div class="col-md-12">
+								<div class="form-group">
+									<button type="button" id="submit" class="btn btn-success">Submit</button>
+									<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</div>
+</html>

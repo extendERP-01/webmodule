@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+
+function validateForm(){ 
+	 
+	 if (!blankValidation("lApplyStatus","SelectBox", "Please Select Change Status."))
+	    	return false;     
+      
+     
+     if (!blankValidation("lReason","TextField", "Status Change Note can not be left blank"))
+	        return false;
+        
+}
+
+ function viewInModel(index){
+	$('#table1').empty();
+		$.ajax({
+			type 		:	"POST",
+			url 		:	"view-all-leave-request-model",
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	index,
+			success 	: 	function(response) {
+				
+				   if(response.message=="success"){
+					 
+					var total = 2;
+					
+					 table = '<tr><td>Total Leave Days:</td>'+'<td align="left">'
+					    +total+'</td>'+'</tr><tr><td>Leave Type Name:</td><td align="left">'
+						+response.body.ltypeName+'</td>'+'</tr><tr><td>Startd On:</td><td align="left">'
+						+response.body.lApplyStartDate+'</td>'+'</tr><tr><td>End On:</td><td align="left">'
+						+response.body.lApplyEndDate+'</td>'+'</tr><tr><td>Status:</td><td align="left">'
+						+response.body.lApplyStatus+
+						'</td></tr>';
+					$('#myModal').modal('show');
+					$('#table1').append(table);
+				}				
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}  
+ 
+ 	$(document).ready(function() {	
+ 		
+ 		
+ 		$('#table').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-all-leave-request-through-ajax',
+					'data' : function(d) { 
+						d.param1 = $('#param1').val();
+						 
+					}
+				},
+				'dataSrc' : "",
+			'columns' : [
+				{'data' : 'empName'},
+				{'data' : 'ltypeName'},
+				{'data' : 'lApplyStartDate'},
+				{'data' : 'lApplyEndDate'},
+				{'data' : 'lApplyStatus'},
+				{'data' : 'action'}
+					]	
+			});
+		  });
+	
+	function searchData() {
+		$('#table').DataTable().draw();
+	}	
+	
+	  const ipAPI = 'https://api.ipify.org?format=json';
+	  function ChangeStatus(index){ 
+		  $('#ChangeStatusModel').modal('show');
+		  $('#applyId').val(index);
+	  }
+	  
+
+</script>
+</head>
+<div layout:fragment="content">
+ <div class="content-wrap">
+         <div class="main mrt_20">
+            <div class="col-md-12">
+               <ol class="breadcrumb breadcrumb-arrow">
+                  <li><a th:href="@{/index}">Home</a></li> 
+                    <li class="inactive"><a th:href="@{/leave/view-all-leave-request}">View All Leave Applied By Employee</a></li>
+               </ol>
+            </div>
+            <div class="card-title">
+               <h4>List of All Leave Applied By Employee</h4>
+            </div>
+            <div class="container-fluid">
+               <div class="card">
+                     <div class="search-field">
+                        <div class="row">
+                           <div class="col-md-2">
+                              <label>Leave Type Name</label>
+                          
+                            <!-- <input type="text" class="form-control" id="param1" /> -->
+                            <select class="org-name form-control" id="param1"  >
+                              <option th:value="NULL">Select</option>
+						     <option th:each="c:${LeaveType}" th:value='${c.key}'
+							 th:text="${c.name}"></option>   
+                            </select>  
+                           </div>
+    
+    					 
+    
+                           <div class="col-md-2 mrt_10">
+                              <div class="form-group filtersearch">
+                                 <button class="btn btn-info" onclick="searchData()">Search</button>
+                              </div>
+                           </div></div>
+                        </div>
+             
+                     <div class="table-responsive" style="width:100%;">
+                        <table id="table" class="table table-bordered">
+                           <thead>
+                              <tr>
+                                 <th>Employee Name</th>
+                                 <th>Leave Type Name</th>
+                                 <th>Leave Start On</th>
+                                 <th>Leave End On</th>
+                                 <th>Status</th>
+                                 <th>Action</th>
+                              </tr>
+                           </thead>
+                           
+                        </table>
+                        
+                     </div>
+                     <div style="clear:both;"></div>
+                 
+                  
+         <!-- Modal Start-->
+         <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+               
+               <!-- Modal content-->
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <h4 class="modal-title">View Details of Leave Apply Request</h4>
+                     <button type="button" class="close" data-dismiss="modal"><i class="fa fa-close fa-2x"></i></button>
+                  </div>
+                  <div class="modal-body">
+                     <table width="100%" border="0" id="table1">
+                        
+                     </table>
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+               </div>
+               
+            </div>
+         </div>
+         
+         
+         
+           <div id="ChangeStatusModel" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+               
+               <!-- Modal content-->
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <h4 class="modal-title">Change Status For Leave Applied</h4>
+                     <button type="button" class="close" data-dismiss="modal"><i class="fa fa-close fa-2x"></i></button>
+                  </div>
+                  <div class="modal-body">
+                   <form    th:action="@{view-all-leave-request-change-status}" th:object="${changestatus}"  onsubmit="return validateForm();" method="post" autocomplete="off">
+	                    <input type="hidden" th:field="*{applyId}" />
+             			<div class="col-md-12">
+                           <div class="org-name"> Change Status</div>
+                         </div>
+                        <div class="col-md-12">  
+                         <select class="org-name form-control"  th:field="*{lApplyStatus}" >
+                           <option th:value="NULL">Select</option>
+                           <option th:each="c:${statusType}" th:value='${c.key}'
+							 th:text="${c.name}"></option> 
+                           
+                         </select>  
+                        </div>   
+                        
+                        <div class="col-md-12">
+                           <div class="org-name"> Status Change Note</div>
+                           <textarea class="form-control textarea"  th:field="*{lReason}" ></textarea>
+                         </div> 	 
+                         
+                          <div class="col-md-12">  
+                          <input type="submit" value="Submit" class="btn btn-success" /> 
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                          </div>   
+	               </form>
+                      
+                  </div>
+                 <!--  <div class="modal-footer">
+                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div> -->
+               </div>
+               
+            </div>
+         </div>
+         <!-- Modal End-->
+         <!-- /# row -->
+               </div>
+            </div>
+         </div>
+         </div>
+         </div>
+       
+</html>

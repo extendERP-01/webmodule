@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+/*
+ * For ViewDetails of SacMaster
+ */
+	function viewInModel(index){
+	    $('#table1').empty();
+	    $.ajax({			
+		    type : "POST",
+			url : "view-sac-master-modalview",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : index,
+			success : function(response) {
+					if (response.message == "success") {
+						console.log(response.body.sacActive);
+						var sacActive = "";
+						if (response.body.sacActive) {
+							sacActive = "Active";
+						} else {
+							sacActive = "InActive";
+						}
+						table = '</tr><tr><td>SAC Code Name:</td>' + '<td align="left">'
+								+ response.body.sacCodeName
+								+ '</td></tr><tr><td>Status :</td>' + '<td align="left">' 
+								+ sacActive
+								+ '</td>' + '</tr><tr><td>Service Name:</td>' + '<td align="left">'
+								+ response.body.sacServiceName
+								+ '</td>' + '</tr><tr><td>GST Value:</td>' + '<td align="left">'
+								+ response.body.sacGST
+								+ '</td>' + '</tr><tr><td>Effective Date:</td>' + '<td align="left">'
+								+ response.body.sacEffDate;
+						
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+		})
+
+    }
+	/*
+	 * For ViewAll SacMaster List 
+	 */
+ 	$(document).ready(function() {
+		$('#listAllSacCode').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-sac-master-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					/* d.param2 = $('#param2').val(); */ 
+				
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [
+				{'data' : 'sacCodeName'},
+				{'data' : 'sacService'},
+				{'data' : 'sacGST'},
+				{'data' : 'sacEffDate'},
+				{'data' : 'status'},
+				{'data' : 'action'}
+				
+				
+			]
+		});
+	});
+	
+ 	
+ 	
+ 	function DeleteSacCode(id){
+		//var index = window.atob(id);
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "RED",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			
+		}).then((result) => {
+		if(result.value)
+		{
+			//alert(result.value)
+			$.ajax({
+				
+				type	: "GET",
+				url : "/master/delete-sac-master?id=" + id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	  }
+	 });//swal function block ends
+	}
+ 	
+ 	
+ 	/*
+ 	 * For Searching of Subcategory
+ 	 */		
+	function searchData() {
+		$('#listAllSacCode').DataTable().draw();	
+	}		
+
+$(function () {
+//Date picker
+$('#datepicker').datepicker({
+autoclose: true
+})
+})
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="/index">Home</a></li>
+					<li><a href="/master/add-sac-code">Add SAC Code</a></li>
+					<li class="active"><span>View SAC Code</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Listing of SAC Code</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-sac-code">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+							</div>
+						</div>
+					<div id="demo" class="collapse">
+						<div class="search-field">
+							<div class="row">
+								<div class="col-md-2">
+									<div class="org-name">SAC Code Name</div>
+								</div>
+								<div class="col-md-3">
+									<input class="form-control" type="text" placeholder="" name=""
+										id="param1">
+								</div>
+								<!--  <div class="col-md-2">
+                              <div class="org-name">Role Name</div>
+                           </div>
+                           <div class="col-md-3">
+                              <input id="" class="form-control" type="text" placeholder="" name="">
+                           </div> -->
+
+								<div class="col-md-2">
+									<div class="form-group">
+										<button class="btn btn-primary" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<a data-toggle="collapse" data-target="#demo"
+						class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+					</a>
+
+					<div class="row">
+
+						<div class="table-responsive" style="width: 100%;">
+							<table id="listAllSacCode" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>SAC Code Name</th>
+										<th>Service Name</th>
+										<th>GST Value</th>
+										<th>Effective Date</th>
+										<th>Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+
+							</table>
+
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of SAC Code</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+							<tbody>
+								<tr class="sacCodeName">
+									<td><b>SAC Code Name :</b></td>
+								</tr>
+								<tr class="sacService">
+									<td><b>Service Name :</b></td>
+								</tr>
+								<tr class="sacGST">
+									<td><b>GST Value :</b></td>
+								</tr>
+								<tr class="sacEffDate">
+									<td><b>Effective Date :</b></td>
+								</tr>
+								<tr class="sacActive">
+									<td><b>Status :</b></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

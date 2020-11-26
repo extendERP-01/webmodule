@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 275px;
+	position: absolute;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+</style>
+<script>
+
+function rfqAutoComplete() {
+	//alert('hello-------'+$("#rfqNo").val());
+	
+	
+	  $.ajax({
+	  		 type : "POST",
+	 		 url : "add-rfq-quotation-detail-getRFQAutocompleteList",
+	 		 dataType : 'json',
+	 		 contentType : 'application/json',
+	  		 data : $("#rfqNo").val(),
+	         success : function(response) {
+	        	 console.log('response for rfq-----',response);
+	         if (response.message == "success") {
+
+	         	if(response.body.length!=0)	{
+	  				console.log("if: "+response);
+	 		 		$("#rfqNo").css("background","#FFF");
+	  				var content = '<ul id="autocomplete-list">';
+	  				for (var i = 0; i < response.body.length; i++) {
+	  					content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'('+ response.body[i].name+')'+'</li>';
+	  				} 
+	  				content += '</ul>';
+	 				 $("#suggesstion-box").show();
+	 				 $("#suggesstion-box").html(content);
+
+	 			 }
+	  			 else {
+					  console.log("else: "+response);
+					  $("#rfqNo").css("background","#FFF");
+					  var content = '<ul id="autocomplete-list">';
+					  content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					  content += '</ul>';
+					  $("#suggesstion-box").show();
+					  $("#suggesstion-box").html(content);
+					}
+	  			}
+	 		 },
+		  	error : function(data) {
+		  	console.log(data);
+	  		}
+	  	 })
+	  }
+	  
+	  
+function selectAutocompleteValue(key,name) {
+	//console.log('hello from selected');
+	  if (key) { 
+		  $("#rfqNo").val(key);
+		  $("#rfqNo").attr('data-procat', key); 
+		  $("#suggesstion-box").hide();
+		  selectVendor(key);
+	  }
+	  else {
+		  
+		  $("#rfqNo").val("");
+		  $("#rfqNo").attr('data-procat', "");
+		  $("#suggesstion-box").hide();
+	 	 }
+	  }
+	  
+	  
+/* function selectVendor(key){
+	console.log('vendor---',key);
+} */
+
+
+function selectVendor(key){
+	var keyId = key;
+	console.log('vendor---',keyId);
+	 
+	if(keyId !=""){
+		$("#vendor").empty();
+		$("#vendor").append(new Option("--Select--",""))
+	 	$.ajax({
+			type 		:	"POST",
+			 url 		:	"add-rfq-quotation-detail-getVendorName-throughAjax", 
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	JSON.stringify(keyId),
+			success 	: 	function(response){
+				var items = response.body;
+				console.log('data for vendor == ',response);
+				if(response.message=="success"){
+					if(items.length>0){
+						for(var i=0;i<items.length;i++){
+							var option	= i.toString();
+							option		= new Option(items[i].name,items[i].key)
+							$(option).html(items[i].name);
+							$("#vendor").append(option);	
+							
+						}
+					}
+				}else{
+					swal("Please Try Again");
+				}
+			},
+			error : function(data) {
+				swal(data);
+			}
+		})
+	}
+}
+	  
+//ADD MORE FUNCTION
+
+function addMore(){
+	
+	var itemNameValid = true;
+	$(".ItemName").each(function(){
+		var current_id = $(this).attr("id");
+		if (!blankValidation(current_id,"TextField" ,"Please Enter Item Name")){
+			itemNameValid = false;
+			return false;
+		}
+		
+	});
+	
+ 
+	
+	var unitPriceValid = true;
+	if(itemNameValid ){
+		$('.unitPrice').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Unit Price")){
+				unitPriceValid = false;
+				return false;
+			}
+				  	
+		});
+	}
+	
+	var quantityValid = true;
+	if(itemNameValid  && unitPriceValid){
+		$('.quantity').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+				quantityValid = false;
+				return false;
+			}
+				  	
+		});
+	}
+	 
+	if(itemNameValid && unitPriceValid && quantityValid ){
+		
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+		
+		$("#myTable tbody tr td:last").html("");
+		var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+		
+		var editTr = 0;
+		
+		if(lengthOfTableRow>editTr){
+			$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+		}
+		
+		   
+		$("#myTable tbody tr:last").find(".ItemId").val(""); 
+		$("#myTable tbody tr:last").find(".ItemName").val(""); 
+		$("#myTable tbody tr:last").find(".unitPrice").val("");
+		$("#myTable tbody tr:last").find(".quantity").val(""); 
+		$("#myTable tbody tr:last").find(".lineTotal").html("0.00");
+		
+		$("#myTable > tbody > tr").each(function(i){
+			$(this).attr('id', "tr_" + i);
+			var textInput 	= $(this).find('input') ;
+			var labelInput = $(this).find('label');
+			var selectInput = $(this).find('select');
+			var divInput = $(this).find('div');
+			 
+			 
+			
+			  
+			textInput.eq(0).attr('id',"menuItemId_"+i); 
+			textInput.eq(1).attr('id',"menuItem_"+i); 
+			textInput.eq(2).attr('id',"qUnitPrice_"+i);
+			textInput.eq(3).attr('id',"qQuantity_"+i); 
+			labelInput.eq(0).attr('id',"qLineTotal_"+i) ;
+			divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+		 
+			 
+		})
+		
+	/* 	$("#myTable > tbody").each(function(j){
+			
+			 
+			var trInput = $(this).find('tr');
+			  
+		 
+			trInput.eq(0).attr('id', "tr_" + j);
+			 
+		}) */
+		
+	 
+	}
+	
+}
+ 
+
+
+//(document).ready() STARTS
+
+$(document).ready(function() {
+	
+	
+	//date time picker
+	$( "#QuotValidity" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		minDate: new Date() ,
+		timepicker : false,
+	})
+	 var idd= $('#venQuotId').val();
+	// alert(idd);
+	 if(idd){
+		 $('#rfqNo').prop('disabled', true);
+		 $('#vendor').prop('disabled', true); 
+	 }
+	
+	 var id = $("#venQuotId").val();
+		var taxType11 = $("#taxType11").val();
+		//alert('taxtype id-----------'+id);
+		if(id) {
+			//alert(id);
+			if(taxType11 == 'true') {
+				//alert('hello 1');
+				$('#IgstTR').show();
+				$('#CgstTR').hide();
+				$('#SgstTR').hide();
+				
+			} else{
+			//	alert('hello 0');
+				$('#IgstTR').hide();
+				$('#CgstTR').show();
+				$('#SgstTR').show();
+			}
+		} else {
+			$('#IgstTR').hide();
+		}
+	
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		
+		calculateSubTotal();
+		getGSTRate();
+	});
+	 
+		
+	$("#submit").click(function(){
+		var taxType = $("input[name='tax']:checked").val();
+		if(taxType=="true") {
+			$("#cgst").text("0.00");
+			$("#sgst").text("0.00");
+		} else {
+			$("#igst").text("0.00");
+		}
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			item = {};
+			item['venQuotId']		=	$("#venQuotId").val();
+			item['rfqNo']	        =	$("#rfqNo").val(); 
+			item['vendor']			=	$("#vendor").val();
+			item['qNote']			=	$("#qNote").val();
+			item['taxType']			=	$("input[name='tax']:checked").val();
+			item['gstRate']			=	parseFloat($("#gstRate").val());
+			item['subTotal']		=	parseFloat($("#subTotal").text());
+			item['qIGST']			=	parseFloat($("#igst").text());
+			item['qCGST']			=	parseFloat($("#cgst").text());
+			item['qSGST']			=	parseFloat($("#sgst").text());
+			item['grandTotal']		=	parseFloat($("#grandTotal").text());
+			item['itemId']		    =	$(this).find(".ItemId").val();
+			item['itemName']		=	$(this).find(".ItemName").val();
+			item['unitPrice']		=	parseFloat($(this).find(".unitPrice").val());
+			item['quantity']		=	parseFloat($(this).find(".quantity").val()); 
+			item['lineTotal']		=	parseFloat($(this).find(".lineTotal").text());
+			item['quotName']		=	$("#QuotName").val();
+			item['quotValidity']	=	$("#QuotValidity").val();
+			dataset.push(item);
+		})
+		console.log('dateset---------',dataset);
+		
+	//	return false;
+		
+		 
+		if (!blankValidation("gstRate","TextField" ,"Please Enter GST Rate"))
+		      return false;
+		if (!blankValidation("qNote","TextArea" ,"Note Can't Be Left Blank"))
+		      return false;
+		
+		var itemNameValid = true;
+		$(".ItemName").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"TextField" ,"Please Enter Item Name")){
+				itemNameValid = false;
+				return false;
+			}
+			
+		});
+		
+		 
+		var unitPriceValid = true;
+		if(itemNameValid ){
+			$('.unitPrice').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Unit Price")){
+					unitPriceValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		
+		var quantityValid = true;
+		if(itemNameValid  && unitPriceValid){
+			$('.quantity').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+					quantityValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+	 
+		
+		if(itemNameValid &&   unitPriceValid && quantityValid){
+			submitQuotationItem(dataset);
+		}
+	});
+});  
+//(document).ready() ENDS
+
+
+//SUBMIT QUOTATION FUNCTION
+
+function submitQuotationItem(dataset){
+//const ipAPI = 'https://api.ipify.org?format=json'
+		console.log(dataset);
+			swal.fire({
+				title				: "Are you sure want to Submit?",
+				text				: "Once Submited,Can't revert back !",
+				type 				: "warning",
+				
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Submit",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+				confirmButtonAriaLabel : 'Thumbs up, great!',
+				cancelButtonText : 'Cancel',
+				cancelButtonAriaLabel : 'Thumbs down',
+				
+				preConfirm: () => {
+					return new Promise((resolve) => {
+						setTimeout(() => {
+							console.log("Doing async operation");
+							resolve()
+						}, 3000)
+					})
+				}
+			}).then((result) => {
+				if(result.value){
+					$.ajax({
+					type		: "POST",
+					url 		: "add-rfq-quotation-detail",
+					dataType	: "json",
+					contentType	: "application/json",
+					data		: JSON.stringify(dataset),
+					success		: function(response){
+						//console.log(response);
+						if(response.message=="Success"){
+							swal({
+									title:"Data Saved Successfully.",
+									type: "success",
+							}).then(function(){
+									window.location.href = "/inventory/view-rfq-quotation-details" ;
+							})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+					},error		: function(response){
+						swal(response.code);	
+					}
+				}) //ajax ends
+			}
+			})//swal function block ends
+		}
+		
+//PAGE RELOAD FUNCTION
+		
+function funcLoad(){
+	location.reload();
+}
+
+//CALCULATE AMOUNT FUNCTION (QUANTITY * PRICE)
+
+function calculateLineTotal(event) {
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	
+	var counter = l[1];
+	var price = $("#qUnitPrice_"+counter).val();
+	var quantity = $("#qQuantity_"+counter).val();
+	if(price && quantity) {
+		
+		 var mul = price * quantity;
+		 $("#qLineTotal_"+counter).html((mul).toFixed(2));
+		 calculateSubTotal();
+	} else {
+		var mul = 0;
+		 $("#qLineTotal_"+counter).html((mul).toFixed(2));
+		 calculateSubTotal();
+	}
+}
+
+//CALCULATE SUB TOTAL FUNCTION
+
+function calculateSubTotal(){
+	var sum = 0;
+	$(".lineTotal").each(function(i){
+		sum = sum + parseFloat($(this).html());
+	})
+	$('#subTotal').html((sum).toFixed(2));
+}
+
+//HIDE IGST TR FUNCTION
+
+function ShowHideTrS(){
+	$("#igst").val("0.00");
+	$('#IgstTR').hide();
+	$('#CgstTR').show();
+	$('#SgstTR').show();
+	getGSTRate();
+}
+
+//HIDE CGST SGST TR FUNCTION
+
+function ShowHideTrC(){
+	$('#IgstTR').show();
+	$("#cgst").val("0.00");
+	$("#sgst").val("0.00");
+	$('#CgstTR').hide();
+	$('#SgstTR').hide();
+	getGSTRate();
+}
+
+//CALCULATE SUB TOTAL, IGST,CGST, SGST & GRAND TOTAL AFTER GST RATE VALUE
+
+function getGSTRate() {
+	var gstRate = $('#gstRate').val();
+	gstRate = 10;
+	if(gstRate<=100) {
+		var value = gstRate / 2 ;
+		if(gstRate!=0){
+			$('#labelIgst').html("IGST");
+			$('#labelCgst').html("CGST");
+			$('#labelSgst').html("SGST");
+		} else {
+			$('#labelIgst').html("IGST");
+			$('#labelCgst').html("CGST");
+			$('#labelSgst').html("SGST");
+		}
+		var subTotal = $('#subTotal').html();
+		subTotal=subTotal.replace(/\,/g,'');
+			var igst = (subTotal * gstRate)/100;
+			var gst = igst/2;
+			var gstType = $("input[name='tax']:checked").val();
+			if(gstType=="true") {
+				$('#igst').html((igst).toFixed(2));
+			} else{
+				$('#cgst').html((gst).toFixed(2));
+				$('#sgst').html((gst).toFixed(2));
+			}
+			var grandTotal = parseFloat(subTotal) + parseFloat(igst);
+			$('#grandTotal').html((grandTotal).toFixed(2));
+	} else {
+		swal({
+			title	: "GST Rate Can't Be Greater Than 100.",
+			type	: "warning",
+		})
+		$('#gstRate').val("");
+		$('#labelIgst').html("IGST");
+		$('#labelCgst').html("CGST");
+		$('#labelSgst').html("SGST");
+	}
+}
+
+
+
+
+function menuItemAutoComplete(event) {
+	//alert('hello---------'+currentId);
+	 var currentId = event.currentTarget.id;
+		var currentValue = event.currentTarget.value;
+		var l = currentId.split("_");
+		//alert(l);
+		var counter = l[1];	   
+	 	var venValue=$("#vendor").val();
+ 		var dataset=[];
+ 		for(var i =0;i<1;i++){
+ 			var params ={};
+ 			params["ptype1"]= venValue;
+ 	     	params["ptype2"] = currentValue;
+ 	     	dataset.push(params);
+ 		}
+ 		  console.log('dateset',dataset); 
+		//alert(venValue);
+		//alert(currentValue);
+		
+		
+		if(currentValue) {
+		$.ajax({
+			type : "POST",
+			url : "add-rfq-quotation-detail-menu-item",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : JSON.stringify(dataset),
+			success : function(response) {
+				console.log(response);
+				if (response.message == "success") {
+					
+					if(response.body.length!=0)	{
+						$(currentId).css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						for (var i = 0; i < response.body.length; i++) {
+								content += '<li onClick="selectAutocompleteValue1(\''+response.body[i].key+'\',\''+response.body[i].name+'\',\''
+								+response.body[i].itemCategory+'\',\''
+								+response.body[i].foodPreference+'\',\''
+								+response.body[i].mealType+'\',\''+counter+'\')">'+response.body[i].name+'('+ response.body[i].key+')'+'</li>';
+						} 
+						content += '</ul>';
+						$("#suggesstion-box1_"+counter).show();
+						$("#suggesstion-box1_"+counter).html(content);
+						
+					}
+					else {
+						$(currentId).css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+counter+'\')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#suggesstion-box1_"+counter).show();
+						$("#suggesstion-box1_"+counter).html(content);
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+		} else {
+			$(currentId).css("background","#FFF");
+			var content = '<ul id="autocomplete-list">';
+			content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+counter+'\')">'+"No Data Found"+'</li>';
+			content += '</ul>';
+			$("#suggesstion-box1_"+counter).show();
+			$("#suggesstion-box1_"+counter).html(content);
+		}
+	}
+	//function selectAutocompleteValue1(menuItemId,menuItemName,itemCategory,foodPreference,mealType,counter) {
+	function selectAutocompleteValue1(key,name,itemCategory,foodPreference,mealType,counter) {
+	 
+		if (key) {
+   			$("#menuItemId_"+counter).val(key);
+   			$("#menuItem_"+counter).val(name);
+   			$("#menuItem_"+counter).attr('data-procat', name);
+   			$("#suggesstion-box1_"+counter).hide();
+   		 
+			}
+		else {
+   			$("#menuItemId_"+counter).val("");
+   			$("#menuItem_"+counter).val(""); 
+   			$("#menuItem_"+counter).attr('data-procat', "");
+   			$("#suggesstion-box1_"+counter).hide();
+		}
+	}
+	
+	function clearData(event){
+	//	alert('hello');
+	var rowCount = $('#myTable tr').length;
+	
+		 $(".ItemId").val('');
+		$(".ItemName").val('');
+		$(".unitPrice").val('');
+		$(".quantity").val('');  
+		$("#lineTotal").val('0');  
+		$("#subTotal").val('0');  
+		$("#gstRate").val('0');  
+		$("#qNote").val('');    
+	
+	 
+		
+/* 	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	//$(".tr_clone").empty(''); 
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore); */
+	
+/* 	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	console.log('rowCount',lengthOfTableRow);
+	
+	var i;
+	for (i = 1; i < lengthOfTableRow; i++) {
+		$("#tr_"+i).empty();  
+	}
+	
+	$(".ItemName").val('');
+	$(".unitPrice").val('');
+	$(".quantity").val(''); */
+   // $(".rmv").hide(); 
+	
+	  /*   var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	    var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			 $("#myTable tbody tr:last").find('td:last').append(add); 
+			 
+		} */
+	}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+
+.rght-algn {
+	text-align : right;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Vendor Quotation Details</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Vendor Quotation Details</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+						<form th:object="${quotation}" autocomplete="off"> 
+						<div th:if="${quotationId}">
+						 <input type="hidden" id="venQuotId"  th:value="${quotation[0].venQuotId}"  />
+						 <input type="hidden" id="taxType11"  th:value="${taxType}"  />
+						</div>
+							 
+							  
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								   <div class="col-lg-6">
+										<div class="form-group">
+											<label>RFQ No.</label> 
+											 
+											<input type="text" class="form-control" id="rfqNo" th:if="${quotationId}" th:value="${quotation[0].rfqNo}"  onkeyup="rfqAutoComplete();" /> 
+											<input type="text" class="form-control" id="rfqNo" th:unless="${quotationId}"     
+													onkeyup="rfqAutoComplete();" /> 
+												<div id="suggesstion-box"></div></div>
+									</div>
+									
+								 
+								    
+								     <div class="col-lg-6">
+										<div class="form-group">
+											<label>Vendor Name</label> 
+												
+												 <select  th:if="${quotationId}"  class="form-control"  id="vendor" >
+											 
+												 <option th:each="c:${vendors}" th:value='${c.key}'
+														th:text="${c.name}" th:selected="${c.key==quotation[0].vendor}"></option>
+												 </select>
+												  <select th:unless="${quotationId}" class="form-control"  id="vendor" onchange="clearData(event);"> 
+												  <option th:value="NULL">Select</option>
+												  </select> 
+												 
+											<div id="suggesstion-box"></div>
+										</div>
+								    </div>
+								    
+								    <div class="col-lg-6">
+										<div class="form-group" >
+											<label>Quotation Name</label> 
+											 
+											<!-- <input type="text" class="form-control" id="rfqNo" th:if="${quotationId}" th:value="${quotation[0].rfqNo}"  onkeyup="rfqAutoComplete();" />  -->
+											<input type="text" class="form-control" id="QuotName" th:value="${quotation[0].quotName}"  th:if="${quotationId}"/> 
+											<input type="text" class="form-control" id="QuotName"    th:unless="${quotationId}"/> 
+											 
+									  </div>
+									  
+									   
+									</div>
+									
+									 <div class="col-lg-6">
+										 <div class="form-group"  >
+											<label>Quotation Validity</label> 
+										    <input type="text" class="form-control " id="QuotValidity" th:if="${quotationId}" th:value="${quotation[0].quotValidity}"/> 
+										    <input type="text" class="form-control " id="QuotValidity" th:unless="${quotationId}" /> 
+											 
+									     </div> 
+									     
+									     
+							        </div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<h4>Vendor Quotation Details RFQ</h4>
+								</div>
+							</div>
+							<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+											<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr >
+													<th>Item Name</th> 
+													<th>Unit Price</th>
+													<th>Quantity</th> 
+													<th>Amount</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+										<tbody id="tbodyData">
+											<tr class="tr_clone" th:if="${quotationId}" th:each="a,iter:${quotation}">
+												<td>
+												<input type="hidden" id="menuItemId_" class="form-control ItemId" th:value="${a.itemId}">
+												<input type="text" th:id="'menuItem_'+${iter.index}"
+													class="form-control  ItemName" value='' th:value="${a.itemName}" onkeyup="menuItemAutoComplete(event);">
+													<div id="suggesstion-box1_0"></div>
+												</td> 
+												<td><input type="text" th:id="'qUnitPrice_'+${iter.index}"
+													class="form-control  unitPrice" value='' onkeyup="calculateLineTotal(event);getGSTRate();" th:value="${a.unitPrice}"></td>
+												<td><input type="text" th:id="'qQuantity_'+${iter.index}"
+													class="form-control  quantity" value='' onkeyup="calculateLineTotal(event);getGSTRate();" th:value="${#numbers.formatInteger(a.quantity,2,'POINT')}"></td>
+												 
+												<td><label th:id="'qLineTotal_'+${iter.index}" class="form-control lineTotal"
+													th:text="${a.lineTotal}">0.00</label></td>
+												<td><button th:if="${iter.size == iter.index+1}" type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>
+														<button th:if="${iter.size != 1}" type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>
+												</td>
+											</tr>
+											
+											<tr id="tr_" class="tr_clone" th:unless="${quotationId}">
+												<td>
+													<!-- <input type="text" id="qItemName_"
+													class="form-control  itemName" value=''>  menuItemId_0  menuItem_0-->
+															<input type="hidden" id="menuItemId_" class="form-control ItemId">
+															<input type="text" id="menuItem_" class="form-control ItemName"
+															 onkeyup="menuItemAutoComplete(event);">
+															<div id="suggesstion-box1_"></div>
+															
+													 
+												</td> 
+												<td><input type="text" id="qUnitPrice_"
+													class="form-control  unitPrice rght-algn" value='' onkeyup="calculateLineTotal(event);getGSTRate();"></td>
+												<td><input type="text" id="qQuantity_"
+													class="form-control  quantity" value='' onkeyup="calculateLineTotal(event);getGSTRate();"></td>
+												 
+												<td><label id="qLineTotal_"
+													class="form-control lineTotal rght-algn" style="margin-top: 10px;">0.00</label></td>
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+											
+										</tbody>
+									</table>
+									</div>
+								</div>
+							<div class="row">
+								<div class="col-lg-6"></div>
+								<div class="col-lg-6">
+									<table width="85%">
+										<tbody>
+											<tr th:if="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label>Sub Total</label></td>
+												<td width="40%"><label id="subTotal"
+													class="form-control subTotal "  th:text="${quotation[0].subTotal}">0.00</label></td>
+											</tr>
+											<tr  th:unless="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label>Sub Total</label></td>
+												<td width="40%">
+												<label id="subTotal"
+													class="form-control subTotal rght-algn">0.00</label></td>
+											</tr>
+											<tr id="IgstTR" th:if="${quotationId} and ${taxType}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelIgst" th:text="'IGST('+${#numbers.formatInteger(quotation[0].gstRate,2,'POINT')}+'%)'">IGST</label></td>
+												<td width="40%"><label id="igst"
+													class="form-control igst"  th:text="${quotation[0].qIGST}">0.00</label></td>
+											</tr>
+											<tr id="IgstTR" th:if="${quotationId} and ${!taxType}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelIgst" th:text="'IGST('+${#numbers.formatInteger(quotation[0].gstRate,2,'POINT')}+'%)'">IGST</label></td>
+												<td width="40%"><label id="igst"
+													class="form-control igst rght-algn"  th:text="${quotation[0].qIGST}">0.00</label></td>
+											</tr>
+											<tr id="IgstTR" th:unless="${quotationId}" >
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelIgst">IGST</label></td>
+												<td width="40%"><label id="igst"
+													class="form-control igst rght-algn">0.00</label></td>
+											</tr>
+											<tr id="CgstTR" th:if="${quotationId} and ${taxType}" >
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelCgst" th:text="'CGST('+${#numbers.formatInteger(quotation[0].gstRate,2,'POINT')}/2+'%)'">CGST</label></td>
+												<td width="40%"><label id="cgst"
+													class="form-control cgst rght-algn"  th:text="${quotation[0].qCGST}">0.00</label></td>
+											</tr>
+											<tr id="CgstTR" th:if="${quotationId} and ${!quotation[0].taxType}" >
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelCgst" th:text="'CGST('+${#numbers.formatInteger(quotation[0].gstRate,2,'POINT')}/2+'%)'">CGST</label></td>
+												<td width="40%"><label id="cgst"
+													class="form-control cgst rght-algn"  th:text="${quotation[0].qCGST}">0.00</label></td>
+											</tr>
+											<tr id="CgstTR" th:unless="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelCgst">CGST</label></td>
+												<td width="40%"><label id="cgst"
+													class="form-control cgst rght-algn" >0.00</label></td>
+											</tr>
+											<tr id="SgstTR" th:if="${quotationId} and ${taxType}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelSgst" th:text="'SGST('+${#numbers.formatInteger(quotation[0].gstRate,2,'POINT')}/2+'%)'">SGST</label></td>
+												<td width="40%"><label id="sgst"
+													class="form-control sgst rght-algn"  th:text="${quotation[0].qSGST}">0.00</label></td>
+											</tr>
+											<tr id="SgstTR" th:if="${quotationId} and ${!taxType}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelSgst" th:text="'SGST('+${#numbers.formatInteger(quotation[0].gstRate,2,'POINT')}/2+'%)'">SGST</label></td>
+												<td width="40%"><label id="sgst"
+													class="form-control sgst rght-algn"  th:text="${quotation[0].qSGST}">0.00</label></td>
+											</tr>
+											<tr id="SgstTR" th:unless="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label id="labelSgst">SGST</label></td>
+												<td width="40%"><label id="sgst"
+													class="form-control sgst rght-algn">0.00</label></td>
+											</tr>
+											<tr th:if="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label>Grand Total</label></td>
+												<td width="40%"><label id="grandTotal"
+													class="form-control grandTotal rght-algn"  th:text="${quotation[0].grandTotal}">0.00</label></td>
+											</tr>
+											<tr th:unless="${quotationId}">
+												<td>&nbsp;</td>
+												<td width="60%" align="center"><label>Grand Total</label></td>
+												<td width="40%"><label id="grandTotal"
+													class="form-control grandTotal rght-algn">0.00</label></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group" style="display:none;">
+											<label>Tax Type</label>&nbsp;&nbsp;&nbsp;
+											<input type="radio" th:if="${quotationId}" th:checked="${!taxType}" id="taxS" name="tax" value="false" onclick="ShowHideTrS()" checked />&nbsp;<label th:if="${quotationId}">State Tax</label>&nbsp;&nbsp;&nbsp;
+            								<input type="radio" th:if="${quotationId}" th:checked="${taxType}" id="taxC" name="tax" value="true" onclick="ShowHideTrC()" />&nbsp;<label th:if="${quotationId}">Center Tax</label>
+            								
+            								<input type="radio" th:unless="${quotationId}" id="taxS" name="tax" value="false" onclick="ShowHideTrS()" checked />&nbsp;<label th:unless="${quotationId}">State Tax</label>&nbsp;&nbsp;&nbsp;
+            								<input type="radio" th:unless="${quotationId}" id="taxC" name="tax" value="true" onclick="ShowHideTrC()" />&nbsp;<label th:unless="${quotationId}">Center Tax</label>
+										</div>
+										<div class="form-group" style="display:none;">
+											<label>GST Rate</label>
+											<input type="text" id="gstRate" th:if="${quotationId}" th:value="${quotation[0].gstRate}"
+													class="form-control  gstRate" value='10' onkeyup="getGSTRate()">
+											<input type="text" id="gstRate" th:unless="${quotationId}"
+													class="form-control  gstRate" value='10' onkeyup="getGSTRate()">
+										</div>
+										<div class="form-group">
+											<label>Notes</label> <textarea name="" cols="" rows="" th:if="${quotationId}" th:text="${quotation[0].qNote}"
+														class="form-control textarea" id="qNote"></textarea>
+											<textarea name="" cols="" rows="" th:unless="${quotationId}"
+														class="form-control textarea" id="qNote"></textarea>
+										</div>
+									</div>
+								</div>
+							</form> 
+								<div class="row col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning"
+											onclick="funcLoad();">Cancel</button>
+									</div>
+								</div>
+							<!-- </form> -->
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

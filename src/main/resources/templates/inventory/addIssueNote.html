@@ -1,0 +1,871 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+
+<style type="text/css">
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list1 li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.red {
+	background-color: #b3ccff;
+}
+</style>
+<script>
+//Function for blank validation
+function checkEmpty() {
+    var itemValid = true;
+    $('.itemCls').each(function() {
+        if (!blankValidation($(this).attr('id'), "SelectBox", "Please Select Item ")) {
+            itemValid = false;
+            return false;
+        }
+
+    });
+
+    var qtyValid = true;
+    if (itemValid) {
+        $('.issueQuantityCls').each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Quantity")) {
+                qtyValid = false;
+                return false;
+            }
+        });
+    }
+    if (itemValid && qtyValid) {
+        addMore();
+    }
+}
+
+//Function for adding more Table row
+function addMore() {
+    var lengthOfTableRow = $("#tbodyData").children('tr').length;
+    var cloneHtml = $("#myTable tbody tr:first").clone();
+    $("#myTable tbody tr:last").find('td:last').html('');
+    $("#myTable tbody").append($("#myTable tbody tr:first").clone());
+    $("#myTable tbody tr td:last").html("");
+    var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+    var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+    $("#myTable tbody tr:last").find('td:last').append(addMore);
+    $("#myTable tbody tr:last").find('td:last').append(removeMore);
+
+    var editTr = 0;
+
+    if (lengthOfTableRow > editTr) {
+        $("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+
+    }
+    // BLANK FIELD START
+    $("#myTable tbody tr:last").find(".itemCategoryCls").empty();
+    $("#myTable tbody tr:last").find(".itemCategoryCls").val("");
+    $("#myTable tbody tr:last").find(".itemSubCategoryCls").empty();
+    $("#myTable tbody tr:last").find(".itemSubCategoryCls").val('');
+
+    $("#myTable tbody tr:last").find(".itemCls").empty();
+    $("#myTable tbody tr:last").find(".itemCls").val('');
+    $("#myTable tbody tr:last").find(".itemCls1").empty();
+    $("#myTable tbody tr:last").find(".itemCls1").val("");
+
+    $("#myTable tbody tr:last").find(".issuedQuantityCls").empty();
+    $("#myTable tbody tr:last").find(".issuedQuantityCls").append(new Option("0", ""));
+    $("#myTable tbody tr:last").find(".avilQuantityCls").empty();
+    $("#myTable tbody tr:last").find(".avilQuantityCls").append(new Option("0", ""));
+    $("#myTable tbody tr:last").find(".issueQuantityCls").empty();
+    $("#myTable tbody tr:last").find(".issueQuantityCls").append(new Option("0", ""));
+    $("#myTable tbody tr:last").find(".issuedQuantityCls").val("");
+    $("#myTable tbody tr:last").find(".avilQuantityCls").val("");
+    $("#myTable tbody tr:last").find(".issueQuantityCls").val("");
+
+    $("#myTable > tbody > tr").each(function(i) {
+        var selectInput = $(this).find('select');
+        var textInput = $(this).find('input');
+        var labelInput = $(this).find('label');
+        var divInput = $(this).find('div');
+
+        textInput.eq(0).attr('id', "itemCategory_" + i);
+        textInput.eq(1).attr('id', "itemSubCategory_" + i);
+        textInput.eq(2).attr('id', "item_" + i);
+        textInput.eq(3).attr('id', "itemName_" + i);
+        labelInput.eq(0).attr('id', "issuedQuantity_" + i);
+        labelInput.eq(1).attr('id', "avilQuantity_" + i);
+        textInput.eq(4).attr('id', "issueQuantity_" + i);
+        divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+    })
+}
+
+$(document).ready(function() {
+    var lengthOfTableRow = $("#tbodyData").children('tr').length;
+    $('.tbll').on('click', '.rmv', function() {
+        $(this).closest('tr').remove();
+
+        $("#myTable tbody tr:last").find('td:last').html('');
+        var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+        var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+        if ($("#tbodyData").children('tr').length > 1) {
+            $("#myTable tbody tr:last").find('td:last').append(add);
+            $("#myTable tbody tr:last").find('td:last').append(remove);
+        } else {
+            $("#myTable tbody tr:last").find('td:last').append(add);
+        }
+    });
+
+    //Function for saving data
+    $("#submitItems").click(function() {
+        var dataset = [];
+        $("#tbodyData > tr").each(function() {
+        	
+            item = {};
+            
+            item['reqstnIssueNote'] = $("#reqstnIssueNote").val();
+            item['itemRequisition'] = $("#requisitionNumber_").val();
+            item['iNoteDescription'] = $("#descId").val();
+            item['pINoteActive'] = $("#statusId").val();
+            item['itemCategory'] = $(this).find(".itemCategoryCls").val();
+            item['itemSubCategory'] = $(this).find(".itemSubCategoryCls").val();
+            item['item'] = $(this).find(".itemCls").val();
+            if($(this).find(".issueQuantityCls").val() != "" && $(this).find(".issueQuantityCls").val() != null) {
+            	item['iNoteQty'] = parseFloat($(this).find(".issueQuantityCls").val());
+            } else {
+            	item['iNoteQty'] = 0.0;
+            }
+            item['tStore'] = $("#tStore").val();
+            item['tGodown'] = "gdn002";
+            dataset.push(item);
+        }); //table tbody tr loop ends
+
+        //Blank Validations
+        if (!blankValidation("requisitionNumber_", "SelectBox", "Please Select Requisition Number"))
+            return false;
+        if (!blankValidation("statusId", "SelectBox", "Please Select Status"))
+            return false;
+        
+        var itemValid = true;
+
+        var qtyValid = true;
+        
+        if (itemValid && qtyValid) {
+            submitAddIssueNote(dataset);
+        }
+    });
+});
+
+//Function for Submit PupUp
+function submitAddIssueNote(dataset) {
+	console.log(dataset)
+    swal.fire({
+        title: "Are you sure want to Submit?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "add-issue-note",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+                    console.log(response);
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            window.location.href = "/inventory/view-issue-note";
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(response) {
+                    console.log(response.code);
+                }
+            }) //ajax ends
+        }
+    }) //swal function block ends
+} //submit function ends
+
+//Function to get AvlQuantity On Change Of  item Name
+function getAvlQuantity(key, counter) {
+    var checkDuplicateItem = true;
+    checkDuplicateItem = checkForDuplicateEntry(key, counter);
+    if (key != "" && checkDuplicateItem) {
+        $("#issuedQuantity_" + counter).text("0");
+        $("#avilQuantity_" + counter).text("0");
+        $("#issueQuantity_" + counter).val("");
+        $.ajax({
+            type: "GET",
+            url: "/inventory/add-issue-note-getAvilableQuantity-throughAjax?item=" + key,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+                var items = response.body;
+                if (response.message == "success") {
+                    if (items.length > 0) {
+                        for (var i = 0; i < items.length; i++) {
+                            var option = i.toString();
+                            option = new Option(items[i].key, items[i].name)
+                            $(option).html(items[i].name);
+                            $("#avilQuantity_" + counter).html(items[0].key);
+                        }
+                    }
+                } else {
+                    swal("Please Try Again");
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+        $("#issuedQuantity_" + counter).text("0");
+        $("#avilQuantity_" + counter).text("0");
+        $("#issueQuantity_" + counter).val("");
+    }
+}
+
+//Function to get Total Issued Quantity
+function getIssuedQuantity(key, counter) {
+    var requistionNo = $("#requisitionNumber_").val();
+    var checkDuplicateItem = true;
+    checkDuplicateItem = checkForDuplicateEntry(key, counter);
+    if (key != "" && checkDuplicateItem) {
+        $.ajax({
+            type: "GET",
+            url: "/inventory/add-issue-note-getIssuedQuantity-throughAjax?item=" + key + "&requistionNo=" + requistionNo,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+                var items = response.body;
+                if (response.message == "success") {
+                    if (items.length > 0) {
+                        for (var i = 0; i < items.length; i++) {
+                            var option = i.toString();
+                            option = new Option(items[i].key, items[i].name)
+                            $(option).html(items[i].name);
+                            $("#issuedQuantity_" + counter).html(items[0].key);
+                        }
+                    }
+                } else {
+                    swal("Please Try Again");
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+
+    }
+}
+
+//Function for cancel button
+function funcLoad() {
+    location.reload();
+}
+
+function returnToAddPage() {
+    var item = $("#reqstnIssueNote").val();
+    if ((item == null) || (item == "")) {
+        funcLoad();
+    } else {
+        window.location.href = "/inventory/view-issue-note";
+    }
+}
+
+//Function to Compare all quantity
+function quantityComparision(event) {
+    var issueQty = event.currentTarget.value;
+    var currentQtyFldId = event.currentTarget.getAttribute('id');
+    var l = currentQtyFldId.split("_");
+    var counter = l[1];
+    
+    var avlQty = $("#avilQuantity_"+counter).val();
+    var reqQty = $("#reqQty_"+counter).val();
+    
+    if(parseFloat(issueQty) > parseFloat(reqQty)) {
+    	swal({
+    		title	:	"Issue Quantity Can't Be Greater Than Requisition Quantity",
+    		type	:	"warning",
+    	})
+    	$("#"+currentQtyFldId).val("");
+    } else if(parseFloat(issueQty) > parseFloat(avlQty)) {
+    	swal({
+    		title	:	"Issue Quantity Can't Be Greater Than Available Quantity",
+    		type	:	"warning",
+    	})
+    	$("#"+currentQtyFldId).val("");
+    }
+    
+}
+
+//function to check duplicate entry of item name
+function checkForDuplicateEntry(itemId, counter) {
+    var count = 0;
+    $(".itemCls").each(function() {
+        if (itemId == $(this).val()) {
+            count++;
+        }
+    })
+    if (count >= 2) {
+        swal('Item Already Selected');
+        $("#item_" + counter).val("");
+        $("#issuedQuantity_" + counter).text("0");
+        $("#avilQuantity_" + counter).text("0");
+        return false;
+    } else {
+        return true;
+    }
+
+}
+
+//function for auto filled of item Requisition
+function issueAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "add-issue-note-getIssueAutocompleteList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#requisition").val(),
+        success: function(response) {
+            if (response.message == "success") {
+                if (response.body.length != 0) {
+                    $("#requisition").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) {
+                        content += '<li onClick="selectAutocompleteValue(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].key + '</li>';
+                    }
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+                } else {
+                    $("#requisition").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectAutocompleteValue(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+
+function selectAutocompleteValue(key, name) {
+    if (key) {
+        $("#requisitionNumber_").val(key);
+        $("#requisition").val(key);
+        $("#requisition").attr('data-procat', key);
+        $("#suggesstion-box").hide();
+        $(".itemCategoryCls").val('');
+        $(".itemSubCategoryCls").val('');
+        $(".itemCls").val('');
+        $(".itemCls1").val('');
+        getrequisitionNumberList();
+        issueNoteAutoComplete();
+        getRequisitionDetails(key);
+    } else {
+        $("#requisitionNumber_").val("");
+        $("#requisition").val("");
+        $("#tStore").text("");
+        $("#tStoreId").text("");
+        $("#requisition").attr('data-procat', "");
+        $("#suggesstion-box").hide();
+        $(".itemCategoryCls").empty();
+        $(".itemSubCategoryCls").empty();
+        $(".itemCls").empty();
+        $(".itemCls1").empty();
+        getrequisitionNumberList();
+        issueNoteAutoComplete();
+        getRequisitionDetails(key);
+    }
+}
+
+function getRequisitionDetails(key) {
+	$("#tbodyData").empty();
+	if(key) {
+		$.ajax({
+	        type: "POST",
+	        url: "add-issue-note-requisition-details",
+	        dataType: 'json',
+	        contentType: 'application/json',
+	        data: key,
+	        success: function(response) {
+	        	if(response.message=="success") {
+	        		console.log(response.body)
+	        		for(var i = 0; i < response.body.length; i++) {
+	        			var table = '<tr>'
+	    					+ '<td><input type="hidden" id="itemCategory_'+i+'" class="form-control itemCategoryCls" value="'+response.body[i].itemCategory+'" />'
+	    					+ '<input type="hidden" id="itemSubCategory_'+i+'" class="form-control itemSubCategoryCls" value="'+response.body[i].subCategory+'" />'
+	    					+ '<input type="hidden" id="item_'+i+'" class="form-control itemCls" value="'+response.body[i].item+'">'
+	    					+ '<input type="text" id="itemName_'+i+'" class="form-control itemCls1" onkeyup="itemAutoComplete(event);" name="item_" value="'+response.body[i].itemName+'" readonly /><div id="suggesstion-box1_"></div></td>'
+	    					+ '<td><input type="text" id="reqQty_'+i+'" readonly class="form-control reqQtyCls" value="'+response.body[i].requisitionQty+'"></td>'
+	    					+ '<td><input type="text" id="totalIssueQty_'+i+'" readonly class="form-control totalIssueQtyCls" value="'+response.body[i].totalIssuedQty+'"></td>'
+	    					+ '<td><input type="text" id="avilQuantity_'+i+'" readonly class="form-control avilQuantityCls" value="'+response.body[i].availableQty+'"></td>'
+	    					+ '<td><input type="text" id="issueQuantity_'+i+'" class="form-control  issueQuantityCls" onblur="quantityComparision(event);" onkeyup="checkQty(event)" value=""></td>'
+	    					+ '</tr>';
+	    				$("#tbodyData").append(table);
+	        		}
+	        	}
+	        }, error : function(data) {
+	        	console.log(data)
+	        }
+		});
+	} else {
+		var table = '<tr>'
+					+ '<td><input type="hidden" id="itemCategory_" class="form-control itemCategoryCls" />'
+					+ '<input type="hidden" id="itemSubCategory_" class="form-control itemSubCategoryCls" />'
+					+ '<input type="hidden" id="item_" class="form-control itemCls"><input type="text" id="itemName_" class="form-control itemCls1" onkeyup="itemAutoComplete(event);" readonly name="item_" /><div id="suggesstion-box1_"></div></td>'
+					+ '<td><input type="text" id="reqQty" readonly class="form-control reqQtyCls" value="0"></td>'
+					+ '<td><input type="text" id="totalIssueQty_" readonly class="form-control totalIssueQtyCls" value="0"></td>'
+					+ '<td><input type="text" id="avilQuantity_" readonly class="form-control avilQuantityCls" value="0"></td>'
+					+ '<td><input type="text" id="issueQuantity_" class="form-control  issueQuantityCls" onblur="quantityComparision(event);" onkeyup="checkQty(event)" value=""></td>'
+					+ '<tr>';
+		$("#tbodyData").append(table);
+	}
+}
+
+//Function for getting requisition List On change of requisition number
+function getrequisitionNumberList() {
+    var requisitionNumber = $("#requisitionNumber_").val();
+    if (requisitionNumber) {
+        $('#tbdy').empty();
+        $('#tblid').empty();
+        $(".issuedQuantityCls").text("0");
+        $(".avilQuantityCls").text("0");
+        $(".issueQuantityCls").val("");
+        $.ajax({
+            type: 'POST',
+            url: 'add-issue-note-get-reqList-throughAjax',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: requisitionNumber,
+            success: function(response) {
+                if (response.message == "success") {
+                    for (var i = 0; i < response.body.length; i++) {
+                        table = '<tr><td class="categoryA">' +
+                            response.body[i].itemCategory + '</td><td class="subcategoryA">' +
+                            response.body[i].itemSubCategory + '</td><td class="itemA">' +
+                            response.body[i].item + '</td><td class="quantityA" id="RQ_' + response.body[i].itemId + '" class="quantityB" >' +
+                            response.body[i].iNoteQty + '</td></tr>';
+                        $('#tbdy').append(table);
+                    }
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
+    } else {
+        $("#tbdy").css("color", "red").css("font-size", "13").html('No Record Found');
+        $('#tblid').empty();
+        $(".itemSubCategory").empty();
+        var subCatOption = $("<option></option>");
+        $(subCatOption).val(null);
+        $(subCatOption).html("--Select--");
+        $(".itemSubCategory").append(subCatOption);
+        $(".itemCls").empty();
+        var itemOption = $("<option></option>");
+        $(itemOption).val(null);
+        $(itemOption).html("--Select--");
+        $(".itemCls").append(itemOption);
+        $(".issuedQuantityCls").text("0");
+        $(".avilQuantityCls").text("0");
+        $(".issueQuantityCls").val("");
+    }
+}
+
+//function to validate Quantity field
+function checkQty(event) {
+    var currentId = event.currentTarget.id;
+    checkNum(currentId);
+}
+</script>
+<script type="text/javascript">
+function itemAutoComplete(event) {
+    var currentId = event.currentTarget.id;
+    var currentValue = event.currentTarget.value;
+    var requisitionNumber = $("#requisitionNumber_").val();
+    var l = currentId.split("_");
+    var counter = l[1];
+    currentValue = currentValue + "," + requisitionNumber;
+    if (currentValue && requisitionNumber) {
+        $.ajax({
+            type: "POST",
+            url: "add-issue-note-get-item",
+            dataType: 'json',
+            contentType: 'application/json',
+            data: currentValue,
+            success: function(response) {
+                if (response.message == "success") {
+
+                    if (response.body.length != 0) {
+                        $(currentId).css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list1">';
+                        for (var i = 0; i < response.body.length; i++) {
+                            content += '<li onClick="selectAutocompleteValue1(\'' + response.body[i].itemId + '\',\'' + response.body[i].item + '\',\'' + response.body[i].itemCategory + '\',\'' + response.body[i].itemSubCategory + '\',\'' + counter + '\')">' + response.body[i].item + '</li>';
+                        }
+                        content += '</ul>';
+                        $("#suggesstion-box1_" + counter).show();
+                        $("#suggesstion-box1_" + counter).html(content);
+
+                    } else {
+                        $(currentId).css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list1">';
+                        content += '<li onClick="selectAutocompleteValue2(\'' + counter + '\')">' + "No Data Found" + '</li>';
+                        content += '</ul>';
+                        $("#suggesstion-box1_" + counter).show();
+                        $("#suggesstion-box1_" + counter).html(content);
+                    }
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+        $(currentId).css("background", "#FFF");
+        var content = '<ul id="autocomplete-list1">';
+        content += '<li onClick="selectAutocompleteValue2(\'' + counter + '\')">' + "No Data Found" + '</li>';
+        content += '</ul>';
+        $("#suggesstion-box1_" + counter).show();
+        $("#suggesstion-box1_" + counter).html(content);
+    }
+}
+
+function selectAutocompleteValue1(key, name, itemCategory, itemSubCategory, counter) {
+    if (key) {
+        $("#item_" + counter).val(key);
+        $("#itemCategory_" + counter).val(itemCategory);
+        $("#itemSubCategory_" + counter).val(itemSubCategory);
+        $("#itemName_" + counter).val(name);
+        $("#itemName_" + counter).attr('data-procat', key);
+        $("#suggesstion-box1_" + counter).hide();
+        var check = checkForDuplicate(key, counter);
+        if (check) {
+            getAvlQuantity(key, counter);
+            getIssuedQuantity(key, counter);
+        }
+    } else {
+        $("#item_" + counter).val("");
+        $("#itemCategory_" + counter).val("");
+        $("#itemSubCategory_" + counter).val("");
+        $("#itemName_" + counter).val("");
+        $("#itemName_" + counter).attr('data-procat', "");
+        $("#suggesstion-box1_" + counter).hide();
+    }
+}
+
+function selectAutocompleteValue2(counter) {
+    $("#item_" + counter).val("");
+    $("#itemCategory_" + counter).val("");
+    $("#itemSubCategory_" + counter).val("");
+    $("#itemName_" + counter).val("");
+    $("#itemName_" + counter).attr('data-procat', "");
+    $("#suggesstion-box1_" + counter).hide();
+}
+
+//Function to check  Dupicate Entry Of Item Name
+function checkForDuplicate(name, counter) {
+    var item = name;
+    var count = 0;
+    var itemId = counter;
+    $(".itemCls").each(function() {
+        if (item == $(this).val()) {
+            count++;
+        }
+    })
+    if (count >= 2) {
+        swal('item already selected');
+        $("#item_" + counter).val("");
+        $("#itemName_" + counter).val("");
+        $("#itemName_" + counter).attr('data-procat', "");
+        return false;
+    }
+    return true;
+}
+
+//function for auto filled of tStore name
+function issueNoteAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "add-issue-note-store-autocompleteList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#requisition").val(),
+        success: function(response) {
+            console.log(response);
+            if (response.message == "success") {
+                for (var i = 0; i < response.body.length; i++) {
+                    $("#tStore").val(response.body[i].key);
+                    $("#tStoreId").text(response.body[i].name);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Issue Notes</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Issue Notes</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:object="${issueList}" autocomplete="off">
+								<input type="hidden" id="reqstnIssueNote" th:value="${issue}" />
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Requisition Number</label> <input th:if="${issue}"
+												type="hidden" id="requisitionNumber_"
+												th:value="${issueList[0].itemRequisition}" /> <input
+												type="text" th:if="${issue}" class="form-control"
+												id="requisition" th:value="${issueList[0].itemRequisition}"
+												onkeyup="issueAutoComplete();" /> <input
+												th:unless="${issue}" type="hidden" id="requisitionNumber_" />
+											<input type="text" th:unless="${issue}" class="form-control"
+												id="requisition" onkeyup="issueAutoComplete();" />
+											<div id="suggesstion-box"></div>
+										</div>
+										<div class="form-group">
+											<label>Store Name</label> <input type="hidden" id="tStore"
+												th:if="${issue}" th:value="${issueList[0].tStore}">
+											<input type="hidden" id="tStore" th:unless="${issue}">
+											<label id="tStoreId" th:if="${issue}"
+												class="form-control tStoreCls"
+												th:text="${issueList[0].tStoreName}"> </label> <label
+												id="tStoreId" th:unless="${issue}"
+												class="form-control tStoreCls"></label>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label id="porder">Description</label>
+											<textarea th:if="${issue}" style="height: 70px;" cols="50"
+												rows="4" id="descId" class="form-control textarea"
+												th:text="${issueList[0].iNoteDescription}"></textarea>
+											<textarea th:unless="${issue}" style="height: 70px;"
+												cols="50" rows="4" id="descId" class="form-control textarea"></textarea>
+										</div>
+									</div>
+									<div class="col-lg-6" style="display: none;">
+										<div class="form-group">
+											<label>Status</label> <input type="hidden" id="statusId"
+												th:if="${issue}" th:value="${issueList[0].pINoteActive}">
+											<input type="hidden" id="statusId" th:unless="${issue}"
+												value=false>
+										</div>
+									</div>
+								</div>
+								<!-- <div class="row" style="display: none;">
+									<div class="col-lg-12">
+										<div class="subheading">Requisition Details</div>
+										<table class="tbll" id="myTable1" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Category</th>
+													<th>Sub Category</th>
+													<th>Item Name</th>
+													<th>Quantity</th>
+												</tr>
+											</thead>
+											<tbody id="tblid">
+												<tr th:if="${issue!=null}"
+													th:each="items,iter : ${requisition}">
+													<td bgcolor="#F5F5F5" th:text="${items.itemCategory}"></td>
+													<td bgcolor="#F5F5F5" th:text="${items.itemSubCategory}"></td>
+													<td bgcolor="#F5F5F5" th:text="${items.item}"></td>
+													<td bgcolor="#F5F5F5" th:text="${items.iNoteQty}"></td>
+												</tr>
+											</tbody>
+											<tbody id="tbdy" th:unless="${issue}">
+												<tr>
+													<td colspan="4"><div class="norecord">No Record
+															Found</div></td>
+												</tr>
+											</tbody>
+											<tbody id="tbdy" th:unless="${iss}">
+												<tr><td colspan="4"><div class="norecord">No Record Found</div></td></tr>
+											</tbody>
+										</table>
+									</div>
+								</div> -->
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="subheading">Issue Details</div>
+										<!-- id="table-data" -->
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="2" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Item Name</th>
+													<th>Requisition Quantity</th>
+													<th>Total Issued Quantity</th>
+													<th>Available Quantity</th>
+													<th>Issue Quantity</th>
+													<!-- <th>&nbsp;</th> -->
+												</tr>
+											</thead>
+											<tbody id="tbodyData">
+												<tr class="tr_clone" th:if="${issue}"
+													th:each="a,iter:${issueList}">
+													<td><input type="hidden"
+														th:id="itemCategory_+${iter.index}"
+														th:value="${a.itemCategory}"
+														class="form-control itemCategoryCls" /> <input
+														th:value="${a.itemSubCategory}" type="hidden"
+														th:id="itemSubCategory_+${iter.index}"
+														class="form-control itemSubCategoryCls" /> <input
+														th:value="${a.item}" type="hidden"
+														th:id="item_+${iter.index}" class="form-control itemCls">
+														<input type="text" th:id="itemName_+${iter.index}"
+														readonly class="form-control itemCls1"
+														th:value="${a.itemId}" onkeyup="itemAutoComplete(event);"
+														name="item_" />
+														<div th:id="suggesstion-box1_+${iter.index}"></div></td>
+													<td><input type="text" th:id="reqQty_+${iter.index}"
+														readonly class="form-control reqQtyCls"
+														th:value="${a.reqQty}"></td>
+													<td><input type="text"
+														th:id="totalIssueQty_+${iter.index}" readonly
+														class="form-control totalIssueQtyCls"
+														th:value="${a.totalIssueQty}"></td>
+													<td><input type="text"
+														th:id="avilQuantity_+${iter.index}" readonly
+														class="form-control avilQuantityCls"
+														th:value="${a.avlQty}"></td>
+													<td><input type="text"
+														th:id="issueQuantity_+${iter.index}"
+														class="form-control  issueQuantityCls"
+														onblur="quantityComparision(event);"
+														th:value="${a.iNoteQty}" onkeyup="checkQty(event)"
+														value=''></td>
+												</tr>
+												<tr class="tr_clone" th:unless="${issue}">
+													<td><input type="hidden" id="itemCategory_"
+														class="form-control itemCategoryCls" /> <input
+														type="hidden" id="itemSubCategory_"
+														class="form-control itemSubCategoryCls" /> <input
+														type="hidden" id="item_" class="form-control itemCls">
+														<input type="text" id="itemName_" readonly
+														class="form-control itemCls1"
+														onkeyup="itemAutoComplete(event);" name="item_" />
+														<div id="suggesstion-box1_"></div></td>
+													<td><input type="text" id="reqQty_" readonly
+														class="form-control reqQtyCls" value="0"></td>
+													<td><input type="text" id="totalIssueQty_" readonly
+														class="form-control totalIssueQtyCls" value="0"></td>
+													<td><input type="text" id="avilQuantity_" readonly
+														class="form-control avilQuantityCls" value="0"></td>
+													<td><input type="text" id="issueQuantity_"
+														class="form-control  issueQuantityCls"
+														onblur="quantityComparision(event);"
+														onkeyup="checkQty(event)" value=''></td>
+													<!-- <td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td> -->
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="form-group">
+											<button type="button" id="submitItems"
+												class="btn btn-success">Submit</button>
+											<button type="button" class="btn btn-warning"
+												onclick="returnToAddPage();">Cancel</button>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- </div>
+		</div> -->
+		<div style="clear: both;"></div>
+	</div>
+</div>
+</html>

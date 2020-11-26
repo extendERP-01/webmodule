@@ -1,0 +1,171 @@
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Item Requisition Report</title>
+	<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet"/> 
+	<style type="text/css">
+			body {
+				font-family: 'Montserrat', sans-serif;
+				margin: 0;
+				padding: 0;
+				font-size: 12px;
+				/* background: #fff url(http://localhost:8051/assets/images/invoicebg.png) no-repeat; */
+			}
+			.logotext {
+				font-size: 20px;
+				color: #2952a4;
+				padding: 5px;
+			} 
+			.heading {
+				font-size: 20px;
+				color: #2952a4;
+				padding: 5px;
+				text-align: center;
+				font-weight: bold;
+			}
+			.slogan {
+				font-size: 14px;
+				color: #f26304;
+				padding: 5px;
+			}
+			.containersec {
+				width: 800px;
+				margin: 0 auto;				
+			}
+			.address {
+				font-size: 14px;
+				text-align:left;
+				padding-right: 120px;
+			}
+			
+			.maintbl tr td {
+			  border-collapse: collapse;
+			  padding: 12px 5px;
+			}
+			.tableheader{
+			  padding: 5px;
+			  background:#95BFE3;
+			}
+						
+			.total {
+				background: #f9965a;
+				color: #FFF;
+				padding: 8px 5px;
+				text-align: left;
+				font-weight: bold;
+			}
+			.description {
+				padding: 20px 0px;
+				line-height: 20px;
+			}
+			.declair {
+				padding: 20px 0px;
+				line-height: 20px;
+			}
+			.declair span {
+				background: #b3caf7;
+				text-transform: uppercase;
+				color: #000;
+			}
+			.points {
+				padding: 20px 0px;
+				line-height: 26px;
+			}
+			.points span {
+				background: #b3caf7;
+				text-transform: uppercase;
+				color: #000;
+				padding: 5px 10px;
+				border-radius: 12px;
+				margin: 3px;
+			}
+			.bill{
+				color: #000;
+				text-align: center;
+				font-size:18px;
+				font-weight:bold;
+				width:690px;
+				}
+			.strip2 {
+			    margin-top: 60px;
+			    width: 800px;
+			    height: 20px;
+			    line-height:20px;
+			    padding: 2px;		
+			    text-align: center;		    
+			    background-color: #d0e6f8;
+			    margin-bottom: 12px;
+			   }
+				.lefttag
+				{width:160px; float:left; text-align:right; padding:5px;}
+				.righttag
+				{text-align:left;padding:5px;}
+				.note { 
+				    font-size: 12px;
+				    color: #333;
+				    height: 80px;
+				    width: 300px;
+				    border: 1px solid #333;
+				}
+			  .clearfix
+			  { clear:both;}
+			</style>
+</head>
+<body>
+	<div class="containersec">
+		<table width="800" height="100%">
+				    <tr>
+				    <td colspan="2"><div class="bill">Item Requisition Report</div></td>
+				    </tr>
+					<tr>
+						<td valign="top"><img th:src="@{classpath:static/assets/images/login_img/extend.png}" height="80" width="150" />
+						 
+						</td>							
+						 <td align="left" class="address" width="280">
+						   <div class="lefttag">Printed By : </div> <div class="righttag" th:text="${printedBy}"></div>
+						   <div class="clearfix"></div>
+						   <div class="lefttag">Print Date : </div> <div class="righttag" th:text="${printDate}"></div>						  						  
+						</td> 
+					</tr>			
+            <tr>
+				<td colspan="2" bgcolor="#cedefd"></td>
+			</tr>
+			
+			<tr>
+				<td colspan="2">
+					<table width="680" class="maintbl">
+						<thead>
+						<tr>
+										<th class="tableheader">Sl. No.</th>
+										<th class="tableheader">Cost Center Name</th> 
+										 <th class="tableheader">Expected Date</th>
+										 <th class="tableheader">Requisition Type</th>
+										 <th class="tableheader">Requisition Date</th>
+										 <th class="tableheader">Status</th>
+										 
+						</tr>
+						</thead>
+						<tbody th:if="${not #lists.isEmpty(itemRequisition)}">
+						<tr th:each="items,iter : ${itemRequisition}">
+							<td bgcolor="#F5F5F5" th:text="${iter.index+1}"></td>
+							<td bgcolor="#F5F5F5" th:text="${items.costCenter}"></td>
+							<td bgcolor="#F5F5F5" th:text="${items.iRExpectedDate}"></td>
+						    <td bgcolor="#F5F5F5" th:text="${items.iRType}"></td>
+						    <td bgcolor="#F5F5F5" th:text="${items.createdDate}"></td>
+						    <td bgcolor="#F5F5F5" th:text="${items.status}"></td>
+						</tr>
+						</tbody>
+						<tbody th:unless="${not #lists.isEmpty(itemRequisition)}">
+							<tr ><td colspan="18" align="center" bgcolor="#F5F5F5">No Record Found</td></tr>
+							</tbody>
+				    </table>	
+			</td>
+		</tr>
+			
+			
+		</table>
+		
+		
+   </div>
+</body>
+</html>

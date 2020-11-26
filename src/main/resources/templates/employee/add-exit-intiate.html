@@ -1,0 +1,640 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 96%;
+	position: absolute;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script>
+
+function empAutoComplete() {
+	
+	var empid = $("#empId").val();
+	if(empid) {
+		
+		$.ajax({		
+			type : "POST",
+			url : "add-exit-initiate-empAutoComplete",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : empid,
+			success : function(response) {
+				console.log(response);
+				if (response.message == "success") {
+					
+				if(response.body.length!=0)	{
+					console.log("if: "+response);
+					$("#empId").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						
+						console.log(response)
+							content += '<li onClick="selectAutocompleteValue1(\''+response.body[i].empId+'\',\''+response.body[i].empName+'\',\''+response.body[i].empDepartment+'\',\''+response.body[i].empDepName+'\')">'+response.body[i].empId+'</li>';
+					} 
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+					
+				}
+				else {
+					console.log("else: "+response);
+					$("#empId").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+				}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	} else {
+		swal({
+			title	:	"Please Select Employee Id",
+			type	:	"warning",
+		})
+		$("#empId").val("");
+		$("#suggesstion-box1").hide();
+	}
+}
+function selectAutocompleteValue1(empId,empName,empDepartment,empDepName) {
+	if (empId) {
+		
+		$("#empId").val(empId);
+		$("#empName").val(empName);
+		$("#department").val(empDepartment);		
+		$("#empDepName").val(empDepName);
+		
+		$("#empId").attr('data-procat', empId);
+		$("#suggesstion-box1").hide();
+	} else {
+		$("#empId").val("");
+		$("#empName").val("");
+		$("#department").val("");
+		$("#suggesstion-box1").hide();
+		
+		$("#empId").attr('data-procat', "");
+	}
+}
+</script>
+<script>
+/* Function for blank validation */
+
+function checkEmpty(){
+	var depCls =true;
+	$("#myTable > tbody > tr").each(function(i){		
+	$('.depCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Department")){
+				depCls =false;
+				return false;
+		 		}
+			});
+	});
+	 var personCls = true;
+	if(personCls){
+		$("#myTable > tbody > tr").each(function(i){			
+		$(".personCls").each(function(){
+			if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Person Class")){
+				personCls =false;
+				return false;
+		 		}	
+		});
+	 });
+	} 	
+	 var commentCls = true;
+		if(personCls && depCls){
+			$("#myTable > tbody > tr").each(function(i){			
+			$(".commentCls").each(function(){
+				if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select comment")){
+					commentCls =false;
+					return false;
+			 		}	
+			});
+		 });
+		} 	
+	if(depCls && personCls && commentCls){
+		addMore();
+	}
+}
+/* Function for adding more Table row */
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var lengthOfTableCol = $("#tbodyData").children('colspan').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	$("#myTable tbody tr:last").find('.depCls').val("");
+	$("#myTable tbody tr:last").find('.personCls').val("");
+	$("#myTable tbody tr:last").find('.clearanceCls').prop('checked', false);
+	$("#myTable tbody tr:last").find('.commentCls').val("");
+
+
+	var editTr = 0;
+
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+
+ /* BLANK FIELD START */
+	$("#myTable tbody tr:last").find(".depCls").val("");
+	
+	
+
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input') ;
+		var divInput = $(this).find('div') ;
+		var buttonInput = $(this).find('button') ;
+		
+		selectInput.eq(0).attr('id',"dep_"+i); 	
+		//textInput.eq(textInput.length-1).attr('id',"spGravityW1_"+i);
+		 selectInput.eq(1).attr('id',"person_"+i); 	
+		 textInput.eq(0).attr('id',"clearance_"+i); 	
+		 textInput.eq(1).attr('id',"comment_"+i); 	
+
+	})
+}
+$(document).ready(function(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var lengthOfTableCol = $("#tbodyData").children('colspan').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		
+	});
+	
+/* Function for saving data */
+
+	$("#submitItems").click(function(){			
+		var dataset = [];
+		var serialNo = 1;
+		$("#tbodyData > tr").each(function(i){				
+			item = {};	
+			item['empId']				=	$("#empId").val();	
+			item['empName']				=	$("#empName").val();	
+			item['manager']				=	$("#manager").val();	
+			item['empDepartment']		=	$("#empDepartment").val();	
+			item['intiateId']			=	$("#isEdit").val();	
+			
+			item['department']			=	$(this).find(".depCls").val();
+			item['person']		 		=	$(this).find(".personCls").val();
+			item['clearanceStatus']		=	$(this).find("input:checkbox[name=clearanceStatus]:checked").val();
+			item['comment']		 	=	$(this).find(".commentCls").val();
+		
+			dataset.push(item);			
+			
+		});
+		
+		console.log(item);
+		console.log(dataset)	
+		/* table tbody tr loop ends */
+		//submitExitInitiate(dataset);
+
+	/* Blank Validations */
+
+		if (!blankValidation("empId","SelectBox" ,"Please Select Employee Id "))
+			return false;
+		if (!blankValidation("empName","TextField" ,"Please Select Employee Name"))
+			return false;
+		
+		 if (!blankValidation("manager","TextField" ,"Please Select Manager  Name"))
+			return false;
+		 if (!blankValidation("empDepartment","TextField" ,"Please Select Department"))
+				return false;
+	
+		var v =true;
+		$('.depCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select volume")){		
+					v =false;
+					return false;
+				}
+		});
+
+		var wa =true;
+		if(v){
+			$('.personCls').each(function(){
+	      if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Wa")){		
+						wa =false;
+						return false;
+				}
+
+			});
+		}
+		var wb =true;
+		if(v && wa){
+			$('.dLBDWbCls').each(function(){
+	      if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Wb")){		
+						wb =false;
+						return false;
+				}
+
+			});
+		}
+		if(v && wa && wb){
+			submitExitInitiate(dataset);
+		}
+
+	});
+});
+
+
+
+/* Function for Submit PupUp */
+
+function submitExitInitiate(dataset){
+	
+	const ipAPI = 'https://api.ipify.org?format=json'
+	swal.fire({
+		title	: "Are you sure want to Submit?",
+		text	: "Once Submited,Can't revert back !",
+		type : "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+		preConfirm: () => {
+			return fetch(ipAPI)
+			.then(response => response.json())
+			.then(data => Swal.insertQueueStep(data.ip))
+			.catch(() => {
+				Swal.insertQueueStep({
+				type: 'error',
+				title: 'Unable to get your public IP'
+				, })
+			})
+		} 
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "POST",
+				url : "add-exit-initiate",
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(dataset),
+				success	: function(response){
+					if(response.message=="Success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							var agg = $("#coarseagg").val();
+						window.location.href = "/employee/view-exit-initiate" ;
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error	: function(data){
+					console.log(data);	
+				}
+		}) //ajax ends
+	}
+	})//swal function block ends
+}//submit function ends
+
+//Function for cancel button
+
+function funcLoad(){
+	location.reload();
+} 
+ function returnToAddPage(){
+	var item = $("#isEdit").val();
+	if((item == null)||(item == "")){
+		funcLoad();
+	}
+	else{
+		var agg = $("#coarseagg").val();
+		window.location.href = "/qualitycontrol/view-bulk-density?id="+agg ;
+	}
+} 
+
+//function to check duplicate entry of user role   in edit time
+	function checkForDuplicateEntry(event) {
+		var sieve = event.currentTarget.value;
+		var count = 0;
+		var sieveId = event.currentTarget.id;	
+		var i = 1;
+		var l = sieveId.split("_");
+		var counter = l[1];	
+		
+		$(".qcSandsieveSizeCls").each(function() {		
+			if (sieve == $(this).val()) {
+				count++;	
+				//alert(counter)
+			}			
+		})
+		if (count >= 2) {			
+			swal('This Sand Sieve is arleady selected');
+			$("#" + sieveId).val("");
+			$("#qcSandWt_"+counter).empty();			
+		}
+		
+	}
+//function to check duplicate entry of user role name in add time
+	function disableTableOption(){
+
+		$("#myTable > tbody > tr").each(function(i){
+			$(".qcSandsieveSizeCls option").prop("disabled", false); //enable everything
+	
+			var arr = $.map(
+			$(".qcSandsieveSizeCls option:selected"), function (n) {
+				return n.value;
+			});
+	
+			$(".qcSandsieveSizeCls option").filter(function () {
+				return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+			}).hide();
+	
+	
+			$(".qcSandsieveSizeCls option").filter(function () {
+				return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+			}).show();
+		})
+		}	
+		function displayTable(){
+			$("#myTable > tbody > tr").each(function(i){
+				var arr = $.map(
+				$(".qcSandsieveSizeCls option:selected"), function (n) {
+					return n.value;
+				});
+				$(".qcSandsieveSizeCls option").filter(function () {
+					return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+				}).show();
+			})
+		}
+
+
+
+
+function numberOnly(e) {
+	id=e.currentTarget.id;
+	checkNum(id);
+}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Exit Initiate</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Exit Initiate</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+						<!-- 	<form th:object="${exitInitiateModel}" autocomplete="off"> -->
+							<form th:object="${exitInitiateModel}" autocomplete="off">
+							<input type="hidden" id="isEdit" th:value="${id}" />
+							<input type="hidden" id="intiateId" th:value="${intiateId}" />  
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Employee Id</label> 
+											<input
+												type="text" th:if="${id}" class="form-control"
+												id="empId" 
+												th:value="${exitInitiateModel[0].empId}" onkeyup="empAutoComplete();" readOnly>
+											<input type="text" th:unless="${id}" class="form-control"
+												th:value="${empId}" id="empId" th:name="empId" onkeyup="empAutoComplete();" readOnly> 
+										</div>
+									<!-- 	<div id="suggesstion-box1"></div> -->
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Employee Name.</label>
+												<input
+												type="text" th:if="${id}" class="form-control"
+												id="empName" 
+												th:value="${exitInitiateModel[0].empName}" readOnly >
+											<input type="text" th:unless="${id}" class="form-control"
+												id="empName" th:name="empId" th:value="${empName}" readOnly> 
+										</div>
+										
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Manager</label> <select class="form-control"
+												id="manager" >
+												<option th:value="null">--Select--</option>
+											<option th:if="${id}" th:each="c:${EmployeeList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==exitInitiateModel[0].manager}" ></option>
+												<option th:unless="${id}" th:each="c:${EmployeeList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+
+											</select>
+										</div>
+									</div>
+								 	<div class="col-lg-6">
+										<div class="form-group">
+											<label>Department</label> 
+										
+										<select class="form-control"
+												id="empDepartment" disabled>
+												<option th:value="null">--Select--</option>
+											<option th:if="${id}" th:each="c:${DepartmentList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==exitInitiateModel[0].empDepartment}" ></option>
+												<option th:unless="${id}" th:each="c:${DepartmentList}"
+													th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==deptId}" ></option>
+
+											</select>
+										
+										
+										
+											<!-- <input
+												type="text" th:if="${id}" class="form-control"
+												id="empDepName" 
+												th:value="${exitInitiateModel[0].empDepartment}" >
+											<input type="text" th:unless="${id}" class="form-control"
+												id="empDepName" th:name="empDepName" th:value="${deptId}" > 
+											<input
+												type="hidden" th:if="${id}" class="form-control"
+												id="empDepartment" 
+												th:value="${exitInitiateModel[0].empDepartment}" >
+											<input type="hidden" th:unless="${id}" class="form-control"
+												id="empDepartment" th:name="empDepartment" th:value="${deptId}" > --> 
+										</div>
+									</div> 
+									
+								
+								</div>
+								
+								<!-- </div> -->
+								<hr>
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="2" cellpadding="5">
+											<thead>
+												<tr>
+													<!-- <th>Sl No.</th> -->
+													<th>Department</th>
+													<th>Person</th>
+													<th>ClearanceStatus</th>
+													<th>Comment</th>
+												
+													<th>Action</th>
+												</tr>
+											</thead>
+											<!-- for edit -->
+											<tbody id="tbodyData">
+												<tr class="tr_clone" th:if="${id}"
+													th:each="a,iter:${exitInitiateModel}">
+											<!-- 	<td valign="top"><input type="text" class="form-control" readonly
+															th:value="${iter.index + 1}"></td> -->
+													<td valign="top">
+											
+														<select  th:id="'dep_'+${iter.index}"
+														class="form-control depCls">
+														<option  th:each="c:${DepartmentList}"
+													th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==a.department}"  ></option>
+													</select>
+													</td>
+												   <td valign="top">
+												   <select  th:id="'person_'+${iter.index}" 
+														class="form-control personCls">
+														<option  th:each="c:${EmployeeList}"
+													th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==a.person}" ></option>
+													</select>
+													
+													</td>
+													<td valign="top"><input type="checkbox"  id="clearance_0" value="true" name="clearanceStatus"
+														class="form-control clearanceCls"  th:checked="${a.clearanceStatus}">
+													</td>
+													<td valign="top">	<input type="text"  id="comment_0" value=""
+														class="form-control commentCls" th:value="${a.comment}"></td>
+													
+													<td valign="top">
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+													</td>
+												</tr> 
+												<!-- for add  -->
+											 <tr class="tr_clone" th:unless="${id}"> 
+												<!-- <tr class="tr_clone"> -->
+													<td valign="top">
+													<select  id="dep_0" value=""
+														class="form-control depCls">
+														<option  th:each="c:${DepartmentList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+													</select></td>
+													<td valign="top">
+													<select  id="person_0" value=""
+														class="form-control personCls"><option  th:each="c:${EmployeeList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+													</select></td>
+													<td valign="top">
+													<input type="checkbox"  id="clearance_0" value="true" name="clearanceStatus"
+														class="form-control clearanceCls">
+													</td>
+													<td valign="top">
+													<input type="text"  id="comment_0" value=""
+														class="form-control commentCls"></td>
+													
+							
+													<td valign="top">
+														<button type="button" class="btn btn-primary tr_clone_add"
+															name="add" onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+
+							</form>
+						</div>
+
+					</div>
+					<div class="row">
+						<div class="form-group">
+							<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+							<button type="button" class="btn btn-warning"
+								onclick="returnToAddPage();">Cancel</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div style="clear: both;"></div>
+</html>

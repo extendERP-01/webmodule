@@ -1,0 +1,1115 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+select {
+	width: 500px;
+}
+
+.selectBox {
+	position: relative;
+}
+
+.selectBox select {
+	width: 100%;
+	font-weight: bold;
+}
+
+.overSelect {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.staffDesign {
+	background-color: rgb(167, 188, 206);
+	background-color: rgba();
+	color: white;
+	text-align: center;
+	font-size: 14px;
+	display: block;
+}
+
+.staffDesign .fa-caret-down {
+	font-size: 17px;
+	position: relative;
+	top: 1px;
+	left: 101px;
+}
+
+#checkboxes {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+#checkboxes label {
+	display: block;
+}
+
+.middle {
+	transition: .5s ease;
+	opacity: 0;
+	position: absolute;
+	top: 26%;
+	left: 120px;
+	transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	text-align: center;
+}
+
+.dinning:hover .middle {
+	opacity: 1;
+}
+
+.text {
+	background-color: rgba(28, 245, 58, 0.8);
+	background-color: rgba();
+	color: white;
+	position: relative;
+	right: 68px;
+	border-radius: 50%;
+	padding: 10px;
+	font-size: 12px;
+	display: block;
+	width: 120px;
+}
+
+#checkboxes label:hover {
+	background-color: #1e90ff;
+}
+
+.ulbg {
+	background-color: rgba(66, 139, 202, 0.3);
+	color: #2c61e1;
+	width: 92%;
+}
+
+.ulbg li {
+	border-bottom: 1px solid #fff;
+	padding: 5px;
+}
+
+/* The container */
+.dinning {
+	display: block;
+	position: relative;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+/* Hide the browser's default checkbox */
+.dinning input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+/* Create a custom checkbox */
+.checkmark {
+	position: absolute;
+	top: 40px;
+	left: 35px;
+	height: 25px;
+	width: 25px;
+}
+
+.dinning  input:checked ~ .checkmark {
+	/*  background-color: #2196F3;*/
+	
+}
+
+.checkmark:after {
+	content: "";
+	position: absolute;
+	display: none;
+}
+/* Show the checkmark when checked */
+.dinning  input:checked ~ .checkmark:after {
+	display: block;
+}
+/* Style the checkmark/indicator */
+.dinning  .checkmark:after {
+	left: 6px;
+	top: -7px;
+	width: 18px;
+	height: 27px;
+	border: solid #6880fb;
+	border-width: 0 3px 3px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
+.table-tick {
+	width: 100%;
+}
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	/* width: 570px; */
+	position: absolute;
+	z-index: 9999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f2f2f2;
+	border-bottom: 1px solid #373757;
+	color: #373757;
+	font-weight: 500;
+}
+
+#autocomplete-list li:hover {
+	background: #373757;
+	color: #f2f2f2;
+	cursor: pointer;
+}
+
+.panel-heading {
+	padding: 0;
+	border: 0;
+}
+
+.panel-title>a, .panel-title>a:active {
+	display: block;
+	padding: 9px;
+	color: #555;
+	font-size: 13px;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	word-spacing: 3px;
+	text-decoration: none;
+}
+
+.panel-heading  a:before {
+	font-family: 'FontAwesome';
+	content: "\f078";
+	float: right;
+	transition: all 0.5s;
+}
+
+.panel-heading.active a:before {
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
+</style>
+<style>
+.form-box {
+	background-color: rgba(91, 202, 239, 0.1);
+	border: 1px solid transparent;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+label {
+	font-weight: 500;
+	margin-bottom: 0px;
+	color: #19559e;
+	font-size: 13px;
+}
+
+.form-control {
+	border: 1px solid rgb(229, 244, 249);
+}
+
+.heading {
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.content span {
+	color: #ff5f5f;
+}
+</style>
+<script src="../assets/js/dob-validation.js"></script>
+<script type="text/javascript">
+
+
+
+
+
+	//Dropdown for State Name
+	$(document).ready(function() {
+		
+		$("#modalDiv").hide();
+		//date time picker
+		$( "#tEmpDOB" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		
+		timepicker : false,
+		})
+		
+		//date time picker
+		$( "#tEmpDOJ" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+	
+		timepicker : false,
+		})
+		
+		
+		
+		
+		$("#tCountry").on('change', function() {
+			var tCountry = $(this).val();
+			console.log(tCountry);
+			if (tCountry) {
+				$("#tDistrict").empty();
+				var option = $("<option></option>");
+				$(option).val(null);
+				$(option).html("Select");
+				$("#tDistrict").append(option);
+				$.ajax({
+					type : 'POST',
+					url : '/employee/add-offer-letter-dtls-stateName-ajax',
+					contentType : false,
+					data : tCountry,
+					success : function(response) {
+						if (response.message == "success") {
+							$("#tState").empty();
+
+							var option = $("<option></option>");
+							$(option).val(null);
+							$(option).html("Select");
+							$("#tState").append(option);
+							for (var i = 0; i < response.body.length; i++) {
+								var option = $("<option></option>");
+								$(option).val(response.body[i].key);
+								$(option).html(response.body[i].name);
+								$("#tState").append(option);
+							}
+						}
+					},
+					error : function(e) {
+						alert("error");
+					}
+				});
+			} else {
+				$("#tState").empty();
+				var option = $("<option></option>");
+				$(option).val(null);
+				$(option).html("Select");
+				$("#tState").append(option);
+				$("#tDistrict").empty();
+				var option = $("<option></option>");
+				$(option).val(null);
+				$(option).html("Select");
+				$("#tDistrict").append(option);
+			}
+		});
+	});
+
+	//Dropdown for District Name
+	$(document).ready(function() {
+		$("#tState").on('change', function() {
+			var tState = $(this).val();
+			console.log(tState);
+			if (tState) {
+
+				$.ajax({
+					type : 'POST',
+					url : '/employee/add-offer-letter-dtls-districtName-ajax',
+					contentType : false,
+					data : tState,
+					success : function(response) {
+						if (response.message == "success") {
+							$("#tDistrict").empty();
+
+							var option = $("<option></option>");
+							$(option).val(null);
+							$(option).html("Select");
+							$("#tDistrict").append(option);
+							for (var i = 0; i < response.body.length; i++) {
+								var option = $("<option></option>");
+								$(option).val(response.body[i].key);
+								$(option).html(response.body[i].name);
+								$("#tDistrict").append(option);
+							}
+						}
+					},
+					error : function(e) {
+						alert("error");
+					}
+				});
+			} else {
+				$("#tDistrict").empty();
+				var option = $("<option></option>");
+				$(option).val(null);
+				$(option).html("Select");
+				$("#tDistrict").append(option);
+			}
+		});
+	});
+	</script>
+<script>
+	$(document).ready(function() {
+	//on change function
+	$("#tPayGrade").on('change', function() {
+		var tPayGrade = $(this).val();
+		
+		console.log(tPayGrade);
+		if (tPayGrade) {
+
+			$.ajax({
+				type : 'POST',
+				url : '/employee/add-offer-letter-dtls-salaryComponent-ajax',
+				contentType : false,
+				data : tPayGrade,
+				success : function(response) {
+					if (response.message == "success") {
+						$('#tbodyData').empty();
+						console.log("date are " + response)
+						var divContent=[];
+						var j=0;
+						cnt=0;
+
+						for (var i = 0; i < response.body.length; i++) {
+							 var calType = "";
+								if (response.body[i].calculationType==1) {
+									calType = "flat amount";
+								} else if (response.body[i].calculationType==2) {
+									calType = "% of basic pay";
+								} else{
+									calType = "% of CTC ";
+								}
+							cnt=cnt+1;
+							divContent.push("<tr>"
+									+"<td><label id='slNo_"+i+"' class='form-control slNoCls'>" + ++j +"</label></td>"
+									+ "<td><input type='text' id='salaryComponent_"+i+"' value='" + response.body[i].salaryComponent + "' class='form-control salaryComponentCls' onkeyup='itemAutoComplete(this.id);'/><div id='suggesstion-box'></div></td>"
+									+ "<td><input type='text' id='calculationType_"+i+"' value='"+calType+ "' class='form-control calculationTypeCls' /></td>"
+									+"<td><input type='text' id='monthlyAmnt_"+i+"'  class='form-control monthlyAmntCls'/></td>"
+									+"<td><input type='text' id='annualAmnt_"+i+"'  class='form-control annualAmntCls'  onkeyup='calculateAnnualAmount(event);'/></td>"
+									+ "<td><input type='hidden' id='variableAmnt_"+i+"' value='" + response.body[i].variableAmnt + "' class='form-control variableAmntCls' /></td>"
+									+ "<td><input type='hidden' id='calculationTypeId_"+i+"' value='" + response.body[i].calculationType + "' class='form-control calculationTypeIdCls' /></td>"
+									+ "<td><input type='hidden' id='tComponentId_"+i+"' value='" + response.body[i].tComponentId + "' class='form-control tComponentIdCls' /></td></tr>");
+			
+						}
+						$("#tbodyData").append(divContent);
+					}
+				},
+				error : function(e) {
+					alert("error");
+				}
+			});
+		} else {
+			$("#salaryComponent").empty();
+			var option = $("<option></option>");
+			$(option).val(null);
+			$(option).html("Select");
+			$("#ChairName").append($("<option value> select</option>"));
+			$("#tUser").empty();
+			$("#tUser").append("<option value='NULL'>Select</option>");
+			$("#status").empty();
+			$("#status").append("<option value='NULL'>Select</option>");
+			}
+	});
+
+
+	//Function for saving data
+
+
+$("#submitItems").click(function(){
+var dataset = [];
+$("#tbodyData > tr").each(function(){
+item = {};
+item['tOfferLetterId']	        	=  $("#tOfferLetterId").val();
+item['tEmpFName']	        	 	=  $("#tEmpFName").val();
+item['tEmpMName']         			=  $("#tEmpMName").val();
+item['tEmpLName']	           		=  $("#tEmpLName").val();
+item['tEmpDOB']	        	 		=  $("#tEmpDOB").val();
+item['tNationality']   				=  $("#tNationality").val();
+item['tMobileNo']	      			=  $("#tMobileNo").val();
+//item['tEmpImage']	        		=  $("#tEmpImage").val();
+item['tEmpGender']	        		=  $("#tEmpGender").val();
+item['tEmpMarritalStatus']	       	=  $("#tEmpMarritalStatus").val();
+item['tJobTitle']	        		=  $("#tJobTitle").val();
+item['tPayGrade']   				=  $("#tPayGrade").val();
+item['tCountry']	        		=  $("#tCountry").val();
+item['tState']         				=  $("#tState").val();
+item['tDistrict']	            	=  $("#tDistrict").val();
+item['tPinCode']	        		=  $("#tPinCode").val();
+item['tAddress']   					=  $("#tAddress").val();
+item['tEmailId']	               	=  $("#tEmailId").val();
+item['tEmpDOJ']	        			=  $("#tEmpDOJ").val();
+item['tAnnualCTC']   				=  $("#tAnnualCTC").val();
+item['tComponentId']   			=  $(this).find(".tComponentIdCls").val();
+item['calculationType']   		=  $(this).find(".calculationTypeIdCls").val();
+item['monthlyAmnt']   			=  $(this).find(".monthlyAmntCls").val();
+item['tAnnualAmount']   		=  $(this).find(".annualAmntCls").val();
+item['variableAmnt']   			=  $(this).find(".variableAmntCls").val();
+item['reqisitionId']	= 	$("#reqId").val();
+item['candidateId']		=	$("#candId").val();
+	
+	
+	dataset.push(item);
+
+});//table tbody tr loop ends
+
+ if (!blankValidation("tEmpFName","TextField" ,"Please Enter Employee First Name"))
+return false;
+
+if (!blankValidation("tEmpLName","TextField", "Please Enter Employee Last Name"))
+	return false;
+
+if (!blankValidation("tEmpDOB","TextField", "Please Enter Employee Date of Birth"))
+	return false;
+if (!blankValidation("tNationality","SelectBox", "Please Select Nationality"))
+	return false;
+if (!blankValidation("tMobileNo","TextField", "Please Enter Mobile No."))
+	return false;
+if (!checkMobileNumberIN("tMobileNo",
+"Please Enter A Valid Mobile Number"))
+	return false;
+if (!blankValidation("tEmpGender","SelectBox", "Please Select Gender"))
+	return false;
+if (!blankValidation("tEmpMarritalStatus","SelectBox", "Please Select Marital Status"))
+	return false;
+if (!blankValidation("tPayGrade","SelectBox", "Please Select Pay Grade"))
+	return false;
+if (!blankValidation("tJobTitle","SelectBox", "Please Select Job Title"))
+	return false;
+if (!blankValidation("tEmpDOJ","TextField", "Please Enter Date Of Joining"))
+	return false;
+if (!blankValidation("tCountry","SelectBox", "Please Select Country"))
+	return false;
+if (!blankValidation("tState","SelectBox", "Please Select State"))
+	return false;
+if (!blankValidation("tDistrict","TextField", "Please Enter District"))
+	return false;
+
+if (!blankValidation("tAddress","TextField", "Please Enter Address"))
+	return false;
+if (!blankValidation("tPinCode","TextField", "Please Enter Pin Code"))
+	return false;
+if (!fieldLengthCheck("tPinCode", 6, "Zip Code", "Min"))
+	return false;
+if (!fieldLengthCheck("tPinCode", 6, "Zip Code", "Max"))
+	return false;
+if (!blankValidation("tEmailId","TextField", "Please Enter EmailId"))
+	return false; 
+
+
+
+		submitAddKRAMeasure(dataset);
+
+
+	});
+	
+});	
+
+	function submitAddKRAMeasure(dataset){
+
+		console.log(dataset)
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+		
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down',
+			showLoaderOnConfirm	: true,
+			preConfirm: () => {
+							return new Promise((resolve) => {
+								setTimeout(() => {
+									console.log("Doing async operation");
+									resolve()
+								}, 3000)
+							})
+						}
+
+		}).then((result) => {
+			if(result.value){ 
+				
+				$.ajax({
+				type		: "POST",
+				url 		: "/employee/add-offer-letter-dtls",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					console.log(response);
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/employee/View-offer-letter-dtls" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(response){
+					swal(response.code);	
+				}
+			})  //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+	
+
+	
+	
+	// Email validation
+	function validateEmail(email) {
+		var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+		if (reg.test(email.value) == false) {
+			swal('Invalid Email Address');
+			$("#" + email.id).val('');
+			return false;
+		}
+
+		return true;
+
+	}
+ 
+	  function calculateMonthlyAmount(){
+		
+	  	var amnt = 0;
+		var total = 0;
+		var grandTotal = 0;
+		cnt=0;
+	  	$(".variableAmntCls").each(function(i){
+	  		amnt = parseFloat($(this).val());
+	  		var varAmnt=$("#variableAmnt_"+cnt).val();
+	  		var calType=$("#calculationType_"+cnt).val();
+	  		var ctc=$("#tAnnualCTC").val();
+	     	var basic=$("#annualAmnt_0").val();
+	      
+	  		if (calType=="flat amount") {
+	  			grandTotal = varAmnt-0;
+	  			total = grandTotal/12;
+			} else if (calType=="% of basic pay") {
+				grandTotal = (varAmnt/100)*basic;
+				total = grandTotal/12;
+			} else{
+				grandTotal =(varAmnt/100)*ctc;
+				total = grandTotal/12;
+			}
+	  		$('#annualAmnt_'+cnt).val((grandTotal).toFixed(2));
+	  		$('#monthlyAmnt_'+cnt).val((total).toFixed(2));
+	  	
+	  		cnt=cnt+1;
+
+	  	})	  	
+	  
+	 
+		
+	  }
+
+	
+	//Annual amount
+	
+	  function calculateAnnualAmount(event){
+			var crrentId = event.currentTarget.id;
+			var crrentValue = event.currentTarget.valua
+			var l = crrentId.split("_");
+			var cnt = l[1];	
+			  var totalAnnualAmount = 0;
+		  var ctc=$("#tAnnualCTC").val();
+		  var yearly=$("#annualAmnt_"+cnt).val();
+		
+		  var amnt=yearly/12;
+		$("#monthlyAmnt_"+cnt).val((amnt).toFixed(2));
+		  var total = 0;
+		  var monthlyTotal = 0;
+		 	$(".annualAmntCls").each(function(i){
+		 		totalAnnualAmount = parseFloat($(this).val());
+		 		total=total+totalAnnualAmount;
+		 	
+		 		$('#tAnnualAmnt').val((total).toFixed(2));
+		 	
+		 		cnt=cnt+1;
+		 		
+		 	})	 
+		
+		  if (total!=ctc) {
+			  $("#modalDiv").show();
+			} else {
+			$("#modalDiv").hide();
+			}
+		  }
+	
+	
+	//function to upload image
+		
+		 function saveFile() {
+				$("#upload_prev").empty();
+				var uFile = $('#fileUpload')[0].files[0]; 
+				var fileName = $('#fileUpload').val();
+				var lastIndex = fileName.lastIndexOf("\\");
+				if(lastIndex >= 0) {
+					fileName = fileName.substring(lastIndex + 1);
+				}
+				var iURL = URL.createObjectURL(uFile);
+				$("#uploadedImgDiv").html("");
+				var LightImg =  '<a class="example-image-link" href='+iURL+' title="'+fileName+'" target="_blank" >Preview</a>';
+				$("#uploadedImgDiv").html(LightImg);
+				
+				var fileData = new FormData();
+				fileData.append('file',uFile);
+				fileData.append('path','none');
+				
+				$.ajax({
+					type        : "POST",
+					url         : "/employee/uploadEmployeeImageFile",
+					enctype     : "multipart/form-data",
+					contentType : false,
+					data        : fileData,
+					processData : false,
+					cache       : false,
+					success     : function(response){
+									
+								},			  
+					error       : function(e) {
+						
+						  		}
+				});
+			}
+	
+			function underAgeValidate(){ 
+				var date = document.getElementById("tEmpDOB").value;
+		        var birthday = date.split("-").reverse().join("-");
+				var optimizedBirthday = birthday.replace(/-/g, "/");
+		 
+				var myBirthday = new Date(optimizedBirthday);
+		 
+				var currentDate = new Date().toJSON().slice(0,10)+' 01:00:00';
+		 
+				var myAge = ~~((Date.now(currentDate) - myBirthday) / (31557600000));
+
+				if(myAge < 18) {
+					     swal("Employee can't be under 18");
+					     $("#tEmpDOB").val('');
+			     	    return false;
+			        }else{
+				    return true;
+				}
+
+			}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<!--Alert Box-->
+				<div class="alert alert-danger alert-dismissible"
+					th:if="${message != null}">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<span th:text="${message}"></span>
+				</div>
+
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class="active"><span>Add Offer Letter Details </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Offer Letter Details Form</h4>
+			</div>
+			<div class="card">
+				<div class="card-body">
+					<div class="basic-elements">
+						<form th:object="${offerLetterDtls}" autocomplete="off">
+
+
+							<div class="row">
+
+								<div class="col-md-12">
+									<div class="card-title">
+										<h4 style="color: blue">Employee's Details</h4>
+
+									</div>
+
+									<div class="row form-box">
+										<div class="col-md-4">
+										
+											<input type="hidden" id="tOfferLetterId" th:value="${id}" />
+											<input type="hidden" id="reqId" th:value="${offerLetter.requisitionId}" />
+											<input type="hidden" id="candId" th:value="${offerLetter.candidateId}" />
+
+
+											<!-- <label>First Name</label> <input type="text"
+												th:unless="${id}" class="form-control" value="Samsundar" id="tEmpFName"><input
+												type="text" th:if="${id}" class="form-control"
+												id="tEmpFName"
+												th:value="${offerLetterDtlsList[0].tEmpFName}" readonly> -->
+												
+												<label>First Name</label><input
+												type="text" class="form-control"
+												id="tEmpFName"
+												th:value="${offerLetter.employeeName}"  >
+
+										</div>
+										<div class="col-md-4">
+											<label>Middle Name</label><input type="text"
+												th:unless="${id}" class="form-control" id="tEmpMName">
+											<input type="text" th:if="${id}" class="form-control"
+												id="tEmpMName"
+												th:value="${offerLetterDtlsList[0].tEmpMName}"  >
+										</div>
+										<div class="col-md-4">
+											<label>Last Name</label><input type="text" th:unless="${id}"
+												class="form-control" id="tEmpLName"> <input
+												type="text" th:if="${id}" class="form-control"
+												id="tEmpLName"
+												th:value="${offerLetterDtlsList[0].tEmpLName}"  >
+										</div>
+
+										<div class="col-md-4">
+
+											<!-- <label>Date of Birth</label><input type="text" value="14-04-1996"
+												th:unless="${id}" class="form-control" id="tEmpDOB" onchange="underAgeValidate()">
+											<input type="text" th:if="${id}" class="form-control"
+												id="tEmpDOB" th:value="${offerLetterDtlsList[0].tEmpDOB}" onchange="underAgeValidate()"> -->
+												
+												<label>Date of Birth</label> <input type="text" class="form-control"
+												id="tEmpDOB" th:value="${offerLetter.dob}" onchange="underAgeValidate()" readonly>
+										</div>
+										<div class="col-md-4">
+											<label>Nationality</label> <select class="form-control"
+												id="tNationality">
+												<option th:value="NULL">--Select--</option>
+												<option th:if="${id}" th:each="c:${nationalityList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==offerLetterDtlsList[0].tNationality}"></option>
+												<option th:unless="${id}" th:each="c:${nationalityList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="col-md-4">
+											<label>Mobile No</label><input type="text" th:unless="${id}"
+												class="form-control" id="tMobileNo"> <input
+												type="text" th:if="${id}" class="form-control"
+												id="tMobileNo" onkeyup="checkNum('tMobileNo')"
+												th:value="${offerLetterDtlsList[0].tMobileNo}">
+										</div>
+										<div class="col-md-4" th:if="${id}">
+											<div class="form-group">
+												<label>Image</label> <input type="file" id="fileUpload"
+													style="display: block;" accept="image/*"
+													onchange="saveFile()">
+												<div id="uploadedImgDiv" align="center">
+													<span th:if="${offerLetterDtlsList[0].action !=null}">
+														<a class="example-image-link"
+														th:href="${offerLetterDtlsList[0].action}" target="_blank">Preview</a>
+													</span>
+												</div>
+												<span class="fornerrormsg" id="subcategory_photoerr"></span>
+
+											</div>
+										</div>
+
+										<div class="col-md-4" th:unless="${id}">
+											<div class="form-group">
+												<label>Image</label> <input type="file" id="fileUpload"
+													style="display: block;" accept="document/*"
+													onchange="saveFile()">
+												<div id="uploadedImgDiv">
+													<span th:if="${tOfferLetterId}"> <a
+														class="example-image-link" target="_blank">Preview</a>
+													</span>
+												</div>
+												<span class="fornerrormsg" id="subcategory_photoerr"></span>
+											</div>
+										</div>
+
+
+
+									</div>
+
+								</div>
+								<div class="col-md-12">
+
+
+									<div class="row form-box">
+
+
+										<div class="col-md-4">
+											<label>Gender</label> <select class="form-control"
+												id="tEmpGender">
+												<option th:value="NULL">--Select--</option>
+												<option th:if="${id}" th:each="c:${genderList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==offerLetterDtlsList[0].tEmpGender}"></option>
+												<option th:unless="${id}" th:each="c:${genderList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+
+
+
+											</select>
+										</div>
+
+
+
+										<div class="col-md-4">
+											<label>Marital  Status</label> <select class="form-control"
+												id="tEmpMarritalStatus">
+												<option th:value="NULL">--Select--</option>
+												<option th:if="${id}" th:each="c:${maritalList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==offerLetterDtlsList[0].tEmpMarritalStatus}"></option>
+												<option th:unless="${id}" th:each="c:${maritalList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+
+
+
+
+
+
+									</div>
+
+								</div>
+
+								<div class="col-md-12">
+
+
+									<div class="row form-box">
+
+										<div class="col-md-4">
+											<label>Pay Grade</label> <select class="form-control"
+												id="tPayGrade">
+												<option th:value="NULL">--Select--</option>
+												<option th:if="${id}" th:each="c:${payGradeList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==offerLetterDtlsList[0].tPayGrade}"></option>
+												<option th:unless="${id}" th:each="c:${payGradeList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="col-md-4">
+											<label>Job Title</label> <select class="form-control"
+												id="tJobTitle">
+												<option th:value="NULL">--Select--</option>
+
+												<option  th:each="c:${jobTitleList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==offerLetter.jobTitle}"></option>
+												<!-- <option th:unless="${id}" th:each="c:${jobTitleList}"
+													th:value='${c.key}' th:text="${c.name}"></option> -->
+											</select>
+
+										</div>
+										<div class="col-md-4">
+											<label>Joining Date</label><input type="text"
+												th:unless="${id}" class="form-control" id="tEmpDOJ">
+											<input type="text" th:if="${id}" class="form-control"
+												id="tEmpDOJ" th:value="${offerLetterDtlsList[0].tEmpDOJ}">
+										</div>
+
+									</div>
+
+								</div>
+
+								<div class="col-md-12">
+
+
+									<div class="row form-box">
+										<div class="col-md-4">
+											<label>Country</label> <select class="form-control"
+												id="tCountry">
+												<option th:value="NULL">--Select--</option>
+												<option th:if="${id}" th:each="c:${countryList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==offerLetterDtlsList[0].tCountry}"></option>
+												<option th:unless="${id}" th:each="c:${countryList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+
+										</div>
+										<div class="col-md-4">
+											<label>State</label> <select class="form-control" id="tState">
+												<option th:value="NULL">--Select--</option>
+												<option th:if="${id}" th:each="c:${stateList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==offerLetterDtlsList[0].tState}"></option>
+												<option th:unless="${id}" th:each="c:${stateList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+
+										</div>
+										<div class="col-md-4">
+											<label>District</label> <select class="form-control"
+												id="tDistrict">
+												<option th:if="${id}" th:each="c:${distList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==offerLetterDtlsList[0].tDistrict}"></option>
+												<option th:unless="${id}" th:each="c:${distList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="col-md-4">
+
+											<label>Address</label>
+											<textarea th:unless="${id}" class="form-control textarea"
+												id="tAddress"></textarea>
+											<textarea th:if="${id}" class="form-control textarea"
+												id="tAddress" th:text="${offerLetterDtlsList[0].tAddress}"></textarea>
+
+										</div>
+
+
+										<div class="col-md-4">
+											<label>PIN Code</label> <input type="text" th:unless="${id}"
+												class="form-control" id="tPinCode"><input
+												type="text" th:if="${id}" class="form-control" id="tPinCode"
+												th:value="${offerLetterDtlsList[0].tPinCode}">
+										</div>
+
+										<div class="col-md-4">
+											<label> Email</label><input type="text" th:unless="${id}"
+												class="form-control" id="tEmailId"> <input
+												type="text" th:if="${id}" class="form-control" id="tEmailId"
+												th:value="${offerLetterDtlsList[0].tEmailId}"
+												 onblur="validateEmail(this);">
+										</div>
+
+									</div>
+
+								</div>
+
+
+								<div class="col-md-12">
+									<div class="card-title">
+										<u><h4 style="color: blue">Employee's Salary Details</h4></u>
+
+									</div>
+									<div class="row form-box">
+										<div class="col-md-4">
+											<label>Annual CTC</label> <input type="text"
+												th:unless="${id}" class="form-control" id="tAnnualCTC"
+												onkeyup="calculateMonthlyAmount();calculateAnnualAmount(event);">
+											<input type="text" th:if="${id}" class="form-control"
+												id="tAnnualCTC" onkeyup="calculateMonthlyAmount();"
+												th:value="${offerLetterDtlsList[0].tAnnualCTC}">
+										</div>
+
+										<div class="col-md-12">
+											<!-- id="table-data" -->
+											<table class="tbll" id="myTable" width="100%" border="0"
+												cellspacing="2" cellpadding="5">
+												<thead>
+													<tr>
+														<th>Sl No.</th>
+														<th>Salary Component</th>
+														<th>Calculation Type</th>
+														<th>Monthly Amount</th>
+														<th>Annual Amount</th>
+
+													</tr>
+												</thead>
+
+												<tbody id="tbodyData">
+
+													<!-- 	for edit -->
+
+
+													<tr class="tr_clone" th:if="${id}"
+														th:each="a,iter:${offerLetterDtlsList}">
+
+														<td><input type="text" class="form-control" readonly
+															th:value="${iter.index + 1}"></td>
+
+
+														<td><input type="text" th:id="salaryComponent_"
+															class="form-control salaryComponentCls"
+															th:value="${a.salaryComponent}" /></td>
+
+
+
+														<td><input type="text" th:id="calculationType_"
+															class="form-control calculationTypeCls"
+															th:value="${a.calculationType}" /></td>
+
+														<td><input type="text" th:id="monthlyAmnt_"
+															class="form-control monthlyAmntCls"
+															th:value="${a.monthlyAmnt}" /></td>
+
+														<td><input type="text" th:id="tAnnualAmount_"
+															class="form-control tAnnualAmountCls"
+															th:value="${a.tAnnualAmount}" /></td>
+
+
+
+													</tr>
+
+
+
+												</tbody>
+											</table>
+										</div>
+									</div>
+
+
+								</div>
+								<div class="row col-md-12">
+
+									<div class="col-md-4">
+										<div class="content">
+											<label>Total Annual Amount</label>
+										</div>
+									</div>
+									<div class="col-md-4" id="modalDiv">
+										<div class="content">
+											<span>Update Flate Amount</span>
+										</div>
+									</div>
+									<div class="col-md-4">
+										<input type="text" th:unless="${id}" class="form-control"
+											id="tAnnualAmnt">
+									</div>
+
+								</div>
+
+							</div>
+
+						</form>
+					</div>
+
+					<div class="row">
+
+						<div class="col-md-12">
+							<div class="form-group">
+								<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+								<button type="button" class="btn btn-warning"
+									onclick="returnToAddPage();">Cancel</button>
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+	</div>
+</div>
+</div>
+</html>

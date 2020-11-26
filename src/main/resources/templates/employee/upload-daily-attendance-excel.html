@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 325px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 170px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.money {
+	text-align: right;
+}
+
+.first-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 100px;
+}
+
+.second-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 130px;
+}
+
+.text-heading {
+	background-color: #d1e3f5;
+	padding: 1px;
+	text-align: center;
+	margin-bottom: 14px;
+}
+
+.text-heading h4 {
+	font-size: 16px;
+	font-weight: 600;
+	color: #2c61e0;
+	padding-top: 7px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	border: 1px solid #FFF;
+	text-align: center;
+	font-weight: bold;
+}
+
+td input {
+	width: 70px;
+}
+
+.wmd-view-topscroll, .wmd-view {
+	overflow-x: scroll;
+	overflow-y: hidden;
+	width: 1045px;
+}
+
+.wmd-view-topscroll {
+	height: 20px;
+}
+/*.wmd-view { height: 100vh; }*/
+.scroll-div1 {
+	width: 3000px;
+	overflow-x: scroll;
+	overflow-y: hidden;
+	height: 20px;
+}
+
+.icon-search {
+	position: relative;
+	bottom: 28px;
+	left: 307px;
+	font-size: 16px;
+}
+</style>
+<script type="text/javascript">
+	$(function() {
+		$(".wmd-view-topscroll").scroll(function() {
+			$(".wmd-view").scrollLeft($(".wmd-view-topscroll").scrollLeft());
+		});
+		$(".wmd-view").scroll(function() {
+			$(".wmd-view-topscroll").scrollLeft($(".wmd-view").scrollLeft());
+		});
+	});
+</script>
+<script>
+	$(document).ready(function() {
+		$("#currDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+			maxDate : new Date(),
+		});
+		var fullDate = new Date();
+		var twoDigitMonth=((fullDate.getMonth()+1)>=10)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+		var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate()); 
+		var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear(); 
+		$("#currDate").val(currentDate);
+
+	})
+	
+	
+		function uploadFile() {
+		$("#upload_prev").empty();
+		var uFile = $('#excelFile')[0].files[0];
+		var fileName = $('#excelFile').val();
+
+		var lastIndex = fileName.lastIndexOf("\\");
+		if (lastIndex >= 0) {
+			fileName = fileName.substring(lastIndex + 1);
+		}
+		var iURL = URL.createObjectURL(uFile);
+		$("#uploadedImgDiv").html("");
+		var LightImg = "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' data-lightbox='"+fileName+"'>Preview Image</a>";
+		$("#uploadedImgDiv").html(LightImg);
+
+		var fileData = new FormData();
+		fileData.append('file', uFile);
+		fileData.append('path', 'none');
+		console.log(fileData, "sdcf")
+		$.ajax({
+			type : "POST",
+			url : "daily-attendance-excel-upload-uploadExcelFile",
+			enctype : "multipart/form-data",
+			contentType : false,
+			data : fileData,
+			processData : false,
+			cache : false,
+			success : function(response) {
+
+			},
+			error : function(e) {
+
+			}
+		});
+
+	}
+	
+	function submitExcelData() {
+ 
+		swal.fire({
+			title: "Are you sure want to Submit?",
+			text: "Once Submited,Can't revert back !",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#DD6BB5",
+			confirmButtonText: "Submit",
+
+			reverseButtons: true,
+			confirmButtonAriaLabel: 'Thumbs up, great!',
+			cancelButtonText: 'Cancel',
+			cancelButtonAriaLabel: 'Thumbs down',
+			showLoaderOnConfirm: true,
+			preConfirm: () => {
+				return new Promise((resolve) => {
+					setTimeout(() => {
+						console.log("Doing async operation");
+						resolve()
+					}, 3000)
+				})
+			}
+
+		}).then((result) => {
+			if (result.value) {
+				$.ajax({
+					type: "POST",
+					url: "daily-attendance-excel-upload-save",
+					dataType: "json",
+					contentType: "application/json",
+					data: $("#currDate").val() ,
+					success: function (response) {
+						console.log(response);
+						if (response.message == "Success") {
+							swal({
+								title: "Data Saved Successfully.",
+								type: "success",
+							}).then(function () {
+								window.location.href = "/employee/daily-attendance-excel-upload-view";
+							})
+						} else {
+							swal({
+								title: response.code,
+								text: response.message,
+								type: "warning"
+							})
+						}
+					},
+					error: function (response) {
+						swal(response.code);
+					}
+				}) //ajax ends
+			}
+		}) //swal function block ends
+	} //submit function ends
+
+	
+</script>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Upload Daily Attendance</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Upload Daily Attendance</h4>
+
+				<div class="topbtnright" align="right">
+					<div class="form-group">
+						<button type="button" id="submit" class="btn btn-success"
+							onclick="submitExcelData()">Submit</button>
+						<input type="reset" value="Cancel" class="btn btn-warning"
+							onclick="window.location.reload();" />
+					</div>
+				</div>
+
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form>
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>To Date</label> <input type="text" readonly
+												id="currDate" class="form-control" th:value="${currDate}">
+										</div>
+									</div>
+
+								</div>
+								<div class="row">
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>Attach Excel</label> <input type="file" name="file"
+												id="excelFile" accept=".xls,.xlsx" style="display: block;"
+												onchange="uploadFile()" />
+										</div>
+									</div>
+
+								</div>
+								<div class="row">
+									<div class="col-md-12"></div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

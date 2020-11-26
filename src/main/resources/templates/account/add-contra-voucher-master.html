@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+
+//(document).ready() Starts
+$(document).ready(function() {
+	
+	//$('#fromBankDivId').hide(); 
+	$('#toBankDivId').hide();
+	$('#fromCashDivId').hide(); 
+	$('#toCashDivId').hide();
+	//$('#fromBranchDivId').hide(); 
+	$('#fromACDivId').hide();
+	$('#toBranchDivId').hide(); 
+	$('#toACDivId').hide();
+	$('#toUserDivId').hide();
+	
+	//DatePicker For Contra Voucher Date
+	$("#cvDate").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	})
+	
+	//Contra Voucher Type ONCHANGE() Starts
+	$("#contraVoucherType").on('change', function() {
+		var cvType = $(this).val();
+		
+		//Hide & Show Some Div Tag
+		if(cvType=="dp048") { //Contra Voucher type -> BANK - BANK
+			//$('#fromBankDivId').show(); 
+			$('#toBankDivId').show();
+			$('#fromCashDivId').hide(); 
+			$('#toCashDivId').hide();
+			//$('#fromBranchDivId').show(); 
+			$('#fromACDivId').show();
+			$('#toBranchDivId').show(); 
+			$('#toACDivId').show();
+			$('#toUserDivId').hide();
+			$("#fromCash").val("");
+			$("#toCash").val("");
+			$("#toPettyCash").val("");
+			
+			//$('#fromBank').val("");
+			//$("#fromBranch").empty();
+			//$("#fromBranch").append("<option value>--Select--</option>");
+			//$("#fromAccount").empty();
+			//$("#fromAccount").append("<option value>--Select--</option>");
+			//$('#toBank').val("");
+			//$("#toBranch").empty();
+			//$("#toBranch").append("<option value>--Select--</option>");
+			//$("#toAccount").empty();
+			//$("#toAccount").append("<option value>--Select--</option>");
+		} else if(cvType=="dp049") {  //Contra Voucher type -> BANK - CASH
+			//$('#fromBankDivId').show(); 
+			$('#toBankDivId').hide();
+			$('#fromCashDivId').hide(); 
+			$('#toCashDivId').show();
+			//$('#fromBranchDivId').show(); 
+			$('#fromACDivId').show();
+			$('#toBranchDivId').hide(); 
+			$('#toACDivId').hide();
+			$('#toUserDivId').hide();
+			$("#fromCash").val("");
+			$("#toPettyCash").val("");
+			
+			//$('#fromBank').val("");
+			//$("#fromBranch").empty();
+			//$("#fromBranch").append("<option value>--Select--</option>");
+			$("#fromAccount").empty();
+			$("#fromAccount").append("<option value>--Select--</option>");
+			$('#toBank').val("");
+			$("#toBranch").empty();
+			$("#toBranch").append("<option value>--Select--</option>");
+			$("#toAccount").empty();
+			$("#toAccount").append("<option value>--Select--</option>");
+		} else if(cvType=="dp050") { //Contra Voucher type -> CASH - BANK
+			//$('#fromBankDivId').hide(); 
+			$('#toBankDivId').show();
+			$('#fromCashDivId').show(); 
+			$('#toCashDivId').hide();
+			//$('#fromBranchDivId').hide(); 
+			$('#fromACDivId').hide();
+			$('#toBranchDivId').show(); 
+			$('#toACDivId').show();
+			$('#toUserDivId').hide();
+			$("#fromCash").val("");
+			$("#toCash").val("");
+			$("#toPettyCash").val("");
+			
+			//$('#fromBank').val("");
+			//$("#fromBranch").empty();
+			//$("#fromBranch").append("<option value>--Select--</option>");
+			$("#fromAccount").empty();
+			$("#fromAccount").append("<option value>--Select--</option>");
+			$('#toBank').val("");
+			$("#toBranch").empty();
+			$("#toBranch").append("<option value>--Select--</option>");
+			$("#toAccount").empty();
+			$("#toAccount").append("<option value>--Select--</option>");
+		} else if(cvType=="dp051") { //Contra Voucher type -> CASH - CASH
+			//$('#fromBankDivId').hide(); 
+			$('#toBankDivId').hide();
+			$('#fromCashDivId').show(); 
+			$('#toCashDivId').hide();
+			//$('#fromBranchDivId').hide(); 
+			$('#fromACDivId').hide();
+			$('#toBranchDivId').hide(); 
+			$('#toACDivId').hide();
+			$('#toUserDivId').show();
+			$("#fromCash").val("");
+			
+			//$('#fromBank').val("");
+		//	$("#fromBranch").empty();
+			//$("#fromBranch").append("<option value>--Select--</option>");
+			$("#fromAccount").empty();
+			$("#fromAccount").append("<option value>--Select--</option>");
+			$('#toBank').val("");
+			$("#toBranch").empty();
+			$("#toBranch").append("<option value>--Select--</option>");
+			$("#toAccount").empty();
+			$("#toAccount").append("<option value>--Select--</option>");
+			//$("#toPettyCash").text("");
+		} else {
+			//$('#fromBankDivId').hide(); 
+			$('#toBankDivId').hide();
+			$('#fromCashDivId').hide(); 
+			$('#toCashDivId').hide();
+			//$('#fromBranchDivId').hide(); 
+			$('#fromACDivId').hide();
+			$('#toBranchDivId').hide(); 
+			$('#toACDivId').hide();
+			$('#toUserDivId').hide();
+		}
+	});
+	//Contra Voucher Type ONCHANGE() Ends
+	
+	//Get From Branch Name On Change From Bank Name
+	$("#fromBank").on('change', function() {
+		var fromBank = $(this).val();
+		
+		if (fromBank) {
+			$.ajax({
+				type 		: 'POST',
+				url 		: 'add-contra-voucher-master-get-branch',
+				contentType : false,
+				data 		: fromBank,
+				success 	: function(response) {
+					console.log(response);
+					$("#fromBranch").empty();
+					$("#fromBranch").append("<option value>--Select--</option>");
+					 for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#fromBranch").append(option);
+					} 
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			});
+		}
+		else {
+				$("#fromBranch").empty();
+				$("#fromBranch").append("<option value>--Select--</option>");
+		}
+	});
+	
+	//Get From Account On Change From Branch Name
+	$("#fromBranch").on('change', function() {
+		var fromBranch = $(this).val();
+		
+		if (fromBranch) {
+			$.ajax({
+				type 		: 'POST',
+				url 		: 'add-contra-voucher-master-get-account',
+				contentType : false,
+				data 		: fromBranch,
+				success 	: function(response) {
+					console.log(response);
+					$("#fromAccount").empty();
+					$("#fromAccount").append("<option value>--Select--</option>");
+					 for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#fromAccount").append(option);
+					} 
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			});
+		}
+		else {
+				$("#fromAccount").empty();
+				$("#fromAccount").append("<option value>--Select--</option>");
+		}
+	});
+	
+	//Get To Branch Name On Change To Bank Name
+	$("#toBank").on('change', function() {
+		var toBank = $(this).val();
+		
+		if (toBank) {
+			$.ajax({
+				type 		: 'POST',
+				url 		: 'add-contra-voucher-master-get-branch',
+				contentType : false,
+				data 		: toBank,
+				success 	: function(response) {
+					console.log(response);
+					$("#toBranch").empty();
+					$("#toBranch").append("<option value>--Select--</option>");
+					 for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#toBranch").append(option);
+					} 
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			});
+		}
+		else {
+				$("#toBranch").empty();
+				$("#toBranch").append("<option value>--Select--</option>");
+		}
+	});
+	
+	//Get To Account Name On Change To Branch Name
+	$("#toBranch").on('change', function() {
+		var toBranch = $(this).val();
+		
+		if (toBranch) {
+			$.ajax({
+				type 		: 'POST',
+				url 		: 'add-contra-voucher-master-get-account',
+				contentType : false,
+				data 		: toBranch,
+				success 	: function(response) {
+					console.log(response);
+					$("#toAccount").empty();
+					$("#toAccount").append("<option value>--Select--</option>");
+					 for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#toAccount").append(option);
+					} 
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			});
+		}
+		else {
+				$("#toAccount").empty();
+				$("#toAccount").append("<option value>--Select--</option>");
+		}
+	});
+	
+	$("#submit").click(function(){  //Submit Click Function Starts
+		
+		voucher = {};
+		voucher['contraVoucherId']		=	$("#contraVoucherId").val();
+		voucher['contraVoucherType']	=	$("#contraVoucherType").val();
+		voucher['costCenter']			=	$("#costCenter").val();
+		voucher['cvDescription']		=	$("#cvDescription").val();
+		voucher['cvDate']				=	$("#cvDate").val();
+		voucher['cvAmount']				=	parseFloat($("#cvAmount").val());		
+		voucher['fromBank']				=	$("#fromBank").val();
+		voucher['fromBranch']			=	$("#fromBranch").val();
+		voucher['fromAccount']			=	$("#fromAccount2").val();
+		voucher['fromCash']				=	$("#fromCash").val();		
+		voucher['toBank']				=	$("#toBank").val();
+		voucher['toBranch']				=	$("#toBranch").val();
+		voucher['toAccount']			=	$("#toAccount2").val();		
+		var contraVoucherType		    =   $("#contraVoucherType").val();	
+		if(contraVoucherType=="dp051") {
+			voucher['toCash']			=	$("#toPettyCash").val();
+		} else {
+			voucher['toCash']			=	$("#toCash").val();
+		}
+		
+		if (!blankValidation("contraVoucherType","SelectBox" ,"Please Select Contra Voucher Type."))
+     			return false;
+		if (!blankValidation("costCenter","SelectBox" ,"Please Select Cost Center."))
+ 				return false;
+		if (!blankValidation("cvDate","TextField" ,"Please Enter Contra Voucher Date."))
+		      	return false;
+		if (!blankValidation("cvAmount","TextField" ,"Please Enter Amount."))
+		      	return false;
+		if (!blankValidation("cvDescription","TextArea" ,"Description Can Not Be Left Blank."))
+	      	  	return false;
+		
+		//CONTRA VOUCHER TYPE --> BANK - BANK OR BANK - CASH
+		if(contraVoucherType=="dp048" || contraVoucherType=="dp049") {
+		
+		
+			if (!blankValidation("fromAccount","SelectBox" ,"Please Select From Account Number."))
+			      return false;
+			if($("#fromAccount2").val()==$("#toAccount2").val()){
+				swal(" Can't transfer money to the same account");
+				return false;
+			}
+		}
+		//CONTRA VOUCHER TYPE --> CASH - BANK OR CASH - CASH
+		if(contraVoucherType=="dp050" || contraVoucherType=="dp051") {
+			if (!blankValidation("fromCash","SelectBox" ,"Please Select From Account Head Type."))
+			      return false;
+		}
+		//CONTRA VOUCHER TYPE --> BANK - BANK OR CASH - BANK
+		if(contraVoucherType=="dp048" || contraVoucherType=="dp050") {
+			
+			if (!blankValidation("toAccount","SelectBox" ,"Please Select To Account Number."))
+			      return false;
+		}
+		//CONTRA VOUCHER TYPE --> BANK - CASH
+		if(contraVoucherType=="dp049") {
+			if (!blankValidation("toCash","SelectBox" ,"Please Select To Account Head Type."))
+			      return false;
+		}
+		//CONTRA VOUCHER TYPE --> CASH - CASH
+		if(contraVoucherType=="dp051") {
+			if (!blankValidation("toPettyCash","SelectBox" ,"Please Select To Account Head Type."))
+			      return false;
+		}
+		submitContraVoucher(voucher);
+	});   //Submit Click Function Ends
+	
+})
+	//SUBMIT CONTRAVOUCHER FUNCTION
+	function submitContraVoucher(voucher){
+
+			swal.fire({
+				title					: "Are you sure want to Submit?",
+				text					: "Once Submited,Can't revert back !",
+				type 					: "warning",
+				
+				showCancelButton		: true,
+				confirmButtonColor		: "#DD6BB5",
+				confirmButtonText		:"Submit",
+				showLoaderOnConfirm		: true,
+				reverseButtons 			: true,
+				confirmButtonAriaLabel 	: 'Thumbs up, great!',
+				cancelButtonText 		: 'Cancel',
+				cancelButtonAriaLabel 	: 'Thumbs down',
+				
+				preConfirm: () => {
+					return new Promise((resolve) => {
+						setTimeout(() => {
+							console.log("Doing async operation");
+							resolve()
+						}, 3000)
+					})
+				}
+			}).then((result) => {
+				if(result.value){
+					$.ajax({
+					type		: "POST",
+					url 		: "add-contra-voucher-master-save",
+					dataType	: "json",
+					contentType	: "application/json",
+					data		: JSON.stringify(voucher),
+					success		: function(response){
+						if(response.message=="Success"){
+							swal({
+									title:"Data Saved Successfully.",
+									type: "success",
+							}).then(function(){
+									window.location.href = "/account/view-contra-voucher-master" ;
+							})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+					},
+					error : function(data) {
+						console.log(data)
+					}
+				}) //ajax ends
+			}
+		})//swal function block ends
+	}
+
+//Page Reload Function On Click 'Caancel' Button
+function funcLoad(){
+	location.reload();
+}
+
+//Check No Same Account Number
+function checkSameAccountNo() {
+	var fromAccount = $('#fromAccount').val();
+	var toAccount = $('#toAccount').val();
+	if(fromAccount && toAccount) {
+		if(fromAccount==toAccount) {
+			swal({
+				title	: "Please ! Check Again.",
+				text	: "From Account Number And To Account Number Can't Be Same.",
+				type	: "warning",
+			})
+			$("#fromAccount").val("");
+			$("#toAccount").val("");
+		}
+	}
+}
+
+//Check Number
+function checkNumber() {
+	checkNum("cvAmount");
+}
+
+function accountNoAutoFill() {
+	$.ajax({
+		type : "POST",
+		url : "add-contra-voucher-master-restGetAccountAndBankList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#fromAccount").val(),
+		success : function(response) {
+			if (response.message == "success") {
+			if(response.body.length!=0)	{
+				$("#fromAccount").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+					content += '<li onClick="selectAutocompleteValue(\''+response.body[i].contraVoucherId+'\',\''+response.body[i].fromBank+'\',\''+response.body[i].contraVoucherType+'\',\''+response.body[i].costCenter+'\',\''+response.body[i].fromBranch+'\')">'+response.body[i].contraVoucherId+'('+ response.body[i].costCenter+','+response.body[i].fromBranch+')'+'</li>';
+				} 
+				content += '</ul>';
+				$("#suggesstion-box").show();
+				$("#suggesstion-box").html(content);
+				
+			}
+			else {
+				$("#fromAccount").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box").show();
+				$("#suggesstion-box").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+}
+function selectAutocompleteValue(account,branch,bank,bankName,city) {
+	if (account) {
+		$("#fromAccount").val(account+' ( '+bankName+', '+city+' )');
+		$("#fromAccount2").val(account);
+		$("#fromBranch").val(branch);
+		$("#fromBank").val(bank);
+		$("#fromBranch").attr('data-procat', branch);
+		$("#suggesstion-box").hide();
+		}
+	else {
+		$("#fromAccount").val("");
+		$("#fromAccount2").val("");
+		$("#fromBranch").val("");
+		$("#fromBank").val("");
+		$("#fromAccount").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+}
+
+function toAccountNoAutoFill() {
+	$.ajax({
+		type : "POST",
+		url : "add-contra-voucher-master-toAccountAndBankList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#toAccount").val(),
+		success : function(response) {
+			if (response.message == "success") {
+			if(response.body.length!=0)	{
+				$("#toAccount").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+					content += '<li onClick="selectAutocompleteValue2(\''+response.body[i].contraVoucherId+'\',\''+response.body[i].fromBank+'\',\''+response.body[i].contraVoucherType+'\',\''+response.body[i].costCenter+'\',\''+response.body[i].fromBranch+'\')">'+response.body[i].contraVoucherId+'('+ response.body[i].costCenter+','+response.body[i].fromBranch+')'+'</li>';
+		} 
+				content += '</ul>';
+				$("#suggesstion-box2").show();
+				$("#suggesstion-box2").html(content);
+				
+			}
+			else {
+				$("#toAccount").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue2(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box2").show();
+				$("#suggesstion-box2").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+}
+function selectAutocompleteValue2(account,branch,bank,bankName,city) {
+	if (account) {
+		$("#toAccount").val(account+' ( '+bankName+', '+city+' )');
+		$("#toAccount2").val(account);
+		$("#toBranch").val(branch);
+		$("#toBank").val(bank);
+		$("#toAccount").attr('data-procat', account);
+		$("#suggesstion-box2").hide();
+		}
+	else {
+		$("#toAccount2").val("");
+		$("#toAccount").val("");
+		$("#toBranch").val("");
+		$("#toBank").val("");
+		$("#toAccount").attr('data-procat', "");
+		$("#suggesstion-box2").hide();
+	}
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="col-md-12">
+					<ol class="breadcrumb breadcrumb-arrow">
+						<li><a href="index.html">Home</a></li>
+						<li class="active"><span>Add Contra Voucher</span></li>
+					</ol>
+				</div>
+				<div class="card-title">
+					<h4>Add Contra Voucher</h4>
+				</div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+								<!-- <form method="post" th:action="@{add-contra-voucher-master}"
+									autocomplete="off" th:object="${contraVoucher}" onsubmit="return validateForm();"> -->
+									<div class="row">
+										<div th:if="${message != null}">
+											<span th:text="${message}" style="color: red;"></span>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-lg-6">
+											<input type="hidden" id="contraVoucherId">
+											<div class="form-group">
+												<label>Contra Voucher Type</label> <select id="contraVoucherType"
+													class="form-control">
+													<option th:value="null">--Select--</option>
+													<option th:each="c:${cvTypeList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+												</select>
+											</div>
+											<div class="form-group">
+												<label>Date</label> <input type="text" id="cvDate" autocomplete="off"
+													class="form-control">
+											</div>
+											<div class="form-group">
+												<label>Amount</label> <input type="text" autocomplete="off" onkeyup="checkNumber();"
+													class="form-control" id="cvAmount">
+											</div>
+										</div>
+										<div class="col-lg-6">
+											<div class="form-group">
+												<label>Cost Center</label> <select id="costCenter"
+													class="form-control">
+													<option value="">--Select--</option>
+													<option th:each="c:${costCenterList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+												</select>
+											</div>
+											<div class="form-group">
+												<label>Description</label>
+												<textarea name="" cols="" rows=""
+													class="form-control textarea" id="cvDescription"></textarea>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-lg-6">
+											
+											<div class="form-group" id="fromCashDivId">
+												<label>From</label> <select class="form-control" id="fromCash">
+													<option value="">--Select--</option>
+													<option th:each="c:${accountHeadCashList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+												</select>
+												<!-- <label class="form-control" id="fromCash">Cash In Hand</label> -->
+											</div>
+											
+											<div class="form-group" id="fromACDivId">
+											<label>From Account</label>
+											<input type="text" class="form-control" id="fromAccount"
+												onkeyup="accountNoAutoFill();" />
+												<div id="suggesstion-box"></div>
+												<input type="hidden" class="form-control" id="fromAccount2" />
+												<input type="hidden" class="form-control" id="fromBank" />
+												<input type="hidden" class="form-control" id="fromBranch" />
+											</div>
+
+										</div>
+										<div class="col-lg-6">
+											
+											<div class="form-group" id="toCashDivId">
+												<label>To</label> <select class="form-control" id="toCash">
+													<option value="">--Select--</option>
+													<option th:each="c:${accountHeadCashList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+												</select>
+											</div>
+											
+											<div class="form-group" id="toACDivId">
+											<label>To Account</label>
+											<input type="text" class="form-control" id="toAccount"
+												onkeyup="toAccountNoAutoFill();" />
+												<input type="hidden" class="form-control" id="toAccount2" />
+												<input type="hidden" class="form-control" id="toBank" />
+												<input type="hidden" class="form-control" id="toBranch" />
+												<div id="suggesstion-box2"></div>
+											</div>
+											<div class="form-group" id="toUserDivId">
+												<label>To</label> <select class="form-control" id="toPettyCash">
+													<option value="">--Select--</option>
+													<option th:each="c:${accountHeadPettyCashList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-lg-6">
+											<div class="form-group">
+												<button class="btn btn-success" id="submit">Submit</button>
+												<button type="button" class="btn btn-warning"
+													onclick="funcLoad();">Cancel</button>
+												<!-- <input name="" type="reset" class="btn warning" value="Cancel"> -->
+											</div>
+										</div>
+									</div>
+
+								<!-- </form> -->
+							</div>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

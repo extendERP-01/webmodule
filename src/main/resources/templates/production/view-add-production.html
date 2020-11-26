@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.search-field {
+	float: left;
+	width: 100%;
+}
+
+.styled {
+	border: 0;
+	line-height: 2;
+	font-size: 1rem;
+	text-align: center;
+	color: #fff;
+	text-shadow: 1px 1px 1px #000;
+	border-radius: 10px;
+	background-color: rgb(88, 51, 28);
+	background-image: linear-gradient(to top left, rgba(0, 0, 0, .2),
+		rgba(0, 0, 0, .2) 30%, rgba(0, 0, 0, 0));
+	box-shadow: inset 2px 2px 3px rgba(255, 255, 255, .6), inset -2px -2px
+		3px rgba(0, 0, 0, .6);
+}
+
+.styled:hover {
+	background-color: rgba(255, 0, 0, 1);
+}
+
+.styled:active {
+	box-shadow: inset -2px -2px 3px rgba(255, 255, 255, .6), inset 2px 2px
+		3px rgba(0, 0, 0, .6);
+}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		$("#param3").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		});
+		$("#param4").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+			minDate: new Date(),
+
+		});
+
+		//Method for listing of all the Country Records
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-productions-through-ajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+					d.param3 = $('#param3').val();
+					d.param4 = $('#param4').val();
+
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'planId'
+			}, {
+				'data' : 'batchId'
+			}, {
+				'data' : 'batchQty'
+			}, {
+				'data' : 'prodItemName'
+			}, {
+				'data' : 'prodQty'
+			}, {
+				'data' : 'storeId'
+			}, {
+				'data' : 'mixWt'
+			}, {
+				'data' : 'action'
+			}
+
+			]
+		});
+	});
+
+	//Method For Searching Records In The List
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+
+	// Method For View customer Details In Model
+
+	function viewInModel(index) {
+		$('#table1').empty(); 
+		$.ajax({
+					type : "POST",
+					url : "view-productions-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						console.log(response)
+						if (response.message == "Success") {
+							console.log(response.body); 
+							span = '<tr><td>Plan ID :</td>'
+								+ '<td align="left">'
+								+ response.body[0].planId
+								+ '</td>'
+								+ '</tr><tr><td>Batch ID :</td><td align="left">'
+								+ response.body[0].batchId
+								+ '</td></tr><tr><td>Batch Quantity :</td><td align="left">'
+								+ response.body[0].batchQty
+								+'</td></tr>';
+								
+								if(response.body[0].prodStartDate != '--'){
+									span = span + '<tr><td>Prackaing Start Date :</td><td align="left">'
+									+ response.body[0].prodStartDate +'</td></tr>';
+								} 
+								
+							   if( response.body[0].prodEndtDate !="--"){
+								   span =  span + '<tr th:if="${response.body[0].prodEndtDate}" ><td >Prackaing End Date :</td><td align="left">'
+								  + response.body[0].prodEndtDate +'</td></tr>';
+							   }
+								if(response.body[0].prodoductionQty != null){
+									span = span + '<tr th:if="${response.body[0].prodoductionQty}"><td>Production Quantity :</td><td align="left">'
+									+ response.body[0].prodoductionQty +'</td></tr>';
+								}
+								if(response.body[0].prodoductionWt != null){
+									span = span + ' <tr><td>Production Weight :</td><td align="left">'
+									+ response.body[0].prodoductionWt +'</td></tr>'
+								}
+								
+								span = span + ' <tr ><td>Scrap Quantity :</td><td align="left">'
+								+ response.body[0].scrapQty
+								+ '</td></tr><tr><td>Scrap Weight :</td><td align="left">'
+								+ response.body[0].srcapWt
+								+ '</td></tr>';
+							$('#myModal1').modal('show');
+							$('#table1').append(span);
+							 
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+	function addProdDtls(index){
+		$('#myModalProd').modal('show');
+		$('#prodId').val(index);
+		
+	}
+	
+	function dateVaidate(){
+		if($("#productionStartDate").val() && $("#productionEndDate").val()){
+			dateValidation('productionStartDate' , 'productionEndDate' ,"Start Date " ,"End Date");
+		}
+	}
+	
+	$(document).ready(function(){
+	  
+		$("#productionStartDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+			minDate: new Date(),
+
+		});
+		$("#productionEndDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+			minDate: new Date(),
+
+		});
+		
+	//submit button function
+		
+		$("#submit").click(function(){
+			
+			var dataset = []; 
+				assign = {};
+				assign['prodId']		    =	$("#prodId").val(); 
+				assign['prodStartDate']		=	$("#productionStartDate").val();
+				assign['prodEndtDate']		=	$("#productionEndDate").val();
+				assign['prodoductionQty']	=	$("#productionQty").val();
+				assign['prodoductionWt']	=	$("#productionWt").val();
+				assign['srcapWt']			=	$("#scrapWt").val();  
+				assign['scrapQty']			=	$("#scrapQty").val(); 
+				
+				dataset.push(assign);
+				console.log(dataset);
+		 
+			
+			 if (!blankValidation("productionStartDate","TextField" ,"Please Enter Production Start Date"))
+			      return false;
+			if (!blankValidation("productionEndDate","TextField" ,"Please Enter Production End Dat"))
+			      return false;
+			if (!blankValidation("productionQty","TextField" ,"Please Enter Production Qty"))
+			      return false;
+			if (!blankValidation("productionWt","TextField" ,"Please Enter Production Weight"))
+			      return false;
+			if (!blankValidation("scrapWt","TextField" ,"Please Enter Scrap Weight"))
+			      return false;
+			if (!blankValidation("scrapQty","TextField" ,"Please Enter Scrap Quantity"))
+			      return false;
+			 
+	 
+				submitAddProductionDtls(dataset);
+		 
+												
+				
+			
+		})
+	})
+	 
+		function submitAddProductionDtls(dataset){ 
+				swal.fire({
+					title				: "Are you sure want to Submit?",
+					text				: "Once Submited,Can't revert back !",
+					type 				: "warning",
+					
+					showCancelButton	: true,
+					confirmButtonColor	: "#DD6BB5",
+					confirmButtonText	:"Submit",
+					reverseButtons : true,
+					confirmButtonAriaLabel : 'Thumbs up, great!',
+					cancelButtonText : 'Cancel',
+					cancelButtonAriaLabel : 'Thumbs down', 
+				}).then((result) => {
+					if(result.value){
+						$.ajax({
+						type		: "POST",
+						url 		: "view-productions-add-ajax",
+						dataType	: "json",
+						contentType	: "application/json",
+						data		: JSON.stringify(dataset),
+						success		: function(response){ 
+							console.log(response)
+							if(response.message=="Success"){
+								swal({
+										title:"Data Saved Successfully.",
+										type: "success",
+								}).then(function(){
+										window.location.href = "/production/view-productions-packaging" ;
+								})
+							}else{
+								swal({
+									title:response.code,
+									text: response.message,
+									type:"warning"
+								})
+							}
+						},error		: function(data){
+							console.log(data);
+						}
+					}) //ajax ends
+				}
+				})//swal function block ends
+			}//submit function ends
+
+
+			
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="mother-coil-slit">Add Mother Coil</a></li>
+					<li class="active"><span>View Mother Coil</span></li>
+				</ol>
+			</div>
+
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="mother-coil-slit">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-lg-2">
+								<label>Store</label><select class="form-control" id="param1">
+									<option th:value="NULL">--Select--</option>
+									<option th:each="c:${storeList}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+								</select>
+
+
+							</div>
+
+							<div class="col-lg-2">
+								<label>Item</label><select class="form-control"
+									id="param2">
+									<option th:value="NULL">--Select--</option>
+									<option th:each="c:${itemList}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+								</select>
+
+							</div>
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>Start Date</label> <input type="text"
+										class="form-control" id="param3" readonly>
+								</div>
+							</div>
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>End Date</label> <input type="text" class="form-control"
+										id="param4" readonly>
+								</div>
+							</div>
+							<div class="col-lg-2" style="margin-top: 26px;">
+								<div class="form-group">
+									<button class="btn btn-primary" onclick="searchData()">Search</button>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table class="table table-bordered" id="tblTheme">
+							<thead>
+								<tr>
+									<th>Plan Id</th>
+									<th>Batch Id</th>
+									<th>Batch Quantity</th>
+									<th>Production Item Name</th>
+									<th>Production Quantity</th>
+									<th>Store Name</th>
+									<th>Mix Weight</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Production Details</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+							<tbody id="tModelBody"></tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /# row -->
+
+		<!-- modal for add data  -->
+		<div id="myModalProd" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">Add Production Details</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+
+					<div class="modal-body">
+						<div class="row">
+							<div class="col-lg-6">
+								<input type="hidden" value="" id="prodId">
+								<div class="form-group">
+									<label> Production Start Date</label> <input type="text"
+										id="productionStartDate" readonly class="form-control" onchange="dateVaidate()" />
+								</div>
+							</div>
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label> Production End Date</label> <input type="text"
+										id="productionEndDate" readonly class="form-control" onchange="dateVaidate()" />
+								</div>
+							</div>
+
+						</div>
+						<div class="row">
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label> Production Quantity</label> <input type="text"
+										id="productionQty" class="form-control" />
+								</div>
+							</div>
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label> Production Weight</label> <input type="text"
+										id="productionWt" class="form-control" />
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label> Scrap Weight </label> <input type="text" id="scrapWt"
+										class="form-control" />
+								</div>
+							</div>
+
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label> Scrap Quantity </label> <input type="text"
+										id="scrapQty" class="form-control" />
+								</div>
+							</div>
+						</div>
+
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn  btn-success" id="submit"
+							data-dismiss="modal">Save</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+	</div>
+</div>
+</html>

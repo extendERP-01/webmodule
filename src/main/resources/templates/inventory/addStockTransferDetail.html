@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+
+<style type="text/css">
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 440px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list1 li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.red {
+	background-color: #b3ccff;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 220px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+
+<script>	
+function checkEmpty1() {
+	var addCharges = true;
+    $('.charges').each(function() {
+        if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Expenses Head")) {
+        	addCharges = false;
+            return false;
+        }
+    });
+    
+    var addAmount = true;
+    if (addCharges) { 
+        $('.addAmount').each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Additional Charges Amount")) {
+            	addAmount = false;
+                return false;
+            }
+        });
+    }
+    
+    if(addCharges && addAmount) {
+    	addMore1();
+    }
+}
+
+function addMore1() {
+	
+	var lengthOfTableRow = $("#tbodyData1").children('tr').length;
+    var cloneHtml = $("#myTable1 tbody tr:first").clone();
+    
+    $("#myTable1 tbody tr:last").find('td:last').html('');
+    $("#myTable1 tbody").append($("#myTable1 tbody tr:first").clone());
+    $("#myTable1 tbody tr td:last").html("");
+    
+    var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty1();"><span class="ti-plus"></span></button>&nbsp;'
+    var removeMore = '<button type="button" class="btn btn-warning rmv1" name="Remove"><span class="ti-minus"></span></button>';
+    
+    $("#myTable1 tbody tr:last").find('td:last').append(addMore);
+    $("#myTable1 tbody tr:last").find('td:last').append(removeMore);
+    
+    var editTr = 0;
+    if (lengthOfTableRow > editTr) {
+        $("#myTable1 tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+    }
+    
+    $("#myTable1 tbody tr:last").find(".charges").val("");
+    $("#myTable1 tbody tr:last").find(".addAmount").val("");
+    
+    $("#myTable1 > tbody > tr").each(function(i) {
+        var textInput = $(this).find('input');
+
+        textInput.eq(0).attr('id', "additionalCharges_" + i);
+        textInput.eq(1).attr('id', "additionalAmount_" + i);
+
+    })
+}
+$(document).ready(function() {
+
+    //date time picker
+    $("#tTransferDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        //minDate: new Date() ,
+        timepicker: false,
+    })
+    
+    var lengthOfTableRow1 = $("#tbodyData1").children('tr').length;
+    $('.tbll1').on('click', '.rmv1', function() {
+        $(this).closest('tr').remove();
+
+        //calculateSubTotal();
+        //calculategstRate();
+        $("#myTable1 tbody tr:last").find('td:last').html('');
+        var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty1();"><span class="ti-plus"></span></button>&nbsp;'
+        var remove = '<button type="button" class="btn btn-warning rmv1" name="Remove"><span class="ti-minus"></span></button>';
+        if ($("#tbodyData1").children('tr').length > 1) {
+            $("#myTable1 tbody tr:last").find('td:last').append(add);
+            $("#myTable1 tbody tr:last").find('td:last').append(remove);
+        } else {
+
+            $("#myTable1 tbody tr:last").find('td:last').append(add);
+        }
+        var newVal = $(this).closest('tr').find(".addAmount").attr("id");
+		var l = newVal.split("_");
+		var counter = l[1];
+		newCalculation(counter);
+    });
+});
+//Function for blank validation
+
+function checkEmpty() {
+    var itemValid = true;
+    $('.itemCls').each(function() {
+        if (!blankValidation($(this).attr('id'), "SelectBox", "Please Select Item ")) {
+
+            itemValid = false;
+            return false;
+        }
+
+    });
+
+    var priceValid = true;
+    if (itemValid) {
+        $('.priceCls').each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Price")) {
+
+                priceValid = false;
+                return false;
+            }
+
+        });
+    }
+    var qtyValid = true;
+    if (itemValid && priceValid) {
+        $('.tItemQuantityCls').each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Quantity")) {
+
+                qtyValid = false;
+                return false;
+            }
+
+        });
+    }
+    if (itemValid && priceValid && qtyValid) {
+
+        addMore();
+    }
+}
+//ADD MORE
+function addMore() {
+    var lengthOfTableRow = $("#tbodyData").children('tr').length;
+    var cloneHtml = $("#myTable tbody tr:first").clone();
+    $("#myTable tbody tr:last").find('td:last').html('');
+    $("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+    $("#myTable tbody tr td:last").html("");
+    var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+    var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+    $("#myTable tbody tr:last").find('td:last').append(addMore);
+    $("#myTable tbody tr:last").find('td:last').append(removeMore);
+
+    //$("#myTable tbody tr:last").find(".NameCls").append(new Option("--Select--","")); 
+    $("#myTable tbody tr:last").find(".itemCls").val("");
+    $("#myTable tbody tr:last").find(".itemNOCls").val("");
+    $("#myTable tbody tr:last").find(".tItemDescriptionCls").html("");
+    $("#myTable tbody tr:last").find(".tItemUnitCls").html("");
+    $("#myTable tbody tr:last").find(".tItemQuantityCls").val("");
+    $("#myTable tbody tr:last").find(".taxRateCls").empty();
+    $("#myTable tbody tr:last").find(".priceCls").val("");
+    $("#myTable tbody tr:last").find(".totalCls").val("");
+
+    var editTr = 0;
+
+    if (lengthOfTableRow > editTr) {
+
+        $("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+    }
+
+    $("#myTable > tbody > tr").each(function(i) {
+        var labelInput = $(this).find('label');
+        var textInput = $(this).find('input');
+        var divInput = $(this).find('div');
+        textInput.eq(0).attr('id', "item_" + i);
+        textInput.eq(1).attr('id', "itemNo_" + i);
+        textInput.eq(2).attr('id', "itmDescription_" + i);
+        textInput.eq(3).attr('id', "itmUnit_" + i);
+        textInput.eq(4).attr('id', "price_" + i);
+        textInput.eq(5).attr('id', "tItemQuantity_" + i);
+        textInput.eq(6).attr('id', "total_" + i);
+        divInput.eq(0).attr('id', "suggesstion-box_" + i);
+        labelInput.eq(0).attr('id', "tItemDescription_" + i);
+        labelInput.eq(1).attr('id', "tItemUnit_" + i);
+        labelInput.eq(2).attr('id', "taxRate_" + i);
+
+
+    })
+
+}
+
+$(document).ready(function() {
+    //for minus
+    var lengthOfTableRow = $("#tbodyData").children('tr').length;
+    $('.tbll').on('click', '.rmv', function() {
+
+        $(this).closest('tr').remove();
+        subTotal();
+        $("#myTable tbody tr:last").find('td:last').html('');
+        var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+        var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+        if ($("#tbodyData").children('tr').length > 1) {
+            $("#myTable tbody tr:last").find('td:last').append(add);
+            $("#myTable tbody tr:last").find('td:last').append(remove);
+        } else {
+            $("#myTable tbody tr:last").find('td:last').append(add);
+        }
+
+
+    });
+
+
+    //Function for saving data
+
+    $("#submitItems").click(function() {
+    	
+    	var newD = [];
+    	$("#tbodyData1 > tr").each(function(){
+    		
+    		add = {};
+    		
+    		add['key'] = $(this).find(".charges").val();
+    		add['name'] = $(this).find(".addAmount").val();
+    		
+    		var addCharges = true;
+    	    $('.charges').each(function() {
+    	        if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Charges Type")) {
+    	        	addCharges = false;
+    	            return false;
+    	        }
+    	    });
+    	    
+    	    var addAmount = true;
+    	    if (addCharges) { 
+    	        $('.addAmount').each(function() {
+    	            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Additional Charges Amount")) {
+    	            	addAmount = false;
+    	                return false;
+    	            }
+    	        });
+    	    }
+    	    if(addCharges && addAmount) {
+    	    	newD.push(add);
+    	    } else {
+    	    	swal("Additonal Charges Type Or Amount Can't Be Left Blank..!!")
+    	    }
+    	});
+    	
+        var dataset = [];
+
+        $("#tbodyData > tr").each(function() {
+
+            item = {};
+            item['tStockTransferId'] = $("#tStockTransferId").val();
+            item['tFromStore'] = $("#tFromStore").val();
+            item['tToStore'] = $("#tToStore").val();
+            item['tTransferDate'] = $("#tTransferDate").val();
+            item['tSerialNo'] = $("#tSerialNo").val();
+            item['tTransferNo'] = $("#tTransferNo").val();
+            item['tDescription'] = $("#description").val();
+            item['tTransferStatus'] = $("#tTransferStatus").val();
+            item['tItem'] = $(this).find(".itemCls").val();
+            item['tItemDescription'] = $(this).find(".itmDescriptionCls").val();
+            item['tItemUnit'] = $(this).find(".itmUnitCls").val();
+            //item['taxRate']		  	 				=	$(this).find(".taxRateCls").html();
+            item['price'] = $(this).find(".priceCls").val();
+            item['tItemQuantity'] = $(this).find(".tItemQuantityCls").val();
+            //item['total']		  	 				=	$(this).find(".totalCls").val();
+            //item['subTotal']		  	 			=	$("#subTotal").html();
+            dataset.push(item);
+            console.log(dataset);
+        }); //table tbody tr loop ends
+
+        //Blank Validations
+        if (!blankValidation("tFromStore", "SelectBox", "Please Select From Store"))
+            return false;
+
+        if (!blankValidation("tToStore", "SelectBox", "Please Select To Store"))
+            return false; 
+        if (!blankValidation("tTransferDate", "TextField", "Please Enter Transfer Date"))
+            return false;
+        if (!blankValidation("tTransferStatus", "SelectBox", "Please Select Status"))
+            return false;
+        if (!blankValidation("description", "TextArea", "Please Enter Description"))
+            return false;
+
+        var itemValid = true;
+        $('.itemCls').each(function() {
+            if (!blankValidation($(this).attr('id'), "SelectBox", "Please Select Item ")) {
+
+                itemValid = false;
+                return false;
+            }
+
+        });
+
+        var priceValid = true;
+        if (itemValid) {
+            $('.priceCls').each(function() {
+                if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Price")) {
+
+                    priceValid = false;
+                    return false;
+                }
+
+            });
+        }
+        var qtyValid = true;
+        if (itemValid && priceValid) {
+            $('.tItemQuantityCls').each(function() {
+                if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Quantity")) {
+
+                    qtyValid = false;
+                    return false;
+                }
+
+            });
+        }
+        if (itemValid && priceValid && qtyValid) {
+
+            submitStock(dataset);
+        }
+
+    });
+});
+
+//Function for Submit PupUp
+
+function submitStock(dataset) {
+
+    swal.fire({
+        title: "Are you sure want to Submit?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "add-item-stock-transfer",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+                    console.log(response);
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            window.location.href = "/inventory/view-item-stock-transfer";
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(response) {
+                    console.log(response.code);
+                }
+            }) //ajax ends
+        }
+    }) //swal function block ends
+} //submit function ends
+
+//function for auto filled of item Auto Complete
+function itemAutoComplete(id) {
+    var l = id.split("_");
+    var counter = l[1];
+    $.ajax({
+        type: "POST",
+        url: "add-item-stock-transfer-getItemAutocompleteList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#" + id).val(),
+        success: function(response) {
+            console.log(response);
+            if (response.message == "success") {
+                if (response.body.length != 0) {
+                    $("#itemNo_0").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) {
+                        content += '<li onClick="autocompleteValue(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\',\'' + id + '\',' + response.body[i].price + ')">' + response.body[i].name + '</li>';
+                    }
+                    content += '</ul>';
+                    $("#suggesstion-box_" + counter).show();
+                    $("#suggesstion-box_" + counter).html(content);
+
+                } else {
+                    console.log("else: " + response);
+                    $("#itemNo_0").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="autocompleteValue(\'' + '' + '\',\'' + '' + '\',\'' + id + '\',' + 0 + ')">' + "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box_" + counter).show();
+                    $("#suggesstion-box_" + counter).html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+
+function autocompleteValue(key, name, id, price) {
+    var l = id.split("_");
+    var counter = l[1];
+
+    if (key) {
+        $("#item_" + counter).val(key);
+        $("#itemNo_" + counter).val(name);
+        $("#price_" + counter).val(price.toFixed(2));
+        $("#itemNo_" + counter).attr('data-procat', key);
+        $("#suggesstion-box_" + counter).hide();
+        getItemDetail(key, counter);
+        checkForDuplicateEntry(counter)
+    } else {
+        $("#item_" + counter).val("");
+        $("#itemNo_" + counter).val("");
+        $("#price_" + counter).val(0);
+        $("#itemNo_" + counter).attr('data-procat', "");
+        $("#suggesstion-box_" + counter).hide();
+        getItemDetail(key, counter);
+        checkForDuplicateEntry(counter)
+    }
+}
+
+function addTotalAdditionalCharges(e) {
+	var value = e.currentTarget.value;
+	var grandTotal = $("#hiddenGrandTotal").val();
+	var sum = 0;
+	if(value) {
+		$("#tbodyData1 > tr").each(function(){
+			var amount = $(this).find(".addAmount").val();
+			sum = parseFloat(sum) + parseFloat(amount);
+		})
+		$("#totalAddCharges").html(sum.toFixed(2));
+		var newTotal = parseFloat(grandTotal) + parseFloat(sum);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	} else {
+		$("#totalAddCharges").html("0.00");
+		var newTotal = parseFloat(grandTotal);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	}
+}
+
+function newCalculation(i) {
+	value = "A";
+	var grandTotal = $("#hiddenGrandTotal").val();
+	var sum = 0;
+	if(value) {
+		$("#tbodyData1 > tr").each(function(){
+			var amount = $(this).find(".addAmount").val();
+			sum = parseFloat(sum) + parseFloat(amount);
+		})
+		$("#totalAddCharges").html(sum.toFixed(2));
+		var newTotal = parseFloat(grandTotal) + parseFloat(sum);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	} else {
+		$("#totalAddCharges").html("0.00");
+		var newTotal = parseFloat(grandTotal);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	}
+}
+
+//unchange of item  Name
+function getItemDetail(key, counter) {
+    if (key != "") {
+        $("#tItemDescription_" + counter).empty();
+        $("#tItemUnit_" + counter).empty();
+        //$("#price_"+counter).val("0.0");
+        $("#tItemQuantity_" + counter).val("0.0");
+        $("#taxRate_" + counter).empty();
+        $("#total_" + counter).val("");
+        $.ajax({
+            type: "GET",
+            url: "/inventory/add-item-stock-transfer-getItemDetail-throughAjax?item=" + key,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+                console.log(response);
+                var items = response.body;
+                if (response.message == "success") {
+                    if (items.length > 0) {
+                        for (var i = 0; i < items.length; i++) {
+                            $("#tItemDescription_" + counter).html(items[i].tFromStore);
+                            $("#tItemUnit_" + counter).html(items[i].tTransferDate);
+                            $("#taxRate_" + counter).html(items[i].tItemQuantity);
+                            $("#itmDescription_" + counter).val(items[i].tStockTransferId);
+                            $("#itmUnit_" + counter).val(items[i].tToStore);
+
+                        }
+                    }
+                } else {
+                    swal("Please Try Again");
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+        $("#tItemDescription" + counter).text("0");
+        $("#tItemUnit" + counter).text("0");
+        $("#tItemQuantity" + counter).val("");
+    }
+}
+//get Total Value
+function getTotal(event) {
+    var currentId = event.currentTarget.id;
+    var currentValue = event.currentTarget.value;
+    var l = currentId.split("_");
+    var counter = l[1];
+    var price = parseFloat($("#price_" + counter).val());
+    var quantity = parseFloat($("#tItemQuantity_" + counter).val());
+    if (price && quantity) {
+        var total = price * quantity;
+        $("#total_" + counter).val(total.toFixed(2));
+        subTotal();
+    }
+
+}
+//on Price change
+
+function priceChange(event) {
+    var currentId = event.currentTarget.id;
+    var currentValue = event.currentTarget.value;
+    var l = currentId.split("_");
+    var counter = l[1];
+    var qty = $("#tItemQuantity_" + counter).val();
+    var price = parseFloat($("#price_" + counter).val());
+    if (qty && price) {
+        $("#total_" + counter).val((price).toFixed(2));
+        subTotal();
+    }
+}
+
+
+//method to calculate subtotal
+function subTotal() {
+    var sum = 0;
+
+    $(".totalCls").each(function(i) {
+        sum = sum + parseFloat($(this).val());
+    })
+    $('#subTotal').html((sum).toFixed(2));
+    var totalAddCharges = $("#totalAddCharges").html();
+    $('#grandTotal').html((sum+parseFloat(totalAddCharges)).toFixed(2));
+    $('#hiddenGrandTotal').val((sum - parseFloat(totalAddCharges)).toFixed(2));
+}
+
+//function to validate Discount field
+
+function extractNumber(obj, decimalPlaces, allowNegative) {
+    var temp = obj.value;
+    // avoid changing things if already formatted correctly
+    var reg0Str = '[0-9]*';
+    if (decimalPlaces > 0) {
+        reg0Str += '\\.?[0-9]{0,' + decimalPlaces + '}';
+    } else if (decimalPlaces < 0) {
+        reg0Str += '\\.?[0-9]*';
+    }
+    reg0Str = allowNegative ? '^-?' + reg0Str : '^' + reg0Str;
+    reg0Str = reg0Str + '$';
+    var reg0 = new RegExp(reg0Str);
+    if (reg0.test(temp)) return true;
+
+    // first replace all non numbers
+    var reg1Str = '[^0-9' + (decimalPlaces != 0 ? '.' : '') + (allowNegative ? '-' : '') + ']';
+    var reg1 = new RegExp(reg1Str, 'g');
+    temp = temp.replace(reg1, '');
+
+    if (allowNegative) {
+        // replace extra negative
+        var hasNegative = temp.length > 0 && temp.charAt(0) == '-';
+        var reg2 = /-/g;
+        temp = temp.replace(reg2, '');
+        if (hasNegative) temp = '-' + temp;
+    }
+
+    if (decimalPlaces != 0) {
+        var reg3 = /\./g;
+        var reg3Array = reg3.exec(temp);
+        if (reg3Array != null) {
+            // keep only first occurrence of .
+            //  and the number of places specified by decimalPlaces or the entire string if decimalPlaces < 0
+            var reg3Right = temp.substring(reg3Array.index + reg3Array[0].length);
+            reg3Right = reg3Right.replace(reg3, '');
+            reg3Right = decimalPlaces > 0 ? reg3Right.substring(0, decimalPlaces) : reg3Right;
+            temp = temp.substring(0, reg3Array.index) + '.' + reg3Right;
+        }
+    }
+
+    obj.value = temp;
+}
+//function to validate Quantity field				
+function checkQty(event) {
+    var currentId = event.currentTarget.id;
+    checkNum(currentId);
+}
+// Function For Reloading The Page Or Reset
+
+function funcLoad() {
+    location.reload();
+}
+
+function returnToAddPage() {
+    var item = $("#tStockTransferId").val();
+    if ((item == null) || (item == "")) {
+        funcLoad();
+    } else {
+        window.location.href = "/inventory/view-item-stock-transfer";
+    }
+}
+//function to check duplicate entry of Item name
+function checkForDuplicateEntry(counter) {
+    var item = $("#item_" + counter).val();
+    var count = 0;
+    $(".itemCls").each(function() {
+        if (item == $(this).val()) {
+            count++;
+        }
+    })
+    if (count >= 2) {
+        swal('item already selected');
+        $("#itemNo_" + counter).val("");
+    }
+
+}
+
+//function to campare from store and to store
+function storeComaprision() {
+    var fromStore = $("#tFromStore").val();
+    var toStore = $("#tToStore").val();
+
+    if (fromStore == toStore) {
+        swal("Can't transfer to the same store ");
+        $("#tToStore").val("");
+        $("#tFromStore").val();
+    }
+
+}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Stock Transfer Details</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Stock Details</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:object="${stockTransferModel}" autocomplete="off">
+								<input type="hidden" id="tStockTransferId" th:value="${id}" />
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group" id="">
+											<label> Store From</label> <select class="form-control"
+												id="tFromStore" onchange="storeComaprision();">
+												<option th:value="null">--Select--</option>
+												<option th:if="${id}" th:each="c:${fromStoreList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==stockTransferModel[0].tFromStore}"></option>
+												<option th:unless="${id}" th:each="c:${fromStoreList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+
+
+
+										<!-- 
+										<div class="form-group">
+											<label>Serial No.</label>
+											<input th:if="${id}"
+												id="tSerialNo" class="form-control  " th:value="${stockTransferModel[0].tSerialNo}">
+												<input th:unless="${id}"
+												id="tSerialNo" class="form-control ">
+										</div> -->
+										<div class="form-group" id="date">
+											<label> Date</label> <input type="text" th:if="${id}"
+												class="form-control" id="tTransferDate"
+												th:value="${stockTransferModel[0].tTransferDate}"
+												th:disabled='${id}'> <input type="text"
+												th:unless="${id}" class="form-control" id="tTransferDate"
+												placeholder="Select Date" readonly>
+										</div>
+										<div class="form-group">
+											<label>Driver</label>
+											<input type="text" class="form-control">
+										</div>
+										<div class="form-group">
+											<label>Driver Mobile No.</label>
+											<input type="text" class="form-control">
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Store To</label> <select class="form-control"
+												id="tToStore" onchange="storeComaprision();">
+												<option th:value="null">--Select--</option>
+												<option th:if="${id}" th:each="c:${toStoreList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==stockTransferModel[0].tToStore}"></option>
+												<option th:unless="${id}" th:each="c:${toStoreList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Vehicle No.</label>
+											<input type="text" class="form-control">
+										</div>
+										<div class="form-group" id="tdescription">
+											<label id="desc">Description</label>
+											<textarea th:if="${id}" style="height: 70px;" cols="50"
+												rows="4" id="description" class="form-control textarea"
+												th:text="${stockTransferModel[0].tDescription}"></textarea>
+											<textarea th:unless="${id}" style="height: 70px;" cols="50"
+												rows="4" id="description" class="form-control textarea"></textarea>
+										</div>
+										<!-- <div class="form-group">
+											<label>Transfer No.</label>
+											<input th:if="${id}"
+												id="tTransferNo" class="form-control " th:value="${stockTransferModel[0].tTransferNo}">
+												<input th:unless="${id}"
+												id="tTransferNo" class="form-control ">
+										</div> -->
+										<div class="form-group" style="display: none;">
+											<label>Status</label> <select class="form-control"
+												id="tTransferStatus">
+												<option th:if="${id}" value=true
+													th:selected="${stockTransferModel[0].tTransferStatus}">Active</option>
+												<option th:if="${id}" value=false
+													th:selected="${!stockTransferModel[0].tTransferStatus}">Inactive</option>
+												<option th:unless="${id}" value=false>Not Receive</option>
+												<option th:unless="${id}" value=true>Received</option>
+											</select>
+										</div>
+
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="2" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Item</th>
+													<th style="display: none;">Description</th>
+													<th style="display: none;">Unit</th>
+													<th>Price</th>
+													<th>Quantity</th>
+													<th style="display: none;">Tax Rate(%)</th>
+													<th>Total</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+											<tbody id="tbodyData">
+
+												<!-- FOR EDIT	 -->
+
+
+
+												<tr class="tr_clone" th:if="${id}"
+													th:each="a,iter:${stockTransferModel}">
+
+													<td><input type="hidden" id="item_0"
+														class="form-control  itemCls" th:value='${a.item}' /> <input
+														type="text" th:id="'itemNo_'+${iter.index}"
+														class="form-control itemNOCls"
+														onkeyup="itemAutoComplete(this.id);" th:value='${a.tItem}' />
+														<div id="suggesstion-box_0"></div></td>
+
+													<td style="display: none;"><label
+														th:id="'tItemDescription_'+${iter.index}"
+														class="form-control tItemDescriptionCls"
+														th:text='${a.tItemDescription}'></label> <input
+														type="hidden" th:id="'itmDescription_'+${iter.index}"
+														class="form-control  itmDescriptionCls"
+														th:value='${a.desc}' /></td>
+
+													<td style="display: none;"><label th:id="'tItemUnit_'+${iter.index}"
+														class="form-control tItemUnitCls" th:text='${a.tItemUnit}'></label>
+														<input type="hidden" th:id="'itmUnit_'+${iter.index}"
+														class="form-control  itmUnitCls" th:value='${a.unit}' /></td>
+													<td><input type="text" th:id="'price_'+${iter.index}"
+														class="form-control priceCls" th:value="${a.price} "
+														onkeyup="return extractNumber(this,2),priceChange(event);" /></td>
+
+													<td><input type="text"
+														th:id="'tItemQuantity_'+${iter.index}"
+														class="form-control tItemQuantityCls"
+														onkeyup="getTotal(event),checkQty(event);"
+														th:value='${a.tItemQuantity}' /></td>
+
+													<td style="display: none;"><label
+														th:id="'taxRate_'+${iter.index}"
+														class="form-control taxRateCls" th:text='${a.taxRate}'></label></td>
+
+
+													<td><input type="text" th:id="'total_'+${iter.index}"
+														class="form-control totalCls" th:value="${a.total} " /></td>
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+													</td>
+												</tr>
+												<tr class="tr_clone" th:unless="${id}">
+
+
+													<td><input type="hidden" id="item_0"
+														class="form-control  itemCls" /> <input type="text"
+														id="itemNo_0" class="form-control itemNOCls"
+														onkeyup="itemAutoComplete(this.id);" />
+														<div id="suggesstion-box_0"></div></td>
+
+													<td style="display: none;"><label
+														id="tItemDescription_0"
+														class="form-control tItemDescriptionCls"> </label><input
+														type="hidden" id="itmDescription_0"
+														class="form-control  itmDescriptionCls" /></td>
+
+													<td style="display: none;"><label id="tItemUnit_0"
+														class="form-control tItemUnitCls"> </label><input
+														type="hidden" id="itmUnit_0"
+														class="form-control  itmUnitCls" /></td>
+
+													<td><input type="text" id="price_0"
+														class="form-control priceCls right-align"
+														onkeyup="return extractNumber(this,2),priceChange(event);" /></td>
+
+													<td><input type="text" id="tItemQuantity_0"
+														class="form-control tItemQuantityCls"
+														onkeyup="getTotal(event),checkQty(event);" /></td>
+
+													<td style="display: none;"><label id="taxRate_0"
+														class="form-control taxRateCls right-align"></label></td>
+
+
+													<td><input type="text" id="total_0"
+														class="form-control totalCls  right-align" /></td>
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+										</table>
+
+										
+
+
+									</div>
+								</div>
+							</form>
+						</div>
+						<div class="row">
+							<div class="col-lg-6">
+								<label class="label-head" style="font-size: 18px; font-weight: bold; color: #2b5fdf;">Additional Expenses</label>
+								<table class="tbll1" id="myTable1" width="100%" border="0"
+									cellspacing="1" cellpadding="5">
+									<thead>
+										<tr>
+											<th>Expenses Head</th>
+											<th>Amount</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+
+									<tbody id="tbodyData1">
+										<!-- <tr class="tr_clone" th:if="${invGoods}"
+											th:each="a,iter:${invGoodsReceiveModel}">
+											<td><input type="hidden"
+												th:id="${'itemCategory_'+iter.index}"
+												class="form-control itemCategory"
+												th:value="${a.itmCategory}" /> <input type="hidden"
+												th:id="${'itemSubCategory_'+iter.index}"
+												class="form-control itemSubCategory"
+												th:value="${a.itmSubCategory}" /> <input type="hidden"
+												th:id="${'itemName_'+iter.index}"
+												class="form-control itemCls1"
+												th:value="${a.gRnInvoiceItmName}"> <input
+												type="text" th:id="${'item_'+iter.index}"
+												class="form-control itemCls"
+												onkeyup="itemAutoComplete(event);" th:value="${a.ItemName}">
+												<div id="suggesstion-box1_"></div></td>
+											<td><input type="text"
+												th:id="'receivedQuantity_'+${iter.index}"
+												class="form-control receivedQuantityCls"
+												th:each="c:${qtyLists[iter.index]}" th:value='${c.key}'
+												readonly></td>
+											<td><input type="text"
+												th:id="'ServiceQuantity_'+${iter.index}"
+												class="form-control lServiceQuantityCls"
+												onkeyup="checkQty(event); calculateAmountTotal(event); checkGRNQuantity(event);"
+												th:value='${a.gRnInvoiceQuantity}'></td>
+											<td><input type="text" th:id="'poPrice_'+${iter.index}"
+												class="form-control poPriceCls right-align" th:value='${a.gRnPrice}'
+												readonly></td>
+											<td><input type="text" th:id="'invPrice_'+${iter.index}"
+												class="form-control invPriceCls right-align" th:value='${a.invPrice}'
+												onkeyup="return extractNumber(this,2),calculateAmountTotal(event);" /></td>
+											<td><input type="text" th:id="'gstRate_'+${iter.index}"
+												class="form-control gstRateCls" th:value='${a.dGstRate}'
+												readonly onkeyup="calculategstRate();" /> <input
+												type="hidden" th:id="${'gstAmount_'+iter.index}"
+												class="form-control gstAmountCls" /></td>
+											<td><input type="text" readonly th:id="'cessAmt_'+${iter.index}" size="6" class="form-control cessAmount" th:value='${a.cessAmount}'></td>
+											<td><input type="text"
+												th:id="'amountTotal_'+${iter.index}"
+												class="form-control amountTotalCls right-align"
+												th:value="${a.lineTotal}" readonly></td>
+											<td>
+												<button th:if="${iter.size == iter.index+1}" type="button"
+													class="btn btn-primary tr_clone_add" name="add"
+													onclick="checkEmpty();">
+													<span class="ti-plus"></span>
+												</button>&nbsp; <button th:if="${iter.size == iter.index+2}"  type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>
+												<button th:if="${iter.size != 1}" type="button"
+													class="btn btn-warning rmv" name="Remove">
+													<span class="ti-minus"></span>
+												</button>
+											</td>
+										</tr> -->
+										<tr class="tr_clone" th:unless="${invGoods}">
+											<td><input type="text" id="additionalCharges_0" class="form-control charges"></td>
+											<td><input type="text" id="additionalAmount_0" onkeyup="checkQty(event);addTotalAdditionalCharges(event);" class="form-control addAmount right-align"></td>
+											<td>
+												<button type="button" class="btn btn-primary tr_clone_add"
+													name="add" onclick="checkEmpty1();">
+													<span class="ti-plus"></span>
+												</button>&nbsp;
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="col-lg-6">
+								<div class="form-group subheading" width="80%" align="right">
+									<label>Sub Total :</label> <label id="subTotal" th:if="${id}"
+										class=" subTotalCls"
+										th:text="${stockTransferModel[0].subTotal} ">0.00</label> <label
+										id="subTotal" th:unless="${id}" class="subTotalCls">0.00</label>
+
+								</div>
+								<div class="form-group subheading" width="80%" align="right">
+									<label>Additional Expenses :</label> <label id="totalAddCharges" th:if="${id}"
+										class=" totalAddCharges"
+										th:text="${stockTransferModel[0].subTotal} ">0.00</label> <label
+										id="totalAddCharges" th:unless="${id}" class="totalAddCharges">0.00</label>
+
+								</div>
+								<div class="form-group subheading" width="80%" align="right">
+									<label>Grand Total :</label> <label id="grandTotal" th:if="${id}"
+										class=" grandTotal"
+										th:text="${stockTransferModel[0].subTotal} ">0.00</label> <label
+										id="grandTotal" th:unless="${id}" class="grandTotal">0.00</label>
+										<input type="hidden" id="hiddenGrandTotal">
+
+								</div>
+							</div>
+						</div>
+						<div class="row">
+						<div class="col-lg-12">
+							<div class="form-group">
+								<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+								<button type="button" class="btn btn-warning"
+									onclick="returnToAddPage();">Cancel</button>
+							</div></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div style="clear: both;"></div>
+	</div>
+</div>
+</html>

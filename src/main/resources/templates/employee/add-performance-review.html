@@ -1,0 +1,1022 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<style type="text/css">
+.pagetitle {
+	font-size: 24px;
+	color: #266ef2;
+	padding: 10px 0px;
+	font-weight: bold;
+}
+
+.subtitle {
+	font-size: 14px;
+	color: #333;
+	padding: 10px 0px;
+}
+
+.prioritybox {
+	height: 30px;
+	width: 30px;
+	border-radius: 15px;
+	border: 1px solid #ccc;
+	text-align: center;
+}
+
+.summerybox {
+	border: 1px solid #ccc;
+	color: #333;
+	padding: 8px;
+	background: #f5f5f5;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover
+	{
+	color: #555;
+	cursor: default;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-bottom-color: transparent;
+}
+
+.mrt {
+	margin: 15px 0px;
+}
+
+.nav>li>a {
+	position: relative;
+	display: block;
+	padding: 10px 44px;
+}
+
+.nav-tabs {
+	background: #c1c5c6;
+}
+
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+	color: #fff;
+	background-color: #fff;
+	border-color: #ddd #ddd #fff;
+	background: #6f6f70;
+}
+
+.nav-tabs>li>a {
+	margin-right: 2px;
+	line-height: 1.42857143;
+	border: 1px solid transparent;
+	border-radius: 4px 4px 0 0;
+}
+
+.tab-pane h5 {
+	padding: 15px 0px;
+}
+</style>
+<script type="text/javascript">
+	$(document)
+			.ready(
+					function() {
+						activaTab('menu0');
+
+						var lengthOfTableRow = $("#tbodyData").children('tr').length;
+						$('.tbll')
+								.on(
+										'click',
+										'.rmv',
+										function() {
+											$(this).closest('tr').remove();
+											$("#myTable tbody tr:last").find(
+													'td:last').html('');
+											var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+											var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+											if ($("#tbodyData").children('tr').length > 1) {
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(add);
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(remove);
+											} else {
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(add);
+											}
+											displayTable();
+										});
+						$("#fromDate").datetimepicker({
+							format : 'd-m-Y',
+							closeOnDateSelect : true,
+							timepicker : false,
+						})
+
+						$("#toDate").datetimepicker({
+							format : 'd-m-Y',
+							closeOnDateSelect : true,
+							timepicker : false,
+						})
+
+						$("#fromDate").datetimepicker({
+							format : 'd-m-Y',
+							closeOnDateSelect : true,
+							timepicker : false,
+						})
+
+						$("#date").datetimepicker({
+							format : 'd-m-Y',
+							closeOnDateSelect : true,
+							timepicker : false,
+						})
+
+					});
+
+	function activaTab(tab) {
+		$('.nav-tabs a[href="#' + tab + '"]').tab('show');
+	};
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+
+		<div class="main mrt_20">
+			<!--Alert Box-->
+			<div class="alert alert-danger alert-dismissible"
+				th:if="${message != null}">
+				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<span th:text="${message}"></span>
+			</div>
+			<!--Alert Box-->
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class="active"><span>Add Performance Review</span></li>
+					<!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Performance Review</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Employee Name</label> <select
+											class="form-control propertyCatName" id="empId">
+											<option value="">--Select--</option>
+											<option th:if="${Edit}" th:each="c:${EmployeeList}"
+												th:value='${c.key}' th:text="${c.name}"
+												th:selected='${c.key==certiAssign[0].empId}'></option>
+											<option th:unless="${Edit}" th:each="c:${EmployeeList}"
+												th:value='${c.key}' th:text="${c.name}"></option>
+
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Designation</label> <select class="form-control">
+											<option>All</option>
+											<option>Management</option>
+											<option>Supervisor</option>
+											<option>Staff</option>
+
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Superiors Name</label> <select
+											class="form-control propertyCatName" id="empId">
+											<option value="">--Select--</option>
+											<option th:if="${Edit}" th:each="c:${EmployeeList}"
+												th:value='${c.key}' th:text="${c.name}"
+												th:selected='${c.key==certiAssign[0].empId}'></option>
+											<option th:unless="${Edit}" th:each="c:${EmployeeList}"
+												th:value='${c.key}' th:text="${c.name}"></option>
+
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Designation</label><select class="form-control">
+											<option>All</option>
+											<option>Management</option>
+											<option>Supervisor</option>
+											<option>Staff</option>
+
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Department</label> <select class="form-control"
+											id="deptId">
+											<option value="">All</option>
+											<option value="">Account</option>
+											<option value="">HR</option>
+											<option value="">Development</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Date of Review</label> <input class="form-control"
+											id="date" readonly>
+									</div>
+								</div>
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Review From Date</label> <input class="form-control"
+											readonly id="fromDate">
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Review To Date</label> <input class="form-control"
+											readonly id="toDate">
+									</div>
+								</div>
+
+								<!-- <div class="form-group">
+											<label>Status</label> <select class="form-control"
+												th:field="*{certificationStatus}">
+												<option th:value=null>--select--</option>
+												<option th:value=true>Active</option>
+												<option th:value=false>Inactive</option>
+											</select>
+										</div> -->
+
+								<section id="tabs" class="project-tab">
+									<div class="container">
+										<div class="row">
+											<div class="col-md-12">
+
+												<ul class="nav nav-tabs">
+													<li class="nav-item"><a class="nav-link active"
+														data-toggle="tab" href="#menu0">Step 1</a></li>
+													<!--  <li><a data-toggle="tab" href="#menu0" class="nav-link">Step 1</a></li> -->
+													<li class="nav-item"><a data-toggle="tab"
+														href="#menu1" class="nav-link">Step 2</a></li>
+													<li class="nav-item"><a data-toggle="tab"
+														href="#menu2" class="nav-link">Step 3</a></li>
+													<li class="nav-item"><a data-toggle="tab"
+														href="#menu3" class="nav-link">Step 4</a></li>
+													<li class="nav-item"><a data-toggle="tab"
+														href="#menu4" class="nav-link">Step 5</a></li>
+													<li class="nav-item"><a data-toggle="tab"
+														href="#menu5" class="nav-link">Step 6</a></li>
+													<li class="nav-item"><a data-toggle="tab"
+														href="#menu6" class="nav-link">Step 7</a></li>
+													<li class="nav-item"><a data-toggle="tab"
+														href="#menu7" class="nav-link">Step 8</a></li>
+												</ul>
+
+												<div class="tab-content">
+													<div id="menu0" class="container tab-pane active">
+														<h5>Key Responsibility</h5>
+														<table class="table table-responsive" cellpadding="6">
+															<thead>
+																<tr>
+																	<td>Key Responsibility</td>
+																	<td>Expected Outcome</td>
+																	<td>Priority</td>
+																	<td>Comments</td>
+																	<td>Self Rating</td>
+																	<td>Supervision's Rating</td>
+																	<td>Final Rating</td>
+																	<td style="width: 120px;">Action</td>
+																</tr>
+															</thead>
+															<tbody>
+																<tr>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control">Leadership</textarea></td>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control">Have a strong
+																		leadership capacity</textarea></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control">Have a strong
+																		leadership capacity</textarea></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td>
+																		<button type="button" class="btn btn-warning rmv"
+																			name="Remove">
+																			<span class="ti-minus"></span>
+																		</button>
+																	</td>
+																</tr>
+																<tr>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control">Management</textarea></td>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control">Have a extra ability
+																		to manage different situation</textarea></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control">Have a extra ability
+																		to manage different situation</textarea></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td>
+																		<button type="button" class="btn btn-warning rmv"
+																			name="Remove">
+																			<span class="ti-minus"></span>
+																		</button>
+																	</td>
+																</tr>
+																<tr>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control">Coading Skill</textarea></td>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control">Have a strong coading
+																		capacity</textarea></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control">Have a strong
+																		knoweldge in coading</textarea></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option>
+																	</select></td>
+																	<td><button type="button"
+																			class="btn btn-primary tr_clone_add" name="add"
+																			onclick="addMore();">
+																			<span class="ti-plus"></span>
+																		</button>&nbsp;
+																		<button type="button" class="btn btn-warning rmv"
+																			name="Remove">
+																			<span class="ti-minus"></span>
+																		</button></td>
+																</tr>
+
+
+															</tbody>
+
+														</table>
+														<!-- <div class="row">
+															<div class="col-md-6">
+																<strong>Comments</strong>
+															</div>
+															<div class="col-md-2">
+																<strong>Self Rating</strong>
+															</div>
+															<div class="col-md-2">
+																<strong>Supervision's Rating</strong>
+															</div>
+															<div class="col-md-2">
+																<strong>Final Rating</strong>
+															</div>
+														</div> -->
+														<!-- <div class="row">
+															<div >
+																<textarea id="" name="" rows="2" cols="50"
+																	class="form-control"></textarea>
+															</div>
+															<div class="col-md-2">
+																<select class="form-control">
+																	<option>Select</option>
+																	<option>1</option>
+																	<option>2</option>
+																	<option>3</option>
+																</select>
+															</div>
+															<div class="col-md-2">
+																<select class="form-control">
+																	<option>Select</option>
+																	<option>1</option>
+																	<option>2</option>
+																	<option>3</option>
+																</select>
+															</div>
+															<div class="col-md-2">
+																<select class="form-control">
+																	<option>Select</option>
+																	<option>1</option>
+																	<option>2</option>
+																	<option>3</option>
+																</select>
+															</div>
+														</div> -->
+														<div class="form-group col-md-6">
+															<label>Summary</label> <input
+																class="form-control textarea">
+														</div>
+
+														<div align="left" class="mrt">
+															<button class="btn btn-success">Save</button>
+															<button class="btn btn-danger">Close</button>
+														</div>
+
+
+														<!-- <div class="row">
+															<div class="summerybox">Summary :</div>
+														</div> -->
+													</div>
+													<div id="menu1" class="container tab-pane fade">
+														<h5>Key Perfermance Factors</h5>
+														<table class="table table-responsive" cellpadding="6">
+															<thead>
+																<tr>
+																	<td>Perfermance Factors</td>
+																	<td>Not Applicable</td>
+																	<td>Self Ratings</td>
+																	<td>Comments</td>
+																	<td>Supervision Rating</td>
+																	<td>Final Ratings</td>
+																</tr>
+															</thead>
+															<tbody>
+																<tr>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control"></textarea></td>
+																	<td><input type="checkbox" name=""></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control"></textarea></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																</tr>
+																<tr>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control"></textarea></td>
+																	<td><input type="checkbox" name=""></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control"></textarea></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																</tr>
+															</tbody>
+														</table>
+														<div align="left">
+															<button class="btn btn-success">Save</button>
+															<button class="btn btn-warning">Clear</button>
+															<button class="btn btn-danger">Close</button>
+														</div>
+													</div>
+													<div id="menu2" class="container tab-pane fade">
+														<h5>Review of Development Goals</h5>
+
+														<table class=" table-responsive" cellpadding="6">
+															<thead>
+																<tr>
+																	<td>Development Goal</td>
+																	<td>Expected Outcome</td>
+																	<td>Target date</td>
+																	<td>Achivement</td>
+																	<td>Self Rating</td>
+																	<td>Super Vision Rating</td>
+																	<td>Final Ratings</td>
+																	<td>Comments</td>
+																</tr>
+															</thead>
+															<tbody>
+																<tr>
+																	<td><textarea id="" name="" rows="2" cols="30"
+																			class="form-control"></textarea></td>
+																	<td><textarea id="" name="" rows="2" cols="30"
+																			class="form-control"></textarea></td>
+																	<td><input type="text" id="date"
+																		class="form-control" readonly name=""></td>
+																	<td><textarea id="" name="" rows="2" cols="30"
+																			class="form-control"></textarea></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td><textarea class="form-control" rows="4"></textarea></td>
+																</tr>
+																<!-- <tr>
+																	<td colspan="7">
+																		<div class="subtitle">Comments</div>
+																		<div>
+																			<textarea class="form-control" rows="4"></textarea>
+																		</div>
+																	</td>
+																</tr> -->
+																<tr>
+																	<td><textarea id="" name="" rows="2" cols="30"
+																			class="form-control"></textarea></td>
+																	<td><textarea id="" name="" rows="2" cols="30"
+																			class="form-control"></textarea></td>
+																	<td><input type="text" id="date"
+																		class="form-control" readonly name=""></td>
+																	<td><textarea id="" name="" rows="2" cols="30"
+																			class="form-control"></textarea></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td><textarea class="form-control" rows="4"></textarea></td>
+																</tr>
+																<!-- <tr>
+																	<td colspan="7">
+																		<div class="subtitle">Comments</div>
+																		<div>
+																			
+																		</div>
+																	</td>
+																</tr> -->
+
+																<tr>
+																	<td><textarea id="" name="" rows="2" cols="30"
+																			class="form-control"></textarea></td>
+																	<td><textarea id="" name="" rows="2" cols="30"
+																			class="form-control"></textarea></td>
+																	<td><input type="text" id="date"
+																		class="form-control" readonly name=""></td>
+																	<td><textarea id="" name="" rows="2" cols="30"
+																			class="form-control"></textarea></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																	</select></td>
+																	<td><textarea class="form-control" rows="4"></textarea></td>
+																</tr>
+																<!-- <tr>
+																	<td colspan="7">
+																		<div class="subtitle">Comments</div>
+																		<div>
+																			<textarea class="form-control" rows="4"></textarea>
+																		</div>
+																	</td>
+																</tr> -->
+															</tbody>
+														</table>
+														<div align="left">
+															<button class="btn btn-success">Save</button>
+															<button class="btn btn-danger">Close</button>
+														</div>
+													</div>
+													<div id="menu3" class="container tab-pane fade">
+														<h5>Development Goals</h5>
+
+														<table class=" table-responsive" cellpadding="6">
+															<thead>
+																<tr>
+																	<td>Development Goal/Perpose</td>
+																	<td>Expected Outcome</td>
+																	<td>Target date</td>
+																	<td>Priority</td>
+
+																</tr>
+															</thead>
+															<tbody>
+																<tr>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control"></textarea></td>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control"></textarea></td>
+																	<td><input type="text" class="form-control"
+																		id="date" readonly name=""></td>
+
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>C</option>
+																			<option>M</option>
+																			<option>VA</option>
+																	</select></td>
+
+																</tr>
+
+																<tr>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control"></textarea></td>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control"></textarea></td>
+																	<td><input type="text" class="form-control"
+																		id="date" readonly name=""></td>
+
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>C</option>
+																			<option>M</option>
+																			<option>VA</option>
+																	</select></td>
+
+																</tr>
+																<tr>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control"></textarea></td>
+																	<td><textarea id="" name="" rows="2" cols="50"
+																			class="form-control"></textarea></td>
+																	<td><input type="text" class="form-control"
+																		id="date" readonly name=""></td>
+
+																	<td align="center"><select class="form-control">
+																			<option>Select</option>
+																			<option>C</option>
+																			<option>M</option>
+																			<option>VA</option>
+																	</select></td>
+
+																</tr>
+															</tbody>
+														</table>
+														<div align="left">
+															<button class="btn btn-success">Save</button>
+															<button class="btn btn-danger">Close</button>
+														</div>
+													</div>
+													<div id="menu4" class="container tab-pane fade">
+														<h5>Overall Perfermance Rating</h5>
+														<table class="table-responsive tbll" id="myTable"
+															width="100%" cellpadding="5" cellspacing="6">
+															<thead>
+																<tr>
+																	<td>Section</td>
+																	<td>Total Rating</td>
+																	<td>Action</td>
+																</tr>
+															</thead>
+															<tbody>
+																<tr>
+																	<td><select class="form-control"><option
+																				selected>Key Responsibility</option>
+																			<option>Development Goals(Last Year)</option>
+																			<option>Overall Rating</option>
+																			<option>Performance Factor</option>
+																	</select>
+																	<td><select class="form-control"><option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option>5</option></select></td>
+																	<td><button type="button"
+																			class="btn btn-warning rmv" name="Remove">
+																			<span class="ti-minus"></span>
+																		</button></td>
+																</tr>
+																<tr>
+																	<td><select class="form-control"><option>Key
+																				Responsibility</option>
+																			<option selected>Development Goals(Last
+																				Year)</option>
+																			<option>Overall Rating</option>
+																			<option>Performance Factor</option>
+																	</select>
+																	<td><select class="form-control"><option>1</option>
+																			<option>2</option>
+																			<option selected>3</option>
+																			<option>4</option>
+																			<option>5</option></select></td>
+																	<td><button type="button"
+																			class="btn btn-warning rmv" name="Remove">
+																			<span class="ti-minus"></span>
+																		</button></td>
+
+																</tr>
+																<tr>
+																	<td><select class="form-control"><option>Key
+																				Responsibility</option>
+																			<option>Development Goals(Last Year)</option>
+																			<option>Overall Rating</option>
+																			<option selected>Performance Factor</option>
+																	</select>
+																	<td><select class="form-control"><option>1</option>
+																			<option>2</option>
+																			<option>3</option>
+																			<option>4</option>
+																			<option selected>5</option></select></td>
+																	<td><button type="button"
+																			class="btn btn-primary tr_clone_add" name="add"
+																			onclick="addMore();">
+																			<span class="ti-plus"></span>
+																		</button>&nbsp;
+																		<button type="button" class="btn btn-warning rmv"
+																			name="Remove">
+																			<span class="ti-minus"></span>
+																		</button></td>
+
+																</tr>
+
+															</tbody>
+														</table>
+														<div align="left" class="mrt">
+															<button class="btn btn-success">Save</button>
+															<button class="btn btn-danger">Close</button>
+														</div>
+													</div>
+													<div id="menu5" class="container tab-pane fade">
+														<h5>Section Administration Comment</h5>
+														<div class="col-lg-6">
+															<textarea rows="4" cols="50" class="form-control"> </textarea>
+														</div>
+														<h5>Recommondation</h5>
+														<div class="col-lg-6">
+															<div class="row">
+																<div class="checkbox-inline">
+																	<input type="checkbox" value="">&nbsp;
+																	Promotion
+																</div>
+																&nbsp;
+																<div class="checkbox-inline">
+																	<input type="checkbox" value="">&nbsp; Salary
+																	Hike
+																</div>
+																&nbsp;
+																<div class="checkbox-inline">
+																	<input type="checkbox" value="">&nbsp; Bonus
+																</div>
+															</div>
+														</div>
+														<div align="left" class="mrt">
+															<button class="btn btn-success">Save</button>
+															<button class="btn btn-danger">Close</button>
+														</div>
+
+													</div>
+													<div id="menu6" class="container tab-pane fade">
+														<h5>Sign Off</h5>
+														<table class="table-responsive tbll" id="myTable"
+															width="100%" cellpadding="5" cellspacing="6">
+															<thead>
+																<tr>
+																	<td>Designation</td>
+																	<td>Signature</td>
+																	<td>Date</td>
+																	<td>Action</td>
+																</tr>
+															</thead>
+															<tbody>
+																<tr>
+																	<td><select class="form-control"><option
+																				selected>Employee</option>
+																			<option>Supervisor</option>
+																			<option>Senior Manager</option>
+																	</select>
+																	<td><textarea class="form-control"></textarea></td>
+																	<td><input type="text" class="form-control"
+																		readonly id="date"></td>
+																	<td><button type="button"
+																			class="btn btn-warning rmv" name="Remove">
+																			<span class="ti-minus"></span>
+																		</button></td>
+																</tr>
+																<tr>
+																	<td><select class="form-control"><option>Employee</option>
+																			<option selected>Supervisor</option>
+																			<option>Senior Manager</option>
+																	</select>
+																	<td><textarea class="form-control"></textarea></td>
+																	<td><input type="text" class="form-control"
+																		id="date" readonly></td>
+																	<td><button type="button"
+																			class="btn btn-warning rmv" name="Remove">
+																			<span class="ti-minus"></span>
+																		</button></td>
+																</tr>
+																<tr>
+																	<td><select class="form-control"><option>Employee</option>
+																			<option>Supervisor</option>
+																			<option selected>Senior Manager</option>
+																	</select>
+																	<td><textarea class="form-control"></textarea></td>
+																	<td><input type="text" class="form-control"
+																		id="date" readonly></td>
+																	<td><button type="button"
+																			class="btn btn-primary tr_clone_add" name="add"
+																			onclick="addMore();">
+																			<span class="ti-plus"> </span>
+																		</button>&nbsp;
+																		<button type="button" class="btn btn-warning rmv"
+																			name="Remove">
+																			<span class="ti-minus"></span>
+																		</button> &nbsp;
+															</tbody>
+														</table>
+														<div align="left" class="mrt">
+															<button class="btn btn-success">Save</button>
+															<button class="btn btn-danger">Close</button>
+														</div>
+													</div>
+													<div id="menu7" class="container tab-pane fade">
+														<h5>Recomondation/Bonus/Approval</h5>
+														<table class="table-responsive tbll" id="myTable"
+															width="100%" cellpadding="5" cellspacing="6">
+															<thead>
+																<tr>
+																	<td>Employee ID</td>
+																	<td>Employee Name</td>
+																	<td>Promotion</td>
+																	<td>Salary</td>
+																	<td>Bonus</td>
+																	<td>Approval</td>
+																</tr>
+															</thead>
+															<tbody>
+																<tr>
+																	<td><input type="text" class="form-control"
+																		value="ABHP001001"></td>
+																	<td><select class="form-control"><option>Priyabrata
+																				Ratha</option>
+																	</select></td>
+																	<td><input type="checkbox"></td>
+																	<td><input type="checkbox"></td>
+																	<td><input type="checkbox"></td>
+																	<td><input type="checkbox"></td>
+																</tr>
+																<tr>
+																	<td><input type="text" class="form-control"
+																		value="ABHP001003"></td>
+																	<td><select class="form-control"><option>Dipti
+																				Ranjan Das</option>
+																	</select></td>
+																	<td><input type="checkbox"></td>
+																	<td><input type="checkbox"></td>
+																	<td><input type="checkbox"></td>
+																	<td><input type="checkbox"></td>
+																</tr>
+																<tr>
+																	<td><input type="text" value="ABHP001004"
+																		class="form-control"></td>
+																	<td><select class="form-control"><option>Debasmita
+																				Sahoo</option>
+																	</select></td>
+																	<td><input type="checkbox"></td>
+																	<td><input type="checkbox"></td>
+																	<td><input type="checkbox"></td>
+																	<td><input type="checkbox"></td>
+																</tr>
+															</tbody>
+														</table>
+														<div align="left" class="mrt">
+															<button class="btn btn-success">Save</button>
+															<button class="btn btn-danger">Close</button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</section>
+							</div>
+
+							<!-- <button type="submit" class="btn btn-success">submit</button>
+				<button type="reset" value="Reset" class="btn btn-warning">cancel</button> -->
+
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 490px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+	//datepicker() Starts
+	$(function() {
+
+		$("#param1").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false
+		});
+		$("#param2").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false
+		});
+
+	});
+	//datepicker() Ends
+
+	//Validation Function (Two Date Field Must Required)
+	function validateForm() {
+		if (!blankValidation("param1", "TextField", "From Date Is Required"))
+			return false;
+		if (!blankValidation("param2", "TextField", "To Date Is Required"))
+			return false;
+		pdfCreation();
+	}
+
+	//PDF Print Preview Function
+	function pdfCreation() {
+		window.open("/sales/view-sale-invoice-download-report?param1="
+				+ window.btoa($('#param1').val()) + "&param2="
+				+ window.btoa($('#param2').val()) + "&param3="
+				+ window.btoa($('#param3').val()), '_blank');
+	}
+
+	//Reload Page Function
+	function funcLoad() {
+		location.reload();
+	}
+
+	//Sales Order Auto Search Function
+	function salesOrderAutoComplete() {
+		$
+				.ajax({
+					type : "POST",
+					url : "view-sale-invoice-generate-report-salesOrderAutoCompleteList",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#salesOrder").val(),
+					success : function(response) {
+						if (response.message == "success") {
+
+							if (response.body.length != 0) {
+								$("#salesOrder").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+									content += '<li onClick="selectAutocompleteValue(\''
+											+ response.body[i].key
+											+ '\',\''
+											+ response.body[i].name
+											+ '\')">'
+											+ response.body[i].key + '</li>';
+								} //For Loop Ends
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+
+							} else {
+								$("#salesOrder").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteValue(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+						$("#salesOrder").css("background", "#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue(\''
+								+ '' + '\',\'' + '' + '\')">' + "Try Again"
+								+ '</li>';
+						content += '</ul>';
+						$("#suggesstion-box").show();
+						$("#suggesstion-box").html(content);
+					}
+				})
+	}
+	function selectAutocompleteValue(key, name) {
+		if (key) {
+			$("#param3").val(key);
+			$("#salesOrder").val(key);
+			$("#salesOrder").attr('data-procat', key);
+			$("#suggesstion-box").hide();
+		} else {
+			$("#param3").val("");
+			$("#salesOrder").val("");
+			$("#salesOrder").attr('data-procat', "");
+			$("#suggesstion-box").hide();
+		}
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="card-title">
+					<h4>Sales Invoice List Report</h4>
+				</div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>From Date</label> <input type="text"
+												class="form-control" id="param1" readonly autocomplete="off">
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>To Date</label> <input type="text"
+												class="form-control" id="param2" readonly autocomplete="off">
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Sales Order</label> <input type="hidden" id="param3">
+											<input type="text" class="form-control" id="salesOrder"
+												onkeyup="salesOrderAutoComplete();" autocomplete="off">
+											<div id="suggesstion-box"></div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="form-group">
+											<button class="btn btn-primary" onclick="funcLoad();">
+												Reset</button>
+											<button type="button" class="btn btn-primary"
+												onclick="validateForm();">Print Preview</button>
+											<button type="button" class="btn btn-primary"
+												onclick="pdfCreation();">Print</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+</div>
+</html>

@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 325px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 170px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.trCls {
+	background: #d1e3f5;
+}
+
+.trCls {
+	background: #d1e3f5;
+}
+</style>
+<script>
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	 
+	$("#myTable tbody tr:last").find(".freqCls").val("");
+	$("#myTable tbody tr:last").find(".serviceCls").val("");
+	$("#myTable tbody tr:last").find(".taskCls").val("");
+ 
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		
+		selectInput.eq(0).attr('id',"selectFreq_"+i);
+		textInput.eq(0).attr('id',"selectPrice_"+i);
+		textInput.eq(1).attr('id',"selectTask_"+i);
+		 
+		
+	})
+	
+}
+
+function disableTableOption(){
+	
+	 $("#myTable > tbody > tr").each(function(i){
+	   $(".freqCls option").prop("disabled", false); //enable everything
+	
+	   var arr = $.map(
+	       $(".freqCls option:selected"), function (n) {
+	             return n.value;
+	   });
+	   
+	   $(".freqCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+	   }).hide();
+	
+	  
+	   $(".freqCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+	   }).show();
+	 })
+}	
+
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".freqCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".freqCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+$(document).ready(function(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+		});
+	
+	
+	
+
+	
+//submit button function
+	
+	$("#submit").click(function(){
+		
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			assign = {};
+			assign['editId']    =	$("#id").val();
+			assign['itemId']		=	$("#itemId").val();
+			assign['freqId']	=	$(this).find(".freqCls").val();
+			assign['serviceName']	    =	$(this).find(".serviceCls").val();
+			assign['taskPerform']  =	$(this).find(".taskCls").val();
+			 
+			dataset.push(assign); 
+		});//table tbody tr loop ends
+		
+		if (!blankValidation("empId","SelectBox" ,"Please Select Employee Name"))
+		      return false;
+		
+		var qualifValid = true;
+		$(".freqCls").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select Qualification")){
+				qualifValid = false;
+				return false;
+			}
+			
+		});
+		
+		var institiueValid = true;
+		if(qualifValid){
+			$('.serviceCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Institute Name")){
+					institiueValid = false;
+					return false;
+				}
+			});
+		}
+		var startDateValid = true;
+		if(qualifValid && institiueValid){
+			$('.taskCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Start Date")){
+					startDateValid = false;
+					return false;
+				}
+			});
+		}
+		 
+		if(qualifValid && institiueValid && startDateValid ){
+			submitAssignEducation(dataset);
+		}
+											
+			
+		
+	})
+})
+
+	function submitAssignEducation(dataset){
+	
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "add-policy-master-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){ 
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								 location.reload();
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+ 
+</script>
+
+<script type="text/javascript">
+
+function itemNameAutoComplete() { 
+	$.ajax({
+				type : "POST",
+				url : "add-policy-master-getItemDetails",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#itemName").val(),
+				success : function(response) {
+
+					if (response.message == "success") {
+						if (response.body.length != 0) {
+							$("#itemName").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							for (var i = 0; i < response.body.length; i++) {
+								content += '<li onClick="selectAutocompleteValue1(\''
+										+ response.body[i].key
+										+ '\',\''
+										+ response.body[i].name
+										+ '\')">'
+										+ response.body[i].key
+										+ '('
+										+ response.body[i].name
+										+ ')' + '</li>';
+							}
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+
+						} else {
+
+							$("#itemName").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							content += '<li onClick="selectAutocompleteValue1(\''
+									+ ''
+									+ '\',\''
+									+ ''
+									+ '\')">'
+									+ "No Data Found" + '</li>';
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+}
+
+function selectAutocompleteValue1(key, name) {
+
+	if (key) {
+
+		$("#itemId").val(key);
+		$("#itemName").val(name);
+		$("#itemName").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+		serviceDetailsOnItemChange();
+
+	} else { 
+		$("#itemId").val("");
+		$("#itemName").val("");
+		$("#itemName").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+		 $("#previewTableBodyData").empty();
+		 $("#previewTableBodyDataNoData").show();
+	}
+
+}
+		 
+	 
+function serviceDetailsOnItemChange() {
+    var itemId = $("#itemId").val();
+    $("#previewTableBodyData").empty();
+    if (itemId) { 
+        $.ajax({
+            type: "POST",
+            url: "add-policy-master-serviceDetailsOnItemChange",
+            dataType: 'json',
+            contentType: 'application/json',
+            data: itemId,
+            success: function(response) {
+                var table = '';
+                var freqOption = "";
+                if (response.message == "success") {  
+                	console.log(response.body)
+                    if (response.body != null) {
+                        for (var i = 0; i < response.body.length; i++) { 
+                          
+                           
+                            table += "<tr>" +
+                                "<td>" + response.body[i].serviceName + "</td>" +
+                                  "<td>"+response.body[i].freqName  + "</td>" +
+                                "<td>" + response.body[i].taskPerform + "</td>" +  "</tr>";
+
+                        } 
+                        $("#previewTableBodyData").append(table);
+                        $("#previewTableBodyDataNoData").hide();
+                    } else {  
+               
+                    	 $("#previewTableBodyDataNoData").show();
+                    }
+
+
+                } else {
+                	 
+                	 $("#previewTableBodyDataNoData").show();
+                     
+                }
+            },
+            error: function(data) {
+            	 $("#previewTableBodyDataNoData").show();
+            }
+        })
+    } else {
+    	$("#previewTableBodyDataNoData").show();
+    }
+}
+
+function getOptionValue() { 
+	 $.ajax({
+         type: "POST",
+         url: "add-policy-master-get-option-value",
+         dataType: 'json',
+         contentType: 'application/json',
+         success: function(response) {
+        	 if(response.message=="success") {
+        		 for (var i = 0; i < response.body.length; i++) {
+                     var option = $("<option></option>");
+                     $(option).val(response.body[i].key);
+                     $(option).html(response.body[i].name);
+                     $("#selectFreq_").append(option);
+                 }
+        	 }
+         }, error : function(data) {
+        	 console.log(data)
+         }
+	 });
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Asset Policy Master </span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Asset Policy Master</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${assetpolicy}" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+
+									<div class="col-lg-4">
+
+										<input type="hidden" th:if="${Edit}" id="id"
+											th:value="${assetpolicy[0].editId}" />
+
+										<div class="form-group">
+											<label>Item Name</label> <input type="hidden"
+												class="form-control" id="itemId"><input type="text"
+												id="itemName" class="form-control"
+												onkeyup="itemNameAutoComplete()" />
+											<div id="suggesstion-box" class="autocomplete-list1"></div>
+										</div>
+
+
+
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+
+										<table class="tbl1 table table-bordered" id="previewTable"
+											width="100%">
+											<thead>
+												<tr class="trCls">
+													<th colspan="3"><b style="color: #2c61e1;">Policy Details</b></th>
+												</tr>
+											</thead>
+											<thead>
+												<tr>
+													<th>Service Name</th>
+													<th>Frequency</th>
+													<th>Task To Be Performed</th>
+												</tr>
+											</thead>
+
+											<tbody id="previewTableBodyData">
+
+											</tbody>
+
+											<tbody id="previewTableBodyDataNoData">
+												<tr>
+													<td colspan="3" align="center"
+														style="text-align: center; color: red; border-top: 1px solid #333;"><b>No
+														Data Found</b></td>
+												</tr>
+											</tbody>
+										</table>
+
+									</div>
+
+								</div>
+
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Service Name</th>
+													<th>Frequency</th>
+													<th>Task To Be Performed</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody id="tbodyData">
+												<tr class="tr_clone">
+													<td><input type="text" class="form-control serviceCls"
+														id="selectService_" /></td>
+													<td><select id="selectFreq_"
+														class="form-control freqCls"
+														onChange="disableTableOption();">
+															<option value="">--Select--</option>
+															<option th:each="c:${freqList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+
+
+
+													<td><input type="text" class="form-control taskCls"
+														id="selectTask_" /></td>
+
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+
+
+										</table>
+										<div class="row">
+											<div class="form-group col-md-12">
+												<button type="button" id="submit" class="btn btn-success">Submit</button>
+												<button type="button" class="btn btn-warning"
+													onclick="funcReset();">Cancel</button>
+											</div>
+										</div>
+									</div>
+
+								</div>
+
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+
+</html>

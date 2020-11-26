@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+#autocomplete-list2 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 500px;
+	position: absolute;
+	z-index: 999;
+	overflow-y: scroll;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list2 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list2 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script>
+$(document).ready(function(){
+	$("#submit").click(function(){
+		var dataset = [];
+		$("input:checkbox[name=grn]:checked").each(function(){
+			assign = {};
+			assign['key']	=	$(this).val();
+			dataset.push(assign);
+		});
+		if (!blankValidation("vendorId","TextField" ,"Please Enter Vendor."))
+		      return false;
+		var tableChecKValid = true;
+	    var checkedCount = $('input:checkbox[name=grn]:checked').length;
+	    if (checkedCount == 0) {
+	    	swal({
+	    	  	title	: "Please Choose GRN Invoice.",
+	      	})
+	        tableChecKValid = false;  
+	    }
+	    if(tableChecKValid) {
+	    	console.log(dataset)
+	    	submitGRN(dataset);
+	    }
+	})
+})
+
+function submitGRN(dataset) {
+	swal.fire({
+		title				: "Are you sure want to Submit?",
+		text				: "Once Submited,Can't revert back !",
+		type 				: "warning",
+		
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 5000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "add-multiple-grn-invoice-save",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					//console.log(response);
+					if(response.message=="Success"){
+						window.location.href = "/inventory/add-multiple-grn-invoice-add-invoice";
+					}
+				}, error	: function(data) {
+					console.log(data)
+				}
+			});
+		}
+	});
+}
+function getVendor() {
+	var value = $('#vendor').val();
+	if(value) {
+		$.ajax({
+			type : "POST",
+			url : "add-multiple-grn-invoice-get-vendor",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : value,
+			success : function(response) {
+				if(response.body.length!=0)	{
+					$("#vendor").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue50(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'</li>';
+					} 
+					content += '</ul>';
+					$("#driversuggesiondiv").show();
+					$("#driversuggesiondiv").html(content);
+				} else {
+					$("#vendor").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					content += '<li onClick="selectAutocompleteValue50(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#driversuggesiondiv").show();
+					$("#driversuggesiondiv").html(content);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$("#vendor").css("background","#FFF");
+				var content = '<ul id="autocomplete-list2">';
+				content += '<li onClick="selectAutocompleteValue50(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#driversuggesiondiv").show();
+				$("#driversuggesiondiv").html(content);
+			}
+		});
+	} else {
+		$("#vendor").css("background","#FFF");
+		var content = '<ul id="autocomplete-list2">';
+		content += '<li onClick="selectAutocompleteValue50(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#driversuggesiondiv").show();
+		$("#driversuggesiondiv").html(content);	
+	}
+}
+
+function getPO() {
+	var id = $("#vendorId").val();
+	if(id) {
+		var value = $('#po').val();
+		if(value) {
+			obj = {};
+			obj['key']	=	id;
+			obj['name']	=	value;
+			$.ajax({
+				type : "POST",
+				url : "add-multiple-grn-invoice-get-po",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : JSON.stringify(obj),
+				success : function(response) {
+					if(response.body.length!=0)	{
+						$("#po").css("background","#FFF");
+						var content = '<ul id="autocomplete-list2">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue500(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'</li>';
+						} 
+						content += '</ul>';
+						$("#posuggesiondiv").show();
+						$("#posuggesiondiv").html(content);
+					} else {
+						$("#po").css("background","#FFF");
+						var content = '<ul id="autocomplete-list2">';
+						content += '<li onClick="selectAutocompleteValue500(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#posuggesiondiv").show();
+						$("#posuggesiondiv").html(content);
+					}
+				}, error : function(data) {
+					console.log(data)
+					$("#po").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					content += '<li onClick="selectAutocompleteValue500(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#posuggesiondiv").show();
+					$("#posuggesiondiv").html(content);
+				}
+			});
+		} else {
+			$("#po").css("background","#FFF");
+			var content = '<ul id="autocomplete-list2">';
+			content += '<li onClick="selectAutocompleteValue500(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+			content += '</ul>';
+			$("#posuggesiondiv").show();
+			$("#posuggesiondiv").html(content);	
+		}
+	} else {
+		$("#po").val("");
+		swal({
+			title	:	"Please Enter Vendor",
+			type	:	"warning",
+		})
+	}
+}
+
+function selectAutocompleteValue50(key,name) {
+	if (key) {
+ 		$("#vendorId").val(key);
+    	$("#vendor").val(name);
+    	$("#vendor").attr('data-procat', key);
+    	$("#driversuggesiondiv").hide();
+    	//getGRNList(key);
+    	getGRNList(key);
+	} else {
+		$("#vendorId").val("");
+    	$("#vendor").val("");
+    	$("#vendor").attr('data-procat', "");
+    	$("#driversuggesiondiv").hide();
+    	$("#tbodyShow").empty();
+    	$("#tbodyHide").show();
+	}
+}	
+
+function selectAutocompleteValue500(key,name) {
+	if (key) {
+ 		$("#poId").val(key);
+    	$("#po").val(name);
+    	$("#po").attr('data-procat', key);
+    	$("#posuggesiondiv").hide();
+    	getGRNList(key);
+	} else {
+		$("#poId").val("");
+    	$("#po").val("");
+    	$("#po").attr('data-procat', "");
+    	$("#posuggesiondiv").hide();
+    	$("#tbodyShow").empty();
+    	$("#tbodyHide").show();
+	}
+}	
+
+function getGRNList(key) {
+	$("#tbodyShow").empty();
+	if(key) {
+		$.ajax({
+			type		: "POST",
+			url 		: "add-multiple-grn-invoice-get-grn-list",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: key,
+			success		: function(response){
+				if(response.message=="success"){
+					if(response.body.length!=0) {
+						console.log(response.body)
+						$("#tbodyHide").hide();
+						for(var i = 0; i < response.body.length; i++) {
+							var table = "<tr>"
+								+"<td align='left'><input type='checkbox' name='grn' id='grn' value="+response.body[i].key+"></td>"
+								+"<td align='left'>"+response.body[i].key+"</td>"
+								+"</tr>";
+							$("#tbodyShow").append(table);
+						}
+					} else {
+						$("#tbodyHide").show();
+					}
+				}
+			}, error	: function(data) {
+				console.log(data)
+				$("#tbodyHide").show();
+			}
+		});
+	} else {
+		$("#tbodyHide").show();
+	}
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Multiple GRN Invoice</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Multiple GRN Invoice</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Vendor</label> 
+										<input type="hidden" class="form-control" id="vendorId">
+										<input type="text" class="form-control" id="vendor" onkeyup="getVendor();">
+										<div id="driversuggesiondiv"></div>
+									</div>
+								</div>
+								<!-- <div class="col-lg-6">
+									<div class="form-group">
+										<label>Purchase Order</label> 
+										<input type="hidden" class="form-control" id="poId">
+										<input type="text" class="form-control" id="po" onkeyup="getPO();">
+										<div id="posuggesiondiv"></div>
+									</div>
+								</div> -->
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<table class="tbll table table-bordered" id="myTable1" width="100%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead><tr class="trCls"><th colspan="5"><b>GRN Invoice List</b></th></tr></thead>
+										<thead class="theadCls">
+											<tr>
+												<th>Select</th>
+												<th>GRN Invoice</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyHide">
+											<tr><td colspan="2" style="text-align:center;color:red;"><b>No Data Found</b></td></tr>
+										</tbody>
+										<tbody id="tbodyShow">
+										</tbody>
+									</table>
+								</div>
+								<div class="col-md-12">&nbsp;</div>
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

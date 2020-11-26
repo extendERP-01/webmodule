@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	//function for submit popup
+
+	$(document).ready(function() {
+		//date picker
+		HideBank();
+		checkBankDetails();
+		$("#fromDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+
+		$("#toDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+	});
+
+	function validateForm() {
+
+		if (!blankValidation("employee", "TextField",
+				"Employee  Name can not be left blank"))
+			return false;
+		if (!blankValidation("paymentMode", "TextField",
+				"Name  can not be left blank"))
+			return false;
+		if (!blankValidation("amount", "TextField",
+				"Amount can not be left blank"))
+			return false;
+
+	}
+
+	//CUSTOMER AUTO SEARCH FUNCTION
+
+	function employeeAutoComplete() {
+		var cust = $("#employeeName").val();
+		if (cust) {
+			$.ajax({
+						type : "POST",
+						url : "add-quotation-master-getCustomerAutocompleteList  ",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : $("#employeeName").val(),
+						success : function(response) {
+							if (response.message == "success") {
+
+								if (response.body.length != 0) {
+									$("#employeeName")
+											.css("background", "#FFF");
+									var content = '<ul id="autocomplete-list">';
+									for (var i = 0; i < response.body.length; i++) {
+										content += '<li onClick="selectAutocompleteValue(\''
+												+ response.body[i].key
+												+ '\',\''
+												+ response.body[i].name
+												+ '\')">'
+												+ response.body[i].name
+												+ '('
+												+ response.body[i].key
+												+ ')'
+												+ '</li>';
+									}
+									content += '</ul>';
+									$("#suggesstion-box").show();
+									$("#suggesstion-box").html(content);
+
+								} else {
+									$("#employeeName")
+											.css("background", "#FFF");
+									var content = '<ul id="autocomplete-list">';
+									content += '<li onClick="selectAutocompleteValue(\''
+											+ ''
+											+ '\',\''
+											+ ''
+											+ '\')">'
+											+ "No Data Found" + '</li>';
+									content += '</ul>';
+									$("#suggesstion-box").show();
+									$("#suggesstion-box").html(content);
+								}
+							}
+						},
+						error : function(data) {
+							console.log(data);
+						}
+					})
+		} else {
+			$("#employeeName").css("background", "#FFF");
+			var content = '<ul id="autocomplete-list">';
+			content += '<li onClick="selectAutocompleteValue(\'' + '' + '\',\''
+					+ '' + '\')">' + "No Data Found" + '</li>';
+			content += '</ul>';
+			$("#suggesstion-box").show();
+			$("#suggesstion-box").html(content);
+		}
+	}
+	function selectAutocompleteValue(key, name) {
+		if (key) {
+			$("#employeeId").val(key);
+			$("#employeeName").val(name);
+			$("#employeeName").attr('data-procat', key);
+			$("#suggesstion-box").hide();
+		} else {
+			$("#employeeId").val("");
+			$("#employeeName").val("");
+			$("#employeeName").attr('data-procat', "");
+			$("#suggesstion-box").hide();
+		}
+	}
+</script>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<!--Alert Box-->
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		<!--Alert Box-->
+		<div class="col-md-12">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>Add Employee Leave</span></li>
+				<!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>Add Employee Advance</h4>
+		</div>
+		<div class="container-fluid">
+			<div class="card">
+				<div class="card-body">
+					<div class="basic-elements">
+						<form th:action="@{/employee/add-emp-leave-details}"
+							th:object="${leaveDetails}" method="post"
+							onsubmit="return validateForm();" autocomplete="off">
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>From Date</label> <input type="text"
+											class="form-control" th:field="*{fromDate}" readonly />
+									</div>
+									<div class="form-group">
+										<label>To Date</label> <input type="text" class="form-control"
+											th:field="*{toDate}" readonly />
+									</div>
+
+									<div class="form-group">
+										<input type="hidden" th:field="*{leaveId}" /> <label>Employee
+											Name</label><input type="text" id="employeeName"
+											onkeyUp="employeeAutoComplete()" class="form-control">
+										<input type="hidden" th:field="*{employeeId}">
+										<div id="suggesstion-box"></div>
+
+									</div>
+									<div class="form-group">
+										<label>Leave Days</label> <input type="text"
+											class="form-control" th:field="*{aleaveDays}" />
+									</div>
+
+
+
+									<div class="form-group">
+										<label>Grant By</label> <input type="text"
+											class="form-control " th:field="*{leaveGrantBy}">
+									</div>
+
+
+									<button type="submit" class="btn btn-success">submit</button>
+									<button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+</html>

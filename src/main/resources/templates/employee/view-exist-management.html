@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.modalIn {
+	border-bottom: 1px solid #e8e4e4;
+}
+</style>
+<script>
+	//Deleting the travelingType
+	
+	const ipAPI = 'https://api.ipify.org?format=json'
+	function deleteEmployeeExit(id){
+	 //var data = id.split(",");
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/employee/view-exist-management-delete?id=" +id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(data){
+				console.log(data);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+	
+
+	
+	function viewInModel(index) {
+		$('#table1').empty();
+		$.ajax({
+					type : "POST",
+					url : "view-exist-management-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+						 console.log(response);
+							table = '<tr><td>Employee Name :</td>'
+									+ '<td align="left">'
+									+ response.body.empName
+									+ '</td>'
+									+ '</tr><tr><td>Employee Designation :</td><td align="left">'
+									+ response.body.empDesName
+									+ '</tr><tr><td>Resignation Date:</td><td align="left">'
+									+ response.body.resignationDate
+									+ '</tr><tr><td>Salary :</td><td align="left">'
+									+ response.body.salary
+									+ '</tr><tr><td>Bonus :</td><td align="left">'
+									+ response.body.bonus
+									+ '</tr><tr><td>Recovery :</td><td align="left">'
+									+ response.body.recovery
+									+ '</tr><tr><td>Notice Period :</td><td align="left">'
+									+ response.body.noticeperiod
+									+ '</tr><tr><td>Release Date :</td><td align="left">'
+									+ response.body.releaseDate
+									+ '</tr><tr><td>Resignation Reason :</td><td align="left">'
+									+ response.body.resignation
+									+ '</td></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+                            
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+	
+
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-exist-management-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'empId'
+			}, {
+				'data' : 'empDesignation'
+			},{
+				'data' : 'resignationDate'
+			},{
+				'data' : 'releaseDate'
+			},{
+				'data' : 'resignation'
+			},{
+				'data' : 'salary'
+			}, {
+				'data' : 'bonus'
+			}, {
+				'data' : 'recovery'
+			}, {
+				'data' : 'action'
+			} ]
+		}); 
+		$("#param1").on('change', function() {
+			var empId = $(this).val();
+			console.log(empId);
+			if (empId) {
+				$("#param2").empty();
+				$.ajax({
+					type : 'POST',
+					url : 'add-exist-management-emp-degination-ajax',
+					contentType : false,
+					data : empId,
+					success : function(response) {
+						if (response.message == "success") {
+							/* $("#empDesignation").empty();
+
+							var option = $("<option></option>");
+							$(option).val(null);
+							//$(option).html("Select");
+							$("#empDesignation").append(option); */
+							for (var i = 0; i < response.body.length; i++) {
+								var option = $("<option></option>");
+								$(option).val(response.body[i].key);
+								$(option).html(response.body[i].name);
+								$("#param2").append(option);
+							}
+						}
+					},
+					error : function(e) {
+						alert("error");
+					}
+				});
+			} else {
+				$("#param2").empty();
+				var option = $("<option></option>");
+				$(option).val(null);
+				$(option).html("Select");
+				$("#param2").append(option);
+				
+			}
+		});
+	});
+
+	 function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+</script>
+<style>
+.mt-20{
+margin-top:20px;}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/recruitment/add-exist-management}">Add
+							Exit Management</a></li>
+					<li class="active"><span>View Exit Management </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Exit Management</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-exist-management">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Employee Name</label> <select
+									class="org-name form-control " id="param1">
+								<option value="">--Select--</option>
+												<option th:each="c:${EmployeeList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+								</select>
+
+							</div>
+							<div class="col-md-2">
+								<label>Designation</label> <select
+									class="org-name form-control " id="param2">
+									<option value="">--Select--</option>
+												<option th:each="c:${designationList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+
+								</select>
+
+							</div>
+							<div class="col-md-2 mrt_10">
+							 <div class="form-group">
+                                <input type="button"  class="btn btn-info mt-20" value="Search" onclick="searchData()" />
+                              </div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblTheme" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Employee Name</th>
+									<th>Designation</th>
+									<th>Resignation Date</th>
+									<th>Realese Date</th>
+									<th>Reason of Resignation</th>
+									<th>Salary</th>
+									<th>Bonus</th>
+									<th>Recovery</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+				<!-- 			<tbody>
+								<tr>
+									<th>Rajesh</th>
+									<th>SDE-I</th>
+									<th>10-09-2020</th>
+									<th>11-09-2020</th>
+									<th>34000</th>
+									<th>10000</th>
+									<th>5000</th>
+									<th align="center"><a title='Edit'
+										href="add-exist-management"><i class='fa fa-edit edit'></i></a></th>
+								</tr>
+								<tr>
+									<th>Suresh</th>
+									<th>SDE-II</th>
+									<th>10-09-2020</th>
+									<th>11-09-2020</th>
+									<th>35000</th>
+									<th>10000</th>
+									<th>6000</th>
+									<th align="center"><a title='Edit'
+										href="add-exist-management"><i class='fa fa-edit edit'></i></a></th>
+								</tr>
+							</tbody> -->
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Employee Exit</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+
+		<!-- Modal Start-->
+		
+		<!-- Modal End-->
+
+	</div>
+</div>
+</html>
