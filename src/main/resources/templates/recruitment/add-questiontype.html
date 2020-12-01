@@ -19,9 +19,8 @@ function addMore(){
 	$("#myTable tbody tr:last").find('td:last').append(addMore);
 	$("#myTable tbody tr:last").find('td:last').append(removeMore);
 	
-	
+	$("#myTable tbody tr:last").find(".speTypeCls").val("");
 	$("#myTable tbody tr:last").find(".NameCls").val("");
-	
 	
 	var editTr = 0;
 	
@@ -32,43 +31,13 @@ function addMore(){
 		var selectInput = $(this).find('select');
 		var textInput = $(this).find('input');
 		
+		selectInput.eq(1).attr('id', "selectQue_" + i);
 		textInput.eq(0).attr('id',"selectName_"+i);
 	})
 	
 }
 
-/* function disableTableOption(){
-	
-	 $("#myTable > tbody > tr").each(function(i){
-	   $(".NameCls option").prop("disabled", false); //enable everything
-	
-	   var arr = $.map(
-	       $(".NameCls option:selected"), function (n) {
-	             return n.value;
-	   });
-	   
-	   $(".NameCls option").filter(function () {
-	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
-	   }).hide();
-	
-	  
-	   $(".NameCls option").filter(function () {
-	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
-	   }).show();
-	 })
-}	
 
-function displayTable(){
-	 $("#myTable > tbody > tr").each(function(i){
-		 var arr = $.map(
-			       $(".NameCls option:selected"), function (n) {
-			             return n.value;
-			   });
-		 $(".NameCls option").filter(function () {
-		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
-		   }).show();
-		 })
-} */
 var count=0;
 $(document).ready(function(){
 	
@@ -101,30 +70,37 @@ $(document).ready(function(){
 			
 			assign = {};
 			assign['editId']    =	$("#id").val();
-			assign['speTypeId']		=	$("#speTypeId").val();
-			/* assign['specificName']		=	$("#speTypeId").val; */
+			assign['speTypeId']    =	  $(this).find(".speTypeCls").val();
 			assign['questionType']  = $(this).find(".NameCls").val();
 			dataset.push(assign);
 			console.log(assign);
 			count++;
 		});//table tbody tr loop ends
 		
-		if (!blankValidation("speTypeId","SelectBox" ,"Please Select Specific Name"))
-		      return false;
-		
-		var nameValid = true;
-		$(".NameCls").each(function(){
-			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Question Name")){
-				nameValid = false;
-				return false;
+		var speValid =true;
+		$('.speTypeCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Question Type ")){
+				speValid =false;
+		        return false;
 			}
-			
+				
 		});
 		
 		
+		var nameValid =true;
+		if(speValid ){
+		$('.NameCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Question Name")){
+				nameValid =false;
+		        return false;
+			}
+				
+		});
+		
+		}
 		
 		
-		if(nameValid){
+		if(speValid && nameValid){
 			submitAssignQuestionType(dataset);
 			console.log(dataset);
 		}
@@ -195,12 +171,12 @@ function funcLoad(){
 			<div class="col-md-12">
 				<ol class="breadcrumb breadcrumb-arrow">
 					<li><a href="">Home</a></li>
-					<li class="active"><span>Add Question </span></li>
+					<li class="active"><span>Question Type Name </span></li>
 				</ol>
 			</div>
 			<div class="col-md-12"></div>
 			<div class="card-title">
-				<h4>Add Question </h4>
+				<h4>Question Type Name</h4>
 			</div>
 			<div class="container-fluid">
 
@@ -221,10 +197,13 @@ function funcLoad(){
 									<div class="col-lg-4">
 
 										<input type="hidden" th:if="${Edit}" id="id"
-											th:value="${queAssign[0].editId}" />
+											th:value="${queAssign[0].editId}" >
+											
 
+
+                                  <!-- 
 										<div class="form-group">
-											<label>Specific Type Name</label> <select
+											<label>Question Type Name</label> <select
 												class="form-control propertyCatName" id="speTypeId">
 												<option value="">--Select--</option>
 												<option th:if="${Edit}" th:each="c:${SpecificList}"
@@ -236,19 +215,22 @@ function funcLoad(){
 											</select>
 										</div>
 
-
+                                   -->
 
 									</div>
 								</div>
+								
+								
 								<div class="row">
-									<div class="col-lg-6">
+									<div class="col-lg-12">
 										<!-- id="table-data" -->
 
 										<table class="tbll" id="myTable" width="100%" border="0"
 											cellspacing="1" cellpadding="5">
 											<thead>
 												<tr>
-													<th>Question Name</th>
+													<th>Specific Type</th>
+													<th>Question</th>
 													<th>Action</th>
 												</tr>
 											</thead>
@@ -257,10 +239,31 @@ function funcLoad(){
 
 												<tr class="tr_clone" th:if="${Edit}"
 													th:each="a,iter:${queAssign}">
-													<td><input type="text" id="selectName_"
-														class="form-control NameCls" th:value="${a.questionType}"
-														onChange="disableTableOption();"/></td>
 													
+													<td><select id="selectQue_0"
+														class="form-control speTypeCls"
+														th:id="${'selectQue_0'+iter.index}">
+												<option value="">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${SpecificList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==queAssign[0].speTypeId}'></option>
+													</select></td>
+													
+													
+													<td><select id="selectName__0"
+														class="form-control NameCls"
+														th:id="${'selectName_0'+iter.index}">
+												<option value="">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${QuestionList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==queAssign[0].questionType}'></option>
+													</select></td>
+													
+													
+													<!-- <td><input type="text" id="selectName_"
+														class="form-control NameCls" th:value="${a.questionType}"
+														></td>
+										 -->
 													<td>
 														<button th:if="${iter.size == iter.index+1}" type="button"
 															class="btn btn-primary tr_clone_add" name="add"
@@ -275,12 +278,28 @@ function funcLoad(){
 													</td>
 												</tr>
 
-
-												<tr class="tr_clone" th:unless="${Edit}">
-													<td><input type="text" id="selectName_0"
+     
+												<tr class="tr_clone" th:unless="${Edit}"
+												th:each="a,iter:${queAssign}">
+												<td><select id="selectQue_0"
+														class="form-control speTypeCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${SpecificList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+													
+													<td><select id="selectName_0"
+														class="form-control NameCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${QuestionList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+													
+													
+													<!-- <td><input type="text" id="selectName_0"
 														class="form-control NameCls"
-														onChange="disableTableOption();"/>
-															</td>
+														>
+															</td> -->
 													<td><button type="button"
 															class="btn btn-primary tr_clone_add" name="add"
 															onclick="addMore();">

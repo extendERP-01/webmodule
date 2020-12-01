@@ -77,186 +77,287 @@
 
 
 <script>
-function addMore(){
+
+function checkempty(){
 	
-	var lengthOfTableRow = $("#tbodyData").children('tr').length;
-	var cloneHtml = $("#myTable tbody tr:first").clone();
-	$("#myTable tbody tr:last").find('td:last').html('');
-	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
-	
-	$("#myTable tbody tr td:last").html("");
-	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
-	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
-	
-	$("#myTable tbody tr:last").find('td:last').append(addMore);
-	$("#myTable tbody tr:last").find('td:last').append(removeMore);
-	
-	//$("#myTable tbody tr:last").find(".qualifCls").append(new Option("--Select--","")); 
-	$("#myTable tbody tr:last").find(".reimTypeCls").val("");
-	$("#myTable tbody tr:last").find(".policyCls").val("");
-	$("#myTable tbody tr:last").find(".startCls").val("");
-	
-	
-	var editTr = 0;
-	
-	if(lengthOfTableRow>editTr){
-	
-		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	var shiftVal = true;
+	$(".shiftTypeCls").each(function(){
+	var current_id = $(this).attr("id"); 
+	if (!blankValidation(current_id,"SelectBox" ,"Please  Select Shift")){
+		shiftVal = false;
+	return false;
 	}
-	$("#myTable > tbody > tr").each(function(i){
-		var selectInput = $(this).find('select');
-		var textInput = $(this).find('input');
-		var fileInput = $(this).find('file');
-		var divInput = $(this).find('div');
-		selectInput.eq(0).attr('id', "selectReimType_" + i);
-		selectInput.eq(1).attr('id', "selectPolicy_" + i);
-		textInput.eq(0).attr('id',"selectStart_"+i);
-		
-		
-		
-	})
+
+	});
 	
+
+	var empVal = true;
+	if(shiftVal){
+		$(".empCls").each(function(){
+			var current_id = $(this).attr("id");
+			 
+console.log(current_id)
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select Employee")){
+				empVal = false;
+			return false;
+			}
+
+			});
+	}
+	
+	
+	var remarkVal = true;
+	if(shiftVal && empVal){
+		$(".remarkCls").each(function(){
+			var current_id = $(this).attr("id"); 
+
+			if (!blankValidation(current_id,"TextField" ,"Please Select Remark")){
+				remarkVal = false;
+			   return false;
+			}
+			});
+	}
+	
+
+
+if(shiftVal && empVal && remarkVal){
+	addMore();
 }
-$(document).ready(function() {
-//autocomplete start
-		
-//autocomplete end
-	var lengthOfTableRow = $("#tbodyData").children('tr').length;
-	$('.tbll').on('click', '.rmv', function () {
-		$(this).closest('tr').remove();
-		$("#myTable tbody tr:last").find('td:last').html('');
-		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
-		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+}
 
-		if($("#tbodyData").children('tr').length > 1){
-		$("#myTable tbody tr:last").find('td:last').append(add);
-		$("#myTable tbody tr:last").find('td:last').append(remove);
-		}else{
-		$("#myTable tbody tr:last").find('td:last').append(add);
-		}
-		
-		displayTable();
-		});
-	
-	
-	
-	
-	
-	
-	$("#invDate").datetimepicker({
-		format : 'm-Y',
-		closeOnDateSelect : true,
-		timepicker : false,
-	})
-	$("#payDueDate").datetimepicker({
-		format : 'd-m-Y',
-		closeOnDateSelect : true,
-		timepicker : false,
-	})
-/* 	var fullDate = new Date();
-	var twoDigitMonth = ((fullDate.getMonth() + 1) >= 10) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
-	var twoDigitDate = ((fullDate.getDate()) >= 10) ? (fullDate.getDate()) : '0' + (fullDate.getDate());
-	var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
-	$("#invDate").val(currentDate); */
-	
-	$("#submit").click(function(){
+function addMore(){
 
-		window.location.href = "/recruitment/view-shift-scheduling" ;
-		/* if (!blankValidation("invNo","TextField" ,"Please Enter Invoice Number"))
-		      return false;
-		if (!blankValidation("payDueDate","TextField" ,"Please Enter Payment Due Date"))
-		      return false;
-		
-		obj = {};
-		//obj['vendorId']		=	$("#vendorId").val();
-		//obj['pOrder']		=	$("#pOrder").val();
-		obj['invNo']		=	$("#invNo").val();
-		obj['invDate']		=	$("#invDate").val();
-		obj['payDueDate']	=	$("#payDueDate").val();
-		obj['storeId']	    =	$("#storeId").val();
-		/* obj['amount']		=	$("#subTotal").text();
-		obj['totalCGST']	=	$("#sCGST").text();
-		obj['grandTotal']	=	$("#grandTotal").text();
-		
-		console.log(obj)
-		submitMultipleInvoice(obj); */
-	})
+var lengthOfTableRow = $("#tbodyData").children('tr').length;
+var cloneHtml = $("#myTable tbody tr:first").clone();
+$("#myTable tbody tr:last").find('td:last').html('');
+$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+$("#myTable tbody tr td:last").html("");
+var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkempty();"><span class="ti-plus"></span></button>&nbsp;'
+var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+$("#myTable tbody tr:last").find('td:last').append(addMore);
+$("#myTable tbody tr:last").find('td:last').append(removeMore);
+$("#myTable tbody tr:last").find(".shiftTypeCls").val("");
+$("#myTable tbody tr:last").find(".empCls").val("");
+$("#myTable tbody tr:last").find(".remarkCls").val("");
+
+
+var editTr = 0;
+
+if(lengthOfTableRow>editTr){
+
+$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+}
+$("#myTable > tbody > tr").each(function(i){
+	
+var selectInput = $(this).find('select');
+var textInput = $(this).find('input');
+var fileInput = $(this).find('file');
+var divInput = $(this).find('div');
+selectInput.eq(0).attr('id', "selectShiftType_" + i);
+selectInput.eq(1).attr('id', "selectEmp_" + i);
+textInput.eq(0).attr('id',"selectRemark_"+i);
+
 })
 
-function submitMultipleInvoice(obj){
+}
+$(document).ready(function() {
 	
-	swal.fire({
-		title				: "Are you sure want to Submit?",
-		text				: "Once Submited,Can't revert back !",
-		type 				: "warning",
-				
-		showCancelButton	: true,
-		confirmButtonColor	: "#DD6BB5",
-		confirmButtonText	:"Submit",
-		showLoaderOnConfirm	: true,
-		reverseButtons : true,
-		confirmButtonAriaLabel : 'Thumbs up, great!',
-		cancelButtonText : 'Cancel',
-		cancelButtonAriaLabel : 'Thumbs down',
-			
-		preConfirm: () => {
-			return new Promise((resolve) => {
-				setTimeout(() => {
-					console.log("Doing async operation");
-					resolve()
-				}, 3000)
-			})
+ 
+//autocomplete end
+var lengthOfTableRow = $("#tbodyData").children('tr').length;
+$('.tbll').on('click', '.rmv', function () {
+$(this).closest('tr').remove();
+$("#myTable tbody tr:last").find('td:last').html('');
+var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkempty();"><span class="ti-plus"></span></button>&nbsp;'
+var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+if($("#tbodyData").children('tr').length > 1){
+$("#myTable tbody tr:last").find('td:last').append(add);
+$("#myTable tbody tr:last").find('td:last').append(remove);
+}else{
+$("#myTable tbody tr:last").find('td:last').append(add);
+}
+
+displayTable();
+});
+
+  
+
+
+
+
+$("#submit").click(function(){
+	var dataset = [];
+	$("#tbodyData > tr").each(function(){
+		item = {};
+		item['editId']            =	            $("#id").val();
+		item['fromDate']	      =	    $("#fromDateId").val();
+		item['tSchedule']	      =	    $("#tScheduleId").val();
+		item['tSection']          =	    $("#tSectionId").val();
+		item['toDate']	          =	    $("#toDateId").val();
+		item['tDepartment']       =	    $("#tDepartmentId").val();
+		item['tShift']            =	    $(this).find(".shiftTypeCls").val();
+		item['tEmp']		      =	    $(this).find(".empCls").val();
+		item['tRemark']		      =     $(this).find(".remarkCls").val();
+		item['sShiftId']	          =	    $("#sShiftId").val();
+		dataset.push(item);
+	});
+	
+	//Blank Validation
+	
+	if (!blankValidation("fromDateId","TextField" ,"Please Select From Date"))
+        return false;
+
+	if (!blankValidation("toDateId","TextField" ,"Please Select To Date"))
+        return false;
+	if (!blankValidation("tScheduleId","SelectBox" ,"Please Select Schedule"))
+        return false;
+	if (!blankValidation("tSectionId","SelectBox" ,"Please Seletct Section"))
+        return false;
+	
+	if (!blankValidation("tDepartmentId","SelectBox", "Please Seletct Department"))
+        return false;
+	
+	
+	var shiftValid =true;
+	$('.shiftTypeCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Shift ")){
+			shiftValid =false;
+	        return false;
 		}
-	}).then((result) => {
-		swal({
-			title	: "Data Saved Successfully.",
-			type	: "success",
-		}).then(function(){
-			window.location.href = "/inventory/view-physical-varification-warehouse" ;
-		})
-/* 		if(result.value){
-			$.ajax({
+			
+	});
+
+	var empValid =true;
+	if(shiftValid){
+	$('.empCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Employee")){
+			empValid =false;
+	        return false;
+		}
+			
+	});
+	}
+	var remarkValid =true;
+	if(shiftValid && empValid ){
+	$('.remarkCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Remark")){
+			remarkValid =false;
+	        return false;
+		}
+			
+	});
+	
+	}
+
+	if(shiftValid && empValid && remarkValid){
+		console.log(dataset);
+		submitItem(dataset);
+	}
+	
+});
+	
+
+});
+
+
+
+
+function submitItem(dataset){
+	
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
 				type		: "POST",
-				url 		: "add-multiple-grn-invoice-submit",
+				url 		: "add-shift-scheduling-ajax",
 				dataType	: "json",
 				contentType	: "application/json",
-				data		: JSON.stringify(obj),
+				data		: JSON.stringify(dataset),
 				success		: function(response){
-					
-					//if(response.message=="Success"){
-						console.log(response.body);
+					//console.log(response);
+					if(response.message=="Success"){
 						swal({
-							title	: "Data Saved Successfully.",
-							type	: "success",
+								title:"Data Saved Successfully.",
+								type: "success",
 						}).then(function(){
-							window.location.href = "/inventory/view-physical-varification-warehouse" ;
+								window.location.href = "/recruitment/view-shift-scheduling" ;
 						})
-						/* } else {
+					}else{
 						swal({
-							title	: response.code,
-							text	: response.message,
-							type	: "warning"
+							title:response.code,
+							text: response.message,
+							type:"warning"
 						})
-					} 
-				}, error		: function(response){
-					swal(response.code);	
+					}
+				},error		: function(data){
+					console.log(data);
 				}
 			}) //ajax ends
-		} */
-	})//swal function block ends
+		}
+		})//swal function block ends
+	}//submit function ends
+	
+	
+	
+function funcLoad(){
+	location.reload();
 }
-function displayTable(){
-	 $("#myTable > tbody > tr").each(function(i){
-		 var arr = $.map(
-			       $(".qualifCls option:selected"), function (n) {
-			             return n.value;
-			   });
-		 $(".qualifCls option").filter(function () {
-		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
-		   }).show();
-		 })
-}
-</script>
+    
+	
+    
+		function dateChange(event){
+	
+			
+			
+			$( "#fromDateId").datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				//minDate: new Date() ,
+				timepicker : false,
+			})
+			$( "#toDateId").datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				//minDate: new Date() ,
+				timepicker : false,
+			})
+			
+			
+		}
+		
+		function dateValidation() {
+			var fromDate = $("#fromDateId").val();
+			var toDate = $("#toDateId").val();
+			
+			var date1 = fromDate.split("-");
+			var date2 = toDate.split("-");
+			var newFromDate = date1[2]+date1[1]+date1[0];
+			var newToDate = date2[2]+date2[1]+date2[0];
+			
+			if(newToDate < newFromDate) {
+				swal({
+					title	:	fromDate +" can't be greater than "+toDate +" !!!" ,
+					type	:	"warning",
+				})
+				$("#"+toDateId).val("");
+			}
+		}
+		
+ </script>
 </head>
 <div layout:fragment="content">
 	<div class="content-wrap">
@@ -274,297 +375,186 @@ function displayTable(){
 				<div class="card">
 					<div class="card-body">
 						<div class="basic-elements">
-							<div class="row">
-								<span style="color: red;" id="errorMsg"></span>
-								<div th:if="${message != null}">
-									<span th:text="${message}" style="color: red;"></span>
-								</div>
-							</div>
-							<div class="row">
-							
-							<div class="col-md-6">
-									<div class="form-group">
-										<label> From Date</label> <input type="text" class="form-control"
-											id="invDate" readonly>
+
+
+
+							<form th:object="${itemRequisitionModel}" autocomplete="off">
+
+								<div class="row">
+									 <input type="hidden" id="sShiftId" th:value="${sShiftId}"> 
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
 									</div>
 								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<label> To Date</label> <input type="text" class="form-control"
-											id="invDate" readonly>
+								<div class="row">
+
+									<div class="col-md-6">
+										<input type="hidden" th:if="${itemReq}" id="id"
+											th:value="${itemRequisitionModel[0].editId}" />
+
+
+
+										<div class="form-group">
+											<label>From Date</label> <input type="text"
+												th:if="${itemReq}" class="form-control" id="fromDateId"
+												placeholder="From Date" onclick="dateChange(event);"
+												th:value="${itemRequisitionModel[0].fromDate}" readonly>
+											<input type="text" th:unless="${itemReq}"
+												class="form-control" placeholder="From Date" id="fromDateId"
+												onclick="dateChange(event);" readonly>
+										</div>
+
+										<div class="form-group">
+											<label>Schedule</label> <select class="form-control"
+												id="tScheduleId">
+												<option th:value="null">--Select--</option>
+												<option th:if="${itemReq}" th:each="c:${scheduleList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==itemRequisitionModel[0].tScheduleId}"></option>
+												<option th:unless="${itemReq}" th:each="c:${scheduleList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+
+
+										<div class="form-group">
+											<label>Section</label> <select class="form-control"
+												id="tSectionId">
+												<option th:value="null">--Select--</option>
+												<option th:if="${itemReq}" th:each="c:${sectionList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==itemRequisitionModel[0].tSectionId}"></option>
+												<option th:unless="${itemReq}" th:each="c:${sectionList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+
+									</div>
+
+
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>To Date</label> <input type="text" th:if="${itemReq}"
+												class="form-control" id="toDateId" placeholder="To Date"
+												onchange="dateValidation()"
+												th:value="${itemRequisitionModel[0].toDate}" readonly>
+											<input type="text" th:unless="${itemReq}"
+												class="form-control" placeholder="To Date" id="toDateId"
+												onchange="dateValidation()" readonly>
+										</div>
+
+										<div class="form-group">
+											<label>Department</label> <select class="form-control"
+												id="tDepartmentId">
+												<option th:value="null">--Select--</option>
+												<option th:if="${itemReq}" th:each="c:${departmentList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==itemRequisitionModel[0].tDepartmentId}"></option>
+												<option th:unless="${itemReq}" th:each="c:${departmentList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+
 									</div>
 								</div>
-								
-								<!-- <div class="col-md-6">
-									<div class="form-group">
-										<label> Shift</label> <input type="text" class="form-control"
-											id="invDate">
-									</div>
-								</div> -->
-								<div class="col-md-6">
-									<div class="form-group">
-										<label>Schedule</label> <select class="org-name form-control ">
-											<option th:value="1">Monthly</option>
-											<option th:value="2">Weekly</option>
-											<option th:value="3">Daily</option>
-										</select>
-									</div>
-								</div>
-								<div class="col-lg-6">
-									<div class="form-group" id="">
-										<label>Department</label> <select
-											class="org-name form-control " id="departmentId">
-											<option th:value="1">All</option>
-											<option th:value="2">Account</option>
-											<option th:value="3">HR</option>
-											<option th:value="3">Development</option>
-										</select>
-									</div>
-
-								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<label>Section</label><select class="org-name form-control "
-											id="section">
-											<option th:value="1">All</option>
-											<option th:value="2">Section 1</option>
-											<option th:value="3">Section 2</option>
-										</select>
-									</div>
-								</div>
 
 
-								
-								
-								<!-- <div class="col-md-6">
-									<div class="form-group">
-										<label> Name</label> <input type="text" class="form-control"
-											id="invDate" onclick="nameAutoComplete();">
-										<div id="suggesstion-box1"></div>
-									</div>
-								</div> -->
+								<div class="row">
+									<div class="col-md-12" style="padding-top: 10px;">
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr class="trCls">
+													<th colspan="5" style="font-size: 18px;"><b>Details</b></th>
+												</tr>
+											</thead>
+											<thead class="theadCls">
+												<tr>
+													<th>Shift</th>
+													<th>Employee Name</th>
+													<th>Remark</th>
+													<th>Action</th>
 
+												</tr>
+											</thead>
+											<tbody id="tbodyData">
+												<tr class="tr_clone" th:if="${itemReq}"
+													th:each="a,iter:${itemRequisitionModel}">
 
-							</div>
-
-							<div class="row">
-								<div class="col-md-12" style="padding-top: 10px;">
-									<table class="tbll" id="myTable"
-										width="100%" border="0" cellspacing="1" cellpadding="5">
-										<thead>
-											<tr class="trCls">
-												<th colspan="5" style="font-size: 18px;"><b>Details</b></th>
-											</tr>
-										</thead>
-										<thead class="theadCls">
-											<tr>
-												<th>Shift</th>
-												<th>Employee Name</th>
-												<th>Remark</th>
-												<th>Action</th>
-
-											</tr>
-										</thead>
-										<tbody id="tbodyData">
-											<tr class="tr_clone">
-											<td><select id="selectPolicy_"
-													class="form-control policyCls">
-														<option th:value="null">--select--</option>
-														<option th:value="1">Shift A</option>
-														<option th:value="2">Shift B</option>
-														<option th:value="3">Shift C</option>
-												</select></td>
-												<td><select id="selectReimType_"
-													class="form-control reimTypeCls">
-														<option th:value="null">--select--</option>
-														<option th:value="EMP001">Ramesh</option>
-														<option th:value="EMP002">Suresh</option>
-														<option th:value="EMP003">Dinesh</option>
-
-
-												</select></td>
-												
-												<td><input type="text" class="form-control startCls"
-													id="selectStart_" readonly /></td>
-
-
-
-												<td><button type="button"
-														class="btn btn-primary tr_clone_add" name="add"
-														onclick="addMore();">
-														<span class="ti-plus"></span>
-													</button>&nbsp;</td>
-											</tr>
-											<!-- 	 <tr>
-												<td width="200"><select class="form-control">
-													<option value="">--Select--</option>
-													<option value="employee1">Suresh</option>
-													<option value="employee2">Ramesh</option>
-													<option value="employee3">Dipesh</option>
-
+													<td><select id="selectShiftType_"
+														class="form-control shiftTypeCls"
+														th:id="${'selectShiftType_'+iter.index}">
+															<option value="">--Select--</option>
+															<option th:each="c:${shiftList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.tShiftId}'></option>
 													</select></td>
-												<td th:text=Description1></td>
-												<td>
-													<div class="brd-btm"> Bar Code 1</div>
-													<div class="brd-btm"> Bar Code 2</div>
-													<div class="brd-btm"> Bar Code 3</div>
-													<div class="brd-btm"> Bar Code 4</div>
-														<div class="brd-btm"> Bar Code 5</div>
-														</td>
-												<td align="center"><div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div></td>
-												
-											</tr> 
-											 <tr>
-												<td th:text=Item2></td>
-												<td th:text=Description2></td>
+
+													<td><select id="selectEmp_"
+														class="form-control empCls"
+														th:id="${'selectEmp_'+iter.index}">
+															<option value="">--Select--</option>
+															<option th:each="c:${empList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.tEmp}'></option>
+													</select></td>
+
+													<td><input type="text" id="selectRemark_"
+														class="form-control remarkCls" th:value="${a.tRemark}" /></td>
+
 													<td>
-													<div class="brd-btm"> Bar Code 1</div>
-													<div class="brd-btm"> Bar Code 2</div>
-													<div class="brd-btm"> Bar Code 3</div>
-													<div class="brd-btm"> Bar Code 4</div>
-														<div class="brd-btm"> Bar Code 5</div>
-														</td>
-												<td align="center">
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-														</td>
-											</tr> 
-											 <tr>
-												<td th:text=Item3></td>
-												<td th:text=Description3></td>
-													<td>
-													<div class="brd-btm"> Bar Code 1</div>
-													<div class="brd-btm"> Bar Code 2</div>
-													<div class="brd-btm"> Bar Code 3</div>
-													<div class="brd-btm"> Bar Code 4</div>
-														<div class="brd-btm"> Bar Code 5</div>
-														</td>
-												<td align="center">
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-												<div class="brd-btm"> <i class="fa fa-check"></i></div>
-														</td>
-											</tr>  -->
-											<!-- 					<tr>
-												<td colspan="5"
-													style="border: 1px solid #FFF; margin-left: 2px; padding: 0; padding-top:10px;">
-													<table
-														width="350" align="right" class="noBorder" >
-														<tbody>
-															<tr>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkempty();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
 
-																<td width="40%" align="center" class="noBorder" style="padding:0;"><label>Sub
-																		Total</label></td>
-																<td class="amount_align_right noBorder" style="padding:0;"><label
-																	id="subTotal" class="form-control subTotal money"
-																	th:text="${#numbers.formatDecimal(GRNList[0].subTotal, 0, 'COMMA', 2, 'POINT')}"></label></td>
+													</td>
+												</tr>
+												<tr class="tr_clone" th:unless="${itemReq}">
+													<td><select id="selectShiftType_0"
+														class="form-control shiftTypeCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${shiftList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
 
-															</tr>
-															<tr id="CgstTR">
+													<td><select id="selectEmp_0"
+														class="form-control empCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${empList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
 
-																<td width="40%" align="center" class="noBorder" style="padding:0;"><label
-																	id="labelCgst">CGST</label></td>
-																<td class="amount_align_right noBorder" style="padding:0;"
-																	th:if="${GRNList[0].totalCGST!=0.0}"><label
-																	id="sCGST" class="form-control cgst money"
-																	th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
-																<td th:unless="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
-																	id="sCGST" class="form-control cgst money noBorder">0.00</label></td>
+													<td><input type="text" id="selectRemark_0"
+														class="form-control remarkCls" />
+													</td>
 
-															</tr>
-															<tr id="SgstTR">
-
-																<td width="40%" align="center" class="noBorder" style="padding:0;"><label
-																	id="labelSgst">SGST</label></td>
-																<td class="amount_align_right noBorder noBorder"
-																	th:if="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
-																	id="sSGST" class="form-control sgst money  "
-																	th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
-																<td th:unless="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
-																	id="sSGST" class="form-control sgst money noBorder">0.00</label></td>
-
-															</tr>
-															<tr>
-
-																<td width="40%" align="center" class="noBorder" style="padding:0;"><label>Grand
-																		Total</label></td>
-																<td class="amount_align_right noBorder" style="padding:0;"><label
-																	id="grandTotal" class="form-control total money"
-																	th:text="${#numbers.formatDecimal(GRNList[0].grandTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
-
-															</tr>
-														</tbody>
-													</table></td>
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkempty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
 
 
-											</tr> -->
-										</tbody>
-									</table>
+										</table>
+									</div>
 								</div>
-							</div>
-							<!-- <div class="row">
-								<div class="col-lg-6"></div>
-								<div class="col-lg-6">
-									<table width="450" style="margin-left: 140px;">
-										<tbody>
-											<tr>
-												<td>&nbsp;</td>
-												<td width="40%" align="center"><label>Sub Total</label></td>
-												<td class="amount_align_right"><label id="subTotal"
-													class="form-control subTotal money"
-													th:text="${#numbers.formatDecimal(GRNList[0].subTotal, 0, 'COMMA', 2, 'POINT')}"></label></td>
-												<td width="20%"></td>
-											</tr>
-											<tr id="CgstTR">
-												<td>&nbsp;</td>
-												<td width="40%" align="center"><label id="labelCgst">CGST</label></td>
-												<td class="amount_align_right" width="40%"
-													th:if="${GRNList[0].totalCGST!=0.0}"><label id="sCGST"
-													class="form-control cgst money"
-													th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
-												<td width="40%" th:unless="${GRNList[0].totalCGST!=0.0}"><label
-													id="sCGST" class="form-control cgst money">0.00</label></td>
-												<td width="20%"></td>
-											</tr>
-											<tr id="SgstTR">
-												<td>&nbsp;</td>
-												<td width="40%" align="center"><label id="labelSgst">SGST</label></td>
-												<td class="amount_align_right"
-													th:if="${GRNList[0].totalCGST!=0.0}"><label id="sSGST"
-													class="form-control sgst money"
-													th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
-												<td width="40%" th:unless="${GRNList[0].totalCGST!=0.0}"><label
-													id="sSGST" class="form-control sgst money">0.00</label></td>
-												<td width="20%"></td>
-											</tr>
-											<tr>
-												<td>&nbsp;</td>
-												<td width="40%" align="center"><label>Grand
-														Total</label></td>
-												<td class="amount_align_right"><label id="grandTotal"
-													class="form-control total money"
-													th:text="${#numbers.formatDecimal(GRNList[0].grandTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
-												<td width="20%"></td>
-											</tr>
-										</tbody>
-									</table>
+
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success"
+											onclick="submitItem();">Submit</button>
+										<button type="button" class="btn btn-warning" onclick="funcLoad();">Cancel</button>
+									</div>
 								</div>
-							</div> -->
-							<div class="col-md-12">
-								<div class="form-group">
-									<button type="button" id="submit" class="btn btn-success">Submit</button>
-									<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
-								</div>
-							</div>
+							</form>
 						</div>
 					</div>
 				</div>
@@ -573,6 +563,5 @@ function displayTable(){
 		</div>
 
 	</div>
-</div>
 </div>
 </html>

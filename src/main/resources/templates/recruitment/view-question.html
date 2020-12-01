@@ -4,43 +4,36 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/master}">
 <head>
-<style>
-.modalIn {
-	border-bottom: 1px solid #e8e4e4;
-}
-</style>
-<script>
-$(document).ready(function() {
-	$('#tblThem').DataTable({
+<script type="text/javascript">
+$(document).ready(function() {			
+	$('#table').DataTable({
 		'processing' : true,
 		'serverSide' : true,
 		'searching' : false,
 		'ordering' : false,
 		"ajax" : {
-			'url' : 'view-trainning-planning-through-ajax',
+			'url' : 'view-question-through-ajax',
 			'data' : function(d) {
 				d.param1 = $('#param1').val();
 			}
 		},
 		'dataSrc' : "",
 		'columns' : [
-			{'data' : 'tranningName'},
-			{'data' : 'tranningType'},
-			{'data' : 'startDate'},
-			{'data' : 'endDate'},
-			{'data' : 'statusName'},
+		
+			{'data' : 'questionName'},
+			{'data' : 'questionDesc'},
+			{'data' : 'questionActive'},
 			{'data' : 'action'}
 		]	
 	});
-	}); 
+});
 
-	
 function searchData() {
-	
-	$('#tblThem').DataTable().draw();
-} 
-function deletePlanning(id){
-	
+	$('#table').DataTable().draw();
+
+}
+
+function deleteQuestion(id){
 	swal.fire({
 		title	: "Are you sure want to Delete?",
 		text	: "Once Deleted,Can't revert back !",
@@ -63,10 +56,10 @@ function deletePlanning(id){
 		if(result.value){
 			$.ajax({
 				type	: "GET",
-				url : "/recruitment/view-trainning-planning-delete?id=" + id,
+				url : "/recruitment/view-question-delete?id=" + id,
 				dataType	: "json",
 				contentType	: "application/json",
-				data	: id,
+				data	: JSON.stringify(id),
 				success	: function(response){
 					console.log(response);
 					if(response.message=="success"){
@@ -92,31 +85,30 @@ function deletePlanning(id){
 	 })//swal function block ends
 }
 
-	
 </script>
-
 </head>
 <div layout:fragment="content">
 	<div class="content-wrap">
 		<div class="main mrt_20">
 			<div class="col-md-12">
 				<ol class="breadcrumb breadcrumb-arrow">
-					<li><a href="index.html">Home</a></li>
-					<li><a th:href="@{/recruitment/add-training-planning}">Add
-							Training Planning</a></li>
-					<li class="active"><span>View Training Planning </span></li>
+					<li><a href="add-question">Home</a></li>
+					<li><a th:href="@{/recruitment/add-question}">Question</a></li>
+					<!-- <li class="active"><span>Manage Question</span></li> -->
 				</ol>
 			</div>
 			<div class="card-title">
-				<h4>View Training Planning</h4>
+				<h4>Manage Question</h4>
 			</div>
 			<div class="container-fluid">
 				<div class="card">
 					<div class="search-field">
 						<div class="row">
+
+
 							<div class="col-md-1">
 								<div class="form-group">
-									<a class="btn btn-secondary" href="add-training-planning">Create</a>
+									<a class="btn btn-secondary" href="add-question">Create</a>
 								</div>
 							</div>
 							<div class="col-md-1">
@@ -124,38 +116,28 @@ function deletePlanning(id){
 									<button class="btn btn-info">Import</button>
 								</div>
 							</div>
-							<div class="col-md-1">
-								<div class="form-group">
-									<button class="btn btn-warning">
-										<i class="fa fa-download"> </i>
-									</button>
-								</div>
-							</div>
-							<div class="col-md-1"></div>
-						</div>
-						<div class="row">
+							
 							<div class="col-md-2">
-								<label>Training Name</label> <input type="text"
-									class="form-control" id="param1" />
-
-							</div>
-
-							<div class="col-md-2 mrt_10">
-								<div class="form-group">
-									<input type="button" class="btn btn-info" value="Search"
-										onclick="searchData()" />
-								</div>
-							</div>
+							<label>Question Type Name</label> <input type="text" id="param1"
+								class="form-control" onkeyup="searchData()" />
+						</div>
+							
 						</div>
 					</div>
+					<div class="row">
+
+						
+						
+						
+					</div>
+
 					<div class="table-responsive" style="width: 100%;">
-						<table id="tblThem" class="table table-bordered">
+						<table id="table" class="table table-bordered">
 							<thead>
 								<tr>
-									<th>Training Name</th>
-									<th>Training Type</th>
-									<th>Start Date</th>
-									<th>End Date</th>
+
+									<th>Question Type Name</th>
+									<th>Description</th>
 									<th>Status</th>
 									<th align="center">Action</th>
 								</tr>
@@ -167,10 +149,9 @@ function deletePlanning(id){
 				</div>
 			</div>
 		</div>
-
-
-
-
 	</div>
 </div>
+
+
+
 </html>

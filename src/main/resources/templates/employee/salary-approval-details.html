@@ -75,7 +75,7 @@
 	font-size: 15px;
 	color: #000;
 	font-weight: bold;
-	padding-top:10px;
+	padding-top: 10px;
 }
 
 .small-box>.inner {
@@ -1002,9 +1002,7 @@ function numberOnly(e) {
 	var toDate = $("#toDate").val();
 	var status = $("#tripCount").val();
 	if (fromDate && toDate) {
-		
-	 
-		$.ajax({
+				$.ajax({
 					type : 'POST',
 					url : 'salary-approval-get-trip-dtls?fromDate='
 							+ fromDate + '&toDate=' + toDate+"&status="+status,
@@ -1088,16 +1086,14 @@ function getFoodData() {
                                    var title='<th colspan="5" align="center" style="text-align: center;"><strong>Food Details</strong></th>'
                             	   $('#titleId').append(title);
                             	   var head = '<th  class="tableheader" align="center" >Employee Id</th><th  class="tableheader" align="center" >Employee Name</th> <th  class="tableheader" align="center" >Day Meal</th><th  class="tableheader" align="center" >Night Meal</th> <th  class="tableheader" align="center" >Total Meal</th>' ;
-                         		  $('#headId').append(head);
-                         		 console.log(response.body)
+                         		  $('#headId').append(head); 
                             	   for (var i = 0; i < response.body.length; i++) { 
                             		  
                             		  var table = '<tr><td bgcolor="#F5F5F5" ><input type="text" class="form-control employeeId" value='+response.body[i].employeeId+' id="employeeId'+i+'" readonly> </td>  '
-   											+ '<td bgcolor="#F5F5F5" ><input type="text"  class="form-control employeeName" value="'+response.body[i].employeeName+'" id="employeeName'+i+'" readonly></td> '
-   								 	 
-   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control dayMeal" value='+response.body[i].dayMeal+' id="dayMeal'+i+'"  ></td>  '
-   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control nightMeal" value='+response.body[i].nightMeal+' id="nightMeal'+i+'"  ></td>  ' 
-   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control totalMeal" value='+response.body[i].totalMeal+' id="totalMeal'+i+'"></td> '
+		   											+ '<td bgcolor="#F5F5F5" ><input type="text"  class="form-control employeeName" value="'+response.body[i].employeeName+'" id="employeeName'+i+'" readonly></td> '
+		   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control dayMeal" value='+response.body[i].dayMeal+' id="dayMeal'+i+'"  ></td>  '
+		   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control nightMeal" value='+response.body[i].nightMeal+' id="nightMeal'+i+'"  ></td>  ' 
+		   											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control totalMeal" value='+response.body[i].totalMeal+' id="totalMeal'+i+'"></td> '
    											
    										 +  '</tr> '; 
    									$('#tblid').append(table);
@@ -1217,7 +1213,7 @@ function getAttendanceData(){
 	var toDate = $("#toDate").val();
 	var empId = $("#empId").val();
 	var status = $("#attCount").val();
-	//alert(status)
+ 
 	if (fromDate && toDate) { 
 		$.ajax({
 					type : 'POST',
@@ -1230,8 +1226,7 @@ function getAttendanceData(){
                                    var title='<th colspan="5" align="center" style="text-align: center;"><strong>Attendance Details</strong></th>'
                             	   $('#titleId').append(title);
                             	   var head = '<th  class="tableheader" align="center" >Employee Id</th><th  class="tableheader" align="center" >Employee Name</th> <th  class="tableheader" align="center" >Total Working Day</th> <th  class="tableheader" align="center" >Work Days</th>' ;
-                         		  $('#headId').append(head);
-                         		 console.log(response.body)
+                         		  $('#headId').append(head); 
                             	   for (var i = 0; i < response.body.length; i++) { 
                             		  
                             		  var table = '<tr><td bgcolor="#F5F5F5" ><input type="text" class="form-control employeeId" value='+response.body[i].employeeId+' id="employeeId'+i+'" readonly> </td>  '
@@ -1471,12 +1466,13 @@ function getSalaryCountData() {
 						$("#finalCount").val(response.body[0].finalVal);
 						$("#leaveCount").val(response.body[0].leaveVal);
 						
+						console.log("att value "+response.body[0].attVal)
 						if (response.body[0].attVal > 0) {
-						 $("#att").show();
-						 
-						 attCount
-						} else {
+						 	$("#att").show();
+						 	$("#attscls").show();
+						 } else {
 							 $("#att").hide();
+							 $("#attscls").hide();
 						}
                        
 						if (response.body[0].extraVal > 0) {
@@ -1497,7 +1493,7 @@ function getSalaryCountData() {
 						if (response.body[0].tripVal > 0) {
                             $("#finalSal").add("<i class='fa fa-check fa-3x'></i>");
 						} else {
-							  $("#finalSal").add("<i class='fa fa-remove fa-3x'></i>");
+							$("#finalSal").add("<i class='fa fa-remove fa-3x'></i>");
 						}
 					} else {
 
@@ -1624,27 +1620,29 @@ function getLeaveData(){
 					</div>
 					<div class="row">
 						<div class="col-md-12">
-						
+
 
 							<div class="row">
 
-								<div class="col-lg-2 col-xs-6 mt pc" onclick="getAttendanceData()" style="padding: 5px;">
+								<div class="col-lg-3 col-xs-6 mt pc"
+									onclick="getAttendanceData()" style="padding: 5px;">
 									<!-- small box -->
 									<div class="small-box bg-aqua">
 										<div class="row">
 											<div class="col-lg-12 mt">
 												<div class="inner" align="center">
-													<p>Attendance</p>
+													<p>Attendance <i class="fa fa-check fa-2x attscls" style="color:#090 ; padding-left:20px;"></i></p>
 													<input type="hidden" id="attCount">
 												</div>
 											</div>
-											
+
 										</div>
 									</div>
 								</div>
 
 								<!-- ./col -->
-								<div class="col-lg-2 col-xs-6 mt pc" onclick="getTripData()" style="padding: 5px;">
+								<div class="col-lg-3 col-xs-6 mt pc" onclick="getTripData()"
+									style="padding: 5px;">
 									<!-- small box -->
 									<div class="small-box bg-green">
 										<div class="row">
@@ -1656,12 +1654,13 @@ function getLeaveData(){
 
 												</div>
 											</div>
-											
+
 										</div>
 									</div>
 								</div>
 
-								<div class="col-lg-2 col-xs-6 mt pc" onclick="getFoodData()" style="padding: 5px;">
+								<div class="col-lg-3 col-xs-6 mt pc" onclick="getFoodData()"
+									style="padding: 5px;">
 									<!-- small box -->
 									<div class="small-box bg-yellow">
 										<div class="row">
@@ -1673,11 +1672,12 @@ function getLeaveData(){
 
 												</div>
 											</div>
-											
+
+										</div>
 									</div>
 								</div>
-                           </div>
-								<div class="col-lg-2 col-xs-6 mt pc" onclick="getExtraSalaryData()" style="padding: 5px;">
+								<div class="col-lg-3 col-xs-6 mt pc"
+									onclick="getExtraSalaryData()" style="padding: 5px;">
 									<!-- small box -->
 									<div class="small-box bg-red">
 										<div class="row">
@@ -1689,7 +1689,7 @@ function getLeaveData(){
 
 												</div>
 											</div>
-											
+
 										</div>
 									</div>
 								</div>
@@ -1713,7 +1713,8 @@ function getLeaveData(){
 									</div>
 								</div> -->
 
-								<div class="col-lg-2 col-xs-6 mt pc"  onclick="getAdvanceData()" style="padding: 5px;">
+								<div class="col-lg-3 col-xs-6 mt pc" onclick="getAdvanceData()"
+									style="padding: 5px;">
 									<!-- small box -->
 									<div class="small-box bg-ltblue">
 										<div class="row">
@@ -1723,12 +1724,13 @@ function getLeaveData(){
 													<input type="hidden" id="advCount" value=''>
 												</div>
 											</div>
-											
+
 										</div>
 									</div>
 								</div>
 
-								<div class="col-lg-2 col-xs-6 mt pc" onclick="getIncomeeData()" style="padding: 5px;">
+								<div class="col-lg-3 col-xs-6 mt pc" onclick="getIncomeeData()"
+									style="padding: 5px;">
 									<!-- small box -->
 									<div class="small-box bg-pink">
 										<div class="row">
@@ -1738,11 +1740,27 @@ function getLeaveData(){
 													<input type="hidden" id="IncomeTaxCount">
 												</div>
 											</div>
-											
+
 										</div>
 									</div>
 								</div>
-								<div class="col-lg-2 col-xs-6 mt pc" onclick="onCllickFinalSalary()" style="padding: 5px;">
+								<div class="col-lg-3 col-xs-6 mt pc" onclick="getLeaveData()"
+									style="padding: 5px;">
+									<!-- small box -->
+									<div class="small-box bg-lightred">
+										<div class="row">
+											<div class="col-lg-12 mt">
+												<div class="inner" align="center">
+													<p>Leave</p>
+													<input type="hidden" id="leaveCount">
+												</div>
+											</div>
+
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-3 col-xs-6 mt pc"
+									onclick="onCllickFinalSalary()" style="padding: 5px;">
 									<!-- small box -->
 									<div class="small-box bg-lightblue">
 										<div class="row">
@@ -1754,36 +1772,21 @@ function getLeaveData(){
 
 												</div>
 											</div>
-											
+
 										</div>
 									</div>
 								</div>
 
-								<div class="col-lg-2 col-xs-6 mt pc" onclick="getLeaveData()" style="padding: 5px;">
-									<!-- small box -->
-									<div class="small-box bg-lightred">
-										<div class="row">
-											<div class="col-lg-12 mt">
-												<div class="inner" align="center">
-													<p>Leave</p>
-													<input type="hidden" id="leaveCount">
-												</div>
-											</div>
-											
-										</div>
-									</div>
-								</div>
+
 
 							</div>
 
 						</div>
 					</div>
 					<div class="topbtnright" align="right">
-					<div class="form-group" id="buttonId">
-						
+						<div class="form-group" id="buttonId"></div>
 					</div>
-				</div>
-					
+
 
 					<div class="wmd-view">
 						<table class="table" id="myTable1" width="100%" border="0"

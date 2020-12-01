@@ -31,7 +31,6 @@ import nirmalya.aathithya.webmodule.common.pagination.DataTableResponse;
 import nirmalya.aathithya.webmodule.common.utils.DropDownModel;
 import nirmalya.aathithya.webmodule.common.utils.EnvironmentVaribles;
 import nirmalya.aathithya.webmodule.common.utils.JsonResponse;
-import nirmalya.aathithya.webmodule.employee.model.HrmsEmployeeCertificationModel;
 import nirmalya.aathithya.webmodule.recruitment.model.QuestionTypeModel;
 
 @Controller
@@ -84,6 +83,20 @@ public class QuestionTypeController {
 			e.printStackTrace();
 		}
 
+		/*
+		 * for viewing drop down list
+		 */
+		try {
+			DropDownModel[] Question = restClient.getForObject(env.getRecruitment() + "getQuestionList",
+					DropDownModel[].class);
+			List<DropDownModel> QuestionList = Arrays.asList(Question);
+			model.addAttribute("QuestionList", QuestionList);
+		} catch (RestClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 	logger.info("Method : addQuestiontype ends");
 	return "recruitment/add-questiontype";
 
@@ -151,6 +164,19 @@ System.out.println(QuestionTypeModel);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		/*
+		 * for viewing drop down list
+		 */
+		try {
+			DropDownModel[] Question = restClient.getForObject(env.getRecruitment() + "getQuestionList",
+					DropDownModel[].class);
+			List<DropDownModel> QuestionList = Arrays.asList(Question);
+			model.addAttribute("QuestionList", QuestionList);
+		} catch (RestClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	
 		logger.info("Method : viewQuestionType ends");
 
@@ -178,7 +204,6 @@ System.out.println(QuestionTypeModel);
 			tableRequest.setLength(Integer.parseInt(length));
 			tableRequest.setParam1(param1);
 
-System.out.println(param1);
 			JsonResponse<List<QuestionTypeModel>> jsonResponse = new JsonResponse<List<QuestionTypeModel>>();
 
 			jsonResponse = restClient.postForObject(env.getRecruitment() + "getAssignQueDetails",tableRequest,
@@ -189,7 +214,7 @@ System.out.println(param1);
 			List<QuestionTypeModel> assignQue = mapper.convertValue(jsonResponse.getBody(),
 					new TypeReference<List<QuestionTypeModel>>() {
 					});
-
+System.out.println("assignQue  " + assignQue);
 			String s = "";
 
 			for (QuestionTypeModel m : assignQue) {
@@ -197,11 +222,12 @@ System.out.println(param1);
 				byte[] encodeId = Base64.getEncoder().encode(m.getSpeTypeId().getBytes());
 
 				s = s + "<a href='view-questiontype-edit?speTypeId=" + new String(encodeId)
-						+ "' ><i class=\"fa fa-edit\"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;<a data-toggle='modal' title='View'  href='javascript:void' onclick='viewInModel(\""
+						+ "' ><i class=\"fa fa-edit\"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;"
+						+ "<a data-toggle='modal' title='View'  href='javascript:void' onclick='viewInModel(\""
 						+ new String(encodeId)
 						+ "\")'><i class='fa fa-search search'></i></a>";
 				m.setAction(s);
-				s = "";
+				 
 
 			}
 
@@ -210,8 +236,7 @@ System.out.println(param1);
 			response.setDraw(Integer.parseInt(draw));
 			response.setData(assignQue);
 
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) { 
 			e.printStackTrace();
 		}
 
@@ -268,6 +293,20 @@ System.out.println(param1);
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		/*
+		 * for viewing drop down list
+		 */
+		try {
+			DropDownModel[] Question = restClient.getForObject(env.getRecruitment() + "getQuestionList",
+					DropDownModel[].class);
+			List<DropDownModel> QuestionList = Arrays.asList(Question);
+			model.addAttribute("QuestionList", QuestionList);
+		} catch (RestClientException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		logger.info("Method : editQuedependent ends");
 
 		return "recruitment/add-questiontype";
@@ -305,6 +344,8 @@ System.out.println(param1);
 		logger.info("Method : modalQuestionEdu  ends ");
 		return response;
 	}
+	
+	
 
 }
 
