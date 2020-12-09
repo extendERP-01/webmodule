@@ -18,6 +18,7 @@ public class WebModuleApplication {
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 	   return builder.build();
 	}
+	//  in test
 	//THIS IS TEST
 	@Bean
 	public PasswordEncoder passwordEncoder() {
