@@ -13,7 +13,7 @@ import nirmalya.aathithya.webmodule.common.utils.ReadExcelData;
 
 @SpringBootApplication
 public class WebModuleApplication {
- 
+ // latest code comment
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 	   return builder.build();
