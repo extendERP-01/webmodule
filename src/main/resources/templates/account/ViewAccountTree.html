@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:th="http://www.thymeleaf.org"
+   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+   layout:decorate="~{layout/master}">
+   <head>  
+      <script type="text/javascript"> 
+      
+         $(function() {
+         	//For tree structure of Module,Function and Activity Tree structure
+         $.fn.extend({
+                treed: function(o) {
+         
+                    var openedClass = 'fa-minus-circle';
+                    var closedClass = 'fa-plus-circle';
+         
+                     if (typeof o != 'undefined') {
+                        if (typeof o.openedClass != 'undefined') {
+                            openedClass = o.openedClass;
+                        }
+                        if (typeof o.closedClass != 'undefined') {
+                            closedClass = o.closedClass;
+                        }
+                    }; 
+         
+                    //initialize each of the top levels
+                    var tree = $(this);
+                    tree.addClass("tree");
+                    tree.find('li').has("ul").each(function() {
+                        var branch = $(this); //li with children ul
+                        branch.prepend("<i class='indicator fa " + closedClass + "'></i>");
+                        branch.addClass('branch');
+                        branch.on('click', function(e) {
+                            if (this == e.target) {
+                                var icon = $(this).children('i:first'); 
+                                icon.toggleClass(openedClass + " " + closedClass);
+                                $(this).children().children().toggle();
+                                //alert('hello');
+                                $('.listName').show();
+                                $('.addChild').show(); 
+                                
+                            }
+                        })
+                        branch.children().children().toggle();
+                    });
+                    //fire event from the dynamically added icon
+                    tree.find('.branch .indicator').each(function() {
+                        $(this).on('click', function() {
+                            $(this).closest('li').click();
+                        });
+                    });
+                    //fire event to open branch if the li contains an anchor instead of text
+                    tree.find('.branch>a').each(function() {
+                        $(this).on('click', function(e) {
+                            $(this).closest('li').click();
+                            e.preventDefault();
+                        });
+                    });
+                    //fire event to open branch if the li contains a button instead of text
+                    tree.find('.branch>button').each(function() {
+                        $(this).on('click', function(e) {
+                            $(this).closest('li').click();
+                            e.preventDefault();
+                        });
+                    });
+                }
+            });
+          
+             $('#tree1').treed(); 
+          
+         })      
+         	
+          	/* $(function () {
+     			  if(!window.location.hash) {
+     			        //setting window location
+     			        window.location = window.location + '#valid';
+     			        //using reload() method to reload web page
+     			        window.location.reload();
+     			        
+     			    }  
+         	 });  */  
+         
+         $(function () {  
+     		 $('.listName').show();
+     		 $('.addChild').show();
+     		
+     		
+     		 $("#sbmtdata").click(function(){  
+     			const ipAPI = 'https://api.ipify.org?format=json';
+       	        if (!blankValidation("groupName","TextField", "Child Name can not be left blank"))
+       	          return false; 
+       	        var groupName=$('#groupName').val();
+       	        var parentId=$("#parentId").val();
+       	        var levelName=$("#levelName").val();
+       	        
+       	        //submitAndNext(data);
+       	   swal.fire({
+				title				: "Are you sure to Submit?",
+				text				: "Once Submited,Can't revert back !",
+				type 				: "warning",
+				
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Submit",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+				confirmButtonAriaLabel : 'Thumbs up, great!',
+				cancelButtonText : 'Cancel',
+				cancelButtonAriaLabel : 'Thumbs down',
+				
+				 preConfirm: () => {
+				    return fetch(ipAPI)
+				    .then(response => response.json())
+				    .then(data => Swal.insertQueueStep(data.ip))
+				      .catch(() => {
+				        Swal.insertQueueStep({
+				          type: 'error',
+				          title: 'Unable to get your public IP'
+				,        })
+				      })
+				 }   
+			}).then((result) => {
+				if(result.value){
+					$.ajax({
+					type		: "POST",
+					url 		: "add-child", 
+					data		: {'groupName': groupName,  'parentId':parentId, 'levelName':levelName},
+					success		: function(response){
+						console.log(response);
+						if(response.message){
+							 swal({
+									title:"Data Saved Successfully.",
+									type: "success",
+							}).then(function(){
+								window.location.href="view-account-tree";
+							}) 
+						}else{ 
+							swal("Data Saved Successfully.");
+							window.location.href="view-account-tree";
+							//window.location.href="view-account-tree";
+							/* swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							}) */
+						}
+					},error		: function(response){
+						swal(response.code);	
+						window.location.href="view-account-tree";
+					}
+				}) 
+			}
+		  }) 
+       	        
+       	       });
+     		  
+     		
+     		$("#sbmtdataParent").click(function(){  
+     			const ipAPI = 'https://api.ipify.org?format=json';
+       	        if (!blankValidation("parentName","TextField", "Parent Name can not be left blank"))
+       	          return false; 
+       	        var parentName=$('#parentName').val(); 
+       	        
+       	        //submitAndNext(data);
+       	   swal.fire({
+				title				: "Are you sure to Submit?",
+				text				: "Once Submited,Can't revert back !",
+				type 				: "warning",
+				
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Submit",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+				confirmButtonAriaLabel : 'Thumbs up, great!',
+				cancelButtonText : 'Cancel',
+				cancelButtonAriaLabel : 'Thumbs down',
+				
+				 preConfirm: () => {
+				    return fetch(ipAPI)
+				    .then(response => response.json())
+				    .then(data => Swal.insertQueueStep(data.ip))
+				      .catch(() => {
+				        Swal.insertQueueStep({
+				          type: 'error',
+				          title: 'Unable to get your public IP'
+				,        })
+				      })
+				 }   
+			}).then((result) => {
+				if(result.value){
+					$.ajax({
+					type		: "POST",
+					url 		: "add-parent", 
+					data		: {'parentName': parentName},
+					success		: function(response){
+						console.log(response);
+						if(response.message){
+							 swal({
+									title:"Data Saved Successfully.",
+									type: "success",
+							}).then(function(){
+								window.location.href="view-account-tree";
+							}) 
+						}else{ 
+							swal("Data Saved Successfully");
+							window.location.href="view-account-tree";
+							//window.location.href="view-account-tree";
+							/* swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							}) */
+						}
+					},error		: function(response){
+						swal(response.code);	
+						window.location.href="view-account-tree";
+					}
+				}) 
+			}
+		  }) 
+       	        
+       	});
+     		 
+     });  
+         
+         
+       function OpenModel(index,levelName) { 
+    	    $('#levelName').val(levelName);
+	   		$('#parentId').val(index);
+	   		$('#myModal').modal('show');
+   		 
+   	}
+         
+         
+         function OpenModelParent() { 
+      		$('#myModalParent').modal('show');
+      		 
+      	}
+         
+             
+      </script>
+      <style>
+
+.tree ul li:before {
+	content: none;
+    display: block;
+    width: 10px;
+    height: 0;
+    border-top: 1px solid;
+    margin-top: -1px;
+    position: absolute;
+    top: 1em;
+    left: 0;
+}
+      </style>
+   </head>
+   <div layout:fragment="content">
+      <div class="main mrt_20">
+         <div class="col-md-12">
+            <!--Alert Box-->
+            <div class="alert alert-success alert-dismissible"
+               style="display: none;">
+               <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+               <strong>Success!</strong> Indicates a successful or positive action.
+            </div>
+            <div class="alert alert-danger alert-dismissible"
+               style="display: none;">
+               <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+               <strong>Success!</strong> Indicates a successful or positive action.
+            </div>
+            <div class="alert alert-warning alert-dismissible"
+               style="display: none;">
+               <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+               <strong>Success!</strong> Indicates a successful or positive action.
+            </div>
+            <!--Alert Box-->
+            <ol class="breadcrumb breadcrumb-arrow">
+               <li><a th:href="@{/index}">Home</a></li> 
+               <li class="active"><a th:href="@{/account/view-account-tree}">View Account Tree</a></li>
+                
+            </ol>
+         </div>
+         <div class="card-title">
+            <h4>View Account Tree</h4>
+         </div>
+         <div class="container-fluid">
+            
+            <div class="card">
+               <div class="card-body">
+                  <div class="basic-elements">
+                     <form action="javascript:void(0)" th:object="${urole}" onsubmit="return validateForm();">
+                        <div class="row">
+                           <div th:if="${message != null}">
+                              <span th:text="${message}" style="color: red;"></span>
+                           </div>
+                        </div>
+                        <div class="row">
+                          
+                           <div class="col-lg-12">
+                              <div class="form-group">
+                                 <label>Account Tree</label> 
+            
+             				   <div class="col-md-12">
+             				    <input type="button" value="ADD PARENT GROUP" class="btn btn-primary"  th:attr="onclick=|OpenModelParent()|"/>
+					               <ul id="tree1"  >
+					              
+					                  <li  th:each="tree,iter : ${treeData1}">
+					                      <span th:if="${tree.parentId == NULL}"> 
+					                      <a  th:attr="a='\''+${iter.index}+ '\''" class="listName" th:text="${tree.groupName}"></a> 
+					                       <a data-toggle='modal' class="addChild" title='Add Child' 
+					                       th:attr="onclick=|OpenModel('${tree.groupId}','L2')|" >
+													<i class='fa fa-plus-square'></i></a>				                  
+					                       
+					                        <ul>  
+					                          <li th:each="tree2,iter2 : ${treeData1}" >
+					                            <span th:if="${tree.groupId == tree2.parentId}">
+					                            <a  th:attr="a='\''+${iter2.index}+ '\''" class="listName" th:text="${tree2.groupName}"></a> 
+					                            <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree2.groupId}','L3')|" >
+													<i class='fa fa-plus-square'></i></a>
+					                            <ul>
+					                            	<li th:each="tree3,iter3 : ${treeData1}">
+					                            		<span th:if="${tree2.groupId == tree3.parentId}">
+							                            <a  th:attr="a='\''+${iter3.index}+ '\''" class="listName" th:text="${tree3.groupName}"></a> 
+							                            <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree3.groupId}','L4')|" >
+															<i class='fa fa-plus-square'></i></a>
+							                            
+							                            <ul>
+							                            	<li th:each="tree4,iter4 : ${treeData1}">
+							                            		<span th:if="${tree3.groupId == tree4.parentId}">
+									                            <a  th:attr="a='\''+${iter4.index}+ '\''" class="listName" th:text="${tree4.groupName}"></a> 
+									                            <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree4.groupId}','L5')|" >
+																	<i class='fa fa-plus-square'></i></a>
+																	
+									                          		<ul>
+										                            	<li th:each="tree5,iter5 : ${treeData1}">
+										                            		<span th:if="${tree4.groupId == tree5.parentId}">
+												                            <a  th:attr="a='\''+${iter5.index}+ '\''" class="listName"  th:text="${tree5.groupName}"></a> 
+												                          	<a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree5.groupId}','L6')|" >
+																				<i class='fa fa-plus-square'></i></a>
+																				
+												                          		<ul>
+												                            	<li th:each="tree6,iter6 : ${treeData1}">
+												                            		<span th:if="${tree5.groupId == tree6.parentId}">
+														                            <a  th:attr="a='\''+${iter6.index}+ '\''" class="listName"  th:text="${tree6.groupName}"></a> 
+														                            <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree6.groupId}','L7')|" >
+																						<i class='fa fa-plus-square'></i></a>
+																						
+														                          	<ul>
+														                            	<li th:each="tree7,iter7 : ${treeData1}">
+														                            		<span th:if="${tree6.groupId == tree7.parentId}">
+																                            <a  th:attr="a='\''+${iter7.index}+ '\''"  class="listName" th:text="${tree7.groupName}"></a> 
+																                            <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree7.groupId}','L8')|" >
+																								<i class='fa fa-plus-square'></i></a>
+																                          		
+																                          		<ul>
+																                            	<li th:each="tree8,iter8 : ${treeData1}">
+																                            		<span th:if="${tree7.groupId == tree8.parentId}">
+																		                            <a  th:attr="a='\''+${iter8.index}+ '\''" class="listName"  th:text="${tree8.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree8.groupId}','L9')|" >
+																										<i class='fa fa-plus-square'></i></a>
+													
+																									<ul>
+																                            	<li th:each="tree9,iter9 : ${treeData1}">
+																                            		<span th:if="${tree8.groupId == tree9.parentId}">
+																		                            <a  th:attr="a='\''+${iter9.index}+ '\''" class="listName" th:text="${tree9.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child'  class="addChild" th:attr="onclick=|OpenModel('${tree9.groupId}','L10')|" >
+																										<i class='fa fa-plus-square'></i></a>
+																														
+																									<ul>
+																                            	<li th:each="tree10,iter10 : ${treeData1}">
+																                            		<span th:if="${tree9.groupId == tree10.parentId}">
+																		                            <a  th:attr="a='\''+${iter10.index}+ '\''" class="listName"  th:text="${tree10.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree10.groupId}','L11')|" >
+																										<i class='fa fa-plus-square'></i></a>	
+																													
+																									<ul>
+																                            	<li th:each="tree11,iter11 : ${treeData1}">
+																                            		<span th:if="${tree10.groupId == tree11.parentId}">
+																		                            <a  th:attr="a='\''+${iter11.index}+ '\''" class="listName"  th:text="${tree11.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree11.groupId}','L12')|" >
+																										<i class='fa fa-plus-square'></i></a>	
+																													
+																									<ul>
+																                            	<li th:each="tree12,iter12 : ${treeData1}">
+																                            		<span th:if="${tree11.groupId == tree12.parentId}">
+																		                            <a  th:attr="a='\''+${iter12.index}+ '\''" class="listName"  th:text="${tree12.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree12.groupId}','L13')|" >
+																										<i class='fa fa-plus-square'></i></a>	
+																													
+																									<ul>
+																                            	<li th:each="tree13,iter13 : ${treeData1}">
+																                            		<span th:if="${tree12.groupId == tree13.parentId}">
+																		                            <a  th:attr="a='\''+${iter13.index}+ '\''" class="listName"  th:text="${tree13.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree13.groupId}','L14')|" >
+																										<i class='fa fa-plus-square'></i></a>	
+																													
+																									<ul>
+																                            	<li th:each="tree14,iter14 : ${treeData1}">
+																                            		<span th:if="${tree13.groupId == tree14.parentId}">
+																		                            <a  th:attr="a='\''+${iter14.index}+ '\''" class="listName"  th:text="${tree14.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree14.groupId}','L15')|" >
+																										<i class='fa fa-plus-square'></i></a>	
+																													
+																									<ul>
+																                            	<li th:each="tree15,iter15 : ${treeData1}">
+																                            		<span th:if="${tree14.groupId == tree15.parentId}">
+																		                            <a  th:attr="a='\''+${iter15.index}+ '\''" class="listName"  th:text="${tree15.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree15.groupId}','L16')|" >
+																										<i class='fa fa-plus-square'></i></a>				
+																									
+																									<ul>
+																                            	<li th:each="tree16,iter16 : ${treeData1}">
+																                            		<span th:if="${tree15.groupId == tree16.parentId}">
+																		                            <a  th:attr="a='\''+${iter16.index}+ '\''" class="listName"  th:text="${tree16.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree16.groupId}','L17')|" >
+																										<i class='fa fa-plus-square'></i></a>				
+																									
+																									<ul>
+																                            	<li th:each="tree17,iter17 : ${treeData1}">
+																                            		<span th:if="${tree16.groupId == tree17.parentId}">
+																		                            <a  th:attr="a='\''+${iter17.index}+ '\''" class="listName"  th:text="${tree17.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree17.groupId}','L18')|" >
+																										<i class='fa fa-plus-square'></i></a>				
+																									
+																									<ul>
+																                            	<li th:each="tree18,iter18 : ${treeData1}">
+																                            		<span th:if="${tree17.groupId == tree18.parentId}">
+																		                            <a  th:attr="a='\''+${iter18.index}+ '\''" class="listName"  th:text="${tree18.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree18.groupId}','L19')|" >
+																										<i class='fa fa-plus-square'></i></a>				
+																									
+																									<ul>
+																                            	<li th:each="tree19,iter19 : ${treeData1}">
+																                            		<span th:if="${tree18.groupId == tree19.parentId}">
+																		                            <a  th:attr="a='\''+${iter19.index}+ '\''" class="listName"  th:text="${tree19.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree19.groupId}','L20')|" >
+																										<i class='fa fa-plus-square'></i></a>				
+																									
+																									<ul>
+																                            	<li th:each="tree20,iter20 : ${treeData1}">
+																                            		<span th:if="${tree19.groupId == tree20.parentId}">
+																		                            <a  th:attr="a='\''+${iter20.index}+ '\''" class="listName"  th:text="${tree20.groupName}"></a> 
+																		                          <a data-toggle='modal'  title='Add Child' class="addChild" th:attr="onclick=|OpenModel('${tree20.groupId}','L21')|" >
+																										<i class='fa fa-plus-square'></i></a>				
+																									
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																                               
+																                               
+																		                            </span>
+																                            	 </li>
+																                               </ul>
+																                            </span>
+														                            	 </li>
+														                               </ul>
+														                            </span>
+												                            	 </li>
+												                               </ul>
+												                            </span>
+										                            	 </li>
+										                               </ul>
+									                            </span>
+							                            	 </li>
+							                               </ul>
+							                            </span>
+					                            	  </li>
+					                               </ul>
+					                             </span> 
+					                           </li> 
+					                         </ul> 
+					                      </span>
+					                    </li>  
+							         </ul>
+							      </div>
+                              </div>
+                           </div>
+                        </div>
+                     </form>
+                  </div>
+               </div>
+               <div style="clear: both;"></div>
+            </div>
+         </div>
+         	<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 550px; height:240px;">
+				 <h4 class="modal-title">Add Child</h4> 
+							
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+							 
+								<div class="row">
+									<div class="col-lg-12">
+									<input type="hidden" id="parentId" name="parentId" value=""  >
+									<input  type="hidden" id="levelName" name="levelName" value="">
+                        				<div class="form-group">
+                         					<label>Child Name</label>
+											<input type="text" class="form-control" name="groupName" id="groupName" >
+										</div> <br></br>
+										
+										<div class="form-group">
+											 
+											<input type="submit" id="sbmtdata" value="Submit" class="btn btn-success" />
+											<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+										</div>	
+										
+									</div>
+								</div> 
+				</div>
+			</div>
+		</div> 
+		
+		<div id="myModalParent" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 550px; height:240px;">
+				 <h4 class="modal-title">Add Parent</h4> 
+							
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+							 
+								<div class="row">
+									<div class="col-lg-12">
+                        				<div class="form-group">
+                         					<label>Parent Name</label>
+											<input type="text" class="form-control" name="parentName" id="parentName" >
+										</div> <br></br>
+										
+										<div class="form-group">
+											 
+											<input type="submit" id="sbmtdataParent" value="Submit" class="btn btn-success" />
+											<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+										</div>	
+										
+									</div>
+								</div> 
+				</div>
+			</div>
+		</div> 
+		
+		
+	
+      </div>
+   </div>
+</html>
+

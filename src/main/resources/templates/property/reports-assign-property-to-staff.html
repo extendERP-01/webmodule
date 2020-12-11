@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+$(document).ready(function() {
+	$( "#param3" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	})
+	
+	//date time picker
+	$( "#param4" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	})
+	
+	$('#listAllItems').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'view-assigned-property-to-staff-ThAjax',
+			'data' : function(d) {
+				d.param1 = $('#param1').val();
+				d.param2 = $('#param2').val();
+				d.param3 = $('#param3').val();
+				d.param4 = $('#param4').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [ {
+			'data' : 'costCenter'
+		}, {
+			'data' : 'userRole'
+		},{
+			'data' : 'user'
+		},{
+			'data' : 'propertyListNames'
+		},{
+			'data' : 'Price'
+		} ]
+	});
+});
+function validateForm(){
+	if (!blankValidation("param3","TextField" ,"Plese select Assign From Date"))
+	      return false;
+	if (!blankValidation("param4","TextField" ,"Plese select Assign To Date"))
+	      return false;
+	pdfCreation();
+}
+function searchData() {
+	$('#table').DataTable().draw();
+}
+function pdfCreation(){
+	window.open("view-assigned-property-to-staff-download-report?param1="+window.btoa($('#param1').val())+"&param2="+window.btoa($('#param2').val())+"&param3="+window.btoa($('#param3').val())+"&param4="+window.btoa($('#param4').val()),'_blank');
+}
+function funcLoad(){
+	location.reload();
+}
+</script>
+</head>
+<div layout:fragment="content">
+ <div class="content-wrap">
+      <div class="content-wrap">
+        <div class="main mrt_20">
+          
+          <div class="card-title">
+            <h4>Assign Property to Staff</h4>
+          </div>
+          <div class="container-fluid">
+            
+            
+            <div class="card">
+              
+              <div class="card-body">
+                <div class="basic-elements">
+                  
+                	<div class="row">
+						<div th:if="${message != null}">
+							<span th:text="${message}" style="color: red;"></span>
+						</div>
+					</div>
+								<div class="row">
+									<div class="col-lg-6">
+								<div class="row">
+									<div class="col-md-3">
+										<div class="org-name">Cost Center</div>
+									</div>
+
+									<div class="col-md-8">
+										<select class="form-control" id="param1">
+											<option th:value="NULL">Select</option>
+											<option th:each="c:${costCenterList}" th:value='${c.key}'
+												th:text="${c.name}"></option>
+										</select>
+									</div>
+								</div>
+							
+							<div class="row">
+								<div class="col-md-3">
+									<div class="org-name">Property</div>
+								</div>
+								<div class="col-md-8">
+									<select class="form-control" id="param2">
+										<option th:value="NULL">Select</option>
+										<option th:each="c:${PropertyList}" th:value='${c.key}'
+											th:text="${c.name}" th:selected="${c.key==themeCategory}"></option>
+									</select>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-6">
+							<div class="row">
+								<div class="col-md-3">
+									<div class="org-name">Assign From Date</div>
+								</div>
+								<div class="col-md-8">
+
+									<input id="param3" class="form-control" type="text"
+										placeholder="" name="" readonly>
+								</div>
+							</div>
+								<div class="row">
+									<div class="col-md-3">
+										<div class="org-name">Assign To Date</div>
+									</div>
+									<div class="col-md-8">
+										<input id="param4" class="form-control" type="text"
+											placeholder="" name="" readonly >
+									</div>
+								</div>
+							</div>
+								</div>
+								<div class="form-group">
+                        <button class="btn btn-primary" onclick="funcLoad();"> Reset</button>
+                        <button type="button" class="btn btn-primary" onclick="validateForm();"> Print Preview</button>
+                        <button type="button" class="btn btn-primary" onclick="validateForm();">Print</button>
+                        <!-- <input name="" type="reset" class="btn warning" value="Cancel"> -->
+                      </div>
+                    </div>
+                    
+                </div>
+              </div>
+              <div style="clear:both;"></div>
+            </div>
+            
+            
+            
+          </div>
+        </div>
+      </div>
+      <!-- /# row -->
+      
+    </div>
+</div>
+</html>

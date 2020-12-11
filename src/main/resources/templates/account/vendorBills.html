@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.search-field {
+	float: left;
+	width: 100%;
+}
+
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+
+    //Date picker
+    $("#param4").datetimepicker({
+    	 format: 'd-m-Y',
+         closeOnDateSelect: true,
+         timepicker: false,
+    })
+    $("#param5").datetimepicker({
+    	format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false,
+    })
+    $("#param2").datetimepicker({
+    	 format: 'd-m-Y',
+         closeOnDateSelect: true,
+         timepicker: false,
+    })
+    $("#param6").datetimepicker({
+    	format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false,
+    })
+    
+    $(".otherDiv").hide();
+
+    $('#listAllVendor').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'manage-vendor-bills-grn',
+            'data': function(d) {
+                d.param1 = $('#param1').val();
+                d.param2 = $('#param4').val();
+                d.param3 = $('#param5').val();
+            }
+        },
+        'dataSrc': "",
+        'columns': [{
+                'data': 'invoice'
+            }, {
+                'data': 'vendor'
+            }, {
+                'data': 'totalamt'
+            }
+
+        ]
+    });
+    
+    $('#listAllOther').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'manage-vendor-bills-others',
+            'data': function(d) {
+                d.param1 = $('#param3').val();
+                d.param2 = $('#param2').val();
+                d.param3 = $('#param6').val();
+            }
+        },
+        'dataSrc': "",
+        'columns': [{
+                'data': 'invoice'
+            }, {
+                'data': 'vendor'
+            }, {
+                'data': 'totalamt'
+            }
+
+        ]
+    });
+
+});
+
+//Method For Searching Records In The List
+function searchData() {
+    $('#listAllVendor').DataTable().draw();
+}
+
+function searchData1() {
+    $('#listAllOther').DataTable().draw();
+}
+
+function vendorDivShow() {
+	$(".otherDiv").hide();
+	$(".vendorDiv").show();
+	
+	$("#vBtn").removeClass("btn-default");
+	$("#vBtn").addClass("btn-info");
+	$("#oBtn").removeClass("btn-info");
+	$("#oBtn").addClass("btn-default");
+	
+}
+function otherDivShow() {
+	$(".otherDiv").show();
+	$(".vendorDiv").hide();
+	
+	$("#vBtn").removeClass("btn-info");
+	$("#vBtn").addClass("btn-default"); 
+	$("#oBtn").removeClass("btn-default");
+	$("#oBtn").addClass("btn-info");
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="#">Home</a></li>
+					<!-- <li><a href="add-customer">Add Customer</a></li> -->
+					<li class="active"><span>Manage Vendor Bills</span></li>
+				</ol>
+			</div>
+
+			<div class="container-fluid">
+
+				<div class="card">
+
+					<div class="row">
+						<div class="col-lg-6"><button id="vBtn" type="button" class="btn btn-info" onclick="vendorDivShow();" style="width:525px;">Vendors</button></div>
+						<div class="col-lg-6"><button id="oBtn" type="button" class="btn btn-default" onclick="otherDivShow();" style="width:500px;">Others</button></div>
+					</div>
+					<div class="row">&nbsp;</div>
+					<div class="search-field">
+						<div class="row vendorDiv">
+							<div class="col-lg-2">
+								<label>Vendor Name</label> <input class="form-control"
+									type="text" placeholder="" name="" id="param1">
+							</div>
+							<div class="col-lg-2">
+								<label>From Date</label> <input class="form-control" type="text"
+									placeholder="" name="" id="param4">
+							</div>
+							<div class="col-md-2">
+								<label>To Date</label> <input class="form-control" type="text"
+									placeholder="" name="" id="param5">
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+						<div class="row otherDiv">
+							<div class="col-lg-2">
+								<label>Invoice</label> <input class="form-control"
+									type="text" placeholder="" name="" id="param3">
+							</div>
+							<div class="col-lg-2">
+								<label>From Date</label> <input class="form-control" type="text"
+									placeholder="" name="" id="param2">
+							</div>
+							<div class="col-md-2">
+								<label>To Date</label> <input class="form-control" type="text"
+									placeholder="" name="" id="param6">
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData1()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive vendorDiv" style="width: 100%;">
+						<table class="table table-bordered" id="listAllVendor" >
+							<thead>
+								<tr>
+									<th>GRN</th>
+									<th>Vendor</th>
+									<th>Total Amount</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div class="table-responsive otherDiv" style="width: 100%;">
+						<table class="table table-bordered" id="listAllOther" width="100%">
+							<thead>
+								<tr>
+									<th>Invoice</th>
+									<th>Department</th>
+									<th>Total Amount</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

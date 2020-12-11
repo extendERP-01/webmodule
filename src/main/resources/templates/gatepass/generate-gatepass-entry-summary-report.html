@@ -1,0 +1,590 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	//datepicker() Starts
+	$(function() {
+		$("#param1").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false
+		});
+		$("#param2").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false
+		});
+		var fullDate = new Date();
+		var twoDigitMonth = ((fullDate.getMonth().length+1) === 1)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+		var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+		var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+	    $("#param1").val(currentDate);
+	    $("#param2").val(currentDate);
+	    $('#tblGatePsEntry').DataTable({
+	        'processing': true,
+	        'serverSide': true,
+	        'searching': false,
+	        'ordering': false,
+	        "ajax": {
+	            'url': 'gatepass-entry-summary-report-preview-through-ajax',
+	            'data': function(d) {
+	                d.param1 = $('#param1').val();
+	                d.param2 = $('#param2').val();
+	                d.param3 = $('#param3').val();
+	                d.param4 = $('#param4').val();
+	                d.param5 = $('#param5').val();
+	                d.param6 = $('#param6').val();
+	                d.param7 = $('#param7').val();
+	                d.param8 = $('#param8').val();
+	            }
+	        },
+	        'dataSrc': "",
+	        'columns': [{ 
+	        	'data':'entryDate'
+				}, {
+	                'data': 'store'
+	            }, {
+	            	'data': 'vendor'
+	            }, {
+	                'data': 'itemName'
+	            }, {
+	                'data': 'actualNetQty'
+	            }, {
+	                'data': 'clientNetQty'
+	            }, {
+	                'data': 'qtyInBags'
+	            }, {
+	                'data': 'challanNoId'
+	            }, {
+	                'data': 'vehicleNo'
+	            }, {
+	                'data': 'rstNo'
+	            }
+	            
+	        ]
+	    })
+	});
+	//datepicker() Ends
+	function printPreview() {
+	
+		$('#tblGatePsEntry').DataTable().draw(); 
+	}
+	//Validation Function (Two Date Field Must Required)
+	function validateForm() {
+		if (!blankValidation("param1", "TextField", "From Date Is Required"))
+			return false;
+		if (!blankValidation("param2", "TextField", "To Date Is Required"))
+			return false;
+		
+		pdfCreation();
+	}
+
+	//PDF Print Preview Function
+	function pdfCreation() {
+		window.open("/gatepass/gatepass-entry-summary-report-download?param1="
+				+ window.btoa($('#param1').val()) + "&param2="
+				+ window.btoa($('#param2').val()) + "&param3="
+				+ window.btoa($('#param3').val()) + "&param4="
+				+ window.btoa($('#param4').val()) + "&param5="
+				+ window.btoa($('#param5').val()) + "&param6="
+				+ window.btoa($('#param6').val()) + "&param7="
+				+ window.btoa($('#param7').val()) + "&param8="
+				+ window.btoa($('#param8').val()), '_blank');
+	}
+
+	//Reload Page Function
+	function funcLoad() {
+		location.reload();
+	}
+
+	//Driver Auto Search Function
+	function driverNameAutoComplete() {
+		$
+				.ajax({
+					type : "POST",
+					url : "gatepass-entry-summary-report-autocomplete-driver",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#driverId").val(),
+					success : function(response) {
+						if (response.message == "success") {
+
+							if (response.body.length != 0) {
+								$("#driverId").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+									content += '<li onClick="selectAutocompleteValue(\''
+											+ response.body[i].key
+											+ '\',\''
+											+ response.body[i].name
+											+ '\')">'
+											+ response.body[i].name + '</li>';
+								} //For Loop Ends
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+
+							} else {
+								$("#driverId").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteValue(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+						$("#driverId").css("background", "#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue(\''
+								+ '' + '\',\'' + '' + '\')">' + "Try Again"
+								+ '</li>';
+						content += '</ul>';
+						$("#suggesstion-box").show();
+						$("#suggesstion-box").html(content);
+					}
+				})
+	}
+	function selectAutocompleteValue(key, name) {
+		if (key) {
+			$("#param3").val(key);
+			$("#driverId").val(name);
+			$("#driverId").attr('data-procat', key);
+			$("#suggesstion-box").hide();
+		} else {
+			$("#param3").val("");
+			$("#driverId").val("");
+			$("#driverId").attr('data-procat', "");
+			$("#suggesstion-box").hide();
+		}
+	}
+	//Sales Order Auto Search Function
+	function itemAutoComplete() {
+		$
+				.ajax({
+					type : "POST",
+					url : "gatepass-entry-summary-report-autocomplete-Item",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#itemId").val(),
+					success : function(response) {
+						if (response.message == "success") {
+
+							if (response.body.length != 0) {
+								$("#itemId").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+									content += '<li onClick="selectAutocompleteValue1(\''
+											+ response.body[i].key
+											+ '\',\''
+											+ response.body[i].name
+											+ '\')">'
+											+ response.body[i].name + '</li>';
+								} //For Loop Ends
+								content += '</ul>';
+								$("#suggesstion-box1").show();
+								$("#suggesstion-box1").html(content);
+
+							} else {
+								$("#itemId").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteValue1(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box1").show();
+								$("#suggesstion-box1").html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+						$("#itemId").css("background", "#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue1(\''
+								+ '' + '\',\'' + '' + '\')">' + "Try Again"
+								+ '</li>';
+						content += '</ul>';
+						$("#suggesstion-box1").show();
+						$("#suggesstion-box1").html(content);
+					}
+				})
+	}
+	function selectAutocompleteValue1(key, name) {
+		if (key) {
+			$("#param5").val(key);
+			$("#itemId").val(name);
+			$("#itemId").attr('data-procat', key);
+			$("#suggesstion-box1").hide();
+		} else {
+			$("#param5").val("");
+			$("#itemId").val("");
+			$("#itemId").attr('data-procat', "");
+			$("#suggesstion-box1").hide();
+		}
+	}
+	//Sales Order Auto Search Function
+	function vehicleAutoComplete() {
+		$
+				.ajax({
+					type : "POST",
+					url : "gatepass-entry-summary-report-autocomplete-vehicle-no",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#vehicleNo").val(),
+					success : function(response) {
+						if (response.message == "success") {
+
+							if (response.body.length != 0) {
+								$("#vehicleNo").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+									content += '<li onClick="selectAutocompleteValue2(\''
+											+ response.body[i].key
+											+ '\',\''
+											+ response.body[i].name
+											+ '\')">'
+											+ response.body[i].name + '</li>';
+								} //For Loop Ends
+								content += '</ul>';
+								$("#suggesstion-box2").show();
+								$("#suggesstion-box2").html(content);
+
+							} else {
+								$("#vehicleNo").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteValue2(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box2").show();
+								$("#suggesstion-box2").html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+						$("#vehicleNo").css("background", "#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue2(\''
+								+ '' + '\',\'' + '' + '\')">' + "Try Again"
+								+ '</li>';
+						content += '</ul>';
+						$("#suggesstion-box2").show();
+						$("#suggesstion-box2").html(content);
+					}
+				})
+	}
+	function selectAutocompleteValue2(key, name) {
+		if (key) {
+			$("#param6").val(key);
+			$("#vehicleNo").val(name);
+			$("#vehicleNo").attr('data-procat', key);
+			$("#suggesstion-box2").hide();
+		} else {
+			$("#param6").val("");
+			$("#vehicleNo").val("");
+			$("#vehicleNo").attr('data-procat', "");
+			$("#suggesstion-box2").hide();
+		}
+	}
+	
+	//Sales Order Auto Search Function
+	function gatePassNoAutoComplete() {
+		$
+				.ajax({
+					type : "POST",
+					url : "gatepass-entry-summary-report-autocomplete-gatepass-no",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#gatePassNo").val(),
+					success : function(response) {
+						if (response.message == "success") {
+
+							if (response.body.length != 0) {
+								$("#gatePassNo").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+									content += '<li onClick="selectAutocompleteValue3(\''
+											+ response.body[i].key
+											+ '\',\''
+											+ response.body[i].name
+											+ '\')">'
+											+ response.body[i].name + '</li>';
+								} //For Loop Ends
+								content += '</ul>';
+								$("#suggesstion-box3").show();
+								$("#suggesstion-box3").html(content);
+
+							} else {
+								$("#gatePassNo").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteValue3(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box3").show();
+								$("#suggesstion-box3").html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+						$("#gatePassNo").css("background", "#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue3(\''
+								+ '' + '\',\'' + '' + '\')">' + "Try Again"
+								+ '</li>';
+						content += '</ul>';
+						$("#suggesstion-box3").show();
+						$("#suggesstion-box3").html(content);
+					}
+				})
+	}
+	function selectAutocompleteValue3(key, name) {
+		if (key) {
+			$("#param8").val(key);
+			$("#gatePassNo").val(name);
+			$("#gatePassNo").attr('data-procat', key);
+			$("#suggesstion-box3").hide();
+		} else {
+			$("#param8").val("");
+			$("#gatePassNo").val("");
+			$("#gatePassNo").attr('data-procat', "");
+			$("#suggesstion-box3").hide();
+		}
+	}
+	//Sales Order Auto Search Function
+	function rstNoAutoComplete() {
+		$
+				.ajax({
+					type : "POST",
+					url : "gatepass-entry-summary-report-autocomplete-rst-no",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#rstNo").val(),
+					success : function(response) {
+						if (response.message == "success") {
+
+							if (response.body.length != 0) {
+								$("#rstNo").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+									content += '<li onClick="selectAutocompleteValue4(\''
+											+ response.body[i].key
+											+ '\',\''
+											+ response.body[i].name
+											+ '\')">'
+											+ response.body[i].name + '</li>';
+								} //For Loop Ends
+								content += '</ul>';
+								$("#suggesstion-box4").show();
+								$("#suggesstion-box4").html(content);
+
+							} else {
+								$("#rstNo").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteValue4(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box4").show();
+								$("#suggesstion-box4").html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+						$("#rstNo").css("background", "#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue4(\''
+								+ '' + '\',\'' + '' + '\')">' + "Try Again"
+								+ '</li>';
+						content += '</ul>';
+						$("#suggesstion-box4").show();
+						$("#suggesstion-box4").html(content);
+					}
+				})
+	}
+	function selectAutocompleteValue4(key, name) {
+		if (key) {
+			$("#param7").val(key);
+			$("#rstNo").val(name);
+			$("#rstNo").attr('data-procat', key);
+			$("#suggesstion-box4").hide();
+		} else {
+			$("#param7").val("");
+			$("#rstNo").val("");
+			$("#rstNo").attr('data-procat', "");
+			$("#suggesstion-box4").hide();
+		}
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="card-title">
+					<h4>Gate Pass Entry Report</h4>
+				</div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>From Date</label> <input type="text"
+												class="form-control" id="param1" autocomplete="off" readonly>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>ToDate</label> <input type="text"
+												class="form-control" id="param2" autocomplete="off" readonly> 
+												
+										</div>
+									</div>
+										<div class="col-lg-6">
+										<div class="form-group">
+											<label>Driver</label>
+											<input type="hidden" id="param3"> <input type="text"
+												 class="form-control" autocomplete="off"
+												id="driverId" onkeyup="driverNameAutoComplete();">
+												<div id="suggesstion-box"></div>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Branch</label> <select class="form-control" id="param4" >
+											<option value="">Select Branch</option>
+											<option th:each="c,iter:${storeList}" th:value="${c.key}" th:text="${c.name}"></option>
+										</select>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Goods</label> 
+											<input type="hidden" id="param5"> 
+											<input type="text"
+												 class="form-control" autocomplete="off"
+												id="itemId" onkeyup="itemAutoComplete();">
+												
+												<div id="suggesstion-box1"></div>
+												
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Vehicle No.</label> 
+												<input type="hidden" id="param6"> 
+											<input type="text"
+												 class="form-control" autocomplete="off"
+												id="vehicleNo" onkeyup="vehicleAutoComplete();">
+												
+												<div id="suggesstion-box2"></div>
+												
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>RST nO.</label>
+												<input type="hidden" id="param7"> 
+											<input type="text"
+												 class="form-control" autocomplete="off"
+												id="rstNo" onkeyup="rstNoAutoComplete();">
+												
+												<div id="suggesstion-box4"></div>
+											
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>GatePass No.</label>
+											<input type="hidden" id="param8"> 
+											<input type="text"
+												 class="form-control" autocomplete="off"
+												id="gatePassNo" onkeyup="gatePassNoAutoComplete();">
+												
+												<div id="suggesstion-box3"></div>
+											
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="form-group">
+											<button class="btn btn-primary" onclick="funcLoad();">
+												Reset</button>
+											<button type="button" class="btn btn-primary"
+												id="printPreview" onclick="printPreview();">Print Preview</button>
+											<button type="button" class="btn btn-primary"
+												onclick="pdfCreation();">Print</button>
+										</div>
+									</div>
+								</div>
+							<!-- 	<for print preview> -->
+								<div class="row" id="previewId">
+								<div class="col-lg-12">
+									<div class="table-responsive" style="width: 100%;">
+										<table id="tblGatePsEntry" class="table table-bordered">
+											<thead>
+												<tr><th>DATE TIME</th>
+												   <th>BRANCH</th>
+													<th>ACCOUNT</th>
+													<th>ITEM</th>
+													<th>QTY.Kg</th>
+													<th>CLIENT QTY.Kg</th>
+													<th>BAG Qty.</th>
+													<th>CHALLAN NO.</th>
+													<th>VEHICLE NO.</th>
+													<th>RST NO.</th>
+												</tr>
+											</thead>
+										</table>
+									</div>
+									<div style="clear: both;"></div>
+								</div>
+							</div>
+								<!-- 	<for print preview end> -->
+								
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+</div>
+</html>

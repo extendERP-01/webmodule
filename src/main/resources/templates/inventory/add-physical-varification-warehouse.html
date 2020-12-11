@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.brd-btm{
+border-bottom: 1px solid #ccc;
+    padding: 4px 2px;
+}
+#autocomplete-list2 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 440px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list2 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list2 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.amount_align_right {
+	width: 40%;
+	text-align: right;
+}
+
+.noBorder {
+	border: none !important;
+}
+</style>
+<script>
+$(document).ready(function() {
+	  $("#tbodyShow").append("<td colspan='4' align='center'>No Data Found</td>");
+    //Add SubInventory Against Store
+    $("#storeId").on('change', function() {
+        var storeId = $(this).val();
+        console.log(storeId);
+        if (storeId) {
+            $("#subInventory").empty();
+            $("#wareHouse").empty();
+            $("#rack").empty();
+            $("#tbodyShow").empty();
+            $("#tbodyShow").append("<td colspan='4' align='center'>No Data Found</td>");
+            $.ajax({
+                type: 'POST',
+                url: 'add-physical-varification-warehouse-store-subinventory',
+                contentType: false,
+                data: storeId,
+                success: function(response) {
+                    if (response.message == "success") {
+                        $("#subInventory").append($("<option value>--Select--</option>"));
+                        $("#wareHouse").append($("<option value>--Select--</option>"));
+                        $("#rack").append($("<option value>--Select--</option>"));
+                        for (var i = 0; i < response.body.length; i++) {
+                            var option = $("<option></option>");
+                            $(option).val(response.body[i].key);
+                            $(option).html(response.body[i].name);
+                            $("#subInventory").append(option);
+                        }
+                    }
+                },
+                error: function(e) {
+                    alert("error");
+                }
+            });
+        } else {
+            $("#subInventory").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("--Select--");
+            $("#subInventory").append(option);
+            
+            $("#wareHouse").empty();
+            var option2 = $("<option></option>");
+            $(option2).val(null);
+            $(option2).html("--Select--");
+            $("#wareHouse").append(option2);
+            
+            $("#rack").empty();
+            var option3 = $("<option></option>");
+            $(option3).val(null);
+            $(option3).html("--Select--");
+            $("#rack").append(option3);
+            
+            $("#tbodyShow").empty();
+            $("#tbodyShow").append("<td colspan='4' align='center'>No Data Found</td>");
+        }
+    });
+
+    //Add ware house Against sub inventory
+    $("#subInventory").on('change', function() {
+        var subInventory = $(this).val();
+        console.log(subInventory);
+        if (subInventory) {
+            $("#wareHouse").empty();
+            $("#rack").empty();
+            $("#tbodyShow").empty();
+            $("#tbodyShow").append("<td colspan='4' align='center'>No Data Found</td>");
+            $.ajax({
+                type: 'POST',
+                url: 'add-physical-varification-warehouse-subinventory-warehouse',
+                contentType: false,
+                data: subInventory,
+                success: function(response) {
+                    if (response.message == "success") {
+                        $("#wareHouse").append($("<option value>--Select--</option>"));
+                        $("#rack").append($("<option value>--Select--</option>"));
+                        for (var i = 0; i < response.body.length; i++) {
+                            var option = $("<option></option>");
+
+                            $(option).val(response.body[i].key);
+                            $(option).html(response.body[i].name);
+                            $("#wareHouse").append(option);
+                        }
+                    }
+                },
+                error: function(e) {
+                    alert("error");
+                }
+            });
+        } else {
+            $("#wareHouse").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("--Select--");
+            $("#wareHouse").append(option);
+            
+            $("#rack").empty();
+            var option4 = $("<option></option>");
+            $(option4).val(null);
+            $(option4).html("--Select--");       
+            $("#rack").append(option4);
+            
+            $("#tbodyShow").empty();
+            $("#tbodyShow").append("<td colspan='4' align='center'>No Data Found</td>");
+        }
+    });
+    //Add rack  Against ware house
+    $("#wareHouse").on('change', function() {
+        var wareHouse = $(this).val();
+        console.log(wareHouse);
+        if (wareHouse) {
+            $("#rack").empty();
+            $("#tbodyShow").empty();
+            $("#tbodyShow").append("<td colspan='4' align='center'>No Data Found</td>");
+            $.ajax({
+                type: 'POST',
+                url: 'add-physical-varification-warehouse-warehouse-rack',
+                contentType: false,
+                data: wareHouse,
+                success: function(response) {
+                    if (response.message == "success") {
+                        $("#rack").append($("<option value>--Select--</option>"));
+                        for (var i = 0; i < response.body.length; i++) {
+                            var option = $("<option></option>");
+                            $(option).val(response.body[i].key);
+                            $(option).html(response.body[i].name);
+                            $("#rack").append(option);
+                        }
+                    }
+                },
+                error: function(e) {
+                    alert("error");
+                }
+            });
+        } else {
+            $("#rack").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("--Select--");
+            $("#rack").append(option);
+            $("#tbodyShow").empty();
+            $("#tbodyShow").append("<td colspan='4' align='center'>No Data Found</td>");
+        }
+    });
+    //Add item  Against rack
+    $("#rack").on('change', function() {
+        var rack = $(this).val();
+        console.log(rack);
+        if (rack) {
+            //$("#rack").empty();
+		
+            $.ajax({
+                type: 'POST',
+                url: 'add-physical-varification-warehouse-rack-item',
+                contentType: false,
+                data: rack,
+                success: function(response) {
+                    console.log(response)
+                    if (response.message == "success") {
+                    	
+                    	 $("#tbodyShow").empty();
+                        for (var i = 0; i < response.body.length; i++) {
+                            var dataset = [];
+                            var secondBody = "";
+                            var thirdBody = "";
+                            for (var j = 0; j < response.body[i].physicalVerificationBarCodeModel.length; j++) {
+                                console.log(response.body[i].physicalVerificationBarCodeModel.length)
+                                var barcode = response.body[i].physicalVerificationBarCodeModel[j].barcodeNo;
+
+                                dataset.push(barcode);
+                                secondBody = secondBody + '<div class="brd-btm barcodeCls_' + i +'"  id="barcode_' + i +'_'+ j + '" value="' + barcode + '"> ' + barcode + '</div>'
+                                thirdBody = thirdBody + '<div class="brd-btm barCodeStatus_' + i +'"> <input type="checkbox"  id="barcodeStatus_' + i +'_'+ j + '" value="true" name="barcodeStatus"></div>'
+
+                            }
+                            console.log("secondBody " + secondBody);
+
+                            //$(".item").val(response.body[i].name);
+                            firstBody = '<tr><td class="item" id="item_' + i + '"  value="' + response.body[i].item + '">' + response.body[i].itemName + '</td>' +
+                                '<td class="description" id="itemDesc_' + i + '" value="' + response.body[i].description + '">' + response.body[i].description + '</td>' + '<td id="td_' + i + '" class="tdData">' + secondBody + '</td>' +
+
+                                '<td align="center">' + thirdBody + '</td>' +
+
+                                '</tr> ';
+                            $("#tbodyShow").append(firstBody);
+
+                        }
+                    }
+                    else{
+                    	$("#tbodyShow").empty();
+              		    $("#tbodyShow").append("<td colspan='4' align='center'>No Data Found</td>");
+                    }
+                },
+                error: function(e) {
+                    alert("error");
+                }
+            });
+        } else {
+            /* $("#rack").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("Select");
+            $("#rack").append(option); */
+
+        }
+    });
+    $("#verificationDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false,
+    })
+    $("#payDueDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false,
+    })
+    var fullDate = new Date();
+    var twoDigitMonth = ((fullDate.getMonth() + 1) >= 10) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
+    var twoDigitDate = ((fullDate.getDate()) >= 10) ? (fullDate.getDate()) : '0' + (fullDate.getDate());
+    var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+    $("#verificationDate").val(currentDate);
+
+    $("#submit").click(function() {
+        
+       
+        if (!blankValidation("storeId","TextField" ,"Please Enter Store"))
+              return false;
+        if (!blankValidation("subInventory","TextField" ,"Please Enter subInventory"))
+              return false;
+        if (!blankValidation("wareHouse","TextField" ,"Please Enter wareHouse"))
+            return false;
+        if (!blankValidation("rack","TextField" ,"Please Enter rack"))
+            return false;
+        if (!blankValidation("verificationDate","TextField" ,"Please Enter verificationDate"))
+            return false;
+        var dataset = [];
+        var barcodeStatus = [];
+        /* $("input:checkbox[name=barcodeStatus]:checked")
+            .each(function() {
+                barcodeStatus.push($(this).val());
+            }) */
+        //$("#tbodyShow > tr").each(function(i){
+        	alert("here")
+        $("#tbodyShow > tr").each(function(i) {
+        	 $(".barcodeCls_"+i).each(function(k){
+        		 var batchNo = $("#barcode_"+i+"_"+k).html();
+
+        		
+        		 item = {};	
+      			item['storeId']					=	$("#storeId").val();	
+      			item['subInventoryId']			=	$("#subInventory").val();	
+      			item['wareHouse']				=	$("#wareHouse").val();	
+      			item['rack']					=	$("#rack").val();	
+      			item['date']					=	$("#verificationDate").val();	
+      		
+      			item['item']					=   $("#item_"+i).attr("value");
+      			item['description']		 		=	$("#itemDesc_"+i).html();
+      			item['barcode']		 	    	=	batchNo;
+      			item['pvStatus']				=	$("#barcodeStatus_"+i+"_"+k).prop('checked');
+      		
+                 dataset.push(item);
+        		 
+        	});
+        	 submitPhysicalVerication(dataset);
+            
+        });
+
+        //});
+        console.log("submit", dataset)
+    })
+    $("#btnCancel").click(function() {
+        window.location.href = "/inventory/view-physical-varification-warehouse";
+    });
+})
+
+function submitPhysicalVerication(dataset){
+	
+	const ipAPI = 'https://api.ipify.org?format=json'
+	swal.fire({
+		title	: "Are you sure want to Submit?",
+		text	: "Once Submited,Can't revert back !",
+		type : "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+		preConfirm: () => {
+			return fetch(ipAPI)
+			.then(response => response.json())
+			.then(data => Swal.insertQueueStep(data.ip))
+			.catch(() => {
+				Swal.insertQueueStep({
+				type: 'error',
+				title: 'Unable to get your public IP'
+				, })
+			})
+		} 
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "POST",
+				url : "add-physical-varification-warehouse-through-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(dataset),
+				success	: function(response){
+					if(response.message=="Success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							
+						window.location.href = "/inventory/view-physical-varification-warehouse" ;
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error	: function(data){
+					console.log(data);	
+				}
+		}) //ajax ends
+	}
+	})//swal function block ends
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Physical Verification Of WareHouse</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Physical Verification Of WareHouse</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group" id="">
+										<label>Store</label> <select class="org-name form-control "
+											id="storeId">
+											<option th:value="null">--Select--</option>
+												<option th:if="${itemReq}"
+													th:each="c:${storeList}" th:value='${c.key}'
+													th:text="${c.name}"
+													th:selected="${c.key==itemRequisitionModel[0].iRType}"></option>
+												<option th:unless="${itemReq}"
+													th:each="c:${storeList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+										</select>
+									</div>
+
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Sub Inventory</label><select class="org-name form-control "
+											id="subInventory">
+											<option th:value="null">--Select--</option>
+										</select>
+									</div>
+								</div>
+						<div class="col-md-6">
+									<div class="form-group">
+										<label>Ware house</label><select class="org-name form-control "
+											id="wareHouse">
+											<option th:value="null">--Select--</option>
+										</select>
+									</div>
+								</div>
+							
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Rack</label> <select  class="org-name form-control " id="rack">  <option th:value="null" >--Select--</option>
+												 
+												</select>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label> Date</label> <input type="text"
+											class="form-control" id="verificationDate" readonly>
+									</div>
+								</div>
+								
+							</div>
+							<div class="row">
+								<div class="col-md-12" style="padding-top:10px;">
+									<table class="tbll table table-bordered" id="myTable1"
+										width="100%" border="0" cellspacing="1" cellpadding="5" >
+										<thead>
+											<tr class="trCls">
+												<th colspan="5" style="font-size:18px;"><b>Details</b></th>
+											</tr>
+										</thead>
+										<thead class="theadCls">
+											<tr>
+												<th>Item</th>
+												<th>Description</th>
+												<th>Bar Code</th>
+												<th width="100">Physical Verification</th>
+												
+											</tr>
+										</thead>
+										<tbody id="tbodyShow">
+											
+											<!--  <tr>
+												<td class="item">16B046 Small</td>
+												<td>Description of 16B046 Small</td>
+												<td>
+													<div class="brd-btm"> Bar Code 1</div>
+													<div class="brd-btm"> Bar Code 2</div>
+													<div class="brd-btm"> Bar Code 3</div>
+													<div class="brd-btm"> Bar Code 4</div>
+														<div class="brd-btm"> Bar Code 5</div>
+														</td>
+												<td align="center"><div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div></td>
+												
+											</tr> 
+											 <tr>
+												<td>16B096 Large</td>
+												<td>Description of 16B096 Large</td>
+													<td>
+													<div class="brd-btm"> Bar Code 1</div>
+													<div class="brd-btm"> Bar Code 2</div>
+													<div class="brd-btm"> Bar Code 3</div>
+													<div class="brd-btm"> Bar Code 4</div>
+														<div class="brd-btm"> Bar Code 5</div>
+														</td>
+												<td align="center">
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+														</td>
+											</tr> 
+											 <tr>
+												<td>Bk Choco Strands</td>
+												<td>Description of Bk Choco Strands</td>
+													<td>
+													<div class="brd-btm"> Bar Code 1</div>
+													<div class="brd-btm"> Bar Code 2</div>
+													<div class="brd-btm"> Bar Code 3</div>
+													<div class="brd-btm"> Bar Code 4</div>
+														<div class="brd-btm"> Bar Code 5</div>
+														</td>
+												<td align="center">
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+												<div class="brd-btm"> <i class="fa fa-check"></i></div>
+														</td>
+											</tr> 
+											<tr>
+												<td colspan="5"
+													style="border: 1px solid #FFF; margin-left: 2px; padding: 0; padding-top:10px;">
+													<table
+														width="350" align="right" class="noBorder" >
+														<tbody>
+															<tr>
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label>Sub
+																		Total</label></td>
+																<td class="amount_align_right noBorder" style="padding:0;"><label
+																	id="subTotal" class="form-control subTotal money"
+																	th:text="${#numbers.formatDecimal(GRNList[0].subTotal, 0, 'COMMA', 2, 'POINT')}"></label></td>
+
+															</tr>
+															<tr id="CgstTR">
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label
+																	id="labelCgst">CGST</label></td>
+																<td class="amount_align_right noBorder" style="padding:0;"
+																	th:if="${GRNList[0].totalCGST!=0.0}"><label
+																	id="sCGST" class="form-control cgst money"
+																	th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+																<td th:unless="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
+																	id="sCGST" class="form-control cgst money noBorder">0.00</label></td>
+
+															</tr>
+															<tr id="SgstTR">
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label
+																	id="labelSgst">SGST</label></td>
+																<td class="amount_align_right noBorder noBorder"
+																	th:if="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
+																	id="sSGST" class="form-control sgst money  "
+																	th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+																<td th:unless="${GRNList[0].totalCGST!=0.0}" style="padding:0;"><label
+																	id="sSGST" class="form-control sgst money noBorder">0.00</label></td>
+
+															</tr>
+															<tr>
+
+																<td width="40%" align="center" class="noBorder" style="padding:0;"><label>Grand
+																		Total</label></td>
+																<td class="amount_align_right noBorder" style="padding:0;"><label
+																	id="grandTotal" class="form-control total money"
+																	th:text="${#numbers.formatDecimal(GRNList[0].grandTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+
+															</tr>
+														</tbody>
+													</table></td>
+
+
+											</tr> -->
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<!-- <div class="row">
+								<div class="col-lg-6"></div>
+								<div class="col-lg-6">
+									<table width="450" style="margin-left: 140px;">
+										<tbody>
+											<tr>
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label>Sub Total</label></td>
+												<td class="amount_align_right"><label id="subTotal"
+													class="form-control subTotal money"
+													th:text="${#numbers.formatDecimal(GRNList[0].subTotal, 0, 'COMMA', 2, 'POINT')}"></label></td>
+												<td width="20%"></td>
+											</tr>
+											<tr id="CgstTR">
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label id="labelCgst">CGST</label></td>
+												<td class="amount_align_right" width="40%"
+													th:if="${GRNList[0].totalCGST!=0.0}"><label id="sCGST"
+													class="form-control cgst money"
+													th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+												<td width="40%" th:unless="${GRNList[0].totalCGST!=0.0}"><label
+													id="sCGST" class="form-control cgst money">0.00</label></td>
+												<td width="20%"></td>
+											</tr>
+											<tr id="SgstTR">
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label id="labelSgst">SGST</label></td>
+												<td class="amount_align_right"
+													th:if="${GRNList[0].totalCGST!=0.0}"><label id="sSGST"
+													class="form-control sgst money"
+													th:text="${#numbers.formatDecimal(GRNList[0].totalCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+												<td width="40%" th:unless="${GRNList[0].totalCGST!=0.0}"><label
+													id="sSGST" class="form-control sgst money">0.00</label></td>
+												<td width="20%"></td>
+											</tr>
+											<tr>
+												<td>&nbsp;</td>
+												<td width="40%" align="center"><label>Grand
+														Total</label></td>
+												<td class="amount_align_right"><label id="grandTotal"
+													class="form-control total money"
+													th:text="${#numbers.formatDecimal(GRNList[0].grandTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label></td>
+												<td width="20%"></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div> -->
+							<div class="col-md-12">
+								<div class="form-group">
+									<button type="button" id="submit" class="btn btn-success">Submit</button>
+									<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</div>
+</html>

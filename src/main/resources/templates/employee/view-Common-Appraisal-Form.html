@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+function ChangeStatus(id){
+	alert(id)
+	
+	
+		if(id){
+			swal({
+				title				: "Are you sure want for Complete?",
+				text				: "Make  Sure That All The Service Status Are Completed !",
+				type 				: "warning",
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Complete",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+				showLoaderOnConfirm	: true,
+				preConfirm: () => {
+								return new Promise((resolve) => {
+									setTimeout(() => {
+										console.log("Doing async operation");
+										resolve()
+									}, 3000)
+								})
+							}
+
+			}).then((result) => {
+				if(result.value){
+				$.ajax({
+					type 		:"GET",
+					url : "view-superAdmin-appraisal-form-change-status?id="+id,
+					dataType : 'json',
+					contentType : 'application/json',
+					//data : JSON.stringify(obj),
+					success 	: 	function(response) {
+						
+						if(response.message=="success"){
+							
+							swal({
+								title	: "Invoice Status Changes Successfully.",
+								type: "success",
+						}).then(function(){
+							location.reload(); 
+						})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}			
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				 }) 
+				}
+			}) 
+		} 
+	}  
+
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-common-appraisal-form-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'tEmployeeId'
+
+			}, {
+				'data' : 'tAppraisalFromDate'
+			}, {
+				'data' : 'tAppraisalToDate'
+			}, {
+				'data' : 'tStageNo'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					
+					<li class="active"><span>View Appraisal Forms
+					</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View  Appraisal Forms</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div id="demo" class="collapse">
+						<div class="search-field">
+							<div class="row">
+								<div class="col-md-2">
+									<div class="org-name">Department</div>
+								</div>
+								<div class="col-md-3">
+									<input id="param1" class="form-control" type="text"
+										placeholder="" name="" onkeyup="searchData()">
+								</div>
+
+								<div class="col-md-2"></div>
+							</div>
+						</div>
+					</div>
+					<a data-toggle="collapse" data-target="#demo"
+						class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+					</a>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Employee Id</th>
+
+
+										<th>From Date</th>
+										<th>To Date</th>
+										<th>Stage</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Appraisal Details</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

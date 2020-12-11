@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	function validateForm() {
+
+		if (!blankValidation("placeName", "TextField",
+				"Place  Name can not be left blank"))
+			return false;
+		if (!blankValidation("fromDate", "TextField",
+				"From Date  can not be left blank"))
+			return false;
+		if (!blankValidation("toDate", "TextField",
+				"To Date can not be left blank"))
+			return false;
+		if (!blankValidation("purpose", "TextField",
+				"Purpose Can can not be left blank"))
+			return false;
+		if (!blankValidation("advance", "TextField",
+				"Adhar Number can not be left blank"))
+			return false;
+	}
+
+	function dateValidation() {
+		var fromDate = $("#fromDate").val();
+		var toDate = $("#toDate").val();
+
+		var parts = fromDate.split('-');
+		var d1 = Number(parts[2] + parts[1] + parts[0]);
+		parts = toDate.split('-');
+		var d2 = Number(parts[2] + parts[1] + parts[0]);
+		if (d1 <= d2) {
+			return true;
+		} else {
+			swal("To Date Can't  be Smaller Than From Date.")
+			$("#toDate").val('');
+			return false;
+		}
+
+	}
+</script>
+<script>
+	$(document).ready(function() {
+
+		var reqId = $("#reqId").val();
+		if (reqId != null & reqId != "") {
+
+			var value = $("#advanceNeed").val();
+			if (value != 'false') {
+
+				document.getElementById("yes").checked = true;
+				$("#advanceTr").show();
+			} else {
+				document.getElementById("no").checked = true;
+				$("#advanceTr").hide();
+			}
+		} else {
+			$("#advanceNeed").val(false);
+			document.getElementById("no").checked = true;
+			$("#advanceTr").hide();
+		}
+		$("input[type='radio']").click(function() {
+			var radioValue = $("input[name='advance']:checked").val();
+			if (radioValue) {
+				$("#advanceNeed").val(radioValue);
+			}
+		});
+
+		$("#fromDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			minDate : '0',
+			timepicker : false,
+		})
+		$("#toDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			minDate : '0',
+			timepicker : false,
+		})
+
+	});
+
+	function HideAdvance() {
+		$("#advanceTr").hide();
+	}
+
+	function ShowAdvance() {
+		$("#advanceTr").show();
+	}
+</script>
+
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<!--Alert Box-->
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		<!--Alert Box-->
+		<div class="col-md-12">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>Add Traveling Requisition</span></li>
+			</ol>
+		</div>
+		<form th:action="@{/reimbursement/add-traveling-requisition}"
+			th:object="${travelingrequisition}" method="post"
+			onsubmit="return validateForm();" autocomplete="off">
+			<div class="card-title">
+				<h4>Add Traveling Requisition</h4>
+				<div class="topbtnright" align="right">
+					<div class="form-group">
+						<button th:if="${travelingrequisition.currentStageNo==0}"
+							type="submit" class="btn btn-success">Resubmit</button>
+						<button th:unless="${travelingrequisition.currentStageNo==0}"
+							type="submit" class="btn btn-success">submit</button>
+						<button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+					</div>
+				</div>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<input type="hidden" th:field="*{reqId}" /> <label>Place
+											Name</label> <input type="text" class="form-control"
+											th:field="*{placeName}" />
+
+									</div>
+									<div class="form-group">
+										<label>Traveling From Date</label> <input type="text"
+											class="form-control" th:field="*{fromDate}" id="fromDate"
+											readonly />
+									</div>
+									<div class="form-group">
+
+										<label>Traveling To Date</label> <input type="text"
+											class="form-control" th:field="*{toDate}" id="" readonly
+											onchange="dateValidation()" />
+
+									</div>
+									<div class="form-group">
+										<label>Traveling Purpose</label>
+										<textarea class="form-control textarea" th:field="*{purpose}"></textarea>
+									</div>
+
+									<div class="form-group">
+										<label>Advance Needed</label> &nbsp;&nbsp;&nbsp; <input
+											type="radio" id="no" name="advance" value="false"
+											onclick="HideAdvance()" />&nbsp;<label>No</label>
+										&nbsp;&nbsp;&nbsp; <input type="radio" id="yes" name="advance"
+											value="true" onclick="ShowAdvance()" />&nbsp;<label>Yes</label>
+
+
+									</div>
+
+									<div class="form-group" id="advanceTr">
+
+										<label>Advance Amount</label> <input type="text"
+											class="form-control" th:field="*{advanceAmount}" /> <input
+											type="hidden" th:field="*{advanceNeed}" />
+									</div>
+
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+</html>

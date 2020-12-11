@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/master}">
+  <head>
+  
+        <script type="text/javascript">
+       
+     function validateForm(){
+    	 
+	  if (!blankValidation("PaytModName","TextField", "Name can not be left blank"))
+          return false;
+	  if (!blankValidation("payModActive","TextField", "Status can not be left blank"))
+          return false;
+      if (!blankValidation("PaytModDescription","TextField", "Description can not be left blank"))
+          return false;
+     
+      
+     }  
+function gotoview() {
+	window.location.href="/master/view-account-group-master";
+}
+    </script>  
+  </head>
+  <div layout:fragment="content">
+    <div class="content-wrap">
+      <div class="main mrt_20">
+        <div class="col-md-12">
+          <!--Alert Box-->
+          <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;
+            </a>
+            <span th:text="${message}">
+            </span>
+          </div>
+          <!--Alert Box-->
+          <ol class="breadcrumb breadcrumb-arrow">
+            <li>
+              <a href="index.html">Home
+              </a>
+            </li>
+            <li class="active"><span>Add Group Code Master</span>
+              </li>
+          </ol>
+        </div>
+    <div class="card-title">
+                <h4>Add Group Code Master  </h4>
+            </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="basic-elements">
+                <form th:action="@{add-account-group-master}"th:object="${accountGroup}" method="post" class="accountGroup" onsubmit="return validateForm();" autocomplete='off'> 
+                  <input type="hidden" th:field="*{accGroup}" />
+                  <div class="row">
+                    <div class="col-lg-6">
+                      <div class="form-group">
+                        <label>Account Group Name
+                        </label>
+                        <input type="text" class="form-control"  th:id="accGroupName" th:field="*{accGroupName}" th:name="accGroupName"   >
+                      </div>
+                      <div class="form-group">
+                        <label>Account Group Code 
+                        </label>
+                        <input type="text" class="form-control" th:id="accGroupCode" th:field="*{accGroupCode}" th:name="accGroupCode"   >
+                      </div>
+                      <div class="form-group">
+                        <label> Status
+                        </label>
+                        <select class="form-control"  th:id="accGrupActive" th:field="*{accGrupActive}" th:name="accGrupActive"  >
+                          <option th:value=null>Select
+                          </option>
+                          <option th:value=1>Active
+                          </option>
+                          <option th:value=0>Inactive
+                          </option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label>Description.
+                        </label>
+                        <textarea class="form-control textarea" th:id="accGrupDescription" th:field="*{accGrupDescription}" th:name="accGrupDescription"   >
+                        </textarea>
+                      </div>
+                      <button type="submit" class="btn btn-success">Submit
+                      </button>
+                      <button type="reset" value="Reset" class="btn btn-warning" onclick="gotoview();">Cancel</button>
+                     
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div style="clear:both;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+</html>

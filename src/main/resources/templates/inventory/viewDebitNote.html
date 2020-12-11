@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script type="text/javascript">
+	//Method for listing of all the debit note Records
+
+	$(document).ready(function() {
+		
+		$('#listAllItem').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : '/inventory/view-debit-note-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'debitNote'
+			}, {
+				'data' : 'orderNo'
+			}, {
+				'data' : 'invoiceNo'
+			}, {
+				'data' : 'costCenter'
+			}, {
+				'data' : 'vendor'
+			/* }, {
+				'data' : 'organization' */
+			},{
+				'data' : 'goodsReturnNote'
+			},
+			{
+				'data' : 'description'
+			},{
+				'data' : 'noteDate'
+			},
+			{
+				'data' :'subTotal'
+			},{
+				'data' :'status'
+			}
+
+			]
+		});
+	});
+
+	//Method For Searching Records In The List
+
+	function searchData() {
+		$('#listAllItem').DataTable().draw();
+
+	}
+
+	
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a href="add-item-category">Add Item Category</a></li> -->
+					<li class="active"><span>View Debit Note</span></li>
+				</ol>
+			</div>
+			
+			<div class="container-fluid">
+				
+				<div class="card">
+						<div class="search-field">
+							<div class="row">
+								<div class="col-md-2">
+									<label>Debit Note</label>
+								
+									<input class="form-control" type="text" placeholder="" name=""
+										id="param1">
+								</div>
+								<div class="col-md-2" style="margin-top: 27px;">
+									<div class="form-group fitersearch">
+										<button class="btn btn-info" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table class="table table-bordered" id="listAllItem">
+								<thead>
+									<tr>
+										<th>Debit Note</th>
+										<th>Order Number</th>
+										<th>Invoice Number</th>
+										<th>Cost center</th>
+										<th>Vendor Name</th>
+										<!-- <th>Organization Name</th> -->
+										<th>Return Note</th>
+										<th>Description</th>
+										<th>Note Date</th>
+										<th>Sub total</th>
+										<th>Status</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+					</div>
+					</div>
+					<!-- Modal Start-->
+					<div id="myModal" class="modal fade" role="dialog">
+						<div class="modal-dialog">
+
+							<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title">View Details of Item  Category</h4>
+									<button type="button" class="close" data-dismiss="modal">
+										<i class="fa fa-close fa-2x"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<table width="100%" border="0" id="listOneItem">
+										
+										<tbody id="tModelBody"></tbody>
+									</table>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Modal End-->
+					<!-- /# row -->
+				</div>
+			</div>
+</html>

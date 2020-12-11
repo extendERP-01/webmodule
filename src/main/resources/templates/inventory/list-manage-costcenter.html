@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	//Deleting the Theme Item
+	const ipAPI = 'https://api.ipify.org?format=json'
+	function deleteManageCostcenter(id){
+	 //var data = id.split(",");
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/inventory/view-costcenter-delete?id=" +id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+	
+
+	function viewInModel(index) {
+		$('#table1').empty();
+		$
+				.ajax({
+					type : "POST",
+					url : "view-costcenter-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							console.log(response.body.thmActive);
+							
+							table = '<tr><td>CostCenter Name :</td>'
+									+ '<td align="left">'
+									+ response.body.costCenterName
+									+ '</td>'
+									+ '</tr><tr><td>Property Category:</td><td align="left">'
+									+ response.body.propertyCategoryName
+									+ '</td></tr><tr><td>Description</td><td align="left">'
+									+ response.body.description + '</td></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-costcenter-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					/* d.param2 = $('#param2').val(); */
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'costCenterName'
+			},  {
+				'data' : 'description'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				 <ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/inventory/add-costcenter}">Add Cost center</a></li>
+					<li class="active"><span>View Cost center </span></li>
+				</ol> 
+			</div>
+			<div class="card-title">
+				<h4>View Cost Center</h4>
+			</div>
+			<div class="container-fluid">
+				
+				<div class="card">
+					
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-costcenter">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Cost Center Name</label>
+								
+									<input id="param1" class="form-control" type="text"
+										placeholder="" name="">
+								</div>
+								<!-- <div class="col-md-2">
+									<div class="org-name">Property Category</div>
+								</div>
+								<div class="col-md-3">
+									<select class="form-control" id="param2">
+										<option th:value="NULL">Select</option>
+										<option th:each="c:${propertyNameList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==propertyCategory}"></option>
+									</select>
+								</div> -->
+								<div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<!-- <button type="search" class="btn btn-info" value="Search" onclick="searchData()" >Search</button> -->
+										<input type="button" class="btn btn-info" value="Search"
+											onclick="searchData()" />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Cost Center Name</th>
+										<th>Description</th>
+										<th align="center">Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of cost center</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

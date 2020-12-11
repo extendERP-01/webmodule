@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.modalIn {
+	border-bottom: 1px solid #e8e4e4;
+}
+</style>
+<style>
+.chkboxtxt {
+	position: relative;
+	top: -2px;
+	padding-left: 5px;
+	color: #2c61e1;
+}
+</style>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	$("#date").datetimepicker({
+	    format: 'd-m-Y',
+	    closeOnDateSelect: true,
+	    timepicker: false,
+	});
+	$("#fromtime").datetimepicker({
+	    format: 'H:i',
+	    closeOnDateSelect: true,
+	    datepicker: false,
+	});
+	$("#toTime").datetimepicker({
+	    format: 'H:i',
+	    closeOnDateSelect: true,
+	    datepicker: false,
+	});
+	
+	$('#tblTheme').DataTable({
+		
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'view-resource-shortListDetails-ajax'
+		},
+		'dataSrc' : "",
+		'columns' : [ {
+			'data' : 'jobId'
+		}, {
+			'data' : 'jobTitle'
+		},{
+			'data' : 'deptName'
+		},{
+			'data' : 'candidateName'
+		},{
+			'data' : 'dob'
+		}, {
+			'data' : 'document'
+		}, {
+			'data' : 'status'
+		}, {
+			'data' : 'action'
+		}]
+	}); 
+	
+});
+
+function myFun(id){
+	
+	$("input:radio[name=status1]:checked").each(function() {
+		rate_value=$(this).val();
+	})
+	
+	obj = {};
+	obj.status = rate_value;
+	obj.candidateId = id;
+	console.log(obj)
+	
+	if(rate_value == "2"){	
+		document.getElementById(id).style.display = 'none';	
+		
+		$.ajax({
+			type		: "POST",
+			url 		: "view-resource-shortList-hold",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(obj),
+			success		: function(response){
+				//console.log(response);
+				if(response.message=="Success"){
+					
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(data){
+				console.log(data);
+			}
+		}) //ajax ends
+		
+	} else if(rate_value == "1"){
+		//document.getElementById(id).style.display = 'block'
+		$.ajax({
+			type		: "POST",
+			url 		: "view-resource-shortList-hold",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(obj),
+			success		: function(response){
+				//console.log(response);
+				if(response.message=="Success"){
+					document.getElementById(id).style.display = 'block';
+					
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(data){
+				console.log(data);
+			}
+		}) //ajax ends
+		document.getElementById(id).style.display = 'block';
+	} else if(rate_value == "3"){
+		//document.getElementById(id).style.display = 'block'
+		$.ajax({
+			type		: "POST",
+			url 		: "view-resource-shortList-hold",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(obj),
+			success		: function(response){
+				//console.log(response);
+				if(response.message=="Success"){
+				
+					window.location.href = "/recruitment/view-resource-shortlist" ;
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(data){
+				console.log(data);
+			}
+		}) //ajax ends
+	} 
+	
+}
+
+
+/* function searchData() {
+	$('#tblTheme').DataTable().draw();
+} */
+
+//Scheduled
+function interviewScheduled(id, index){
+
+	$('#tbodyId').empty();
+	$("#slNo").val(id);
+	$("#candId").val(index);
+	var obj =[];
+	var len = 0;
+	$.ajax({
+		type		: "GET",
+		url 		: "view-resource-modal-edit-details?id=" + index,
+		dataType	: "json",
+		contentType	: "application/json",
+		//data		: index,
+		success		: function(response){
+			//console.log(response);
+			
+			if(response.message=="Success"){
+				obj = response.body; 
+				len = obj.length;
+			}else{
+				swal({
+					title:response.code,
+					text:response.message,
+					type:"warning"
+				})
+			}
+		},error		: function(data){
+			console.log(data);
+		}
+	}) //ajax ends
+	$("#scheduleModal").modal('show');
+	$.ajax({
+		type		: "GET",
+		url 		: "view-resource-modal",
+		dataType	: "json",
+		contentType	: "application/json",
+		success		: function(response1){			
+			if(response1.message=="Success"){
+				var count = 0;
+				
+				for(var i = 0 ; i<response1.body.length; i++){
+				 
+					if(obj[count].employeeId == response1.body[i].employeeId && len > 0){
+						
+						count++;
+						len--;
+						if(len == 0){
+							count = 0;
+						}
+							
+						div = '<tr><td><label class="multiselecttxxt"><input type="checkbox" name="userRole" class="userRoleCls" ' +
+								'id="employee_' + i + '" value="' + response1.body[i].employeeId + '" text="' + response1.body[i].employeeName +
+								'" style="margin-right: 7px;" checked/></label></td><td>' + response1.body[i].employeeName + '</td><td>' + response1.body[i].jobTitle +
+								'<input type="hidden" value="' + response1.body[i].jobId + '" id="jobId_' + i + '"></td></tr>';
+						$('#tbodyId').append(div);
+					} else{
+						div = '<tr><td><label class="multiselecttxxt"><input type="checkbox" name="userRole" class="userRoleCls" ' +
+							'id="employee_' + i + '" value="' + response1.body[i].employeeId + '" text="' + response1.body[i].employeeName +
+							'" style="margin-right: 7px;"/></label></td><td>' + response1.body[i].employeeName + '</td><td>' + response1.body[i].jobTitle +
+							'<input type="hidden" value="' + response1.body[i].jobId + '" id="jobId_' + i + '"></td></tr>';
+						$('#tbodyId').append(div);
+					}
+					
+					document.getElementById("fromtime").value = obj[0].fromTime;
+					document.getElementById("toTime").value = obj[0].toTime;
+					document.getElementById("date").value = obj[0].dob; 
+					$('#submit').hide();
+				}
+			}else{
+				swal({
+					title:response.code,
+					text:response.message,
+					type:"warning"
+				})
+			}
+		},error		: function(data){
+			console.log(data);
+		}
+	}) //ajax ends
+} 
+
+//schedule interview
+function scheduleInterview(id,index) {
+	
+	$('#fromtime').val("");
+	$('#toTime').val("");
+	$('#date').val("");
+	$('#tbodyId').empty();
+	$("#scheduleModal").modal('show');
+	$("#slNo").val(id);
+	$("#candId").val(index);
+	
+	$.ajax({
+		type		: "GET",
+		url 		: "view-resource-modal",
+		dataType	: "json",
+		contentType	: "application/json",
+		success		: function(response){
+			console.log(response);
+			
+			if(response.message=="Success"){
+				
+				for(var i = 0 ; i<response.body.length; i++){
+					div = '<tr><td><label class="multiselecttxxt"><input type="checkbox" name="userRole" class="userRoleCls" ' +
+							'id="employee_' + i + '" value="' + response.body[i].employeeId + '" text="' + response.body[i].employeeName +
+							'" style="margin-right: 7px;" /></label></td><td>' + response.body[i].employeeName + '</td><td>' + response.body[i].jobTitle +
+							'<input type="hidden" value="' + response.body[i].jobId + '" id="jobId_' + i + '"></td></tr>';
+					$('#tbodyId').append(div);
+				}
+			}else{
+				swal({
+					title:response.code,
+					text:response.message,
+					type:"warning"
+				})
+			}
+		},error		: function(data){
+			console.log(data);
+		}
+	}) //ajax ends
+
+}
+
+var userRole = [];
+var rate_value = 0;
+function submitData() {
+
+	$("input:checkbox[name=userRole]:checked").each(function() {
+		userRole.push($(this).val());
+	})
+	
+	/*if (document.getElementById('shortStatus1').checked) {
+		rate_value = document.getElementById('shortStatus1').value;
+	} */
+	$("input:radio[name=status1]:checked").each(function() {
+		rate_value=$(this).val();
+	})
+	
+	obj={};
+	
+	obj.requisitionId = $('#slNo').val();
+	obj.vendorList = userRole;
+	obj.status = rate_value;
+	obj.dob = $('#date').val();
+	obj.fromTime = $('#fromtime').val();
+	obj.toTime = $('#toTime').val();
+	obj.candidateId = $('#candId').val();
+	
+	console.log(obj);
+	
+			$.ajax({
+			type		: "POST",
+			url 		: "view-resource-shortList-interview-ajax",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(obj),
+			success		: function(response){
+				//console.log(response);
+				if(response.message=="Success"){
+					swal({
+						title:"Data Saved Successfully.",
+						type: "success",
+				}).then(function(){
+						window.location.href = "/recruitment/view-resource-shortlist" ;
+				})
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(data){
+				console.log(data);
+			}
+		}) //ajax ends
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a th:href="@{/recruitment/add-requistion}">Add
+							Requistion</a></li> -->
+					<li class="active"><span>View Resource ShortList </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Resource ShortList</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<!-- <div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-requistion">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Job Code</label> <select class="org-name form-control "
+									id="param1">
+									<option value="job1">JOB001</option>
+									<option value="job2">JOB002</option>
+									<option value="job3">JOB003</option>
+
+								</select>
+
+							</div>
+							<div class="col-md-2">
+								<label>Job Tittle </label> <select class="form-control">
+									<option value="">--Select--</option>
+									<option value="job1">Senior Developer</option>
+									<option value="job2">Developer</option>
+									<option value="job3">Fresher</option>
+
+								</select>
+
+							</div>
+							<div class="col-md-2">
+								<label>Department</label> <select class="form-control">
+									<option value="">--Select--</option>
+									<option value="department1">Account</option>
+									<option value="department2">HR</option>
+									<option value="department3">Development</option>
+
+
+								</select>
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group">
+									<input type="button" class="btn btn-info" value="Search"
+										onclick="searchData()" />
+								</div>
+							</div>
+						</div>
+					</div> -->
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblTheme" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Job Code</th>
+									<th>Job Title</th>
+									<th>Department</th>
+									<th>Candidate Name</th>
+									<th>Date Of Birth</th>
+									<th>Resume</th> 
+									<th>Status</th>
+									<th>Schedule</th>
+								</tr>
+							</thead>
+							<tbody id="tbody">
+								
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<div id="scheduleModal" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content" >
+					<div class="modal-header">
+						<h4 class="modal-title">Schedule</h4>
+						<button type="button" class="close" data-dismiss="modal" style="font-size:30px; cursor:pointer;">&times;</button>
+					</div>
+					<div class="modal-body" style="height:300px;overflow-y:scroll;">
+						<div class="row">
+							<div class="col-md-4">
+								<div class="form-group">
+								<!-- Hidden Field -->
+								<input type="hidden" id="slNo">
+								<input type="hidden" id="candId">
+								
+									<label>Date</label> <input type="text" id="date" class="form-control"
+										readonly>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>From Time</label> <input type="text" id="fromtime"
+										class="form-control" readonly>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>To Time</label> <input type="text" class="form-control" id="toTime" readonly>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<label><b style="margin-left: 15px; font-size: 20px;">Interviewer</b></label>
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Select</th>
+										<th>Name</th>
+										<th>Designation</th>
+									</tr>								
+								</thead>
+								<tbody id="tbodyId">
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" id="submit" data-dismiss="modal" onclick="submitData();">Submit</button>
+						<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+</html>

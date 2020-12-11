@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+ 
+
+
+function addMore(){
+ 
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');  
+		var buttonInput = $(this).find('button');  
+		textInput.eq(0).attr('id',"selectSlitWt_"+i);
+		textInput.eq(1).attr('id',"selectQuantity_"+i);
+		textInput.eq(2).attr('id',"selectSubBatch_"+i);
+		textInput.eq(3).attr('id',"selectSizeName_"+i);
+		textInput.eq(4).attr('id',"selectSize_"+i);
+		textInput.eq(5).attr('id',"selectProductionQty_"+i);
+		textInput.eq(6).attr('id',"selectProductionWt_"+i);
+		buttonInput.eq(0).attr('id',"productDtls_"+i);
+		
+	})
+	
+}
+ 
+//********************************************
+$(document).ready(function(){
+	addMore(); // for auto increment of id in the add more section
+ 
+	$("#slitstart").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+
+	});
+	$("#slitend").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+
+	});
+	$("#polishingStartDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+
+	});
+	$("#polishingEndDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+
+	});
+	
+//submit button function
+	
+	$("#submit").click(function(){
+		
+		var dataset = []; 
+			assign = {};
+			assign['tMotherCoilBatch']		=	$("#mcBatch").val();
+			assign['tMotherCoilThickness']	=	$("#mcThickness").val(); 
+			assign['tPipeSlitBatch']		=	$("#slitBatch").val();  
+			assign['tPipeSlitWidth']		=	$("#slitWidth").val(); 
+			assign['tPipeSize']				=	$("#pipeSize").val();
+			assign['productionQty']			=	$("#productionQty").val();
+			assign['productionWt']			=	$("#productionWt").val();
+			assign['polishingStartDate']	=	$("#polishingStartDate").val();
+			assign['polishingEndDate']		=	$("#polishingEndDate").val();
+			assign['polishingQty']			=	$("#polishingQty").val();
+			assign['polishingWt']			=	$("#polishingWt").val();
+		 
+			dataset.push(assign); 
+	 console.log(assign);
+		
+		 if (!blankValidation("productionStartDate","TextField" ,"Please Enter Production Start Date"))
+		      return false;
+		if (!blankValidation("productionEndDate","TextField" ,"Please Enter Production End Dat"))
+		      return false;
+		if (!blankValidation("productionQty","TextField" ,"Please Enter Production Qty"))
+		      return false;
+		if (!blankValidation("productionWt","TextField" ,"Please Enter Production Weight"))
+		      return false;
+		if (!blankValidation("scrapWt1","TextField" ,"Please Enter Scrap Weight 1"))
+		      return false;
+		if (!blankValidation("scrapWt2","TextField" ,"Please Enter Scrap Weight 2"))
+		      return false;
+		if (!blankValidation("scrapWt3","TextField" ,"Please Enter Scrap Weight 3"))
+		      return false; 
+ 
+			submitAddProductionDtls(dataset);
+	 
+											
+			
+		
+	})
+})
+ 
+	function submitAddProductionDtls(dataset){ 
+			swal.fire({
+				title				: "Are you sure want to Submit?",
+				text				: "Once Submited,Can't revert back !",
+				type 				: "warning",
+				
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Submit",
+				reverseButtons : true,
+				confirmButtonAriaLabel : 'Thumbs up, great!',
+				cancelButtonText : 'Cancel',
+				cancelButtonAriaLabel : 'Thumbs down', 
+			}).then((result) => {
+				if(result.value){
+					$.ajax({
+					type		: "POST",
+					url 		: "view-pipe-polishing-add-ajax",
+					dataType	: "json",
+					contentType	: "application/json",
+					data		: JSON.stringify(dataset),
+					success		: function(response){ 
+						console.log(response)
+						if(response.message=="Success"){
+							swal({
+									title:"Data Saved Successfully.",
+									type: "success",
+							}).then(function(){
+									window.location.href = "/production/view-pipe-polishing" ;
+							})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+					},error		: function(data){
+						console.log(data);
+					}
+				}) //ajax ends
+			}
+			})//swal function block ends
+		}//submit function ends
+
+
+function funcLoad(){
+	location.reload();
+}
+    //for number check
+		function checkNum1(event) {
+			var currentId = event.currentTarget.id;
+			checkNum(currentId);
+			}
+ 
+ 	
+</script>
+<script>
+function productionData(event){ 
+	var currentId = event.currentTarget.id;
+	var l = currentId.split("_");
+	var counter = l[1]; 
+	var slitWd =  $("#selectSlitWt_" + counter).val();
+	var pipeSize = $("#selectSize_"+counter).val(); 
+	var productionQty = $("#selectProductionQty_"+counter).val(); 
+	var productionWt = $("#selectProductionWt_"+counter).val(); 
+	 $("#slitWidth").val(slitWd);
+	 $("#pipeSize").val(pipeSize);
+	 $("#productionQty").val(productionQty);
+	 $("#productionWt").val(productionWt);
+	 $("#mcBatch").val($("#mcoilbatch").val());
+	 $("#mcThickness").val($("#mcoilthick").val());
+	 $("#slitBatch").val($("#slitbatch").val());
+	 $('#myModalProd').modal('show');
+}
+
+//function for details of polishing
+function DetailsData(event){
+	var currentId = event.currentTarget.id;
+	var l = currentId.split("_");
+	var counter = l[1];   
+	 $('#table1').empty();
+ 
+	 obj = {};
+	 obj.tMotherCoilBatch =   window.btoa( $("#mcoilbatch").val()); 
+	 obj.tMotherCoilThickness =  window.btoa( $("#mcoilthick").val()); 
+	 obj.tPipeSlitBatch =   window.btoa( $("#slitbatch").val());
+	 obj.tPipeSlitWidth =   window.btoa( $("#selectSlitWt_" + counter).val());
+	 obj.tPipeSize =   window.btoa( $("#selectSize_"+counter).val());
+	 	
+	 $.ajax({	type : "POST",
+	 			url : "view-pipe-polishing-details-modalView",
+	 			dataType : 'json',
+	 			contentType : 'application/json',
+	 			data : JSON.stringify(obj),
+	 			success : function(response) { 
+	 				if (response.message == "success") { 
+	 					span = '<tr><td>Mother Coil Batch :</td>'+'<td align="left">'					
+	 						+ response.body[0].tMotherCoilBatch
+	 						+ '</td>'
+	 						+ '</tr><tr><td>Mother Coil Thickness :</td><td align="left">'
+	 						+ response.body[0].tMotherCoilThickness
+	 						+ '</tr><tr><td>Mother Coil Grade :</td><td align="left">'
+	 						+ response.body[0].tMotherCoilGrade
+	 						+ '</tr><tr><td>Slit Batch :</td><td align="left">'
+	 						+ response.body[0].tPipeSlitBatch 
+	 						+ '</tr><tr><td>Production Wt :</td><td align="left">'
+	 						+ response.body[0].productionWt
+	 						+ '</tr><tr><td>Production Qty :</td><td align="left">'
+	 						+ response.body[0].productionQty 
+	 						+ '</td></tr>'; 
+	 					$('#myModal').modal('show');
+	 					$('#table1').append(span) ;
+	 					table = '<tr> <th><b>Pipe Size</b></th><th><b>Polishing Start Date</b></th><th><b>Polishing End Date</b></th><th><b>Polishing Qty</b></th><th><b>Polishing Wt</b></th></tr>' ;
+	 					
+	 					$('#myModal').modal('show');
+	 					$('#table1').append(table);
+	 					for (var i=0; i<response.body.length; i++) {
+	 						table =  '<tr><td>' 
+	 							+ response.body[i].tPipeSize
+	 							+ '</td><td>'
+	 							+ response.body[i].polishingStartDate
+	 							+ '</td><td>'
+	 							+ response.body[i].polishingEndDate
+	 							+ '</td><td>'
+	 							+ response.body[i].polishingQty
+	 							+ '</td><td>'
+	 							+ response.body[i].polishingWt
+	 							+ '</td></tr>';
+	 						$('#myModal').modal('show');
+	 						$('#table1').append(table);
+	 					}
+	 					
+	 				}
+	 			},
+	 			error : function(data) {
+	 				console.log(data);
+	 			}
+	 		})
+
+	 		
+}
+
+
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Polishing Details</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Polishing Details</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${mCoilList}">
+
+								<input type="hidden" th:if="${edit}" id="edit"
+									th:value="${mCoilList[0].batchId}" />
+
+
+
+
+
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Mother Coil Batch</label> <input type="text"
+												class="form-control" id="mcoilbatch" th:unless="${edit}" />
+											<input type="text" class="form-control" id="mcoilbatch"
+												th:if="${edit}" th:value="${mCoilList[0].tMotherCoilBatch}"
+												readonly />
+										</div>
+									</div>
+									<div class="col-lg-4">
+
+
+
+										<div class="form-group">
+											<label>Mother Coil Garde</label> <select class="form-control"
+												id="mcoilgrade" onchange="getThickness()">
+												<option th:value="NULL">--Select--</option>
+												<option th:if="${edit}" th:each="c:${gradeList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==mCoilList[0].tMotherCoilGrade}"
+													onchange="getThickness()"></option>
+												<option th:unless="${edit}" th:each="c:${gradeList}"
+													th:value='${c.key}' th:text="${c.name}"
+													onchange="getThickness()"></option>
+
+											</select>
+										</div>
+
+
+									</div>
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Mother Coil Thickness</label> <select
+												class="form-control" id="mcoilthick"
+												onchange="getSlitWidth()">
+												<option th:value="NULL">--Select--</option>
+												<option th:if="${edit}" th:each="c:${thicknessList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==mCoilList[0].tMotherCoilThickness}"></option>
+												<option th:unless="${edit}"></option>
+
+											</select>
+										</div>
+
+
+
+									</div>
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Slit Batch</label> <input type="text"
+												class="form-control" id="slitbatch" th:unless="${edit}" />
+											<input type="text" class="form-control" id="slitbatch"
+												th:if="${edit}" th:value="${mCoilList[0].tPipeSlitBatch}"
+												readonly />
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Scrap Weight</label> <input type="text"
+												class="form-control" id="scrapwt" th:unless="${edit}"
+												readonly /> <input type="text" class="form-control"
+												id="scrapwt" th:if="${edit}"
+												th:value="${mCoilList[0].tPipeScrapWeight}" readonly />
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Slit Start Date</label> <input type="text"
+												class="form-control" id="slitstart" th:unless="${edit}"
+												readonly /> <input type="text" class="form-control"
+												id="slitstart" th:if="${edit}"
+												th:value="${mCoilList[0].tPipeSlitStartDate}" readonly />
+
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Slit End Date</label> <input type="text"
+												class="form-control" id="slitend" th:unless="${edit}"
+												readonly /> <input type="text" class="form-control"
+												id="slitend" th:if="${edit}"
+												th:value="${mCoilList[0].tPipeSlitEndDate}" readonly />
+
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Slit Quantity</th>
+													<th>Slit SubGroup</th>
+													<th>Pipe Size</th>
+													<th>Production Qty</th>
+													<th>Production Wt</th>
+												</tr>
+											</thead>
+											<tbody id="tbodyData">
+
+												<!-- Edit -->
+												<tr class="tr_clone" th:if="${edit}"
+													th:each="a,iter:${mCoilList}">
+
+													<td><input type="hidden"
+														class="form-control SlitWtCls" id="selectSlitWt_0"
+														th:value="${a.tPipeSlitWidth}" /> <input type="text"
+														class="form-control QuantityCls" id="selectQuantity_0"
+														th:value="${a.tPipeSlitQty}" readonly /></td>
+													<td><input type="text"
+														class="form-control subBatchCls" id="selectSubBatch_0"
+														th:value="${a.slitSubGroup}" readonly /></td>
+
+													<td><input type="text" class="form-control SizeNameCls"
+														id="selectSizeName_0" th:value="${a.tPipeSizeName}"
+														readonly /> <input type="hidden"
+														class="form-control SizeCls" id="selectSize_0"
+														th:value="${a.tPipeSize}" readonly /></td>
+													<td><input type="text"
+														class="form-control polishingQtyCls"
+														id="selectProductionQty_0" th:value="${a.productionQty}"
+														readonly /></td>
+													<td><input type="text"
+														class="form-control polishingWtCls"
+														id="selectProductionWt_0" th:value="${a.productionWt}"
+														readonly /></td>
+													<td th:if="${a.status>=2}">
+														<button type="button" id="productDtls_0"
+															class="btn btn-success pDtls"
+															onclick="DetailsData(event);">Details Added</button>
+													</td>
+													<td th:unless="${a.status>=2}">
+														<button type="button" id="productDtls_0"
+															class="btn btn-info pDtls"
+															onclick="productionData(event);">Add Polishing
+															Dtls</button>
+													</td>
+												</tr>
+
+
+											</tbody>
+
+
+										</table>
+									</div>
+
+								</div>
+
+								<!-- modal for add polishing details -->
+								<div id="myModalProd" class="modal fade" role="dialog">
+									<div class="modal-dialog">
+										<!-- Modal content-->
+										<div class="modal-content" style="width: 750px;">
+											<div class="modal-header">
+												<h4 class="modal-title">Add Production Details</h4>
+												<button type="button" class="close" data-dismiss="modal">&times;</button>
+											</div>
+
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-lg-6">
+														<input type="hidden" value="" id="mcBatch"> <input
+															type="hidden" value="" id="slitBatch"> <input
+															type="hidden" value="" id="mcThickness"> <input
+															type="hidden" value="" id="slitWidth"> <input
+															type="hidden" value="" id="pipeSize"> <input
+															type="hidden" value="" id="productionQty"> <input
+															type="hidden" value="" id="productionWt">
+														<div class="form-group">
+															<label> Polishing Start Date</label> <input type="text"
+																id="polishingStartDate" readonly class="form-control" />
+														</div>
+													</div>
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label> Polishing End Date</label> <input type="text"
+																id="polishingEndDate" readonly class="form-control" />
+														</div>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label> Polishing Quantity</label> <input type="text"
+																id="polishingQty" class="form-control" />
+														</div>
+													</div>
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label> Polishing Weight</label> <input type="text"
+																id="polishingWt" class="form-control" />
+														</div>
+													</div>
+												</div>
+
+											</div>
+											<div class="modal-footer">
+												<button type="button" class="btn  btn-success" id="submit"
+													data-dismiss="modal">Save</button>
+												<button type="button" class="btn btn-default"
+													data-dismiss="modal">Close</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- modal ends -->
+								<!-- Modal Start for view details -->
+								<div id="myModal" class="modal fade" role="dialog">
+									<div class="modal-dialog">
+
+										<!-- Modal content-->
+										<div class="modal-content">
+											<div class="modal-header">
+												<h4 class="modal-title">View Polishing Details</h4>
+												<button type="button" class="close" data-dismiss="modal">
+													<i class="fa fa-close fa-2x"></i>
+												</button>
+											</div>
+											<div class="modal-body">
+												<table width="100%" border="0" id="table1">
+
+													<tbody id="tModelBody"></tbody>
+												</table>
+											</div>
+											<div class="modal-footer">
+												<button type="button" class="btn btn-default"
+													data-dismiss="modal">Close</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<!-- /# row -->
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</html>

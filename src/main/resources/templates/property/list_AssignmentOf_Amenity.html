@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	$(function() {
+
+	})
+</script>
+</head>
+<div layout:fragment="content">
+ <div class="content-wrap">
+        <div class="main mrt_20">
+            <div class="col-md-12">
+                <ol class="breadcrumb breadcrumb-arrow">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="add_PropertyType(1.4.4.1.1).html">Add Property Type</a></li>
+                    <li class="active"><span>View Property Type</span></li>
+                </ol>
+            </div>
+            <div class="card-title">
+                <h4>View Property Type</h4>
+            </div>
+            <div class="container-fluid">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link " href="add_PropertyType(1.4.4.1.1).html" role="tab">Add Property Type</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="list_PropertyType(1.4.4.1.2).html" role="tab">View Property Type</a>
+                    </li>
+                </ul>
+                <div class="card">
+                    <div id="demo" class="collapse">
+                        <div class="search-field">
+                            <div class="row">
+                                <!-- <div class="col-md-2">
+                                    <div class="org-name"> Organization Name</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-control">
+                                        <option>---Select---</option>
+                                        <option>2</option>
+                                        <option>3</option>
+                                        <option>4</option>
+                                        <option>5</option>
+                                    </select>
+                                </div> -->
+                                <div class="col-md-2">
+                                    <div class="org-name">Property Type Name</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <input id="" class="form-control" type="text" placeholder="" name="">
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <button class="btn btn-primary">Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a data-toggle="collapse" data-target="#demo" class="showhideangelbg"><i class="fa fa-angle-double-down"></i> </a>
+                    <div class="row">
+                        <div class="table-responsive" style="width:100%;">
+                            <table id="bootstrap-data-table-export" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                    	<th>Property Category</th>
+                                        <th>Property Type</th>
+                                        <th>Amenity Name</th> 
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Room</td>
+                                        <td>Queen</td>
+                                        <td>Coffeemaker</td> 
+                                        <td>
+                                            <a data-toggle="modal" data-target="#myModal"><i class="fa fa-search search"></i></a>
+                                            <i class="fa fa-edit edit"></i>
+                                            <i class="fa fa-trash trash"></i>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>King</td>
+                                        <td>Banquet Hall</td>
+                                        <td>Luxury Bedding</td>
+                                        <td>
+                                            <a data-toggle="modal" data-target="#myModal"><i class="fa fa-search search"></i></a>
+                                            <i class="fa fa-edit edit"></i>
+                                            <i class="fa fa-trash trash"></i>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Gold</td>
+                                        <td>Conference Hall</td>
+                                        <td>Air Conditioning (AC)</td>
+                                        <td>
+                                            <a data-toggle="modal" data-target="#myModal"><i class="fa fa-search search"></i></a>
+                                            <i class="fa fa-edit edit"></i>
+                                            <i class="fa fa-trash trash"></i>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="clear:both;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Start-->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content" style="width: 750px;">
+                    <div class="modal-header">
+                        <h4 class="modal-title">ViewDetails of Property Type</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <table width="100%" border="0">
+                        	<tr>
+                                <td>Property Category:</td>
+                                <td align="left">Room</td>
+                            </tr>
+                            <tr>
+                                <td>Property Type Name :</td>
+                                <td align="left">Queen</td>
+                            </tr>
+                           
+                            <tr>
+                                <td>Amenity Name :</td>
+                                <td align="left">Air Conditioning (AC)</td>
+                            </tr> 
+                            
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal End-->
+       
+        
+    </div>
+</div>
+</html>

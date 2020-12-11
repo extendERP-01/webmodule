@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+//Call Edit Function
+function myFunction() {
+var empId = $('#empId').val();
+window.location.href ="/employee/view-employee-edit?id="+window.btoa(empId);
+}
+
+//Call Change Status Function
+function myFun() {
+	var empId = $('#empId').val();
+	var empStatus = $('#empStatus').val();
+	var id = window.btoa(empId)+","+empStatus;
+	changeStatus(id);
+}
+//Chnage The Status Function
+function changeStatus(id){
+	var data = id.split(",");
+	if(data[1] == "false"){
+		data[1] = true;
+	}else{
+		data[1] = false;
+	}
+	if(data[1] == true){
+	swal({
+	title	: "Are you sure want \nto Active?",
+	//text	: "Once Deleted,Can't revert back !",
+	type : "warning",
+	showCancelButton	: true,
+	confirmButtonColor	: "#DD6BB5",
+	confirmButtonText	: "Active",
+	showLoaderOnConfirm	: true,
+	reverseButtons : true,
+	preConfirm: () => {
+	return new Promise((resolve) => {
+	setTimeout(() => {
+	console.log("Doing async operation");
+	resolve()
+	}, 3000)
+	})
+	}
+	}).then((result) => {
+	if(result.value){
+		$.ajax({
+		type :	"GET",
+		url :	"/employee/view-employee-change-status?id="+data[0]+"&status="+data[1],
+		success : function(response) {
+		
+			if(response.message=="success"){
+			swal({
+				title	: "Status Activated Successfully.",
+				type: "success",
+			}).then(function(){
+				location.reload(); 
+			})
+			}else{
+				swal({
+				title:response.code,
+				text: response.message,
+				type:"warning"
+			})
+			}	
+		},
+		error : function(data) {
+		console.log(data);
+		}
+		}) 
+	}
+   }) 
+	} else {
+	swal({
+		title	: "Are you sure want \nto Inactive?",
+		//text	: "Once Deleted,Can't revert back !",
+		type : "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	: "Inactive",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		preConfirm: () => {
+		return new Promise((resolve) => {
+		setTimeout(() => {
+		console.log("Doing async operation");
+		resolve()
+		}, 3000)
+		})
+		}
+		}).then((result) => {
+	if(result.value){
+		$.ajax({
+		type :	"GET",
+		url :	"/employee/view-employee-change-status?id="+data[0]+"&status="+data[1],
+		success : function(response) {
+		
+		if(response.message=="success"){
+			swal({
+			title	: "Status Inactivated Successfully.",
+			type: "success",
+			}).then(function(){
+			location.reload(); 
+			})
+	  }else{
+	swal({
+			title:response.code,
+			text: response.message,
+			type:"warning"
+		})
+	  }	
+   },
+	error : function(data) {
+	console.log(data);
+	 }
+   }) 
+  }
+ }) 
+ }
+}
+
+</script>
+<style>
+.tdheader {
+	border-bottom: 1px solid transparent;
+	border-top-right-radius: 3px;
+	border-top-left-radius: 3px;
+	background-color: #f0f5f5;
+}
+
+.table {
+	margin-bottom: 20px;
+	background-color: #fff;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+	border-color: #ddd;
+}
+
+.trClass {
+	border-top: 3px solid #fff;
+}
+
+.tdbody {
+	color: #3c8dbc;
+	font-weight: 500;
+}
+
+.spanCls {
+	font-size: 15px;
+	color: #373757;
+	font-family: inherit;
+	font-weight: 500;
+	line-height: 1.1;
+	margin-bottom: .5rem;
+}
+
+.design {
+padding: 19px;
+    font-size: 15px;
+    border: 1px solid;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a href="/master/view-employee-master">Back</a></li> -->
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Pay Slip</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-lg-6 design"><b>Month</b></div>
+					<div class="col-lg-6 design"><b>File</b></div>
+				</div>
+				<div class="row" style="margin-top: 15px;">
+					<div class="col-lg-6"><select class="form-control" disabled>
+						<option value="">Choose Month</option>
+						<option value="1">January</option>
+						<option value="2">February</option>
+						<option value="3">March</option>
+						<option value="4">April</option>
+						<option value="5">May</option>
+						<option value="6">June</option>
+						<option value="7">July</option>
+						<option value="8">August</option>
+						<option value="9" selected>September</option>
+						<option value="10" >October</option>
+						<option value="11">November</option>
+						<option value="12">December</option>
+					</select></div>
+					<div class="col-lg-6"><a href="../assets/pdf/ABHP100927Sep2020.pdf" target="_blank"><img src="../assets/images/pdf_demo.png" height="50" width="35"></a></div>
+				</div>
+				<div class="row" style="margin-top: 15px;">
+					<div class="col-lg-6"><select class="form-control" disabled>
+						<option value="">Choose Month</option>
+						<option value="1">January</option>
+						<option value="2">February</option>
+						<option value="3">March</option>
+						<option value="4">April</option>
+						<option value="5">May</option>
+						<option value="6">June</option>
+						<option value="7">July</option>
+						<option value="8">August</option>
+						<option value="9">September</option>
+						<option value="10" selected>October</option>
+						<option value="11">November</option>
+						<option value="12">December</option>
+					</select></div>
+					<div class="col-lg-6"><a href="../assets/pdf/ABHP100927Oct2020.pdf" target="_blank"><img src="../assets/images/pdf_demo.png" height="50" width="35"></a></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

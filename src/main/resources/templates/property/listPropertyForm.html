@@ -1,0 +1,425 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+//Deleting the property master detail
+
+
+const ipAPI = 'https://api.ipify.org?format=json'
+	function deleteMaster(id){
+	 //var data = id.split(",");
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			/* confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : '<i class="fa fa-thumbs-down">&nbsp;Cancel</i>',
+			cancelButtonAriaLabel : 'Thumbs down', */
+	
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/property/view-property-master-delete-property-master?id=" +id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+	/* function for model data */
+function viewInModelData(index){
+	$('#table1').empty();
+	$.ajax({
+		type : "POST",
+		url : "view-property-master-modeldata",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : index,
+		success : function(response) {
+	    console.log(response);
+		if (response.message == "success") {
+		console.log(response.body.propertyActive);
+		var propertyActive = "";
+		var cleanStatus = "";
+	    var pBookingStatus = ""; 
+	    var reservationStatus = ""; 
+		if (response.body.propertyActive) {
+			propertyActive = "Active";
+		} else {
+			propertyActive = "InActive";
+		}
+		
+		if (response.body.cleanStatus) {
+			cleanStatus = "Clean";
+		} else {
+			cleanStatus = "Dirty";
+		}
+		 if (response.body.pBookingStatus) {
+			pBookingStatus = "Active";
+		} else {
+			pBookingStatus = "Inactive";
+		} 
+		 if (response.body.reservationStatus) {
+			 reservationStatus = "Active";
+			} else {
+			reservationStatus = "Inactive";
+			} 
+		
+		
+		table = '<tr><td>Property Name :</td>'
+		+ '<td align="left">'
+		+ response.body.propertyName
+		+ '</td>'
+		+ '</tr><tr><td>Property Type:</td><td align="left">'
+		+ response.body.propertyType
+		+ '</tr><tr><td>Property Floor:</td><td align="left">'
+		+ response.body.propertyFloor
+		+ '</tr><tr><td>Property Category:</td><td align="left">'
+		+ response.body.propertyCategory
+		+ '</tr><tr><td>Clean Status:</td><td align="left">'
+		+ cleanStatus
+		+ '</tr><tr><td>Booking Status:</td><td align="left">'
+		+ pBookingStatus
+		+ '</tr><tr><td>Property Status:</td><td align="left">'
+		+ propertyActive
+		+ '</tr><tr><td>Reservation Status:</td><td align="left">'
+		+ reservationStatus
+		 + '</td></tr><tr><td>Property Description</td><td align="left">'
+		+ response.body.propertyDescription + '</td></tr>'; 
+		$('#myModal').modal('show');
+		$('#table1').append(table);
+		}
+		},
+		error : function(data) {
+		console.log(data);
+		}
+		})
+}
+/* function for view data */
+
+	$(document).ready(function() {			
+		$('#mastertbl').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-property-master-throughajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+					d.param3 = $('#param3').val();
+					d.param4 = $('#param4').val();
+					d.param5 = $('#param5').val();
+					d.param6 = $('#param6').val();
+				}
+			},
+			'dataSrc' : "",
+		'columns' : [
+			{'data' : 'propertyName'},
+			{'data' : 'propertyType'},
+			{'data' : 'propertyFloor'},
+			{'data' : 'propertyCategory'},
+			{'data' : 'cleanStatusName'},
+			{'data' : 'propertyStatus'},
+			/* {'data' : 'propertyDescription'}, */
+			{'data' : 'bookingStatusName'},
+			{'data' : 'reservationStatusName'},
+			{'data' : 'action'}
+				]	
+		});
+	  });
+
+function searchData() {
+	$('#mastertbl').DataTable().draw();
+}	
+ function propertyCatagoryChange() {
+	var dd = $("#param1").val();
+	//alert("categoryid=="+dd);
+	if (dd) {
+		$.ajax({
+			type : "POST",
+			url : "add-property-master-getPropertyTypList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#param1").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#param2").empty();
+					
+					$("#param2").append(
+							$("<option value>Select</option>"));
+					
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#param2").append(option);
+					}
+
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	} else {
+		$("#param2").empty();
+		$("#param2").append(
+				$("<option value>Select</option>"));
+		
+	}
+}
+function propertyTypeChange() {
+	var dd = $("#param2").val();
+	if (dd) {
+	$.ajax({
+		type : "POST",
+		url : "add-property-master-getPropertNameList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param2").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				//console.log(response);
+				$("#param3").empty();
+				$("#param3").append(
+						$("<option value>Select</option>"));
+				
+				for (var i = 0; i < response.body.length; i++) {
+					var option = $("<option></option>");
+					$(option).val(response.body[i].key);
+					$(option).html(response.body[i].name);
+					$("#param3").append(option);
+				}
+
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+	} else {
+		$("#param3").empty();
+		$("#param3").append(
+				$("<option value>Select</option>"));
+		
+	}
+} 
+</script>  
+</head>
+<div layout:fragment="content">
+<div class="content-wrap">
+        <div class="main mrt_20">
+            <div class="col-md-12">
+                 <ol class="breadcrumb breadcrumb-arrow">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a th:href="@{/property/add-property-master}">Add Property Form</a></li>
+                    <li class="active"><span>View Property Form </span></li>
+                </ol> 
+            </div>
+            <div class="card-title">
+                <h4>View Property Form </h4>
+            </div>
+            <div class="container-fluid">
+                <div class="card">
+                    
+                        <div class="search-field">
+                        	<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-property-master">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+                            <div class="row">
+                                
+									
+								<div class="col-md-2">
+									<label>Property Category</label>
+								
+									<select class="form-control" id="param1" onChange="propertyCatagoryChange()">
+
+										<option th:value="NULL">Select</option>
+										<option th:each="c:${categoryList}" th:value='${c.key}'
+											th:text="${c.name}" th:selected="${c.key==propertyCategory}"></option>
+									</select>
+								</div>
+							
+								<div class="col-md-2">
+									<label>Property Type</label>
+								
+									<select class="form-control" id="param2" onChange="propertyTypeChange()">
+									 <option th:value="null">Select</option>
+									<option th:each="c:${typeSearchList}" th:value='${c.key}'
+									th:text="${c.name}" th:selected="${c.key==propertyType}"></option> 
+									</select>
+								</div>
+								
+								<div class="col-md-2">
+									<label>Property Name</label>
+								
+									<select class="form-control" id="param3">
+
+										<option th:value="NULL">Select</option>
+										<option th:each="c:${nameList}" th:value='${c.key}'
+											th:text="${c.name}" th:selected="${c.key==property}"></option>
+									</select>
+								</div>
+								
+								
+									
+										<div class="col-md-2">
+											<label>Clean status</label>
+										
+											<select class="form-control"  id="param4">
+								             <option th:value=null>select</option>
+								             <option th:value=1>Clean</option>
+								             <option th:value=0>Dirty</option>
+								             </select>
+										</div>
+									
+										<div class="col-md-2">
+											<label>Booking Status</label>
+										
+											<select class="form-control"  id="param5">
+								             <option th:value=null>select</option>
+								             <option th:value=1>Active</option>
+								             <option th:value=0>InActive</option>
+								             </select>
+										</div>
+									
+										<div class="col-md-2">
+											<label>Reservation Status</label>
+										
+											<select class="form-control"  id="param6">
+								             <option th:value=null>select</option>
+								             <option th:value=1>Active</option>
+								             <option th:value=0>InActive</option>
+								             </select>
+										</div>
+									
+								
+								
+	                               <div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<button class="btn btn-info" onclick="searchData()">Search</button>
+									</div>
+                                
+                                </div>
+                            </div>
+                        </div>
+                   
+                        <div class="table-responsive" style="width:100%;">
+                            <table id="mastertbl" class="table  table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Property Name</th>
+                                        <th>Property Type</th>
+                                        <th>Property Floor</th>
+                                        <th>Category</th>
+                                        <th>Cleaning Status</th>
+                                        <th>Property Status</th>
+                                        <!-- <th>Description</th> -->
+                                        <th>BookingStatus</th>
+                                        <th>reservationStatus</th>
+                                        <th align="center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                    <tr>
+                                    
+                                    </tr>
+                                   
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="clear:both;"></div>
+                   
+                </div>
+            </div>
+        </div>
+        <!-- Modal Start-->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content" style="width: 750px;">
+                    <div class="modal-header">
+                        <h4 class="modal-title">ViewDetails of Property </h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <table width="100%" border="0" id="table1">
+                           
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal End-->
+        
+    </div>
+</div>
+</html>

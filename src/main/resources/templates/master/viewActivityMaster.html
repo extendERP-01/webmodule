@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	$('#tblActivity').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'view-activity-master-throughAjax',
+			'data' : function(d) {
+				d.param1 = $('#param1').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [
+			{
+				'data' : 'tModule'
+			}, {
+				'data' : 'tFunction'
+			}, {
+				'data' : 'tActvtyName'
+			}, {
+				'data' : 'status'
+			}, {
+				'data' : 'action'
+			}
+		]
+	});
+});
+	
+function searchData() {
+	$('#tblActivity').DataTable().draw();
+}
+
+	function viewInModel(index) {
+
+		var modlName = '';
+		var funcName = '';
+		var actName = '';
+		var actDesc = '';
+		var actStatus = '';
+		$("#activityTable").find('tbody > tr').each(function() {
+			$(this).find("td").eq(1).remove();
+		})
+		$.ajax({
+			type : "POST",
+			url : "view-activity-master-model",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : index,
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response.body.tActvtyStatus);
+
+					var tActvtyStatus = "";
+					if (response.body.tActvtyStatus) {
+						tActvtyStatus = "Active";
+					} else {
+						tActvtyStatus = "InActive";
+					}
+					modlName = '<td>' + response.body.tModule + '</td>'
+					funcName = '<td>' + response.body.tFunction + '</td>'
+					actName = '<td>' + response.body.tActvtyName + '</td>'
+					actStatus = '<td>' + tActvtyStatus + '</td>'
+					actDesc = '<td>' + response.body.tActvtyDescription
+							+ '</td>'
+
+					$(".modlName").append(modlName);
+					$(".funcName").append(funcName);
+					$(".actName").append(actName);
+					$(".actStatus").append(actStatus);
+					$(".actDesc").append(actDesc);
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+
+	}
+	
+function changeStatus(id) {
+	var index = window.atob(id);
+	swal.fire({
+        title: "Are you sure want to Change Status?",
+        //text: "Once Changed,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#77e790",
+        confirmButtonText: "Change",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+			$.ajax({
+				type : "POST",
+				url : "view-activity-master-change-status",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : index,
+				success : function(response) {
+					if (response.message == "success") {
+						swal({
+                            title: "Status Changed Successfully.",
+                            text: "Changes will be reflected for Users in the Next Login.",
+                            type: "success",
+                        }).then(function() {
+                        	location.reload();
+                        })
+					}
+				}, error : function(data) {
+					console.log(data)
+				}
+			});
+        }
+    })
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20 col-md-12">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>View Activity Master</span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>View Activity Master</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-2">
+								<label>Activity Name</label>
+								<input class="form-control" type="text" placeholder="" name=""
+									id="param1">
+							</div>
+							<div class="col-md-2" style="margin-top: 26px;">
+								<div class="form-group">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				<div class="row">
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblActivity" class="table  table-bordered">
+							<thead>
+								<tr>
+									<th>Module Name</th>
+									<th>Function Name</th>
+									<th>Activity Name</th>
+									<th>Status</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Module</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="functionTable">
+							<tbody>
+								<tr class="modlName">
+									<td><b>Module Name :</b></td>
+								</tr>
+								<tr class="funcName">
+									<td><b>Function Name :</b></td>
+								</tr>
+								<tr class="actName">
+									<td><b>Activity Name :</b></td>
+								</tr>
+
+
+								<tr class="actDesc">
+									<td><b>Description :</b></td>
+								</tr>
+								<tr class="actStatus">
+									<td><b>Status :</b></td>
+								</tr>
+							</tbody>
+							<tbody id="tModelBody"></tbody>
+						</table>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+
+	</div>
+</div>
+</html>

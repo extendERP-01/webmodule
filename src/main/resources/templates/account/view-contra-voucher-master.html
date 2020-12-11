@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.sidebar.sidebar-shrink ~.content-wrap {
+	margin-left: 250px;
+	-webkit-transition: margin-left 300ms ease-in-out;
+	transition: margin-left 300ms ease-in-out;
+	height: 100vh !important;
+}
+</style>
+<script>
+	
+//VIEW MODAL CONTRA VOUCHER FUNCTION
+function viewInModel(index) {
+	$('#table1').empty();
+	$.ajax({
+		type : "POST",
+		url : "view-contra-voucher-master-modal",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : index,
+		success : function(response) {
+			if (response.message == "success") {
+				table = '<tr><td>Contra Vocher :</td>'
+						+ '<td align="left">'
+						+ response.body.contraVoucherId
+						+ '</td>'
+						+ '</tr><tr><td>Contra Vocher Type :</td><td align="left">'
+						+ response.body.contraVoucherType
+						+ '</td>'
+						+ '</tr><tr><td>Cost Center :</td><td align="left">'
+						+ response.body.costCenter
+						+ '</td></tr><tr><td>Description :</td>'
+						+ '<td align="left">'
+						+ response.body.cvDescription
+						+ '</td></tr><tr><td>Date :</td>'
+						+ '<td align="left">'
+						+ response.body.cvDate
+						+ '</td></tr><tr><td>Amount :</td>'
+						+ '<td align="left">'
+						+ (response.body.cvAmount).toFixed(2)
+						+ '</td></tr>';
+				$('#myModal').modal('show');
+				$('#table1').append(table);
+	
+				table6 = '<tr><th style="font-size:15px;"><b>From Details :</b></th></tr>';
+				$('#table1').append(table6);
+	
+				//FROM BANK VALUE IS NOT NULL
+				if (response.body.fromBank != "" && response.body.fromBank != null) {
+					table1 = '<tr><td>From Bank :</td>'
+							+ '<td align="left">'
+							+ response.body.fromBank
+							+ '</td>'
+							+ '</tr><tr><td>From Branch :</td><td align="left">'
+							+ response.body.fromBranch
+							+ '</td>'
+							+ '</tr><tr><td>From Account :</td><td align="left">'
+							+ response.body.fromAccount
+							+ '</td></tr>';
+					$('#table1').append(table1);
+				}
+	
+				//FROM CASH VALUE IS NOT NULL
+				if (response.body.fromCash != "" && response.body.fromCash != null) {
+					table2 = '<tr><td>From Cash :</td>'
+							+ '<td align="left">'
+							+ response.body.fromCash + '</td></tr>';
+					$('#table1').append(table2);
+				}
+	
+				table7 = '<tr><th style="font-size:15px;"><b>To Details :</b></th></tr>';
+				$('#table1').append(table7);
+	
+				//TO BANK VALUE IS NOT NULL
+				if (response.body.toBank != "" && response.body.toBank != null) {
+					table3 = '<tr><td>To Bank :</td>'
+							+ '<td align="left">'
+							+ response.body.toBank
+							+ '</td>'
+							+ '</tr><tr><td>To Branch :</td><td align="left">'
+							+ response.body.toBranch
+							+ '</td>'
+							+ '</tr><tr><td>To Account :</td><td align="left">'
+							+ response.body.toAccount
+							+ '</td></tr>';
+					$('#table1').append(table3);
+				}
+	
+				//TO CASH VALUE IS NOT NULL
+				if (response.body.toCash != "" && response.body.toCash != null) {
+					table4 = '<tr><td>To Cash :</td>'
+							+ '<td align="left">'
+							+ response.body.toCash + '</td></tr>';
+					$('#table1').append(table4);
+				}
+			}
+		},
+		error : function(data) {
+					console.log(data);
+				}
+
+	})
+}
+
+//(document).ready() Starts
+$(document).ready(function() {
+	$('#table').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'view-contra-voucher-master-through-ajax',
+			'data' : function(d) {
+				d.param1 = $('#param1').val();
+				d.param2 = $('#param2').val();
+				d.param3 = $('#param3').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [ 
+			{'data' : 'contraVoucherId'},
+			{'data' : 'contraVoucherType'},
+			{'data' : 'costCenter'},
+			{'data' : 'cvDescription'},
+			{'data' : 'cvDate'},
+			{'data' : 'cvAmount'},
+			{'data' : 'action'}
+		]
+	});
+}); //(document).ready() Ends
+
+//SERACH FUNCTION
+function searchData() {
+	$('#table').DataTable().draw();
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/account/add-contra-voucher-master}">Add
+							Contra Voucher Master</a></li>
+					<li class="active"><span>View Contra Voucher Master</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Contra Voucher Master</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-contra-voucher-master">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+
+										<div class="col-md-2">
+											<label>Contra Voucher</label>
+										
+											<input type="text" class="form-control" id="param1">
+										</div>
+								
+										<div class="col-md-2">
+											<label>Contra Voucher Type</label>
+										
+											<select class="form-control" id="param2">
+												<option value="">--Select--</option>
+												<option th:each="c:${cvTypeList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+							
+										<div class="col-md-2">
+											<label>Cost Center</label>
+										
+											<select class="form-control" id="param3">
+												<option value="">--Select--</option>
+												<option th:each="c:${costCenterList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									
+										<div class="col-md-2 mrt_10">
+											<div class="form-group filtersearch">
+												<button class="btn btn-info" onclick="searchData()">Search</button>
+											</div>
+										</div>
+									
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table id="table" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Contra Voucher</th>
+										<th>Contra Voucher Type</th>
+										<th>Cost Center</th>
+										<th>Description</th>
+										<th>Date</th>
+										<th>Amount</th>
+										<th align="center">Action</th>
+									</tr>
+								</thead>
+
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Contra Voucher</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

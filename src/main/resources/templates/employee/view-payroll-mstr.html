@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style>
+.mb-10 {
+	margin-bottom: 10px;
+}
+</style>
+<!-- <link rel="stylesheet" href="css/jquery.monthpicker.css"> -->
+
+<script type="text/javascript">
+function validateForm() {
+	return searchData();
+}
+
+function searchData() {
+ 	validDate();
+}
+$(document).ready(function() {
+		$("#mainModel").hide();
+		$("#myModal").hide(); 
+		
+		$( "#param1" ).datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true, 
+			timepicker : false,
+		}) 
+		$( "#paymentDate" ).datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true, 
+			timepicker : false,
+		}) 
+$("#submitItems").click(function () {
+	var dataset = [];
+	var i=0;
+	$("#tblTheme2 > tr").each(function(){
+	item = {};
+	item['tEmployeeId'] = $(this).find(".tEmployeeIdCls").val();
+	item['paymentDate'] = $("#paymentDate").val();
+	item['tEmployeeName'] = $(this).find(".tEmployeeNameCls").val();
+	item['tNetSalary'] = $(this).find(".tNetSalaryCls").val();
+	item['tPayDate'] = $(this).find(".tPayDateCls").val();
+	item['tPayGrade'] = $(this).find(".tPayGradeCls").val();
+	item['tBasicPay'] = $(this).find(".tBasicPayCls").val();
+	item['tDearnessAllowance'] = $(this).find(".tDearnessAllowanceCls").val();
+	item['tHouseRentAllowance'] = $(this).find(".tHouseRentAllowanceCls").val();
+	item['tConveyanceAllowance'] = $(this).find(".tConveyanceAllowanceCls").val();
+	item['tLeaveTravelAllowance'] = $(this).find(".tLeaveTravelAllowanceCls").val();
+	item['tMedicalAllowance'] = $(this).find(".tMedicalAllowanceCls").val();
+	item['tEmployeeProvidentFund'] = $(this).find(".tEmployeeProvidentFundCls").val();
+	item['tPerquisites'] = $(this).find(".tPerquisitesCls").val();
+	item['tCTC'] = $(this).find(".tCTCCls").val();
+	item['tTaxableAmnt'] = $(this).find(".tTaxableAmntCls").val();
+	item['Status'] = $(this).find(".statusCls").val();
+	item['tESICscheme'] = $(this).find(".tESICschemeCls").val(); 
+	item['totalAttendance'] = $(this).find(".totalAttendanceCls").val(); 
+	item['paidLeave'] = $(this).find(".paidLeaveCls").val(); 
+	item['leaveWithOutPay'] = $(this).find(".leaveWithOutPayCls").val(); 
+	item['leaveWithOutPay'] = $(this).find(".leaveWithOutPayCls").val(); 
+	item['tLeaveDays'] = $(this).find(".tLeaveDaysCls").val(); 
+	console.log(item); 
+	dataset.push(item);
+	i++;
+	console.log(i)
+	});//table tbody tr loop ends
+	submitPayRollDetails(dataset);
+
+});
+			
+	});
+	
+	
+
+	function submitPayRollDetails(dataset){
+
+		//console.log(dataset)
+		swal.fire({
+			title				: "Are you sure want to Generate PayRoll?",
+			text				: "Once Generated ,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Generate",
+		
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down',
+			showLoaderOnConfirm	: true,
+			preConfirm: () => {
+							return new Promise((resolve) => {
+								setTimeout(() => {
+									console.log("Doing async operation");
+									resolve()
+								}, 3000)
+							})
+						}
+
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "view-payroll-master-generate-payroll",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					console.log(response);
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/employee/view-payroll-master-details" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(response){
+					swal(response.code);	
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+	
+function validDate() { 
+		 
+		var param1 = $('#param1').val();
+
+		if (param1) { 
+			$.ajax({
+						type : 'GET',
+						url : 'view-payroll-master-validate-date?param1='+ param1 ,
+						contentType : 'application/json',
+						success : function(response) {
+							console.log(response)
+							if (response.message == "success") { 
+                                	   console.log("response data are " + response.body)  
+                                	  getTableDetails(); 
+							} else { 
+								 swal("Pay Role Generated For This Month.")
+							}
+						},
+						error : function(e) {
+							console.log("error");
+						}
+					});
+		} else {
+			
+			 
+			 swal("Select Month .")
+			 
+		}
+	}
+	
+	
+	function getTableDetails() {
+		$("#mainModel").show();
+		$("#myModal").show();
+		$("#myModal2").hide();
+		$('#tblTheme2').empty(); 
+		var param1 = $('#param1').val(); 
+		if (param1) {
+			$.ajax({
+						type : 'GET',
+						url : 'view-payroll-master-ThroughAjax?param1='+ param1 ,
+						contentType : 'application/json',
+						success : function(response) {
+							if (response.message == "success") {
+                                   if(response.body != null){ 
+                                	   console.log("response data are " + response.body)
+                                	   console.log("response data are lan " + response.body.length)
+                                	   var table=[];
+                                	   for (var i = 0; i < response.body.length; i++) {
+       								table.push('  <tr>  <td bgcolor="#F5F5F5" ><input type="text" class="form-control tEmployeeIdCls" value='+response.body[i].tEmployeeId+' id="tEmployeeId_'+i+'" readonly></td>  '
+       											+ ' <td bgcolor="#F5F5F5" ><input type="text"  class="form-control tEmployeeNameCls"  value='+response.body[i].tEmployeeName+' id="tEmployeeName_'+i+'" readonly></td> ' 
+       											+ '   <input type="hidden"  class="form-control tPayGradeCls" value='+response.body[i].tPayGrade+' id="tPayGrade_'+i+'"> </td>'	
+       											+ ' <td bgcolor="#F5F5F5" >  <input type="text"  class="form-control tLeaveDaysCls" value='+response.body[i].tLeaveDays+' id="tLeaveDays_'+i+'"></td> '
+       											+ ' <td bgcolor="#F5F5F5" >  <input type="text"  class="form-control paidLeaveCls" value='+response.body[i].paidLeave+' id="paidLeave_'+i+'"></td> '
+       											+ ' <td bgcolor="#F5F5F5" >  <input type="text"  class="form-control leaveWithOutPayCls" value='+response.body[i].leaveWithOutPay+' id="leaveWithOutPay_'+i+'"></td> '
+       											+ '  <td bgcolor="#F5F5F5" > <input type="text"  class="form-control totalAttendanceCls" value='+response.body[i].totalAttendance+' id="totalAttendance_'+i+'"></td> '
+       											
+       											+ '  <td bgcolor="#F5F5F5" > <input type="text"  class="form-control employeWorkingDaysCls" value='+response.body[i].employeWorkingDays+' id="employeWorkingDays_'+i+'"></td> '
+       											+ '  <td bgcolor="#F5F5F5" > <input type="text"  class="form-control totalWorkingDaysCls" value='+response.body[i].totalWorkingDays+' id="totalWorkingDays_'+i+'"></td> '
+       											
+       											+ '  <td bgcolor="#F5F5F5" > <input type="text"  class="form-control tBasicPayCls" value='+response.body[i].tBasicPay+' id="tBasicPay_'+i+'"> </td>'
+       											+ '  <td bgcolor="#F5F5F5" > <input type="text"  class="form-control tNetSalaryCls" value='+response.body[i].tNetSalary+' id="tNetSalary_'+i+'"></td> '
+       											+ '   <input type="hidden"  class="form-control tDearnessAllowanceCls" value='+response.body[i].tDearnessAllowance+' id="tDearnessAllowance_'+i+'"> '
+       											+ '   <input type="hidden"  class="form-control tHouseRentAllowanceCls" value='+response.body[i].tHouseRentAllowance+' id="tHouseRentAllowance_'+i+'"> '
+       											+ '   <input type="hidden"  class="form-control tConveyanceAllowanceCls" value='+response.body[i].tConveyanceAllowance+' id="tConveyanceAllowance_'+i+'"> '
+       											+ '   <input type="hidden"  class="form-control tLeaveTravelAllowanceCls" value='+response.body[i].tLeaveTravelAllowance+' id="tLeaveTravelAllowance_'+i+'"> '
+       											+ '   <input type="hidden"  class="form-control tMedicalAllowanceCls" value='+response.body[i].tMedicalAllowance+' id="tMedicalAllowance_'+i+'"> '
+       											+ '   <input type="hidden"  class="form-control tEmployeeProvidentFundCls" value='+response.body[i].tEmployeeProvidentFund+' id="tEmployeeProvidentFund_'+i+'"> '
+       											+ '   <input type="hidden"  class="form-control tESICschemeCls" value='+response.body[i].tESICscheme+' id="tESICscheme_'+i+'"> '
+       											+ '   <td bgcolor="#F5F5F5" > <input type="text"  class="form-control tCTCCls" value='+response.body[i].tCTC+' id="tCTC_'+i+'"></td> '
+       											+ '   <input type="hidden"  class="form-control tTaxableAmntCls" value='+response.body[i].tTaxableAmnt+' id="tTaxableAmnt_'+i+'"> '
+       											+ '   <input type="hidden"  class="form-control tPerquisitesCls" value='+response.body[i].tPerquisites+' id="tPerquisites_'+i+'"> '
+       											+ '   <input type="hidden"  class="form-control tESICschemeCls" value='+response.body[i].tESICscheme+' id="tESICscheme_'+i+'"> '
+       			
+       											+ ' <td bgcolor="#F5F5F5" ><input type="text" class="form-control statusCls" value='+response.body[i].status+' id="status_'+i+'"></td>  '
+       											+ ' <td bgcolor="#F5F5F5" ><a href="view-employee-update-salary-components?id='+window.btoa(response.body[i].tEmployeeId)+'">Update Salary</a></td>  '
+       											+ '</tr> '); 
+       									
+       								}
+                                	   $('#tblTheme2').append(table);
+                                	   $('#tblTheme').DataTable().draw();
+                                   }else{
+                                	  
+                           			var noData = '<tr> <td colspan="4"><div class="norecord">No Record Found</div></td> </tr>';
+                           			$('#tblTheme2').append(noData);
+                           			$('#tblTheme').DataTable().draw();
+                                   }
+								
+							} else { 
+								var noData = '<tr> <td colspan="4"><div class="norecord">No Record Found</div></td> </tr>';
+								$('#tblTheme2').append(noData);
+								$('#tblTheme').DataTable().draw();
+							}
+						},
+						error : function(e) {
+							console.log("error");
+						}
+					});
+		} else {
+			
+			var noData = '<tr> <td colspan="4"><div class="norecord">No Record Found</div></td> </tr>';
+			$('#tblTheme2').append(noData);
+			 
+			 
+		}
+	}
+	
+
+	function displayModal() { 
+		$("#myModal1").hide();
+	}
+
+	function viewInModel(index) {
+		alert(index);
+		$("#myModal2").show();
+		$("#myModal1").hide();
+		$('#table1').empty();
+		$('#table2').empty();
+
+		$.ajax({
+					type : "POST",
+					url : "view-payroll-master-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							console.log(response.body);
+
+							span = '<tr><td >Employee Name:</td>'
+									+ '<td align="left" id="nameCls">'
+									+ response.body[0].tEmployeeName
+									+ '</td>'
+									+ '<td align="left" id="idCls"><input type="hidden" id ="empId" value="'+response.body[0].tEmployeeId+'">'
+									+ '</td>'
+									+ '</tr><tr><td>Pay Grade:</td>'
+									+ '<td align="left" id="gradeCls">'
+									+ response.body[0].tPayGrade
+									+ '</tr><tr><td>City :</td>'
+									+ '<td align="left" id="cityCls">'
+									+ response.body[0].tCity
+									+ '</td></tr>'
+									+ '</tr><tr><td>Mobile No. :</td>'
+									+ '<td align="left" id="mobileCls">'
+									+ response.body[0].tMobile
+									+ '</td></tr>'
+									+ '</tr><tr><td>Email Id:</td>'
+									+ '<td align="left" id="emailCls">'
+									+ response.body[0].tEmailId
+									+ '</td></tr>'
+									+ '</tr>'
+									+ '<th><b>Details Of Salary Components</b></th></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(span);
+
+							span2 = '<tr><td>Basic Pay:</td>'
+									+ '<td align="left" id="basicCls">'
+									+ response.body[0].tBasicPay
+									+ '</td>'
+									+ '</tr><tr><td>Dearness Allowance:</td>'
+									+ '<td align="left" id="dearnessCls">'
+									+ response.body[0].tDearnessAllowance
+									+ '</tr><tr><td>House Rent Allowance :</td>'
+									+ '<td align="left" id="hraCls">'
+									+ response.body[0].tHouseRentAllowance
+									+ '</td></tr>'
+									+ '</tr><tr><td>Conveyance Allowance:</td>'
+									+ '<td align="left" id="conveyanceCls">'
+									+ response.body[0].tConveyanceAllowance
+									+ '</td></tr>'
+									+ '</tr><tr><td>Leave Travel Allowance:</td>'
+									+ '<td align="left" id="travelCls">'
+									+ response.body[0].tLeaveTravelAllowance
+									+ '</td></tr>'
+									+ '</tr><tr><td>Medical Allowance:</td>'
+									+ '<td align="left" id="medicalCls">'
+									+ response.body[0].tMedicalAllowance
+									+ '</td></tr>'
+									+ '</tr><tr><td>Employee Provident Fund:</td>'
+									+ '<td align="left" id="epfCls">'
+									+ response.body[0].tEmployeeProvidentFund
+									+ '</td></tr>'
+									+ '</tr><tr><td>ESIC scheme:</td>'
+									+ '<td align="left" id="schemeCls">'
+									+ response.body[0].tESICscheme
+									+ '</td></tr>'
+									+ '</tr><tr><td>Perquisites:</td>'
+									+ '<td align="left" id="perquisitesCls">'
+									+ response.body[0].tPerquisites
+									+ '</td></tr>'
+									+ '</tr>'
+									+ '</tr><th><b>Total Earning</b>'
+									+ '<td align="left" id="ctcCls">'
+									+ response.body[0].tCTC
+									+ '</td></tr>'
+									+ '</th><th><b>Total Deduction</b>'
+									+ '<td align="left" id="deductionCls">'
+									+ response.body[0].tBasicPay
+									+ '</td></tr>'
+									+ '</th><th><b>Taxable Amount</b>'
+									+ '<td align="left" id="taxableCls">'
+									+ response.body[0].tBasicPay
+									+ '</td></tr>'
+									+ '</th><th><b>Net Pay Salary</b>'
+									+ '<td align="left" id="netCls">'
+									+ response.body[0].tNetSalary
+									+ '</td></tr>'
+									+ '</th>';
+							$('#myModal2').modal('show');
+
+							$('#table2').append(span2);
+
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- 		<li><a th:href="@{/employee/add-goal-master}">Add Goal</a></li> -->
+					<li class="active"><span>Payroll </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Payroll List</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+
+					<div style="background: #f5f5f5;">
+						<div class="row">
+
+							<div class="col-lg-2">
+								<div class="org-name">Month</div>
+							</div>
+							<div class="col-lg-4">
+								<div class="form-group">
+									<input id="param1" class="form-control" type="text"
+										placeholder="" readonly name="">
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="form-group">
+									<input type="button" class="btn btn-info" value="View PayRoll"
+										onclick="return validateForm();" />
+								</div>
+							</div>
+
+
+						</div>
+
+					</div>
+
+					<!-- <a data-toggle="collapse" data-target="#demo"
+						class="showhideangelbg"><i class=""></i> </a> -->
+
+					<div id="mainModel">
+
+
+						<div class="mb-10" style="width: 100%;">
+							<table id="tblTheme1" class="table table-bordered">
+
+								<thead>
+
+									<tr>
+										<th>Employee Id</th>
+										<th>Name</th>
+										<th>Total Leave</th>
+										<th>Paid Leave</th>
+										<th>Leave WO Pay</th>
+										<th>Total Attendance</th>
+										<th>W/D</th>
+										<th>E/D</th>
+										<th>Basic</th>
+										<th>CTC</th>
+										<th>Net Salary(Rs.)</th>
+										<th>Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody id="tblTheme2">
+								</tbody>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+
+
+
+					</div>
+					<div class="row">
+						<div class="col-lg-2">
+							<div class="org-name">Payment Date</div>
+						</div>
+						<div class="col-lg-4">
+							<input id="paymentDate" class="form-control" type="text"
+								placeholder="" readonly name="">
+						</div>
+
+						<div class="col-lg-6">
+							<div class="form-group">
+								<button type="button" id="submitItems" class="btn btn-success"
+									onclick="displayModal();">Generate PayRoll</button>
+
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+
+			<!-- <div class="col-lg-6" id="myModal">
+							<h5 class="modal-title">Employee Details</h5>
+
+
+							<div id="myModal1">
+								<div class="box-detail"
+									style="background-color: #e5f0ff; border: 1px solid #ccc; padding: 110px 80px;">
+									<div class="">
+										Modal content
+
+
+										<h6 class="">Select any employee to see details</h6>
+									</div>
+								</div>
+							</div>
+
+
+							Modal Start
+							<div id="myModal2">
+								<div class=""
+									style="background-color: #e5f0ff; border: 1px solid #ccc; padding: 10px 0px;">
+									<div class="">
+										Modal content
+
+
+										<div class="modal-body">
+											<table style="width: 100%; border: 0;" id="table1">
+											</table>
+											<table style="width: 100%; border: 0;" id="table2">
+											</table>
+										</div>
+
+									</div>
+								</div>
+
+							</div>
+
+							Modal End
+						</div> -->
+		</div>
+
+	</div>
+</div>
+
+</html>

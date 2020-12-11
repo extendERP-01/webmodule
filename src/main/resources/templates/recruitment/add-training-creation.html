@@ -1,0 +1,145 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script  >
+
+
+function validateForm() {
+
+	if (!blankValidation("trainingName", "TextField",
+			"trainingName can not be left blank"))
+		return false;
+	if (!blankValidation("trainingType", "TextField",
+			"trainingTypecan not be left blank"))
+		return false;
+	if (!blankValidation("trainingCriteria", "TextField",
+			"Training Criteria can not be left blank"))
+		return false;
+	if (!blankValidation("trainingDesc", "TextField",
+			"Job trainingDesc can not be left blank"))
+		return false;
+	} 
+function checkAlphaNumber() {
+	var tempVal = $("#trainingName").val().replace(/[^a-zA-Z,-]/g,'');
+	$("#trainingName").val(tempVal);
+	
+}
+function checkAlphaNumber1() {
+	var tempVal1 = $("#trainingType").val().replace(/[^a-zA-Z,-]/g,'');
+	$("#trainingType").val(tempVal1);
+}
+
+</script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#submit").click(function(){
+	
+		window.location.href = "/recruitment/view-training-creation" ;
+	});
+	$("#btnCancel").click(function(){
+		
+		window.location.href = "/recruitment/view-training-creation" ;
+	});
+	$("#fromTime").datetimepicker({
+		format : 'h:m',
+		closeOnDateSelect : true,
+		timepicker : true,
+	})
+	$("#toTime").datetimepicker({
+		format : 'h:m',
+		closeOnDateSelect : true,
+		timepicker : true,
+	})
+});
+
+	
+
+</script>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<!--Alert Box-->
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		<!--Alert Box-->
+		<div class="col-md-12">
+		<ol class="breadcrumb breadcrumb-arrow">
+			<li><a href="index.html">Home</a></li>
+			<li class="active"><span>Add Training Creation</span></li>
+			
+		</ol>
+		</div>
+		<div class="card-title">
+			<h4>Add Training Creation</h4>
+		</div>
+		<div class="container-fluid">
+		<div class="card">
+		
+			<div class="card-body">
+				<div class="basic-elements">
+					<form action="#" th:action="@{add-training-creation}"
+								th:object="${training}" autocomplete="off" method="post"
+								onsubmit="return validateForm();">
+
+						<input type="hidden" th:field="*{trainingId}">
+						<div class="col-lg-12">
+							<div class="row">
+								<div class="col-lg-6">
+									
+									<div class="form-group">
+										<label>Training Name</label> <input type="text"
+											class="form-control" onkeyup="checkAlphaNumber();"  th:field="*{trainingName}" 
+											 id="trainingName">
+									</div>
+									<div class="form-group">
+										<label>Training Type</label> <input type="text"
+											class="form-control"  onkeyup="checkAlphaNumber1();" th:field="*{trainingType}" 
+											 id="trainingType" >
+									</div>
+								
+									<div class="form-group">
+										<label>Training Criteria</label> <input type="text"
+											class="form-control"  onkeyup="checkAlphaNumber1();" th:field="*{trainingCriteria}" 
+											id="trainingCriteria">
+									</div>
+									<div class="form-group">
+										<label>Training Description</label><textarea class="form-control textarea" onkeyup="checkAlphaNumber();" th:field="*{trainingDesc}" id="trainingDesc" ></textarea>
+									</div>
+																
+									<div class="form-group">
+											<input type="submit" value="Submit" class="btn btn-success" />
+											<input type="reset" value="Cancel" class="btn btn-warning"
+												onclick="window.location.reload();" />
+										</div>
+								</div>
+								<div class="col-lg-6">
+									
+									<!-- <div class="form-group">
+										<label>Status</label> <select class="form-control"
+											th:field="*{status}">
+											<option th:value=null>--select--</option>
+											<option th:value=true>Active</option>
+											<option th:value=false>Inactive</option>
+										</select>
+									</div> -->
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+		</div>
+	</div>
+</div>
+
+</html>

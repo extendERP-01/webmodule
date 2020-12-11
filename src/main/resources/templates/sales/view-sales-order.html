@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 310px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+/* $(document).ready(function() {
+    $('#table').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'view-sales-order-through-ajax',
+            'data': function(d) {
+
+                d.param1 = $('#param1').val();
+                d.param2 = $('#param2').val();
+                d.param3 = $('#param3').val();
+            }
+        },
+        'dataSrc': "",
+        'columns': [{
+                'data': 'salesOrder'
+            }, {
+                'data': 'sOrderDate'
+            }, {
+                'data': 'status'
+            },{
+                'data': 'action'
+            }
+        ]
+    });
+}); */
+
+
+
+//(document).ready() Starts
+$(document).ready(function() {
+	$('#table').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			  'url': 'view-sales-order-through-ajax',
+			'data' : function(d) { 
+                d.param1 = $('#param1').val();
+                d.param2 = $('#param2').val();
+                d.param3 = $('#param3').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [ {
+			'data' : 'salesOrder'
+		}, {
+			'data' : 'sOrderDate'
+		},
+		/* {
+		    'data': 'quotationId'
+		}, */
+		{
+			'data' : 'status'
+		},
+		//{'data' : 'voucherId'},
+		{
+			'data' : 'action'
+		} ]
+	});
+});
+
+function searchData() {
+    $('#table').DataTable().draw();
+}
+
+function pdfCreateSalesOrder(id) {
+    window.open("/download/view-sales-order-one-pdf?id=" + id, '_blank');
+}
+
+//Sales Order Auto Search Function
+function salesOrderAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "view-sales-order-salesOrderAutoCompleteList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#salesOrder").val(),
+        success: function(response) {
+            if (response.message == "success") {
+
+                if (response.body.length != 0) {
+                    $("#salesOrder").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+                        content += '<li onClick="selectAutocompleteValue(\'' +
+                            response.body[i].key +
+                            '\',\'' +
+                            response.body[i].name +
+                            '\')">' +
+                            response.body[i].key + '</li>';
+                    } //For Loop Ends
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+
+                } else {
+                    $("#salesOrder").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectAutocompleteValue(\'' +
+                        '' +
+                        '\',\'' +
+                        '' +
+                        '\')">' +
+                        "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+                }
+            }
+        },
+        error: function(data) {
+           
+            $("#salesOrder").css("background", "#FFF");
+            var content = '<ul id="autocomplete-list">';
+            content += '<li onClick="selectAutocompleteValue(\'' +
+                '' +
+                '\',\'' +
+                '' +
+                '\')">' +
+                "Try Again" + '</li>';
+            content += '</ul>';
+            $("#suggesstion-box").show();
+            $("#suggesstion-box").html(content);
+        }
+    })
+}
+
+function selectAutocompleteValue(key, name) {
+    if (key) {
+        $("#param1").val(key);
+        $("#salesOrder").val(key);
+        $("#salesOrder").attr('data-procat', key);
+        $("#suggesstion-box").hide();
+    } else {
+        $("#param1").val("");
+        $("#salesOrder").val("");
+        $("#salesOrder").attr('data-procat', "");
+        $("#suggesstion-box").hide();
+    }
+}
+
+//Purchase Order Auto Search Function
+function pOrderAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "view-sales-order-pOrderAutoCompleteList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#pOrder").val(),
+        success: function(response) {
+            if (response.message == "success") {
+
+                if (response.body.length != 0) {
+                    $("#pOrder").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+                        content += '<li onClick="selectAutocompletePOValue(\'' +
+                            response.body[i].key +
+                            '\',\'' +
+                            response.body[i].name +
+                            '\')">' +
+                            response.body[i].key + '</li>';
+                    } //For Loop Ends
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+
+                } else {
+                    $("#pOrder").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectAutocompletePOValue(\'' +
+                        '' +
+                        '\',\'' +
+                        '' +
+                        '\')">' +
+                        "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+            $("#pOrder").css("background", "#FFF");
+            var content = '<ul id="autocomplete-list">';
+            content += '<li onClick="selectAutocompletePOValue(\'' +
+                '' +
+                '\',\'' +
+                '' +
+                '\')">' +
+                "Try Again" + '</li>';
+            content += '</ul>';
+            $("#suggesstion-box1").show();
+            $("#suggesstion-box1").html(content);
+        }
+    })
+}
+
+function selectAutocompletePOValue(key, name) {
+    if (key) {
+        $("#param2").val(key);
+        $("#pOrder").val(key);
+        $("#pOrder").attr('data-procat', key);
+        $("#suggesstion-box1").hide();
+    } else {
+        $("#param2").val("");
+        $("#pOrder").val("");
+        $("#pOrder").attr('data-procat', "");
+        $("#suggesstion-box1").hide();
+    }
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+
+				<li class="active"><span>View Sales Order</span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>View Sales Order</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+				<div class="search-field">
+					<div class="row">
+
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Sales Order</label> <input type="hidden" id="param1">
+								<input type="text" class="form-control" id="salesOrder"
+									autocomplete="off" onkeyup="salesOrderAutoComplete();">
+								<div id="suggesstion-box"></div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Purchase Order</label> <input type="hidden" id="param2">
+								<input type="text" class="form-control" id="pOrder"
+									onkeyup="pOrderAutoComplete();">
+								<div id="suggesstion-box1"></div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Sales Order Status</label> <select class="form-control"
+									id="param3">
+									<option value="">--Select--</option>
+									<option value="false">Pending</option>
+									<option value="true">Complete</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-md-2" style="margin-top: auto;">
+							<div class="form-group">
+								<button class="btn btn-primary" onclick="searchData()">Search</button>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table  table-bordered">
+							<thead>
+								<tr>
+									<th>Sales Order</th>
+									<th>Sales Order Date</th>
+									<th>Status</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content" width="100%">
+					<div class="modal-header">
+						<h4 class="modal-title">View Item Details of Quotation</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+						</table>
+						<table width="100%" border="0" id="table2">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

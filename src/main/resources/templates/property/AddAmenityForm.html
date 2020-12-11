@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<div layout:fragment="content">
+   <div class="content-wrap">
+        <div class="main mrt_20">
+        <div class="col-md-12">
+            <!--Alert Box-->
+         <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+             <span th:text="${message}"></span>
+          </div>
+          
+          <!--Alert Box-->
+          <ol class="breadcrumb breadcrumb-arrow">
+             <li><a href="index.html">Home</a></li>
+             <li class="active"><span>Add Amenity</span></li>
+          </ol>
+       </div>
+        <div class="card-title">
+           <h4>Add Amenity</h4>
+        </div>
+            <div class="container-fluid">
+                <div class="card">
+                    <!-- <div class="row">
+                        <div class="card-title">
+                            <h4>Page Name</h4>
+                            <p>Small Description Goes Here...</p>
+                        </div>
+                    </div> -->
+                    <div class="card-body">
+                        <div class="basic-elements">
+                            <form action="#" th:action="@{/property/add-amenity-form}" th:object="${addAmenityForm}" method="post"  autocomplete="off" >
+                                <div class="row">
+                                <input type="hidden" th:field="*{amenitiesId}" />
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Amenity Name</label>
+                                            <input type="text" class="form-control" th:field="*{amntsName}" onkeyup="checkAlphabetAndNumber('amntsName')">
+                                        </div>
+                                        <div class="form-group">
+											<label>Property Category</label> 
+											<select class="form-control" th:field="*{propertyCategoryId}">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${propertyNameList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==propertyCategoryName}"></option>
+											</select>
+										</div>
+                                        <div class="form-group">
+                                            <label>Status</label> <select class="form-control" th:field="*{amntsActive}">
+												<option th:value="NULL">Select</option>
+												<option th:value="true">Active</option>
+												<option th:value="false">Inactive</option>
+											</select>
+                                        </div>
+                                        <div class="form-group">
+                                           <label>Description</label>
+											<textarea th:field="*{amntsDescription}" cols="" rows=""
+												class="form-control textarea"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-success">submit</button>
+                                        <button type="button" class="btn btn-warning"  onclick="window.location.reload();" >cancel</button>
+                                    </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

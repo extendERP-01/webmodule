@@ -1,0 +1,808 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 485px;
+	position: absolute;
+	z-index: 999;
+	overflow: auto;
+	height: 100px;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.red {
+	background-color: #b3ccff;
+}
+
+.important {
+	font-weight: bold;
+	font-size: 20px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	text-align: center;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: right;
+	width: 126px;
+	font-size: 12px;
+}
+</style>
+<script>
+
+function submitButtonStyle(event) { 
+	var currentId = event.currentTarget.id;
+	var prevId = $("#prevId").val();
+	$("#"+prevId).removeClass("red");
+	$("#"+currentId).addClass("red");
+	$("#prevId").val(currentId);
+	$("#paymentDetails").show();
+	$("#paymentDiv").show();
+}
+
+$(document).click(function() {
+	$("#suggesstion-box").hide();
+	$("#suggesstion-box1").hide();
+	
+	});
+$(document).ready(function(){
+	
+	HideBank();
+	$("#paymentDetails").hide();
+	$("#grnDetails").hide();
+	$("#returnDiv").hide();
+	$("#paymentDiv").hide();
+//submit button function through ajax 
+
+	
+	$("#submit").click(function(){
+		var dataset = [];
+			assign = {};
+			assign['paymentMode']	    =	$("#paymentMode").val();
+			assign['bankName']	 	    =	$("#bankName").val();
+			assign['branchName']	 	=	$("#branchName").val();
+			assign['accNo']	 	        =	$("#accNo").val();
+			assign['paidFrom']	    	=	$("#paidFrom").val();
+			assign['chequeNo']	 	    =	$("#chequeNo").val();
+			assign['transactionNo']	    =	$("#transNo").val();
+			assign['transactionDate']	=	$("#transactionDate").val();
+			assign['employeeId']	    =	$("#employeeId").val();
+			assign['reimbNo']	        =	$("#reimbNo").val();
+			assign['reqNo']	            =	$("#reqNo").val();
+	
+			dataset.push(assign);
+		//table tbody tr loop ends
+		
+		if (!blankValidation("vendorName","SelectBox" ,"Please Select Vender Name"))
+		      return false;
+		if (!blankValidation("paymentMode","SelectBox" ,"Please Select Payment Mode"))
+		      return false;
+		if (!blankValidation("transactionDate","SelectBox" ,"Please Select Payment Date"))
+		      return false;
+		if($("#total").html()>=parseFloat($("#availBal").val())){
+			swal("Don't Have Sufficient Balance..");
+			return false;
+		}
+		if($("#paymentMode").val()!="PMOD002")
+			{
+				if (!blankValidation("bankName","SelectBox" ,"Please Select Bank Name"))
+				      return false;
+				
+			    if (!blankValidation("branchName","SelectBox" ,"Please Select Branch Name"))
+				      return false;  
+				
+			    if (!blankValidation("accNo","SelectBox" ,"Please Select Account Number"))
+				      return false;  
+			    
+			    if (!blankValidation("paidFrom","SelectBox" ,"Please Select Account Holder Name"))
+		     		   return false;  								
+			 }
+		
+	         submitpaymentVoucher(dataset);
+	})
+	
+	        //date time picker
+	        $( "#transactionDate" ).datetimepicker({
+					format:'d-m-Y',
+					closeOnDateSelect: true,
+					minDate: new Date() ,
+					timepicker : false,
+		    })
+			$( "#toDate" ).datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				timepicker : false,
+			  })
+			$( "#fromDate" ).datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				timepicker : false,
+			  })
+				var fullDate = new Date();
+				var twoDigitMonth = ((fullDate.getMonth().length+1) === 1)? (fullDate.getMonth()+1) : + (fullDate.getMonth()+1);
+				var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+				var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+				$("#transactionDate").val(currentDate);
+
+})
+
+	
+	function submitpaymentVoucher(dataset){
+	
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "add-reimbursement-payment-voucher-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/reimbursement/view-reimbursement-payment-voucher-confirm-view?id="+window.btoa(response.body[0].voucherNo)  ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(response){
+					swal(response.code);	
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+function cancel() {
+	window.location.href = "/inventory/view-payment-voucher" ;
+}
+
+function check(total , advanceTaken ,reimbNo ,reqNo){
+	$('#reimbNo').val('')	;
+	$('#reqNo').val('')	;
+	var paidAmount = 0;
+ 	$('#total').html(total.toFixed(2)); 
+ 	$('#advance').html(advanceTaken.toFixed(2)); 
+ 	$('#tblBody1').empty();
+	$('#tBodyTD1').show();
+	paidAmount =  total - advanceTaken ;
+	$('#paidAmount').html(paidAmount.toFixed(2)); 
+	$('#reimbNo').val(reimbNo)	;
+	$('#reqNo').val(reqNo)	;
+		
+}
+
+	﻿
+function getReimbursementList() {
+	var empId = $("#employeeId").val();
+	var travelReq = $("#travelReq").val();
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val();
+	obj = {};
+	obj.reqNo= travelReq ;
+	obj.employeeId = empId;
+	obj.fromDate = fromDate;
+	obj.toDate = toDate;
+	$('#tBodyTD').hide();
+	$('#tblBody').empty();
+	$('#total').html('00.00'); 
+ 	$('#advance').html('00.00'); 
+	$('#paidAmount').html('00.00'); 
+	if(empId || travelReq || fromDate || toDate) {
+		$.ajax({
+			type : 'POST',
+			url : 'add-reimbursement-payment-voucher-get-reim-list',
+			dataType : 'json',
+			contentType : 'application/json',
+			data : JSON.stringify(obj),
+			success : function(response) {
+				if(response.message=="success"){
+							if(response.body.length>0){
+								for(var i=0;i<response.body.length;i++){
+			                           if(!response.body[i].payStatus){
+			                        	   console.log(response)
+										table = '<tr  id="'+ i +'grnCheck"><td><Button type="button"  id="'+ i +'grnCheck" class="btn btn-info" onclick="check('+response.body[i].totalAmonut+'\,'+response.body[i].advanceTaken+'\,'+'\''+response.body[i].reimbNo+'\''+',\''+response.body[i].reqNo+'\''+');  submitButtonStyle(event);">Pay </Button></td><td>'+ response.body[i].action+'</td><td>'+
+										response.body[i].reqNo+'</td><td>'+
+										response.body[i].placeName+'</td><td class="stateTaxCls td-border-right">'+									
+										(response.body[i].totalAmonut).toFixed(2)+'</td><td class="td-border-right">'+
+										(response.body[i].advanceTaken).toFixed(2)+'</td><td class="td-border-right">'+
+										(response.body[i].amountTobePaid).toFixed(2)+'</td></tr>';
+										$('#tblBody').append(table);
+			                           }else{
+			                        	   table = '<tr><td><Button type="button" id="grnCheck" class="btn btn-info" disabled >Paid</Button></td><td>'+ response.body[i].action+'</td><td>'+
+			                        	   response.body[i].reqNo+'</td><td>'+
+											response.body[i].placeName+'</td><td class="stateTaxCls td-border-right">'+									
+											(response.body[i].totalAmonut).toFixed(2)+'</td><td class="td-border-right">'+
+											(response.body[i].advanceTaken).toFixed(2)+'</td><td class="td-border-right">'+
+											(response.body[i].amountTobePaid).toFixed(2)+'</td></tr>';
+											$('#tblBody').append(table);
+											
+			                           }
+										
+									
+								}
+							
+							}else {
+								$('#tblBody').empty();
+								$('#tBodyTD').show();
+							}
+				
+						}
+				},
+				error : function(data) {
+					$('#tblBody').empty();
+					$('#tBodyTD').show();
+				}
+			});
+	}
+}
+
+	
+// for payment mode select hide and show	
+function checkBankDetails()
+{
+	var paymentMode = $("#paymentMode").val();
+	if(paymentMode=="PMOD002"){
+		HideBank();
+	}else if(paymentMode=="PMOD004"){
+		 ShowTrNo();
+	}else if(paymentMode=="PMOD003"){
+		  ShowCqNo();
+	}else{
+		HideBank();
+	}
+}
+	
+
+
+// for  hide and show bank div 
+function HideBank(){
+		$('#bankNamediv').hide();
+		$('#branchNamediv').hide();
+		$('#accNodiv').hide();
+		$('#chequeNoDiv').hide();
+		$('#paidFromDiv').hide();
+		$('#availBalDiv').hide();
+		$('#transNoDiv').hide();
+		$('#bankName').val('');
+		$('#branchName').val('');
+		$('#accNo').val('');
+		$('#chequeNo').val('');
+		$('#paidFrom').val('');
+		$('#transNo').val('');
+	}
+
+function ShowTrNo(){
+		$('#bankNamediv').show();
+		$('#branchNamediv').show();
+		$('#accNodiv').show();
+		$('#transNoDiv').show();
+		$('#paidFromDiv').show();
+		$('#availBalDiv').show();
+		$('#chequeNoDiv').hide();
+  }
+function ShowCqNo(){
+		$('#bankNamediv').show();
+		$('#branchNamediv').show();
+		$('#accNodiv').show();
+		$('#paidFromDiv').show();
+		$('#availBalDiv').show();
+		$('#transNoDiv').hide();
+		$('#chequeNoDiv').show();
+  }
+	//for on change of branch name
+	function branchNameChange() {	
+		var bankName = $("#bankName").val();
+		if (bankName) {
+             $.ajax({
+				type : 'POST',
+				url : 'add-reimbursement-payment-voucher-branchList',
+				contentType : false,
+				data : bankName,
+				success : function(response) {
+					$("#branchName").empty();
+					$("#branchName").append("<option value>--Select--</option>");
+					$("#paidFrom").empty();
+					$("#paidFrom").val("");
+					$("#availBal").empty();
+					$("#availBal").val("");
+					
+					$("#accNo").empty();
+					$("#accNo").append("<option value>--Select--</option>");
+					
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#branchName").append(option);
+						
+					} 
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			});
+		}else {
+				$("#branchName").empty();
+				$("#branchName").append("<option value>--Select--</option>");
+				$("#accNo").empty();
+				$("#accNo").append("<option value>--Select--</option>");
+				$("#paidFrom").empty();
+				$("#paidFrom").val("");
+				$("#availBal").empty();
+				$("#availBal").val("");
+		}
+
+	}
+
+
+	//for on change of account number
+	function acNoChange() {	
+		var branchName = $("#branchName").val();
+		if (branchName) {
+		
+			$.ajax({
+				type : 'POST',
+				url : 'add-reimbursement-payment-voucher-acNoList',
+				contentType : false,
+				data : branchName,
+				success : function(response) {
+					
+					$("#accNo").empty();
+					$("#accNo").append("<option value>--Select--</option>");
+					$("#paidFrom").empty();
+					$("#paidFrom").val("");
+					$("#availBal").empty();
+					$("#availBal").val("");
+					 for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].key);
+						$("#accNo").append(option);
+					 	
+						
+					} 
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			});
+		}else {
+				$("#accNo").empty();
+				$("#accNo").append("<option value>--Select--</option>"); 
+				$("#paidFrom").empty();
+				$("#paidFrom").val("");
+				$("#availBal").empty();
+				$("#availBal").val("");
+		  }
+}
+	//for on change of account name by accound number
+	function acNameChange() {	
+		var accNo = $("#accNo").val();
+		if (accNo) {
+			   $.ajax({
+					type : 'POST',
+					url : 'add-reimbursement-payment-voucher-acName',
+					contentType : false,
+					data : accNo,
+					success : function(response) {
+							 for (var i = 0; i < response.body.length; i++) {
+									$("#paidFrom").empty();
+									$("#availBal").empty();
+									$("#paidFrom").val(response.body[i].name); 
+									$("#availBal").val(response.body[i].key); 
+							  }
+						},
+						error : function(data) {
+							conole.log(data);
+						}
+				});
+		}
+		else {
+			$("#paidFrom").empty();
+			$("#paidFrom").val("");
+			$("#availBal").empty();
+			$("#availBal").val(""); 
+			}
+
+		}
+
+	
+	function checkAlphabetNumber(fieldId){
+		  var tempVal = $("#"+fieldId).val().replace(/[^a-zA-Z0-9]/g,'');
+		  $("#"+fieldId).val(tempVal);
+		}
+	
+	function viewInModel(index) {
+		$('#table1').empty();
+		$.ajax({
+					type : "POST",
+					url : "add-reimbursement-payment-voucher-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							table = '<tr><td>Employee Name :</td>'
+									+ '<td align="left">'
+									+ response.body[0].placeName
+									+ '</td>'
+									+ '</tr><tr><td>Traveling Place :</td><td align="left">'
+									+ response.body[0].placeName
+									+ '</tr><tr><td>Travelling Requisition Id:</td><td align="left">'
+									+ response.body[0].reqId
+									+ '</tr><tr><td>Traveling From Date :</td><td align="left">'
+									+ response.body[0].fromDate
+									+ '</tr><tr><td>Traveling To Date :</td><td align="left">'
+									+ response.body[0].toDate
+									+ '</tr><tr><td>Travelling Purpose :</td><td align="left">'
+									+ response.body[0].purpose
+									+ '</td></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+                             table = '<tr class="modalIn"><th><b>Reimbursement Type </b></th><th><b>Expense Date</b></th><th><b>Expense Desc</b></th><th><b>Expense Amount</b></th><th><b>Reference Number</b></th>' ;
+							
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+							
+							for (var i=0; i<response.body.length; i++) {
+								table =  '<tr><td>'
+									+ response.body[i].reimTypeName
+									+ '</td><td>'
+									+ response.body[i].rembDate
+									+ '</td><td>'
+									+ response.body[i].rembDesc
+									+ '</td><td>'
+									+ response.body[i].rembAmount
+									+ '</td><td>'
+									+ response.body[i].rembRefNo
+									+ '</td></tr>';
+								$('#myModal').modal('show');
+								$('#table1').append(table);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+	function searchData() {
+	        getReimbursementList();
+	    	$("#grnDetails").show();
+		 }
+	// validation for partial amount 
+	function checkPartialAmount() {
+		var tdVal = $("#outStndTD").html();
+		var partialAmt = $("#partialAmt").val();
+		
+		if(parseFloat(partialAmt) > parseFloat(tdVal)) {
+			swal({
+				title: "Partial Amount Can't Be More Than Outstanding Amount.",
+				type: "warning",
+			})
+			$("#partialAmt").val(tdVal);
+		}
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Reimbursement Payment Voucher</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Reimbursement Payment Voucher</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+
+							<div class="row search-field">
+
+								<div class="col-lg-6">
+
+
+									<div class="form-group" id="propertyDiv">
+
+										<label>Employee Name</label> <select class="form-control"
+											id="employeeId">
+											<option value="">--Select--</option>
+											<option th:each="c:${employeeList}" th:value='${c.key}'
+												th:text="${c.name}"></option>
+
+										</select> <input type="hidden" id="prevId" value='0' /> <input
+											type="hidden" id="reimbNo" /> <input type="hidden"
+											id="reqNo" />
+									</div>
+
+									<div class="form-group">
+										<label>Traveling Requisition</label> <select
+											class="form-control" id="employeeId">
+											<option value="">--Select--</option>
+											<option th:each="c:${travelReqList}" th:value='${c.key}'
+												th:text="${c.key}"></option>
+
+										</select>
+									</div>
+
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label> From Date</label> <input type="text"
+											class="form-control" id="fromDate" th:name="fromDate"
+											readonly>
+									</div>
+									<div class="form-group">
+										<label>To Date</label> <input type="text" class="form-control"
+											id="toDate" th:name="toDate" readonly>
+									</div>
+
+								</div>
+
+								<div class="row">
+									<div class="col-md-2">
+										<div class="form-group">
+											<button class="btn btn-primary" onclick="searchData()">Search</button>
+										</div>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-lg-12" id="grnDetails">
+							<label id="trId" style="font-size: 20px;"><b>Reimbursement
+									Details</b></label>
+							<table class="table table-bordered" id="table"
+								style="width: 100%; border: none;">
+								<thead id="tblHead">
+									<tr style="width: 100%;">
+										<th>SELECT TO PAY</th>
+										<th>Reimbursement Number</th>
+										<th>Requisition NO</th>
+										<th>Place Name</th>
+										<th>TOTAL AMOUNT</th>
+										<th>Advance Taken</th>
+										<th>OUTSTANDING AMOUNT</th>
+									</tr>
+								</thead>
+								<tbody id="tblBody">
+
+								</tbody>
+								<tbody id="tBodyTD">
+									<tr>
+										<td style="color: #e30f0f;" width="100%" valign="top"
+											align="center" colspan="10"><b>No records found</b></td>
+									</tr>
+
+
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<div class="row" id="paymentDiv">
+						<div class="col-lg-12">
+							<table style="color: #e30f0f; border: none;" align="right">
+								<tr>
+									<td style="color: #e30f0f; border: none;" width="100%"
+										valign="top" align="right" colspan="9">
+										<table cellpadding="0" cellspacing="0" width="300"
+											style="border: none;">
+											<tr style="border: none;" width="1px">
+												<td colspan="2" width="115" style="border: none;"><b>Total
+														Amount</b></td>
+
+												<td width="130" style="border: none;"><label
+													style="border: none; text-align: right;" id="total"
+													class="form-control">00.00</label></td>
+											</tr>
+
+
+
+
+
+											<tr style="border: none;">
+												<td colspan="2" width="115" style="border: none;"><b>Advance
+														Taken</b></td>
+
+												<td style="border: none;"><label
+													style="border: none; text-align: right;" id="advance"
+													class="form-control">00.00</label></td>
+
+
+											</tr>
+
+											<tr style="border: none;">
+												<td colspan="2" width="115" style="border: none;"><b>Amount
+														To Be Paid</b></td>
+
+												<td width="130" style="border: none; text-align: right;"><label
+													style="border: none" id="paidAmount" class="form-control">00.00</label></td>
+
+											</tr>
+
+										</table>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<div class="col-lg-12"></div>
+					</div>
+
+					<div class="col-md-12" id="paymentDetails">
+						<div class="card-title">
+							<h4>Payment Details</h4>
+						</div>
+						<div class="row">
+
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>Payment Mode</label> <select class="form-control"
+										id="paymentMode" onchange="checkBankDetails();">
+										<option value="">--Select--</option>
+										<option th:each="c:${PayModeList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div>
+								<div class="form-group" id="bankNamediv">
+									<label>Bank Name</label> <select class="form-control"
+										id="bankName" onchange="branchNameChange();">
+										<option value="null">--Select--</option>
+										<option th:each="c:${bankNameList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div>
+								<div class="form-group" id="branchNamediv">
+									<label>Branch Name</label> <select class="form-control"
+										id="branchName" onchange="acNoChange();">
+										<option value="null">--Select--</option>
+
+									</select>
+								</div>
+
+
+
+
+							</div>
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>Transaction Date</label> <input type="text"
+										class="form-control" id="transactionDate" readOnly>
+								</div>
+
+								<div class="form-group" id="accNodiv">
+									<label>Account Number</label> <select class="form-control"
+										id="accNo" onchange="acNameChange();">
+										<option value="null">--select--</option>
+									</select>
+								</div>
+
+								<div class="form-group" id="paidFromDiv">
+									<label>Paid From</label> <input type="text"
+										class="form-control" id="paidFrom" readonly />
+								</div>
+								<div class="form-group" id="availBalDiv">
+									<label>Available Balance</label> <input type="text"
+										class="form-control" id="availBal" readonly />
+								</div>
+
+								<div class="form-group" id="chequeNoDiv">
+									<label>Cheque Number</label> <input type="text"
+										class="form-control" id="chequeNo"
+										onkeyup="checkNum('chequeNo');" />
+								</div>
+								<div class="form-group" id="transNoDiv">
+									<label>Transaction Number</label> <input type="text"
+										class="form-control" id="transNo"
+										onkeyup="checkNum('transNo');" />
+
+								</div>
+
+							</div>
+						</div>
+						<div class="row">
+							<div class="form-group">
+								<button type="button" id="submit" class="btn btn-success">Submit</button>
+								<button type="button" class="btn btn-warning"
+									onclick="cancel();">Cancel</button>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<div style="clear: both;"></div>
+	<!-- Modal Start-->
+	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">View Details Reimbursement</h4>
+					<button type="button" class="close" data-dismiss="modal">
+						<i class="fa fa-close fa-2x"></i>
+					</button>
+				</div>
+				<div class="modal-body">
+					<table width="100%" border="0" id="table1">
+
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- Modal End-->
+</div>
+
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.subheading {
+	text-align: center;
+}
+</style>
+<script>
+function getTripDetails() {
+    $("#tbodyData").empty();
+    
+        $.ajax({
+            type: "GET",
+            url: "add-employee-bonous-get-trip-details?toDate=" + $("#toDate").val() +"&fromDate=" +$("#fromDate").val(),
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) { 
+                if (response.message == "Success") {   
+                	if(response.body.length != 0){
+                		for (var i = 0; i < response.body.length; i++) {
+                            var table = '<tr>' +
+                                '<td><input type="hidden" id="emp_' + i + '" class="form-control empIdCls" value="' + response.body[i].employeeId + '"> ' +
+                                ' <input type="text" id="empName_' + i + '" class="form-control empNameCls" value="' + response.body[i].empName + '"> </td>'+
+                                '<td><input type="text" id="itemName_' + i + '" class="form-control attCls"   name="item_" value="' + response.body[i].attendance + '" readonly /></td>' +
+                                '<td><input type="text" id="issueQuantity_' + i + '" class="form-control  TotalTripCls" value="' + response.body[i].totalTrip + '"></td>' +
+                                 '<td><input type="text" id="totalBonous_' + i + '" class="form-control  TotalBonousCls" value="' + response.body[i].totalBonous + '"></td>' +
+                                '</tr>';
+                            $("#tbodyData").append(table);
+                        }
+                	}else{
+                		 var table = '<tr>' +
+                         '<td><input type="hidden" id="emp_" class="form-control empIdCls" value=""> ' +
+                         '<input type="text" id="empName_" class="form-control empNameCls" value=""> </td>'+
+                         '<td><input type="text" id="itemName_" class="form-control attCls"   name="item_" value="" readonly /></td>' +
+                         '<td><input type="text" id="issueQuantity_" class="form-control  TotalTripCls" value=""></td>' +
+                          '<td><input type="text" id="totalBonous_" class="form-control  TotalBonousCls" value=""></td>' +
+                         '</tr>';
+                     $("#tbodyData").append(table);
+                	}
+                    
+
+
+                }else{
+                	 var table = '<tr>' +
+                     '<td><input type="hidden" id="emp_" class="form-control empIdCls" value=""> ' +
+                     ' <input type="text" id="empName_" class="form-control empNameCls" value=""> </td>'+
+                     '<td><input type="text" id="itemName_" class="form-control attCls"   name="item_" value="" readonly /></td>' +
+                     '<td><input type="text" id="issueQuantity_" class="form-control  TotalTripCls" value=""></td>' +
+                      '<td><input type="text" id="totalBonous_" class="form-control  TotalBonousCls" value=""></td>' +
+                     '</tr>';
+                 $("#tbodyData").append(table);
+                }
+            },
+            error: function(data) {
+            	 var table = '<tr>' +
+                 '<td><input type="hidden" id="emp_" class="form-control empIdCls" value=""> ' +
+                 ' <input type="text" id="empName_" class="form-control empNameCls" value=""> </td>'+
+                 '<td><input type="text" id="itemName_" class="form-control attCls"   name="item_" value="" readonly /></td>' +
+                 '<td><input type="text" id="issueQuantity_" class="form-control  TotalTripCls" value=""></td>' +
+                  '<td><input type="text" id="totalBonous_" class="form-control  TotalBonousCls" value=""></td>' +
+                 '</tr>';
+             $("#tbodyData").append(table);
+            }
+        })
+    
+}
+	 
+$(document).ready(function() {
+
+    $("#toDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false,
+        minDate: new Date(),
+
+    });
+    $("#fromDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false, 
+
+    }); 
+
+    
+	var fullDate = new Date();
+	var twoDigitMonth=((fullDate.getMonth()+1)>=10)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+	var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+	var monthStartDate = '01' + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+	var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+	$("#fromDate").val(monthStartDate);
+	$("#toDate").val(currentDate);
+	
+	//getTripDetails();
+	
+    //submit button function
+
+    $("#submit").click(function() {
+
+        var dataset = [];
+        $("#tbodyData > tr").each(function() {
+
+            assign = {};  
+            assign['toDate'] = $("#toDate").val();   
+            assign['fromDate'] = $("#fromDate").val();   
+            assign['employeeId'] = $(this).find(".empIdCls").val();
+            assign['attendance'] = $(this).find(".attCls").val();
+            assign['totalTrip'] = $(this).find(".TotalTripCls").val();
+            assign['totalBonous'] = $(this).find(".TotalBonousCls").val();
+            dataset.push(assign);
+            console.log(dataset);
+        }); //table tbody tr loop ends
+
+ 
+       
+        if (!blankValidation("monthDate", "TextField", "Please Select Month Date"))
+            return false; 
+        var item = true;
+        $(".empIdCls").each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Select Some Raw Item")) {
+                item = false;
+                return false;
+            }
+
+        });
+
+        var quantity = true;
+        if (item) {
+            $(".TotalBonousCls").each(function() {
+                if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Quantity")) {
+                    quantity = false;
+                    return false;
+                }
+
+            });
+        }
+
+        console.log(dataset)
+        if (item && quantity) {
+            submitMixData(dataset);
+        }
+
+
+
+    })
+})
+
+function submitMixData(dataset) { 
+    if (dataset.length > 0) {
+        swal.fire({
+            title: "Are you sure want to Submit?",
+            text: "Once Submited,Can't revert back !",
+            type: "warning",
+
+            showCancelButton: true,
+            confirmButtonColor: "#DD6BB5",
+            confirmButtonText: "Submit",
+            reverseButtons: true,
+            confirmButtonAriaLabel: 'Thumbs up, great!',
+            cancelButtonText: 'Cancel',
+            cancelButtonAriaLabel: 'Thumbs down',
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    type: "POST",
+                    url: "add-employee-bonous-ajax",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(dataset),
+                    success: function(response) {
+                        console.log(response)
+                        if (response.message == "Success") {
+                            swal({
+                                title: "Data Saved Successfully.",
+                                type: "success",
+                            }).then(function() {
+                                window.location.href = "/employee/view-employee-trip-bonous";
+                            })
+                        } else {
+                            swal({
+                                title: response.code,
+                                text: response.message,
+                                type: "warning"
+                            })
+                        }
+                    },
+                    error: function(data) {
+                        console.log(data);
+                    }
+                }) //ajax ends
+            }
+        }) //swal function block ends
+    }
+
+} //submit function ends
+
+
+function funcLoad() {
+    location.reload();
+}
+//for number check
+function checkNum1(event) {
+    var currentId = event.currentTarget.id;
+    checkNum(currentId);
+}
+
+
+function dateVaidate() {
+    if ($("#fromDate").val() && $("#toDate").val()) {
+        dateValidation('fromDate', 'toDate', "Start Date ", "End Date");
+    }
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Trip Bonus</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Trip Bonus</h4>
+				<div class="topbtnright" align="right">
+					<div class="form-group">
+						<button type="button" id="submit" class="btn btn-success">Submit</button>
+						<button type="button" class="btn btn-warning"
+							onclick="funcLoad();">Cancel</button>
+					</div>
+				</div>
+
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+
+							<div class="row">
+
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>From Date</label> <input type="text"
+											class="form-control" id="fromDate" th:unless="${edit}"
+											readonly onchange="getTripDetails()" /> <input type="text"
+											class="form-control" id="fromDate" th:if="${edit}" readonly
+											onchange="getTripDetails()" />
+									</div>
+								</div>
+
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>To Date</label> <input type="text" class="form-control"
+											id="toDate" th:unless="${edit}" onchange="getTripDetails()"
+											readonly /> <input type="text" class="form-control"
+											id="toDate" th:if="${edit}" readonly
+											onchange="getTripDetails()" />
+
+									</div>
+								</div>
+							</div>
+
+
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="subheading">Employee Trip Details</div>
+
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="2" cellpadding="5" style="border-color: #BABABA;">
+										<thead>
+											<tr>
+												<th>Employee Name</th>
+												<th>Attendance</th>
+												<th>Trip</th>
+												<th>Total Bonus</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<tr>
+												<td><input type="hidden" id="emp_"
+													class="form-control empIdCls" value=""> <input
+													type="text" id="empName_" class="form-control empNameCls"
+													value=""></td>
+												<td><input type="text" id="itemName_"
+													class="form-control attCls" name="item_" value="" readonly /></td>
+												<td><input type="text" id="issueQuantity_"
+													class="form-control  TotalTripCls" value=""></td>
+												<td><input type="text" id="totalBonous_"
+													class="form-control  TotalBonousCls" value=""></td>
+											</tr>
+
+										</tbody>
+
+									</table>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="form-group col-md-12"></div>
+							</div>
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</html>

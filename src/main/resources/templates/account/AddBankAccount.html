@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	function bankChange() {
+
+		if ($("#bank").val() != '') {
+
+			$.ajax({
+				type : "POST",
+				url : "add-bank-branch-bank-onchange-branch-list",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#bank").val(),
+				success : function(response) {
+					if (response.message == "success") {
+
+						console.log(response);
+
+						$("#branch").empty();
+						var option = $("<option></option>");
+						$(option).val(null);
+						$(option).html("Select");
+						$("#branch").append(option);
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#branch").append(option);
+						}
+
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+		 } else {
+			$("#branch").empty();
+			var option = $("<option></option>");
+			$(option).val(null);
+			$(option).html("Select");
+			$("#branch").append(option);
+		} 
+	}
+</script>
+<script type="text/javascript">
+	/* FORM VALIDATION */
+
+	function validateFormBankAccount() {
+		if (!blankValidation("bank", "SelectBox", "Bank Name Required"))
+			return false;
+
+		if (!blankValidation("branch", "SelectBox", "Branch Name Required"))
+			return false;
+		if (!blankValidation("accountNumber", "TextField", "Account Number Required"))
+			return false;
+		if (!blankValidation("accountHolder", "TextField", "Account Holder Required"))
+			return false;
+		if (!blankValidation("accountType", "TextField", "Account Type Required"))
+			return false;
+		if (!blankValidation("accountActive", "SelectBox", "Please Select Status"))
+			return false;
+
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<div class="alert alert-danger alert-dismissible"
+					th:if="${message != null}">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<span th:text="${message}"></span>
+				</div>
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+
+					<li class="active"><span>Add Bank Account</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Bank Account</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form action="#" th:action="@{/account/add-bank-account}"
+								th:object="${addbankaccount}" method="POST"
+								onsubmit="return validateFormBankAccount();">
+								<input type="hidden" th:field="*{isEdit}" />
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Bank Name</label> <select class="form-control"
+												th:field="*{bank}" onchange="bankChange()">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${bankList}" th:value='${c.key}'
+													th:text="${c.name}" th:selected="${c.key==bank}"></option>
+											</select>
+										</div>
+
+										<div class="form-group">
+											<label>Branch Name</label> <select class="form-control"
+												th:field="*{branch}">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${branchList}" th:value='${c.key}'
+													th:text="${c.name}" th:selected="${c.key==branch}"></option>
+											</select>
+										</div>
+
+
+										<div class="form-group">
+											<label>Account Number</label> <input type="text"
+												class="form-control" th:field="*{accountNumber}" />
+										</div>
+
+
+
+									</div>
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Account Holder</label> <input type="text"
+												class="form-control" th:field="*{accountHolder}" />
+										</div>
+
+										<div class="form-group">
+											<label>Bank Account Type</label> <input type="text"
+												class="form-control" th:field="*{accountType}" />
+										</div>
+
+										<div class="form-group">
+											<label>Status</label> <select class="form-control"
+												th:field="*{accountActive}">
+												<option th:value="NULL">Select</option>
+												<option th:value="true">Active</option>
+												<option th:value="false">Inactive</option>
+											</select>
+										</div>
+
+									</div>
+
+
+
+								</div>
+
+								<div class="form-group col-md-12 row">
+									<button class="btn btn-success">Submit</button>&nbsp;
+									<input type="button" class="btn btn-warning"
+										onclick="window.location.href='view-bank-account'" value="Cancel">
+								</div>
+							</form>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

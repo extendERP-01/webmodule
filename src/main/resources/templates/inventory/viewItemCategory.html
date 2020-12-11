@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	//Method for listing of all the Item Category Records
+
+	$(document).ready(function() {
+		$('#listAllItem').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-item-category-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'itmCatName'
+			}, {
+				'data' : 'itmCatDescription'
+			}, {
+				'data' : 'status'
+			}, {
+				'data' : 'action'
+			}
+
+			]
+		});
+	});
+
+	//Method For Searching Records In The List
+
+	function searchData() {
+		$('#listAllItem').DataTable().draw();
+
+	}
+
+	// Method For View Details In Model
+
+	function viewInModelData(index) {
+		$('#listOneItem').empty();
+		var id = window.atob(index);
+		$.ajax({
+			type : "POST",
+			url : "view-item-category-model",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					var itmCatActive = "";
+					if (response.body.itmCatActive) {
+						itmCatActive = "Active";
+					} else {
+						itmCatActive = "InActive";
+					}
+
+					table = '<tr><td>Item Name :</td>' + '<td align="left">'
+							+ response.body.itmCatName + '</td>'
+							+ '</tr><tr><td>Status:</td><td>' + itmCatActive
+							+ '</td></tr><tr><td> Description :</td>' + '<td>'
+							+ response.body.itmCatDescription + '</td></tr>';
+					$('#myModal').modal('show');
+					$('#listOneItem').append(table);
+				}
+			},
+			error : function(data) {
+			}
+		})
+
+	}
+
+	//Deleting the Item Category
+	
+	function deleteItemCategory(id){
+		swal.fire({
+			  title: "Are you sure want to Delete?",
+			  text: "Once Deleted,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'Delete',
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/inventory/delete-item-category?id="+ id,
+					    success: function(response) {
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Record Deleted Successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        	
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+		
+
+	}
+	
+
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="add-item-category">Add Item Category</a></li>
+					<li class="active"><span>View Item Category</span></li>
+				</ol>
+			</div>
+			<!-- <div class="card-title">
+				<h4>Listing of Item (1.5.2.3.2)</h4>
+			</div> -->
+			<div class="container-fluid">
+				
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-item-category">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Item Name</label>
+									<input class="form-control" type="text" placeholder="" name=""
+										id="param1">
+								</div>
+								<div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<button class="btn btn-info" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table class="table table-bordered" id="listAllItem">
+								<thead>
+									<tr>
+										<th>Item Name</th>
+										<th>Item Description</th>
+										<th>Item Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+				
+					</div>
+					</div>
+					</div>
+					<!-- Modal Start-->
+					<div id="myModal" class="modal fade" role="dialog">
+						<div class="modal-dialog">
+
+							<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title">View Details of Item  Category</h4>
+									<button type="button" class="close" data-dismiss="modal">
+										<i class="fa fa-close fa-2x"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<table width="100%" border="0" id="listOneItem">
+										
+										<tbody id="tModelBody"></tbody>
+									</table>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Modal End-->
+					<!-- /# row -->
+				</div>
+			</div>
+</html>

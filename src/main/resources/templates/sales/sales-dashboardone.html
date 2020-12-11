@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+$(document).ready(function(){
+	/* Highcharts.chart('Hybridgraph', {
+	    chart: {
+	        type: 'column'
+	    },
+	    title: {
+	        text: 'Monthly Average Rainfall'
+	    },
+	    subtitle: {
+	        text: 'Source: WorldClimate.com'
+	    },
+	    xAxis: {
+	        categories: [
+	            'Jan',
+	            'Feb',
+	            'Mar',
+	            'Apr',
+	            'May',
+	            'Jun',
+	            'Jul',
+	            'Aug',
+	            'Sep',
+	            'Oct',
+	            'Nov',
+	            'Dec'
+	        ],
+	        crosshair: true
+	    },
+	    yAxis: {
+	        min: 0,
+	        title: {
+	            text: 'Rainfall (mm)'
+	        }
+	    },
+	    tooltip: {
+	        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+	        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+	            '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+	        footerFormat: '</table>',
+	        shared: true,
+	        useHTML: true
+	    },
+	    plotOptions: {
+	        column: {
+	            pointPadding: 0.2,
+	            borderWidth: 0
+	        }
+	    },
+	    series: [{
+	        name: 'Tokyo',
+	        data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+	
+	    }, {
+	        name: 'New York',
+	        data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+	
+	    }, {
+	        name: 'London',
+	        data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+	
+	    }, {
+	        name: 'Berlin',
+	        data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+	
+	    }]
+	});
+	 */
+	Highcharts.chart('Hybridgraph1', {
+	    chart: {
+	        type: 'column'
+	    },
+	    title: {
+	        text: 'Monthly Average Rainfall'
+	    },
+	    subtitle: {
+	        text: 'Source: WorldClimate.com'
+	    },
+	    xAxis: {
+	        categories: [
+	            'Jan',
+	            'Feb',
+	            'Mar',
+	            'Apr',
+	            'May',
+	            'Jun',
+	            'Jul',
+	            'Aug',
+	            'Sep',
+	            'Oct',
+	            'Nov',
+	            'Dec'
+	        ],
+	        crosshair: true
+	    },
+	    yAxis: {
+	        min: 0,
+	        title: {
+	            text: 'Rainfall (mm)'
+	        }
+	    },
+	    tooltip: {
+	        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+	        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+	            '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+	        footerFormat: '</table>',
+	        shared: true,
+	        useHTML: true
+	    },
+	    plotOptions: {
+	        column: {
+	            pointPadding: 0.2,
+	            borderWidth: 0
+	        }
+	    },
+	    series: [{
+	        name: 'Tokyo',
+	        data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+	
+	    }, {
+	        name: 'New York',
+	        data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+	
+	    }, {
+	        name: 'London',
+	        data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+	
+	    }, {
+	        name: 'Berlin',
+	        data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+	
+	    }]
+	});
+	
+	Highcharts.chart('Hybridgraph2', {
+	    chart: {
+	        type: 'column'
+	    },
+	    title: {
+	        text: 'Monthly Average Growth'
+	    },
+	    subtitle: {
+	        text: 'Source: WorldClimate.com'
+	    },
+	    xAxis: {
+	        categories: [
+	            'Jan',
+	            'Feb',
+	            'Mar',
+	            'Apr',
+	            'May',
+	            'Jun',
+	            'Jul',
+	            'Aug',
+	            'Sep',
+	            'Oct',
+	            'Nov',
+	            'Dec'
+	        ],
+	        crosshair: true
+	    },
+	    yAxis: {
+	        min: 0,
+	        title: {
+	            text: 'Rainfall (mm)'
+	        }
+	    },
+	    tooltip: {
+	        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+	        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+	            '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+	        footerFormat: '</table>',
+	        shared: true,
+	        useHTML: true
+	    },
+	    plotOptions: {
+	        column: {
+	            pointPadding: 0.2,
+	            borderWidth: 0
+	        }
+	    },
+	    series: [{
+	        name: 'UP',
+	        data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+	
+	    }, {
+	        name: 'MP',
+	        data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+	
+	    }, {
+	        name: 'MH',
+	        data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+	
+	    }, {
+	        name: 'OD',
+	        data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+	
+	    }]
+	});
+	
+	Highcharts.chart('Hybridgraph3', {
+	    chart: {
+	        type: 'column'
+	    },
+	    title: {
+	        text: 'Monthly Transaction Made'
+	    },
+	    subtitle: {
+	        text: 'Source: WorldClimate.com'
+	    },
+	    xAxis: {
+	        categories: [
+	            'Jan',
+	            'Feb',
+	            'Mar',
+	            'Apr',
+	            'May',
+	            'Jun',
+	            'Jul',
+	            'Aug',
+	            'Sep',
+	            'Oct',
+	            'Nov',
+	            'Dec'
+	        ],
+	        crosshair: true
+	    },
+	    yAxis: {
+	        min: 0,
+	        title: {
+	            text: 'Rainfall (mm)'
+	        }
+	    },
+	    tooltip: {
+	        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+	        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+	            '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+	        footerFormat: '</table>',
+	        shared: true,
+	        useHTML: true
+	    },
+	    plotOptions: {
+	        column: {
+	            pointPadding: 0.2,
+	            borderWidth: 0
+	        }
+	    },
+	    series: [{
+	        name: 'SBI',
+	        data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+	
+	    }, {
+	        name: 'UBI',
+	        data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+	
+	    }, {
+	        name: 'ICICI',
+	        data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6, 52.4, 65.2, 59.3, 51.2]
+	
+	    }, {
+	        name: 'HDFC',
+	        data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4, 47.6, 39.1, 46.8, 51.1]
+	
+	    }]
+	});
+})
+
+	
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main"> 
+	        <div class="container-fluid">
+	           <div class="row">
+	                <div class="col-md-12">
+	                    <div class="row">
+	                        <div class="col-lg-3 col-xs-6">
+	                          <!-- small box -->
+	                          <div class="small-box bg-aqua">
+	                            <div class="inner">
+	                              <h3><span th:text="${salesdashboard.customerCount}">10</span></h3>
+	                              <p>Total Customer</p>
+	                            </div>
+	                            <div class="icon">
+	                              <i class="ion ion-bag"></i>
+	                            </div>
+	                            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+	                          </div>
+	                        </div>
+	                          <!-- ./col -->
+							<div class="col-lg-3 col-xs-6">
+								<!-- small box -->
+								<div class="small-box bg-deepgreen">
+									<div class="inner">
+										<h3><span th:text="${salesdashboard.quotationPending}">10</span></h3>
+										<p>Quotation Pending</p>
+									</div>
+									<div class="icon">
+										<i class="ion ion-pie-graph"></i>
+									</div>
+									<a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+								</div>
+							</div>
+	                        <!-- ./col -->
+	                        <div class="col-lg-3 col-xs-6">
+	                          <!-- small box -->
+	                          <div class="small-box bg-green">
+	                            <div class="inner">
+	                              <h3>₹ <span th:text="${salesdashboard.quotationCompleted}">10</span></h3>
+	
+	                              <p>Quotation Completed</p>
+	                            </div>
+	                            <div class="icon">
+	                              <i class="ion ion-stats-bars"></i>
+	                            </div>
+	                            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+	                          </div>
+	                        </div>
+	                       
+	                       <div class="col-lg-3 col-xs-6">
+								<!-- small box -->
+								<div class="small-box bg-deepgreen">
+									<div class="inner">
+										<h3>
+											<span th:text="${salesdashboard.saleInvPending}">10</span> 
+										</h3>
+										<p>Sale Invoice Pending</p>
+									</div>
+									<div class="icon">
+										<i class="ion ion-pie-graph"></i>
+									</div>
+									<a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+								</div>
+							</div> 
+	                        <div class="col-lg-3 col-xs-6">
+	                          <!-- small box -->
+	                          <div class="small-box bg-red">
+	                            <div class="inner">
+	                              <h3><span th:text="${salesdashboard.saleInvCompleted}">10</span></h3>
+	                              <p>Sale Invoice Completed</p>
+	                            </div>
+	                            <div class="icon">
+	                              <i class="ion ion-pie-graph"></i>
+	                            </div>
+	                            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+	                          </div>
+	                        </div>
+	                      
+							<div class="col-lg-3 col-xs-6">
+								<!-- small box -->
+								<div class="small-box bg-deepgreen">
+									<div class="inner">
+										<h3><!--  -->
+										<span  th:text="${#numbers.formatDecimal(salesdashboard.totalSale, 0,'COMMA',2,'POINT')}"><span>GST Inclusive</span></span> 
+										</h3>
+										<p>Total Sales</p>
+									</div>
+									<div class="icon">
+										<i class="ion ion-pie-graph"></i>
+									</div>
+									<a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+								</div>
+							</div>
+						</div>
+						
+						<div class="row">
+							<div class="col-md-3 dashboardbox" ><!-- dashboardbox -->
+								<div class="">
+									<h4 class="card-title">Top 5 Selling Items</h4>
+								</div>
+								<table class="table responsive">
+									<thead>
+										<tr>
+											<th class="borderThTd" align="center" width="140" style="border: 1px solid black;">Item Name</th>
+											<th class="borderThTd" style="border: 1px solid black;">Item Value<span style="font-size: 10px;"> (&#8377;)GST Excluded</span></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="data,i: ${topitems}">
+											<td class="borderThTd" style="color: black;" th:text="${data.itemName}"></td>
+											<td class="alignTd" th:text="${#numbers.formatDecimal(data.totalSale, 0,'COMMA',2,'POINT')}" ></td>
+										</tr>
+									</tbody>	
+								</table>
+							</div>
+							<div class="col-md-6 dashboardbox">
+								<div class="">
+									<h4 class="card-title">Settlement Summary</h4></div>
+									<table class="table responsive" >
+									<thead>
+										<tr >
+											<th class="borderThTd" style="border: 1px solid black;">Description</th>
+											<th class="borderThTd" style="border: 1px solid black;">Count</th>
+											<th class="borderThTd" style="border: 1px solid black;">Void</th>
+											<th class="borderThTd" style="border: 1px solid black;">Received</th>
+											<th class="borderThTd" style="border: 1px solid black;">Total</th>
+										</tr> 
+									</thead>
+									<tbody>
+										<tr><td class="borderThTd">Total table Reserved</td><td class="alignTd">1</td><td class="alignTd">2</td><td class="alignTd">3</td><td class="alignTd">4</td></tr>
+										<tr><td class="borderThTd">Total Pax Count</td><td class="alignTd">1</td><td class="alignTd">2</td><td class="alignTd">3</td><td class="alignTd">4</td></tr>
+										<tr><td class="borderThTd">Total Running</td><td class="alignTd">0</td><td class="alignTd">2</td><td class="alignTd">3</td><td class="alignTd">4</td></tr>
+										<tr><td class="borderThTd">Total Reserved</td><td class="alignTd">0</td><td class="alignTd">2</td><td class="alignTd">3</td><td class="alignTd">4</td></tr>
+										<tr><td class="borderThTd">Total Reserved</td><td class="alignTd">0</td><td class="alignTd">2</td><td class="alignTd">3</td><td class="alignTd">4</td></tr>
+									</tbody>	
+								</table>
+							</div>
+							<div class="col-md-3 dashboardbox" >
+								<div class="">
+									<h4 class="card-title">Top 5 Sale Invoices</h4>
+									<table class="table responsive">
+										<thead>
+											<tr>
+												<th class="borderThTd" width="140" style="border: 1px solid black;">Sale Invoice</th>
+												<th class="alignTd" style="border: 1px solid black;">Total Amount<span style="font-size: 10px"> (&#8377;)GST Excluded</span></th><!-- &#8377; -->
+											</tr> 
+										</thead>
+										<tbody>
+											<tr th:each="data,i:${saleInv}">
+												<td class="borderThTd" width="auto"><a th:href="${'/download/view-sale-invoice-one-pdf?id=' + data.encodedInv}" target="_blank" ><span th:text="${data.itemName}"></span></a></td>
+												<td class="alignTd" th:text="${#numbers.formatDecimal(data.totalSale, 0,'COMMA',2,'POINT')}"> </td>
+											</tr>
+										</tbody>	
+									</table>
+								</div>
+							</div>
+						</div> 
+						<div class="row">
+							<div class="col-md-12">
+								<div class="dashboardbox">
+									<!-- <h4 class="card-title" align="center">Order Report</h4>
+									<div id="Hybridgraph" style="width: 98%; height: 500px"></div> -->
+								</div>
+							</div>
+						</div>
+						
+						<div id="demo" class="carousel slide" data-ride="carousel">
+							<!-- Indicators -->
+							<ul class="carousel-indicators">
+								<li data-target="#demo" data-slide-to="0" class="active"></li>
+								<li data-target="#demo" data-slide-to="1"></li>
+								<li data-target="#demo" data-slide-to="2"></li>
+							</ul>
+						
+							<!-- The slideshow -->
+							<div class="carousel-inner">
+								<div class="carousel-item active">
+									<h4 class="card-title" align="center">Order Report</h4>
+									<div id="Hybridgraph1" style=" height: 500px"></div>
+								</div>
+								<div class="carousel-item">
+									<h4 class="card-title" align="center">Order Report</h4>
+									<div id="Hybridgraph2" style=" height: 500px"></div>
+								</div>
+								<div class="carousel-item">
+									<h4 class="card-title" align="center">Order Report</h4>
+									<div id="Hybridgraph3" style=" height: 500px"></div>
+								</div>
+							</div>
+							
+							<a class="carousel-control-prev" href="#demo" role="button" data-slide="prev">
+								<span class="carousel-control-prev-icon"></span>
+							</a>
+							<a class="carousel-control-next" href="#demo" role="button" data-slide="next">
+        						<span class="carousel-control-next-icon"></span>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

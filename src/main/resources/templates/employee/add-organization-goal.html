@@ -1,0 +1,435 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.pagetitle {
+	font-size: 24px;
+	color: #266ef2;
+	padding: 10px 0px;
+	font-weight: bold;
+}
+
+.subtitle {
+	font-size: 14px;
+	color: #333;
+	padding: 10px 0px;
+}
+
+.prioritybox {
+	height: 30px;
+	width: 30px;
+	border-radius: 15px;
+	border: 1px solid #ccc;
+	text-align: center;
+}
+
+.summerybox {
+	border: 1px solid #ccc;
+	color: #333;
+	padding: 8px;
+	background: #f5f5f5;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover
+	{
+	color: #555;
+	cursor: default;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-bottom-color: transparent;
+}
+
+.mrt {
+	margin: 15px 0px;
+}
+
+.nav>li>a {
+	position: relative;
+	display: block;
+	padding: 10px 44px;
+}
+
+.nav-tabs {
+	background: #c1c5c6;
+}
+
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+	color: #fff;
+	background-color: #fff;
+	border-color: #ddd #ddd #fff;
+	background: #6f6f70;
+}
+
+.nav-tabs>li>a {
+	margin-right: 2px;
+	line-height: 1.42857143;
+	border: 1px solid transparent;
+	border-radius: 4px 4px 0 0;
+}
+
+.tab-pane h5 {
+	padding: 15px 0px;
+}
+</style>
+<script type="text/javascript">
+	$(document)
+			.ready(
+					function() {
+						activaTab('menu0');
+
+						$("#fromDate").datetimepicker({
+							format : 'd-m-Y',
+							closeOnDateSelect : true,
+							timepicker : false,
+						});
+
+						$("#toDate").datetimepicker({
+							format : 'd-m-Y',
+							closeOnDateSelect : true,
+							timepicker : false,
+						});
+
+						//for minus
+						var lengthOfTableRow = $("#tbodyData").children('tr').length;
+						$('.tbll')
+								.on(
+										'click',
+										'.rmv',
+										function() {
+											$(this).closest('tr').remove();
+
+											$("#myTable tbody tr:last").find(
+													'td:last').html('');
+											var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+											var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+											if ($("#tbodyData").children('tr').length > 1) {
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(add);
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(remove);
+											} else {
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(add);
+											}
+
+										});
+					});
+
+	function activaTab(tab) {
+		$('.nav-tabs a[href="#' + tab + '"]').tab('show');
+	};
+
+	function checkEmpty() {
+
+		addMore();
+	}
+
+	//ADD MORE
+	function addMore() {
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+		$("#myTable tbody tr td:last").html("");
+		var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+
+		//$("#myTable tbody tr:last").find(".NameCls").append(new Option("--Select--","")); 
+		$("#myTable tbody tr:last").find(".empCls1").val("");
+		$("#myTable tbody tr:last").find(".empNameCls").val("");
+		$("#myTable tbody tr:last").find(".leaveCls").val("");
+		$("#myTable tbody tr:last").find(".leaveStatusCls").val("");
+
+		var editTr = 0;
+
+		if (lengthOfTableRow > editTr) {
+			$("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last')
+					.append(removeMore);
+		}
+
+		$("#myTable tbody tr:last").find(".empCls1").empty();
+		$("#myTable tbody tr:last").find(".empCls1").val("");
+		$("#myTable tbody tr:last").find(".empCls").empty();
+		$("#myTable tbody tr:last").find(".empCls").val("");
+
+		$("#myTable > tbody > tr").each(function(i) {
+			var textInput = $(this).find('input');
+			var divInput = $(this).find('div');
+
+			textInput.eq(0).attr('id', "emp_" + i);
+			textInput.eq(1).attr('id', "empId_" + i);
+			textInput.eq(2).attr('id', "empName_" + i);
+			/* textInput.eq(3).attr('id',"date_"+i); */
+			textInput.eq(3).attr('id', "leav_" + i);
+			textInput.eq(4).attr('id', "apvStatus_" + i);
+
+			divInput.eq(0).attr('id', "suggesstion-box_" + i);
+
+			$(".fromDate").datetimepicker({
+				format : 'd-m-Y',
+				closeOnDateSelect : true,
+				timepicker : false,
+			});
+
+		})
+
+	}
+
+	//ADD MORE
+	function addMore1() {
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable1 tbody tr:last").find('td:last').html('');
+		$("#myTable1 tbody").append($("#myTable tbody tr:first").clone());
+
+		$("#myTable1 tbody tr td:last").html("");
+		var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		$("#myTable1 tbody tr:last").find('td:last').append(addMore);
+		$("#myTable1 tbody tr:last").find('td:last').append(removeMore);
+
+		//$("#myTable tbody tr:last").find(".NameCls").append(new Option("--Select--","")); 
+		$("#myTable1 tbody tr:last").find(".empCls1").val("");
+		$("#myTable1 tbody tr:last").find(".empNameCls").val("");
+		$("#myTable1 tbody tr:last").find(".check").val("");
+		$("#myTable1 tbody tr:last").find(".leaveStatusCls").val("");
+
+		var editTr = 0;
+
+		if (lengthOfTableRow > editTr) {
+			$("#myTable1 tbody tr").eq(lengthOfTableRow - 1).find('td:last')
+					.append(removeMore);
+		}
+
+		$("#myTable1 tbody tr:last").find(".empCls1").empty();
+		$("#myTable1 tbody tr:last").find(".empCls1").val("");
+		$("#myTable1 tbody tr:last").find(".empCls").empty();
+		$("#myTable1 tbody tr:last").find(".empCls").val("");
+
+		$("#myTable1 > tbody > tr").each(function(i) {
+			var textInput = $(this).find('input');
+			var divInput = $(this).find('div');
+			var checkbox = $(this).find('		');
+
+			textInput.eq(0).attr('id', "emp_" + i);
+			checkbox.eq(0).attr('id', "empId_" + i);
+			textInput.eq(2).attr('id', "empName_" + i);
+			/* textInput.eq(3).attr('id',"date_"+i); */
+			textInput.eq(3).attr('id', "leav_" + i);
+			textInput.eq(4).attr('id', "apvStatus_" + i);
+
+		})
+
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+
+		<div class="main mrt_20">
+			<!--Alert Box-->
+			<div class="alert alert-danger alert-dismissible"
+				th:if="${message != null}">
+				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<span th:text="${message}"></span>
+			</div>
+			<!--Alert Box-->
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class="active"><span>Set Organization Goal</span></li>
+					<!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Set Organization Goal</h4>
+				
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<div class="col-lg-4">
+									<div class="form-group">
+											<label>Level</label> <select
+												class="form-control levelName" id="levelId">
+												<option value="">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${LevelList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==certiAssign[0].levelId}'></option>
+												<option th:unless="${Edit}" th:each="c:${LevelList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+
+											</select>
+										</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="form-group">
+										<label>From</label> <input type="text" id="fromDate" readonly
+											class="form-control">
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<div class="form-group">
+										<label>To</label> <input type="text" id="toDate" readonly
+											class="form-control">
+									</div>
+								</div>
+								<div class="col-md-12">
+
+									<ul class="nav nav-tabs">
+										<li class="nav-item"><a class="nav-link active"
+											data-toggle="tab" href="#menu0">Key Responsibility</a></li>
+
+										<li class="nav-item"><a data-toggle="tab" href="#menu1"
+											class="nav-link">Performance Factor</a></li>
+
+									</ul>
+
+									<div class="tab-content">
+										<div id="menu0" class="container tab-pane active">
+											<div class="col-lg-12">
+												<!-- id="table-data" -->
+												<!-- 	<label><h6>Tax Slabs Based On Selected Deduction
+										Cycle</h6></label> -->
+												<table class="tbll" id="myTable" width="100%" border="0"
+													cellspacing="2" cellpadding="5">
+													<thead>
+														<tr>
+															<th>KRA</th>
+															<th>Expected Output</th>
+															<th>Priority</th>
+															<th width="120">Action</th>
+														</tr>
+													</thead>
+													<tbody id="tbodyData">
+
+														<!-- FOR EDIT	 -->
+														<tr class="tr_clone" th:if="${id}"
+															th:each="a,iter:${gradeSalaryMasterList}">
+															<td>
+																<button th:if="${iter.size == iter.index+1}"
+																	type="button" class="btn btn-primary tr_clone_add"
+																	name="add" onclick="checkEmpty();">
+																	<span class="ti-plus"></span>
+																</button>
+																<button th:if="${iter.size != 1}" type="button"
+																	class="btn btn-warning rmv" name="Remove">
+																	<span class="ti-minus"></span>
+																</button>
+															</td>
+														</tr>
+
+														<tr class="tr_clone" th:unless="${id}">
+														
+														<td width ="300"><textarea type="text" class="form-control kraCls"
+														id="inputKra_" /></textarea></td>
+														
+														<td width ="300"><textarea type="text" class="form-control expOutputCls"
+														id="inputKra_" /></textarea></td>
+														
+														<td width ="300"><textarea type="text" class="form-control kraCls"
+														id="inputKra_" /></textarea></td>
+														
+
+															<!-- <td width="300"><input type="text" id="emp_0"
+																class="form-control empCls"> <textarea
+																	type="text" id="empId_0" class="form-control empCls1" /></textarea>
+
+																<div id="suggesstion-box_0"></div></td> -->
+															
+															<td><button type="button"
+																	class="btn btn-primary tr_clone_add" name="add"
+																	onclick="checkEmpty();">
+																	<span class="ti-plus"></span>
+																</button>&nbsp;</td>
+														</tr>
+													</tbody>
+												</table>
+												<button type="submit" class="btn btn-success">submit</button>
+												<button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+											</div>
+
+
+										</div>
+
+										<div id="menu1" class="container tab-pane fade">
+
+
+											<div class="row">
+												<div class="col-md-12">
+													<table class="tbll" id="myTable1" width="100%" border="0"
+														cellspacing="2" cellpadding="5">
+														<thead>
+															<tr>
+																<th>Performance Factor</th>
+																<th>Applicable/Not Applicable</th>
+																<th>Priority</th>
+																<th width="120">Action</th>
+															</tr>
+														</thead>
+														<tbody>
+
+															<tr>
+																<td><textarea id="" name="" rows="4" cols="50"
+																		class="form-control">Good Communication Skill</textarea></td>
+																<td><input type="checkbox" class="check"></td>
+																<td><select name="" id="" class="form-control">
+																		<option value="">1</option>
+																		<option value="">2</option>
+																		<option value="">3</option>
+																</select></td>
+																<td><button type="button"
+																		class="btn btn-warning rmv" name="Remove">
+																		<span class="ti-minus"></span>
+																	</button>&nbsp;</td>
+															</tr>
+															<tr>
+																<td><textarea id="" name="" rows="4" cols="50"
+																		class="form-control">Leadership Quality</textarea></td>
+																<td><input type="checkbox" class="check"></td>
+																<td><select name="" id="" class="form-control">
+																		<option value="">1</option>
+																		<option value="">2</option>
+																		<option value="">3</option>
+																</select></td>
+																<td><button type="button"
+																		class="btn btn-primary tr_clone_add" name="add">
+																		<span class="ti-plus"></span>
+																	</button>&nbsp;
+																	<button type="button" class="btn btn-warning rmv"
+																		name="Remove">
+																		<span class="ti-minus"></span>
+																	</button></td>
+															</tr>
+														</tbody>
+													</table>
+													<button type="submit" class="btn btn-success">submit</button>
+													<button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+												</div>
+											</div>
+
+											<div></div>
+										</div>
+									</div>
+									<div style="clear: both;"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 325px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 170px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.money {
+	text-align: right;
+}
+
+.first-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 100px;
+}
+
+.second-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 130px;
+}
+
+.text-heading {
+	background-color: #d1e3f5;
+	padding: 1px;
+	text-align: center;
+	margin-bottom: 14px;
+}
+
+.text-heading h4 {
+	font-size: 16px;
+	font-weight: 600;
+	color: #2c61e0;
+	padding-top: 7px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	border: 1px solid #FFF;
+	text-align: center;
+	font-weight: bold;
+}
+
+td input {
+	width: 70px;
+}
+
+.wmd-view-topscroll, .wmd-view {
+	overflow-x: scroll;
+	overflow-y: hidden;
+	width: 1045px;
+}
+
+.wmd-view-topscroll {
+	height: 20px;
+}
+/*.wmd-view { height: 100vh; }*/
+.scroll-div1 {
+	width: 3000px;
+	overflow-x: scroll;
+	overflow-y: hidden;
+	height: 20px;
+}
+
+.icon-search {
+	position: relative;
+	bottom: 28px;
+	left: 307px;
+	font-size: 16px;
+}
+
+.table td, .table th {
+	padding: 3px !important;
+}
+</style>
+<script type="text/javascript">
+         $(function(){
+    $(".wmd-view-topscroll").scroll(function(){
+        $(".wmd-view")
+            .scrollLeft($(".wmd-view-topscroll").scrollLeft());
+    });
+    $(".wmd-view").scroll(function(){
+        $(".wmd-view-topscroll")
+            .scrollLeft($(".wmd-view").scrollLeft());
+    });
+});
+
+
+      </script>
+<script>
+	$(document).ready(function() {
+		
+		
+	 
+		$("#date").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		});
+		var fullDate = new Date();
+		var twoDigitMonth=((fullDate.getMonth()+1)>=10)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+		var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate()); 
+		var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear(); 
+		$("#date").val(currentDate);
+		
+		//submit button function through ajax 
+		getAttDetails();
+		
+		$("#submit").click(function(){
+			
+			var dataset = [];
+			$("#tblid > tr").each(function(){
+				assign = {};   
+				assign['date']		=	$(this).find(".date").val();
+				assign['employeeId']		=	$(this).find(".employeeId").val();
+				assign['employeeName']		=	$(this).find(".employeeName").val();
+				assign['bioMetricId']		=	$(this).find(".bioMetricId").val();
+				assign['inTime']   =	    $(this).find(".inTime").val();
+				assign['outTime']     =   $(this).find(".outTime").val();
+				 
+				dataset.push(assign);
+			 
+			});//table tbody tr loop ends  
+			console.log(dataset);
+				submitAddAttendance(dataset);
+			 							
+				
+		})
+		
+
+	}) 
+
+
+	function submitAddAttendance(dataset){
+	console.log("ther data are "+dataset)
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "save-daily-attendance",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){ 
+					console.log(response)
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/employee/daily-attendance-excel-upload-view" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+</script>
+<script type="text/javascript">
+	//For Getting The purchase OrderList in table
+	function getAttDetails() {
+		$('#tblid').empty();
+		$('#tbdy').empty();
+	  
+		var date = $("#date").val();
+		
+		if (date) { 
+			$.ajax({
+						type : 'POST',
+						url : 'daily-attendance-updated-view-details?date=' + date,
+						contentType : 'application/json',
+						success : function(response) {
+							if (response.message == "success") {
+                                   if(response.body != null){ 
+                                	   for (var i = 0; i < response.body.length; i++) {
+                                		   var table =  '<tr> <td bgcolor="#F5F5F5" ><input type="text" readonly class="form-control date" value="'+response.body[i].date+'" id="date'+i+'"> </td> '
+                                			+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="form-control employeeId" value='+response.body[i].employeeId+' id="employeeId'+i+'"> </td>  '
+ 											+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="form-control employeeName" value="'+response.body[i].employeeName+'" id="employeeName'+i+'"></td> '
+ 								  			+ '<td bgcolor="#F5F5F5" ><input type="text" readonly class="form-control bioMetricId" value="'+response.body[i].bioMetricId+'" id="bioMetricId'+i+'"></td>  '
+ 											+ '<td bgcolor="#F5F5F5" ><input type="text" class="form-control inTime" value='+response.body[i].inTime+' id="inTime'+i+'"></td>  '
+ 											+ '<td bgcolor="#F5F5F5" ><input type="text" class="form-control outTime" value='+response.body[i].outTime+' id="outTime'+i+'"></td>'
+ 											+  '</tr> ';  
+       									$('#tblid').append(table);
+       								}
+                                   }else{
+                                	  
+                           			var noData = '<tr> <td colspan="6"><div class="norecord">No Record Found</div></td> </tr>';
+                           			$('#tblid').append(noData);
+                                   }
+								
+							} else { 
+								var noData = '<tr> <td colspan="6"><div class="norecord">No Record Found</div></td> </tr>';
+								$('#tblid').append(noData);
+							}
+						},
+						error : function(e) {
+							console.log("error");
+						}
+					});
+		} else {
+			
+			var noData = '<tr> <td colspan="6"><div class="norecord">No Record Found</div></td> </tr>';
+			$('#tblid').append(noData);
+			 
+			 
+		}
+	}
+	
+	function searchByEmpName(){
+		var employeeName = $("#employeeName").val();
+		
+		$('#tblid').empty();
+		$('#tbdy').empty();
+	 
+		var fromDate = $("#fromDate").val();
+		var date = $("#date").val();
+		
+		if (date) { 
+			$.ajax({
+						type : 'POST',
+						url : 'daily-attendance-updated-view-details?date=' + date  ,
+						contentType : 'application/json',
+						success : function(response) {
+							if (response.message == "success") {
+                                   if(response.body != null){ 
+                                	   for (var i = 0; i < response.body.length; i++) {
+                                		   var table = '<tr>  <td bgcolor="#F5F5F5" ><input type="text" class="form-control employeeId" value='+response.body[i].employeeId+' id="employeeId'+i+'"> </td>  '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text"  class="form-control employeeName" value="'+response.body[i].employeeName+'" id="employeeName'+i+'"></td> '
+  								    		+ '<td bgcolor="#F5F5F5" ><input type="text" class="form-control bioMetricId" value='+response.body[i].bioMetricId+' id="bioMetricId'+i+'"></td>  '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" class="form-control inTime" value='+response.body[i].inTime+' id="inTime'+i+'"></td>  '
+  											+ '<td bgcolor="#F5F5F5" ><input type="text" class="form-control outTime" value='+response.body[i].leavDays+' id="outTime'+i+'">  </td> ' 	+ '<td bgcolor="#F5F5F5" ><input type="text"  style="text-align:right" class="empEpf" value='+response.body[i].empEpf+' id="empEpf'+i+'"></td>'
+  											 + '</tr> '; 
+       									$('#tblid').append(table);
+       								}
+                                   }else{
+                                	  
+                           			var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+                           			$('#tblid').append(noData);
+                                   }
+								
+							} else { 
+								var noData = '<tr> <td colspan="6"><div class="norecord">No Record Found</div></td> </tr>';
+								$('#tblid').append(noData);
+							}
+						},
+						error : function(e) {
+							console.log("error");
+						}
+					});
+		} else {
+			
+			var noData = '<tr> <td colspan="6"><div class="norecord">No Record Found</div></td> </tr>';
+			$('#tblid').append(noData);
+			 
+			 
+		}
+	}
+</script>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Updated Daily Attendance
+							Details</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Updated Daily Attendance Details</h4>
+				<div class="topbtnright" align="right">
+					<div class="form-group">
+						<button type="button" id="submit" class="btn btn-success">Submit</button>
+						<input type="reset" value="Cancel" class="btn btn-warning"
+							onclick="window.location.reload();" />
+					</div>
+				</div>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form>
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Date</label> <input type="text" readonly id="date"
+												class="form-control" th:value="${date}"
+												onchange="getAttDetails()">
+										</div>
+									</div>
+									<!-- <div class="col-md-4">
+										<div class="form-group">
+											<label>Employee ID / Employee Name</label> <input type="text"
+												id="employeeName" class="form-control"
+												onkeyUp="searchByEmpName()"><span
+												class="icon-search"><i class="fa fa-search"></i></span>
+										</div>
+									</div> -->
+
+								</div>
+								<!-- <div class="row">
+									<div class="col-md-4"></div>
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>Employee Name</label> <input type="text"
+												id="employeeName" class="form-control"
+												onkeyUp="searchByEmpName()"><span
+												class="icon-search"><i class="fa fa-search"></i></span>
+										</div>
+									</div>
+
+								</div> -->
+								<div>
+									<Strong>Updated Attendance Details</Strong>
+									<div class="wmd-view-topscroll">
+										<div class="scroll-div1"></div>
+									</div>
+									<div class="wmd-view">
+										<div class="scroll-div2">
+											<table class="table" id="myTable1" width="100%" border="0"
+												cellspacing="1" cellpadding="0">
+
+												<tr>
+													<th class="tableheader" align="center">Date</th>
+													<th class="tableheader" align="center">Employee Id</th>
+													<th class="tableheader" align="center">Employee Name</th>
+
+													<th class="tableheader" align="center">Bio_metric Id</th>
+													<th class="tableheader" align="center">In Time</th>
+													<th class="tableheader" align="center">Out Time</th>
+
+
+												</tr>
+												<tbody id="tblid"></tbody>
+
+											</table>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12"></div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

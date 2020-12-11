@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-employee-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'employeeNo'
+			}, {
+				'data' : 'employeeFname'
+			}, {
+				'data' : 'employeeLname'
+			}, {
+				'data' : 'employeeGender'
+			}, {
+				'data' : 'employeeMobilePhoneNo'
+			}, {
+				'data' : 'employeeDepartment'
+			}, {
+				'data' : 'statusName'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+
+	function viewInModel() {
+		$('#myModal').modal('show');
+	}
+	function viewInModel1() {
+		$('#myModal1').modal('show');
+	}
+</script>
+<style>
+.viewRed {
+	color: red;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/employee/add-employee}">Add Appraisal
+							Goals</a></li>
+					<li class="active"><span>View Appraisal Goals </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Appraisal Goals</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-appraisal-goals">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Role</label> <input id="param1" class="form-control"
+									type="text" placeholder="" name="" onkeyup="searchData()">
+							</div>
+
+							<!-- <div class="col-md-2">
+								<label>Employee Name</label> <input id="param2"
+									class="form-control" type="text" placeholder="" name=""
+									onkeyup="searchData()">
+							</div> -->
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblTheme1" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Employee Name</th>
+									<th>Role</th>
+									<th>From Date</th>
+									<th>To Date</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>DIPTI RANJAN JHUJARSINGH</td>
+									<td>Mechanic</td>
+									<td>01-01-2020</td>
+									<td>31-12-2020</td>
+									<td><a title='Edit' href='apprisal-approval-by-manager-edit'><i
+											class='fa fa-edit edit' style="font-size: 24px"></i></a> &nbsp;</td>
+								</tr>
+								<!-- <tr>
+									<td>ABHAYA KUMAR NAYAK</td>
+									<td>Driver</td>
+									<td>01-01-2020</td>
+									<td>31-12-2020</td>
+									<td><a title='Edit' href='add-appraisal-goals?id=2'><i
+											class='fa fa-edit edit' style="font-size: 24px"></i></a> &nbsp;</td>
+								</tr> -->
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-md">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Appraisal Goal Details</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table id="table1">
+
+							<tr>
+								<td><b>Role :</b></td>
+								<td align="left">Staff</td>
+							</tr>
+							<tr>
+								<td><b>From Date :</b></td>
+								<td align="left">01-01-2020</td>
+							</tr>
+							<tr>
+								<td><b>To Date :</b></td>
+								<td align="left">31-12-2020</td>
+							</tr>
+							<tr>
+								<th><b>SL.No</b></th>
+								<th><b>Goals</b></th>
+								<th><b>Key Measurement Area</b></th>
+								<th><b>weighage</b></th>
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Creativity</td>
+								<td>1.have desire to create new things</td>
+								<td>20</td>
+							</tr>
+							<tr>
+								<td>2</td>
+								<td>punctual</td>
+								<td>1.have a scence of time</td>
+								<td>10</td>
+							</tr>
+
+							<tr>
+								<td>3</td>
+								<td>sincerity</td>
+								<td>1.be sincer enough</td>
+								<td>30</td>
+							</tr>
+						</table>
+					</div>
+					<div class="modal-footer">
+
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-md">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Appraisal Goal Details</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table id="table1">
+
+							<tr>
+								<td><b>Role :</b></td>
+								<td align="left">Supervisor</td>
+							</tr>
+							<tr>
+								<td><b>From Date :</b></td>
+								<td align="left">01-01-2020</td>
+							</tr>
+							<tr>
+								<td><b>To Date :</b></td>
+								<td align="left">31-12-2020</td>
+							</tr>
+							<tr>
+								<th><b>SL.No</b></th>
+								<th><b>Goals</b></th>
+								<th><b>Key Measurement Area</b></th>
+								<th><b>weighage</b></th>
+							</tr>
+							<tr>
+								<td>1</td>
+								<td>Creativity</td>
+								<td>1.have desire to create new things</td>
+								<td>20</td>
+							</tr>
+							<tr>
+								<td>2</td>
+								<td>LeaderShip</td>
+								<td>1.have a strong leadership power</td>
+								<td>40</td>
+							</tr>
+							<tr>
+								<td>2</td>
+								<td>Decision Making</td>
+								<td>1.Good analysis and decision making ability</td>
+								<td>40</td>
+							</tr>
+							<tr>
+								<td>3</td>
+								<td>punctual</td>
+								<td>1.have a scence of time</td>
+								<td>10</td>
+							</tr>
+
+							<tr>
+								<td>4</td>
+								<td>sincerity</td>
+								<td>1.be sincer enough</td>
+								<td>30</td>
+							</tr>
+						</table>
+					</div>
+					<div class="modal-footer">
+
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+</html>

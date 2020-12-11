@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 490px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 160px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script>
+
+function saleOrderNoAutoComplete() {
+  var storeId = $("#storeId").val()
+	$.ajax({
+		type : "GET",
+	 	url : "add-delivery-challan-AutocompleteList?id="+$("#saleOrderNo").val()+"&storeId=" +storeId,
+	 	dataType : 'json',
+	 	contentType : 'application/json', 
+	    success : function(response) {
+	    	if (response.message == "success") {
+				if(response.body.length!=0)	{
+	  				$("#saleOrderNo").css("background","#FFF");
+	  				var content = '<ul id="autocomplete-list">';
+	  				for (var i = 0; i < response.body.length; i++) {
+	  					content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+	  				} 
+	  				content += '</ul>';
+	 				$("#suggesstion-box").show();
+	 				$("#suggesstion-box").html(content);
+
+	 			 } else { 
+					$("#saleOrderNo").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+	  		}
+	 	},
+		error : function(data) {
+		 	console.log(data);
+	  	}
+	})
+}
+	  	  
+function selectAutocompleteValue(key,name) {
+	if (key) { 
+		$("#saleOrderNo").val(key);
+		$("#saleOrderNo").attr('data-procat', key); 
+		$("#suggesstion-box").hide();
+		/* $("#saleOrderNo").prop("disabled", true); */
+		selectCustomer(key);
+		salesDetails(key);
+		 
+	} else {  
+		$("#saleOrderNo").val("");
+		$("#saleOrderNo").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+}
+
+function selectCustomer(key){
+	var keyId = key;
+	 
+	if(keyId !=""){
+		$("#customerId").val('');
+		$("#customerName").val(''); 
+	 	$.ajax({
+			type 		:	"POST",
+			 url 		:	"add-delivery-challan-getCustomer", 
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	JSON.stringify(keyId),
+			success 	: 	function(response){
+				var items = response.body;
+				if(response.message=="success"){
+					if(items.length>0){
+						for(var i=0;i<items.length;i++){
+							var option	= i.toString();
+							option		= new Option(items[i].name,items[i].key)
+							$(option).html(items[i].name);
+							$("#customerId").val(items[0].key);	
+							$("#customerName").val(items[0].name);	
+							autoSelectDeliveryTo(items[0].key);
+						}
+						setGSTType(items[0].gstType);
+					}
+				} else {
+					swal("Data Not Found.");
+					setGSTType(false);
+				}
+			},
+			error : function(data) {
+				swal(data);
+				setGSTType(false);
+			}
+		})
+	} else {
+		setGSTType(false);
+	}
+}
+
+function setGSTType(gstType) {
+	if(gstType) {
+		document.getElementById("taxC").checked = true;
+		ShowHideTrC();
+	} else {
+		document.getElementById("taxS").checked = true;
+		ShowHideTrS();
+	}
+}
+
+// get delivery from data
+function autoSelectDeliveryFrom(){
+		var storeId = $("#storeId").val(); 
+		 $("#fromPlace").val(''); 
+	 	$.ajax({
+			type 		:	"POST",
+			 url 		:	"add-delivery-challan-get-delivery-from", 
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	JSON.stringify(storeId),
+			success 	: 	function(response){ 
+				if(response.message=="success"){ 
+					 $("#fromPlace").val(response.body.name)
+				} else {
+					swal("Data Not Found.");
+				}
+			},
+			error : function(data) {
+				swal(data);
+			}
+		})
+	 
+}
+
+
+//get delivery to data
+function autoSelectDeliveryTo(key){ 
+	
+	 	$.ajax({
+			type 		:	"POST",
+			 url 		:	"add-delivery-challan-get-delivery-to", 
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	JSON.stringify(key),
+			success 	: 	function(response){ 
+				if(response.message=="success"){
+					
+				   $("#toPlace").val(response.body.name);	
+					 
+				} else {
+					swal("Please Try Again");
+				}
+			},
+			error : function(data) {
+				swal(data);
+			}
+		})
+	 
+}
+
+//ADD MORE FUNCTION
+function addMore(){
+	
+	var itemNameValid = true;
+	$(".ItemName").each(function(){
+		var current_id = $(this).attr("id");
+		if (!blankValidation(current_id,"TextField" ,"Please Enter Item Name")){
+			itemNameValid = false;
+			return false;
+		}
+	});
+	
+	var unitPriceValid = true;
+	if(itemNameValid ){
+		$('.unitPrice').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Unit Price")){
+				unitPriceValid = false;
+				return false;
+			}
+		});
+	}
+	
+	var quantityValid = true;
+	if(itemNameValid  && unitPriceValid){
+		$('.quantity').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+				quantityValid = false;
+				return false;
+			}
+		});
+	}
+	 
+	if(itemNameValid && unitPriceValid && quantityValid ){
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+		
+		$("#myTable tbody tr td:last").html("");
+		var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+		
+		var editTr = 0;
+		
+		if(lengthOfTableRow>editTr){
+			$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+		}
+		
+		$("#myTable tbody tr:last").find(".ItemCat").val(""); 
+		$("#myTable tbody tr:last").find(".ItemSubCat").val(""); 
+		$("#myTable tbody tr:last").find(".ItemId").val(""); 
+		$("#myTable tbody tr:last").find(".ItemName").val(""); 
+		$("#myTable tbody tr:last").find(".stockQuantity").val("");
+		$("#myTable tbody tr:last").find(".deliverdItemNo").val("");
+		$("#myTable tbody tr:last").find(".maxQuantity").val("");
+		$("#myTable tbody tr:last").find(".gstRate").val("");
+		$("#myTable tbody tr:last").find(".unitPrice").val("");
+		$("#myTable tbody tr:last").find(".quantity").val(""); 
+		$("#myTable tbody tr:last").find(".discount").val(""); 
+		$("#myTable tbody tr:last").find(".lineTotal").html("0.00");
+		
+		
+		$("#myTable > tbody > tr").each(function(i){
+			$(this).attr('id', "tr_" + i);
+			var textInput 	= $(this).find('input') ;
+			var labelInput = $(this).find('label');
+			var selectInput = $(this).find('select');
+			var divInput = $(this).find('div');
+		
+			textInput.eq(0).attr('id',"menuItemCat_"+i); 
+			textInput.eq(1).attr('id',"menuItemSubCat_"+i); 
+			textInput.eq(2).attr('id',"menuItemId_"+i); 
+			textInput.eq(3).attr('id',"menuItem_"+i); 
+			textInput.eq(4).attr('id',"stockQuantity_"+i);  
+			textInput.eq(5).attr('id',"deliverdItemNo_"+i); 
+			textInput.eq(6).attr('id',"maxQuantity_"+i); 
+			textInput.eq(7).attr('id',"gstRate_"+i);  
+			textInput.eq(8).attr('id',"qUnitPrice_"+i);    
+			textInput.eq(9).attr('id',"qQuantity_"+i);  
+			textInput.eq(10).attr('id',"qDiscount_"+i);  
+			textInput.eq(11).attr('id',"qLineTotal_"+i) ;
+			divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+			
+			
+			
+		  
+		})
+	}
+	
+}
+ 
+//(document).ready() STARTS
+
+$(document).ready(function() {
+	//$("input[type=radio]").attr('disabled', true);
+	//HideDisc();
+	$(".discountBody").hide();
+	$("#discDiv").hide();
+	$(".discHeader").hide();
+	autoSelectDeliveryFrom();
+	//date time picker
+	$( "#delChallanDate" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		minDate: new Date() ,
+		timepicker : false,
+	})
+	var idd= $('#venQuotId').val();
+	if(idd){
+		$('#rfqNo').prop('disabled', true);
+		$('#vendor').prop('disabled', true); 
+	}
+	
+	var id = $("#venQuotId").val();
+	var taxType11 = $("#taxType11").val();
+	if(id) {
+		if(taxType11 == 'true') {
+			$('#IgstTR').show();
+			$('#CgstTR').hide();
+			$('#SgstTR').hide();
+		} else {
+			$('#IgstTR').hide();
+			$('#CgstTR').show();
+			$('#SgstTR').show();
+		}
+	} else {
+		$('#IgstTR').hide();
+	}
+	
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		
+		calculateSubTotal();
+		getGSTRate();
+	});
+	 	
+	$("#submit").click(function(){
+		var taxType = $("input[name='tax']:checked").val();
+		if(taxType=="true") {
+			$("#cgst").text("0.00");
+			$("#sgst").text("0.00");
+		} else {
+			$("#igst").text("0.00");
+		}
+	
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			item = {};
+			item['storeId']			=	$("#storeId").val();
+			item['delChallanId']	=	$("#delChallanId").val();
+			item['saleOrderNo']	    =	$("#saleOrderNo").val();
+			item['customerId']	    =	$("#customerId").val(); 
+			item['customerName']	=	$("#customerName").val(); 
+			item['toPlace']			=	$("#toPlace").val();
+			item['fromPlace']		=	$("#fromPlace").val();
+			item['delChallanDate']	=	$("#delChallanDate").val();
+			item['transName']		=	$("#transName").val();
+			item['transMoNo']		=	$("#transMoNo").val();
+			item['transVehNo']		=	$("#transVehNo").val();
+			item['qNote']			=	$("#qNote").val();
+			item['advanceAmnt']		=	$("#advanceAmnt").html();
+			item['taxType']			=	$("input[name='tax']:checked").val();
+			 
+			item['itemId']		    =	$(this).find(".ItemId").val();
+			item['itemName']		=	$(this).find(".ItemName").val();
+			item['itemCat']		    =	$(this).find(".ItemCat").val();
+			item['itemSubCat']		=	$(this).find(".ItemSubCat").val(); 
+			item['unitPrice']		=	parseFloat($(this).find(".unitPrice").val());
+			item['quantity']		=	parseFloat($(this).find(".quantity").val()); 
+			item['itemDiscount']	=	parseFloat($(this).find(".discount").val());  
+			item['gstRate']	=	parseFloat($(this).find(".gstRate").val());  
+			item['itemCess']	=	parseFloat($(this).find(".cessAmount").val());  
+			dataset.push(item);
+		})
+		
+	//	return false;
+		if (!blankValidation("saleOrderNo","TextField" ,"Please Enter SaleOrderNo"))
+		      return false;
+		
+		if (!blankValidation("toPlace","TextField" ,"Please Enter To Place"))
+		      return false;
+		
+		if (!blankValidation("fromPlace","TextField" ,"Please Enter From Place"))
+		      return false;
+		
+		if (!blankValidation("delChallanDate","TextField" ,"Please Enter Delivery Date"))
+		      return false;
+		
+		/* if (!blankValidation("transName","TextField" ,"Please Enter Transaport Name"))
+		      return false;
+		
+		if (!blankValidation("transMoNo","TextField" ,"Please Enter Transaporter Mobile No"))
+		      return false;
+		
+		if (!blankValidation("transVehNo","TextField" ,"Please Enter Transaporter Vehicle No"))
+		      return false; */
+		
+		
+		if (!blankValidation("gstRate","TextField" ,"Please Enter GST Rate"))
+		      return false;
+		if (!blankValidation("qNote","TextArea" ,"Note Can't Be Left Blank"))
+		      return false;
+		
+		var itemNameValid = true;
+		$(".ItemName").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"TextField" ,"Please Enter Item Name")){
+				itemNameValid = false;
+				return false;
+			}
+		});
+		 
+		var unitPriceValid = true;
+		if(itemNameValid ){
+			$('.unitPrice').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Unit Price")){
+					unitPriceValid = false;
+					return false;
+				}
+			});
+		}
+		
+		var quantityValid = true;
+		if(itemNameValid  && unitPriceValid){
+			$('.quantity').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+					quantityValid = false;
+					return false;
+				}
+			});
+		}
+	 	
+		if(itemNameValid &&   unitPriceValid && quantityValid){
+			submitQuotationItem(dataset);
+		}
+	});
+});  
+//(document).ready() ENDS
+
+
+//SUBMIT QUOTATION FUNCTION
+
+function submitQuotationItem(dataset){
+	console.log(dataset);
+	swal.fire({
+		title				: "Are you sure want to Submit?",
+		text				: "Once Submited,Can't revert back !",
+		type 				: "warning",		
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+				
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "add-delivery-challan", 
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					//console.log(response);
+					if(response.message=="Success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							window.location.href = "/sales/view-delivery-challan" ;
+						})
+					} else {
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data)	
+				}
+			}) //ajax ends
+		}
+	})//swal function block ends
+}
+		
+//PAGE RELOAD FUNCTION
+		
+function funcLoad(){
+	location.reload();
+}
+
+//CALCULATE AMOUNT FUNCTION (QUANTITY * PRICE)
+
+function calculateLineTotal(event) {        
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	
+	var counter = l[1];
+	var price = $("#qUnitPrice_"+counter).val();
+	var quantity = parseFloat($("#qQuantity_"+counter).val());
+	var quantityDyn = parseFloat($("#quantityDyn_"+counter).val());
+	var delItem = parseFloat($("#deliverdItemNo_"+counter).val());
+	var discount = parseFloat($("#qDiscount_"+counter).val());
+	 if(!discount){
+		 discount = 0;
+	 }
+	var canAdd=(quantityDyn-delItem);
+	 
+	if(canAdd== 0){
+		swal('You Can Not Add Any Quantity For this Item');
+		$("#qQuantity_"+counter).val("");
+		$("#qUnitPrice_"+counter).val("");
+		$("#quantityDyn_"+counter).val("");
+		$("#menuItemId_"+counter).val("");
+		$("#menuItem_"+counter).val("");
+		$("#deliverdItemNo_"+counter).val("");
+		return false;
+	}
+	
+	if(canAdd<currentValue){
+		swal('Quantity is not More Than '+canAdd+ ' for this Item');
+		$("#qQuantity_"+counter).val("");
+		return false;
+	}
+	
+	if(price && quantity) {
+		 var mul = price * quantity - discount; 
+		 $("#qLineTotal_"+counter).val((mul).toFixed(2));
+		 calculateSubTotal();
+	} else {
+		var mul = 0;
+		 $("#qLineTotal_"+counter).val((mul).toFixed(2));
+		 calculateSubTotal();
+	}
+}
+
+function calculateLineTotalCounterWise(counter) {        
+	/* var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	
+	var counter = l[1]; */
+	var price = $("#qUnitPrice_"+counter).val();
+	var quantity = parseFloat($("#qQuantity_"+counter).val());
+	var quantityDyn = parseFloat($("#quantityDyn_"+counter).val());
+	var delItem = parseFloat($("#deliverdItemNo_"+counter).val());
+	var discount = parseFloat($("#qDiscount_"+counter).val());
+	if(!discount){
+		 discount = 0;
+	}
+	
+	if(price && quantity) {
+		 var mul = price * quantity - discount; 
+		 $("#qLineTotal_"+counter).val((mul).toFixed(2));
+		 calculateSubTotal();
+	} else {
+		var mul = 0;
+		 $("#qLineTotal_"+counter).val((mul).toFixed(2));
+		 calculateSubTotal();
+	}
+}
+
+//CALCULATE SUB TOTAL FUNCTION
+
+function calculateSubTotal(){
+	var sum = 0;
+	$(".lineTotalCls").each(function(i){
+	 
+		var temp = parseFloat($(this).val());
+		if(temp){
+			sum = sum + temp;
+		}
+		
+	}) 
+	
+	var discountTotal = 0;
+	$(".discount").each(function(i){
+	 
+		var discount = parseFloat($(this).val());
+		if(discount){
+			discountTotal = discountTotal + discount;
+		}
+		
+	}) 
+	
+	$('#subTotal').html((sum).toFixed(2));
+	$('#discountTotal').val((discountTotal).toFixed(2));
+	
+	getGSTRate();
+	
+}
+
+//HIDE IGST TR FUNCTION
+
+function ShowHideTrS(){
+	$("#igst").val("0.00");
+	$('#IgstTR').hide();
+	$('#CgstTR').show();
+	$('#SgstTR').show();
+	getGSTRate();
+}
+
+//HIDE CGST SGST TR FUNCTION
+
+function ShowHideTrC(){
+	$('#IgstTR').show();
+	$("#cgst").val("0.00");
+	$("#sgst").val("0.00");
+	$('#CgstTR').hide();
+	$('#SgstTR').hide();
+	getGSTRate();
+}
+
+//CALCULATE SUB TOTAL, IGST,CGST, SGST & GRAND TOTAL AFTER GST RATE VALUE
+
+/* function getGSTRate() {
+	var gstRate = $('#gstRate').val();  
+	if(gstRate<=100) {
+		var value = gstRate / 2 ;
+		if(gstRate!=0){
+			$('#labelIgst').html("IGST("+gstRate+"%)");
+			$('#labelCgst').html("CGST("+value+"%)");
+			$('#labelSgst').html("SGST("+value+"%)");
+		} else {
+			$('#labelIgst').html("IGST");
+			$('#labelCgst').html("CGST");
+			$('#labelSgst').html("SGST");
+		}
+		var subTotal = $('#subTotal').html();
+		var advanceAmnt = $('#advanceAmnt').html(); 
+		subTotal=subTotal.replace(/\,/g,'');
+			var igst = (subTotal * gstRate)/100;
+			var gst = igst/2;
+			var gstType = $("input[name='tax']:checked").val();
+			if(gstType=="true") {
+				$('#igst').html((igst).toFixed(2));
+			} else{
+				$('#cgst').html((gst).toFixed(2));
+				$('#sgst').html((gst).toFixed(2));
+			}
+			var grandTotal = parseFloat(subTotal) + parseFloat(igst);
+			$('#grandTotal').html((grandTotal).toFixed(2));
+			
+			//var advanceAmnt=grandTotal*.10;  
+			var remainAmnt=grandTotal-advanceAmnt;  
+			//$('#advanceAmnt').html((advanceAmnt).toFixed(2));
+			$('#remainAmnt').html((remainAmnt).toFixed(2));
+	} else {
+		swal({
+			title	: "GST Rate Can't Be Greater Than 100.",
+			type	: "warning",
+		})
+		$('#gstRate').val("");
+		$('#labelIgst').html("IGST");
+		$('#labelCgst').html("CGST");
+		$('#labelSgst').html("SGST");
+	}
+} */
+
+function getGSTRate() {
+//var gstRate = $('#gstRate').val();
+var gstRate = 0.0 ;
+var itemCGST = 0.0;
+var itemIGST = 0.0;
+var itemCess = 0.0;
+var itemTotalCess = 0.0;
+//$(".itemGSTRate").each(function(i){
+$("#tbodyData > tr").each(function(i){
+	var gstVal = parseFloat($(this).find(".gstRate").val());
+	var lineAmt = parseFloat($(this).find(".lineTotalCls").val());
+	var cessAmt = parseFloat($(this).find(".cessAmount").val());
+ 
+	if(!lineAmt){
+		lineAmt = 0;
+	}
+	//lineAmt = parseFloat(lineAmt); 
+	gstRateHalf = parseFloat(gstVal)/2;
+	var cgstval = (lineAmt * parseFloat(gstRateHalf)) / 100;
+	var igstval = (lineAmt * parseFloat(gstVal)) / 100;
+	itemCess = (igstval * cessAmt)/100;
+	itemCGST = parseFloat(itemCGST) + parseFloat(cgstval);
+	itemIGST = parseFloat(itemIGST) + parseFloat(igstval);
+	itemTotalCess = parseFloat(itemTotalCess) + parseFloat(itemCess);
+})
+if(gstRate<=100) {
+	var value = gstRate / 2 ;
+	//if(gstRate!=0){
+		$('#labelIgst').html("IGST");
+		$('#labelCgst').html("CGST");
+		$('#labelSgst').html("SGST");
+	//} else {
+		//$('#labelIgst').html("IGST");
+		//$('#labelCgst').html("CGST");
+		//$('#labelSgst').html("SGST");
+	//}
+	$('#totalCess').html((itemTotalCess).toFixed(2));
+	var subTotal = $('#subTotal').html();
+	subTotal=subTotal.replace(/\,/g,'');
+		var igst = (subTotal * gstRate)/100;
+		var gst = igst/2;
+		var gstType = $("input[name='tax']:checked").val();
+		if(gstType=="true") {
+			$('#igst').html((itemIGST).toFixed(2));
+			var grandTotal = parseFloat(subTotal) + parseFloat(itemIGST) + parseFloat(itemTotalCess);
+			$('#grandTotal').html((Math.round(grandTotal)).toFixed(2));
+			/* var advanceAmnt = $('#advanceAmnt').html(); 
+			var remainAmnt=grandTotal-advanceAmnt;
+			$('#remainAmnt').html((remainAmnt).toFixed(2)); */
+		} else{
+			$('#cgst').html((itemCGST).toFixed(2));
+			$('#sgst').html((itemCGST).toFixed(2));
+			var grandTotal = parseFloat(subTotal) + parseFloat(itemCGST) + parseFloat(itemCGST) + parseFloat(itemTotalCess);
+			$('#grandTotal').html((Math.round(grandTotal)).toFixed(2));
+			/* var advanceAmnt = $('#advanceAmnt').html(); 
+			var remainAmnt=grandTotal-advanceAmnt;
+			$('#remainAmnt').html((remainAmnt).toFixed(2)); */
+		}
+		
+} else {
+	swal({
+		title	: "GST Rate Can't Be Greater Than 100.",
+		type	: "warning",
+	})
+	$('#gstRate').val("");
+	$('#labelIgst').html("IGST");
+	$('#labelCgst').html("CGST");
+	$('#labelSgst').html("SGST");
+}
+}
+function menuItemAutoComplete(event) {
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	var counter = l[1];	   
+	var saleOrderNo=$("#saleOrderNo").val();
+	var menuItemCat=$("#menuItemCat_"+counter ).val();
+	var menuItemSubCat=$("#menuItemSubCat_"+counter ).val();
+ 	var dataset=[];
+ 	for(var i =0;i<1;i++){
+ 		var params ={};
+ 		params["ptype1"]= saleOrderNo;
+ 	   	params["ptype2"] = currentValue; 
+ 	   	dataset.push(params);
+ 	}
+ 	 console.log('dateset',dataset); 
+		
+	if(saleOrderNo) {
+		$.ajax({
+			type : "POST",
+			url : "add-delivery-challan-menu-item",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : JSON.stringify(dataset),
+			success : function(response) {
+				console.log(response);
+				if (response.message == "success") {
+					
+					if(response.body.length!=0)	{
+						$(currentId).css("background","#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue1(\''+response.body[i].key+'\',\''+response.body[i].name+'\',\''
+							+response.body[i].itemCat+'\',\''
+							+response.body[i].itemSubCat+'\',\''
+							+response.body[i].gstRate+'\',\''
+							+response.body[i].taxType+'\',\''
+							+response.body[i].quantity+'\',\''
+							+response.body[i].advAmount+'\',\''
+							+response.body[i].deliverdItemNo+'\',\''
+							+response.body[i].price+'\',\''+counter+'\')">'
+							+response.body[i].name+'('+ response.body[i].key+')'+'</li>';
+						} 
+						content += '</ul>';
+						$("#suggesstion-box1_"+counter).show();
+						$("#suggesstion-box1_"+counter).html(content);
+					} else {
+						$(currentId).css("background","#FFF");
+						var content = '<ul id="autocomplete-list1">';
+						content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+counter+'\')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#suggesstion-box1_"+counter).show();
+						$("#suggesstion-box1_"+counter).html(content);
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	} else {
+		$(currentId).css("background","#FFF");
+		var content = '<ul id="autocomplete-list1">';
+		content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+''+'\',\''+counter+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#suggesstion-box1_"+counter).show();
+		$("#suggesstion-box1_"+counter).html(content);
+	}
+}
+	//function selectAutocompleteValue1(menuItemId,menuItemName,itemCategory,foodPreference,mealType,counter) {
+function selectAutocompleteValue1(key,name,itemCategory, itemSubCat,gstRate,taxType,quantity,advAmount,deliverdItemNo,price,counter) {
+	 
+	if (key) {
+		var item =name;
+   		var count=0;  
+   		$("#advanceAmnt").html(advAmount);
+   		$(".ItemName").each(function(){
+   			if(item == $(this).val()){
+   			count++;
+   				if(count>0){
+   					swal('Item is already Selected');
+   					$("#menuItemId_"+counter).val("");
+   					$("#menuItemCat_"+counter).val("");
+   					$("#menuItemSubCat_"+counter).val("");
+   			   		$("#menuItem_"+counter).val("");
+   			   		$("#qUnitPrice_"+counter).val("");
+   			   		$("#suggesstion-box1_"+counter).hide();
+   			   		return false;
+   				}
+   			}
+   		})
+   		if(count<1){
+   			$("#menuItemId_"+counter).val(key);
+   			$("#menuItemCat_"+counter).val(itemCategory);
+   			$("#menuItemSubCat_"+counter).val(itemSubCat);
+   	 		$("#menuItem_"+counter).val(name);
+   	   		$("#qUnitPrice_"+counter).val(price);
+   	   		
+   	   		$("#quantityDyn_"+counter).val(quantity); 
+   	   			 
+   	   		$("#gstRate").val(gstRate);
+   	   			
+   	   		$("#menuItem_"+counter).attr('data-procat', name);
+   	   		$("#suggesstion-box1_"+counter).hide();
+   	   	    $("#deliverdItemNo_"+counter).val(deliverdItemNo);
+   	   	    var deliveredITEM=0;
+   	   		if(deliverdItemNo== 'null'){
+   	   		    $("#deliverdItemNo_"+counter).val(deliveredITEM);
+   	   		} else {
+   	   			 $("#deliverdItemNo_"+counter).val(deliverdItemNo);	
+   	   		}
+   	   		
+   		}
+			
+   		if(taxType == 'true'){
+   			$("#taxC").attr('checked', 'checked');
+   			$('#IgstTR').show();
+   			$("#cgst").val("0.00");
+   			$("#sgst").val("0.00");
+   			$('#CgstTR').hide();
+   			$('#SgstTR').hide();
+   			//getGSTRate();
+   		} else {
+   			$("#taxS").attr('checked', 'checked');
+   			$("#igst").val("0.00");
+   			$('#IgstTR').hide();
+   			$('#CgstTR').show();
+   			$('#SgstTR').show();
+   			//getGSTRate();
+   		}	
+   		 
+	} else {
+   		$("#menuItemId_"+counter).val("");
+   		$("#menuItem_"+counter).val(""); 
+   		$("#qUnitPrice_"+counter).val("");
+   		$("#menuItem_"+counter).attr('data-procat', "");
+   		$("#suggesstion-box1_"+counter).hide();
+	}	
+}
+function itemCategory(event){
+	var itemCategory = event.currentTarget.value; 
+	var currentId = event.currentTarget.id;
+	var l = currentId.split("_");
+	var counter = l[1];   
+	if (itemCategory) {
+		$.ajax({
+					type : 'POST',
+					url : 'add-delivery-challan-getSubCategory-throughAjax',
+					contentType : false,
+					data : itemCategory,
+					success : function(
+							response) {
+						if (response.message == "success") {
+							$("#menuItemSubCat_"+counter).empty();
+							var option = $("<option></option>");
+							$(option) .val(null);
+							$(option).html("Select");
+							$("#menuItemSubCat_"+counter).append(option);
+							for (var i = 0; i < response.body.length; i++) {
+								var option = $("<option></option>");
+								$(option).val(response.body[i].key);
+								$(option).html(response.body[i].name);
+								$("#menuItemSubCat_"+counter).append(option);
+							}
+						}
+
+					},
+					error : function(e) {
+						console.log("error");
+					}
+				});
+	} else {
+		$("#itemSubCategory").empty();
+		var option = $("<option></option>");
+		$(option).val(null);
+		$(option).html("Select");
+		$("#menuItemSubCat_"+counter).append(option);
+	}
+}
+
+
+function validSaleQty(event) {
+    var qty = parseFloat(event.currentTarget.value);
+    var currentId = event.currentTarget.id;
+    var l = currentId.split("_");
+    var counter = l[1];
+    var menuItemCat = $("#storeId").val();
+    var menuItemSubCat = $("#menuItemSubCat_" + counter).val();
+    var menuItemId = $("#menuItemId_" + counter).val();
+    if (menuItemId) {
+        $.ajax({
+            type: 'POST',
+            url: 'add-delivery-challan-valid-qty-throughAjax?menuItemCat=' + menuItemCat + '&menuItemSubCat=' + menuItemSubCat + '&menuItemId=' + menuItemId,
+            contentType: false,
+            success: function(
+                response) {
+                if (response.message == "success") {
+                    var availQty = parseFloat(response.body[0].key);
+                    if (qty > availQty) {
+                        swal("Item is Out Of Stock.")
+                        $("#qQuantity_" + counter).val("0");
+                        $("#tbodyData > tr").each(function(i){
+                        	calculateLineTotalCounterWise(i);
+                        });
+                    }
+                }
+
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
+    } else {
+
+    }
+}
+
+function HideDisc() {
+    $("#discount").val("0.00");
+    $('#discDiv').hide();
+    $('.discHeader').hide();
+    $('.discountBody').hide();
+    $('.discount').val('0.00');
+    $("#tbodyData > tr").each(function(i) {
+        calculateLineTotalCounterWise(i);
+    });
+}
+
+function ShowDisc() {
+    $('#discDiv').show();
+    $('.discHeader').show();
+    $('.discountBody').show();
+    $("#tbodyData > tr").each(function(i) {
+        calculateLineTotalCounterWise(i);
+    });
+}
+	
+	//CHECK QUANTITY & PRICE VALUE IS NOT ALPHABET OR SPECIAL CHARACTER
+
+	function checkNumber(event) {
+		var currentId = event.currentTarget.id;
+		checkNum(currentId);
+	}
+	
+</script>
+
+<script type="text/javascript">
+function salesDetails(key) {
+    $('#tbdy').hide();
+    $("#tbodyData").empty();
+    var storeId = $("#storeId").val();
+    $(".ItemCat").val("");
+    $(".ItemSubCat").val("");
+    $(".ItemId").val("");
+    $(".ItemName").val("");
+    $(".stockQuantity").val("");
+    $(".deliverdItemNo").val("");
+    $(".maxQuantity").val("");
+    $(".gstRate").val("");
+    $(".unitPrice").val("");
+    $(".quantity").val("");
+    $(".discount").val("");
+    $(".lineTotal").html("0.00");
+    $("#saleOrderNo").empty();
+    $("#customerId").val('');
+    $("#customerName").val('');
+    $("#transMoNo").val('');
+    $("#toPlace").val('');
+    $("#transVehNo").val('');
+    $("#discountTotal").val('');
+    $("#subTotal").html('0.00');
+    $("#igst").html('0.00');
+    $("#sgst").html('0.00');
+    $("#cgst").html('0.00');
+    $("#grandTotal").html('0.00');
+    $("#advanceAmnt").html('0.00');
+    $("#remainAmnt").html('0.00');
+
+    $("#myTable tbody tr:not(:first)").remove();
+    $("#myTable tbody tr:last").find('td:last').remove();
+    var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+    $("#myTable tbody tr:last").append('<td>' + add + '</td>');
+
+
+    if (key) {
+        $.ajax({
+            type: 'GET',
+            url: 'add-delivery-challan-getSaleOrderDetails?id=' + key + "&storeId=" + storeId,
+            contentType: false,
+            success: function(
+                response) {
+                if (response.message == "success") {
+
+                    // $("#gstRate").val(response.body[0].gstRate);
+                    /* $("#advanceAmnt").html(response.body[0].advAmount); */
+
+                    var c = 0;
+                    var discount = 0;
+                    for (var i = 0; i < response.body.length; i++) {
+                        c = c + 1;
+                        discount = discount + response.body[i].discount;
+                        var cessAmt = response.body[i].itemCess;
+                        var price = (response.body[i].price).toFixed(2);
+                        if (c != response.body.length) {
+                            table1 = '<tr class="tr_clone">' +
+                                '<td><input type="hidden" id="menuItemCat_' + i + '" class="form-control ItemCat" value="' + response.body[i].itemCat + '" />' +
+                                '<input type="hidden" id="menuItemSubCat_' + i + '" class="form-control ItemSubCat" value="' + response.body[i].itemSubCat + '" />' +
+                                '<input type="hidden" id="menuItemId_' + i + '" class="form-control ItemId" value="' + response.body[i].item + '">' +
+                                '<input type="text" id="menuItem_' + i + '" class="form-control ItemName" onkeyup="itemAutoComplete(event);" name="item_" value="' + response.body[i].itemName + '" readonly /><div id="suggesstion-box1_"></div></td>' +
+                                '<td><input type="text" id="stockQuantity_' + i + '" readonly class="form-control stockQuantity" value="' + response.body[i].stockQuantity + '"></td>' +
+                                '<td><input type="text" id="deliverdItemNo_' + i + '" readonly class="form-control deliverdItemNo" value="' + response.body[i].deliverdItemNo + '"></td>' +
+                                '<td><input type="text" id="maxQuantity_' + i + '" readonly class="form-control maxQuantity" value="' + response.body[i].soQuantity + '"></td>' +
+                                '<td><input type="text" id="gstRate_' + i + '" readonly class="form-control gstRate" value="' + response.body[i].gstRate + '"></td>' +
+                                '<td><input type="text" id="cessAmt_' + i + '" readonly class="form-control cessAmount" value="' + cessAmt + '"></td>' +
+                                '<td><input type="text" id="qUnitPrice_' + i + '" readonly class="form-control unitPrice" value="' + price + '"></td>' +
+                                '<td><input type="text" id="qQuantity_' + i + '" class="form-control  quantity"   onkeyup="calculateLineTotal(event) ;getGSTRate(); validSaleQty(event) ;getChallanDiscount(event);" value="0"></td>' +
+                                '<td class="discountBody"><input type="text" readonly id="qDiscount_' + i + '" class="form-control  discount money" onkeyup="calculateLineTotal(event);getGSTRate();" value="'+(response.body[i].discount).toFixed(2)+'"><input type="hidden" id="soDiscount_'+i+'" value="'+(response.body[i].discount).toFixed(2)+'"></td>' +
+                                '<td><input type="text" id="qLineTotal_' + i + '" style="text-align:right;" class="form-control  lineTotalCls" onblur="quantityComparision(event);" readonly value="0.00"></td>' +
+                                /* '<td><button type="button" class="btn btn-warning rmv" name="Remove"> <span class="ti-minus"></span></button>' +
+                                '&nbsp;</td>' + */
+                                +'</tr>';
+                        }
+                        if (c == response.body.length) {
+                            if (c != 1) {
+                                table1 = '<tr class="tr_clone">' +
+                                    '<td><input type="hidden" id="menuItemCat_' + i + '" class="form-control ItemCat" value="' + response.body[i].itemCat + '" />' +
+                                    '<input type="hidden" id="menuItemSubCat_' + i + '" class="form-control ItemSubCat" value="' + response.body[i].itemSubCat + '" />' +
+                                    '<input type="hidden" id="menuItemId_' + i + '" class="form-control ItemId" value="' + response.body[i].item + '">' +
+                                    '<input type="text" id="menuItem_' + i + '" class="form-control ItemName" onkeyup="itemAutoComplete(event);" name="item_" value="' + response.body[i].itemName + '" readonly /><div id="suggesstion-box1_"></div></td>' +
+                                    '<td><input type="text" id="stockQuantity_' + i + '" readonly class="form-control stockQuantity" value="' + response.body[i].stockQuantity + '"></td>' +
+                                    '<td><input type="text" id="deliverdItemNo_' + i + '" readonly class="form-control deliverdItemNo" value="' + response.body[i].deliverdItemNo + '"></td>' +
+                                    '<td><input type="text" id="maxQuantity_' + i + '" readonly class="form-control maxQuantity" value="' + response.body[i].soQuantity + '"></td>' +
+                                    '<td><input type="text" id="gstRate_' + i + '" readonly class="form-control gstRate" value="' + response.body[i].gstRate + '"></td>' +
+                                    '<td><input type="text" id="cessAmt_' + i + '" readonly class="form-control cessAmount" value="' + cessAmt + '"></td>' +
+                                    '<td><input type="text" id="qUnitPrice_' + i + '" readonly class="form-control unitPrice" value="' + price + '"></td>' +
+                                    '<td><input type="text" id="qQuantity_' + i + '" class="form-control  quantity"   onkeyup="calculateLineTotal(event) ;getGSTRate(); validSaleQty(event) ;getChallanDiscount(event);" value="0"></td>' +
+                                    '<td class="discountBody"><input type="text" readonly id="qDiscount_' + i + '" class="form-control  discount money" onkeyup=" calculateLineTotal(event);getGSTRate();" value="'+(response.body[i].discount).toFixed(2)+'"><input type="hidden" id="soDiscount_'+i+'" value="'+(response.body[i].discount).toFixed(2)+'"></td>' +
+                                    '<td><input type="text" id="qLineTotal_' + i + '" class="form-control  lineTotalCls" style="text-align:right;" onblur="quantityComparision(event);" readonly value="0.00"></td>' +
+                                    /* '<td><button type="button" class="btn btn-warning rmv" name="Remove"> <span class="ti-minus"></span></button>' +
+                                    '&nbsp;<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button></td>' + */
+                                    '</tr>';
+                            } else {
+                                table1 = '<tr class="tr_clone">' +
+                                    '<td><input type="hidden" id="menuItemCat_' + i + '" class="form-control ItemCat" value="' + response.body[i].itemCat + '" />' +
+                                    '<input type="hidden" id="menuItemSubCat_' + i + '" class="form-control ItemSubCat" value="' + response.body[i].itemSubCat + '" />' +
+                                    '<input type="hidden" id="menuItemId_' + i + '" class="form-control ItemId" value="' + response.body[i].item + '">' +
+                                    '<input type="text" id="menuItem_' + i + '" class="form-control ItemName" onkeyup="itemAutoComplete(event);" name="item_" value="' + response.body[i].itemName + '" readonly /><div id="suggesstion-box1_"></div></td>' +
+                                    '<td><input type="text" id="stockQuantity_' + i + '" readonly class="form-control stockQuantity" value="' + response.body[i].stockQuantity + '"></td>' +
+                                    '<td><input type="text" id="deliverdItemNo_' + i + '" readonly class="form-control deliverdItemNo" value="' + response.body[i].deliverdItemNo + '"></td>' +
+                                    '<td><input type="text" id="maxQuantity_' + i + '" readonly class="form-control maxQuantity" value="' + response.body[i].soQuantity + '"></td>' +
+                                    '<td><input type="text" id="gstRate_' + i + '" readonly class="form-control gstRate" value="' + response.body[i].gstRate + '"></td>' +
+                                    '<td><input type="text" id="cessAmt_' + i + '" readonly class="form-control cessAmount" value="' + cessAmt + '"></td>' +
+                                    '<td><input type="text" id="qUnitPrice_' + i + '" readonly class="form-control unitPrice" value="' + price + '"></td>' +
+                                    '<td><input type="text" id="qQuantity_' + i + '" class="form-control  quantity"   onkeyup="calculateLineTotal(event) ;getGSTRate(); validSaleQty(event) ;getChallanDiscount(event);" value="0"></td>' +
+                                    '<td class="discountBody"><input type="text" readonly id="qDiscount_' + i + '" class="form-control  discount money" onkeyup="calculateLineTotal(event);getGSTRate();" value="'+(response.body[i].discount).toFixed(2)+'"><input type="hidden" id="soDiscount_'+i+'" value="'+(response.body[i].discount).toFixed(2)+'"></td>' +
+                                    '<td><input type="text" id="qLineTotal_' + i + '" class="form-control  lineTotalCls" style="text-align:right;" onblur="quantityComparision(event);" readonly value="0.00"></td>' +
+                                    /* '<td><button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button></td>' + */
+                                    '</tr>';
+                            }
+                        }
+                        $('#tbodyData').append(table1);
+                        calculateSubTotal();
+                        //HideDisc();
+                    }
+                    if(parseFloat(discount) > 0) {
+                    	ShowDisc();
+                    } else {
+                    	HideDisc();
+                    }
+
+                } else {
+                    $("#tbdy").css("text-align", "right").css("color", "red").css("font-size", "13").html('No Record Found');
+                    $('#tblid').empty();
+                    $("#receivedQuantity_").text("0");
+                    calculateSubTotal();
+                }
+
+
+            },
+            error: function(data) {
+                console.log(data);
+                calculateSubTotal();
+            }
+        });
+    } else {
+        $("#tbdy").css("text-align", "right").css("color", "red").css("font-size", "13").html('No Record Found');
+        $('#tblid').empty();
+        $("#receivedQuantity_").text("0");
+        calculateSubTotal();
+    }
+}
+
+function getChallanDiscount(e) {
+	var id = e.currentTarget.id;
+	var value = e.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+	
+	var delQty = $("#deliverdItemNo_"+counter).val();
+	var remainQty = $("#maxQuantity_"+counter).val();
+	
+	var qty = $("#qQuantity_"+counter).val();
+	var discount = $("#soDiscount_"+counter).val();
+	
+	var sumQty = parseFloat(delQty) + parseFloat(remainQty);
+	
+	var newDiscount = 0.0;
+	
+	newDiscount = (parseFloat(qty) * parseFloat(discount))/parseFloat(sumQty);
+	newDiscount = newDiscount.toFixed(2);
+	
+	$("#qDiscount_"+counter).val(newDiscount);
+	
+	calculateLineTotalCounterWise(counter);
+	
+	/* $("#tbodyData > tr").each(function(i) {
+        calculateLineTotalCounterWise(i);
+    }); */
+	
+}
+
+
+function changeData(){
+	$(".ItemCat").val(""); 
+	$(".ItemSubCat").val(""); 
+	$(".ItemId").val(""); 
+	$(".ItemName").val(""); 
+	$(".stockQuantity").val("");
+	$(".deliverdItemNo").val("");
+	$(".maxQuantity").val("");
+	$(".gstRate").val("");
+	$(".unitPrice").val("");
+	$(".quantity").val(""); 
+	$(".discount").val(""); 
+	$(".lineTotal").html("0.00");
+	$("#saleOrderNo").val('');
+	$("#customerId").val('');
+	$("#customerName").val('');
+	$("#transMoNo").val('');
+	$("#toPlace").val('');
+	$("#transVehNo").val('');
+	$("#discountTotal").val('');
+	$("#subTotal").html('0.00');
+	$("#igst").html('0.00');
+	$("#sgst").html('0.00');
+	$("#cgst").html('0.00');
+	$("#grandTotal").html('0.00');
+	$("#advanceAmnt").html('0.00');
+	$("#remainAmnt").html('0.00');
+	
+	$("#myTable tbody tr:not(:first)").remove();
+	$("#myTable tbody tr:last").find('td:last').remove();
+	var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	$("#myTable tbody tr:last").append('<td>'+ add+'</td>');
+	
+}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Delivery Challan</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Delivery Challan</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form autocomplete="off">
+								<input type="hidden" id="delChallanId" />
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Store Name</label> <select id="storeId"
+												class="form-control" onchange="changeData();autoSelectDeliveryFrom()">
+												<option th:each="c,iter:${storeList}" th:value="${c.key}"
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Sale Order No</label> <input type="text"
+												class="form-control" id="saleOrderNo"
+												onkeyup="saleOrderNoAutoComplete();" />
+											<div id="suggesstion-box"></div>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Customer Name</label> <input type="hidden"
+												class="form-control" id="customerId" /> <input type="text"
+												class="form-control" readonly id="customerName" />
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Place to Supply</label> <input type="text"
+												class="form-control" id="toPlace" />
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Place From Supply</label> <input type="text"
+												class="form-control" id="fromPlace" />
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Delivery Challan Date</label> <input type="text"
+												class="form-control " readonly id="delChallanDate" />
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Transporter Name</label> <input type="text"
+												class="form-control" id="transName" />
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Transporter Mobile No</label> <input type="text"
+												class="form-control" id="transMoNo" />
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Transporter Vehicle No</label> <input type="text"
+												class="form-control" id="transVehNo" />
+										</div>
+									</div>
+								</div>
+								<!-- <div class="row">
+									<div class="col-lg-12">
+										<Strong>Purchase Order Details</Strong>
+										<table class="tbll" id="myTable1" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Category</th>
+													<th>Sub Category</th>
+													<th>Item Name</th>
+													<th>Quantity</th>
+
+
+												</tr>
+											</thead>
+											<tbody id="tblid">
+												<tr th:each="items,iter : ${purchase1}">
+												<td bgcolor="#F5F5F5" th:text="${items.itmCategory}"></td>
+												<td bgcolor="#F5F5F5" th:text="${items.itmSubCategory}"></td>
+												<td bgcolor="#F5F5F5" th:text="${items.gRnInvoiceItmName}"></td>
+												<td bgcolor="#F5F5F5" th:id="'PO_' + ${items.gRNItmId}"
+													th:text="${items.gRnInvoiceQuantity}"></td>
+
+											</tr>
+
+											</tbody>
+
+											 <tbody id="tbdy"  >
+											<tr>
+												<td colspan="4"><div class="norecord">No Record
+														Found</div></td>
+											</tr>
+										</tbody> 
+
+											</tbody>
+
+
+											</tbody>
+
+										</table>
+									</div>
+								</div> -->
+								<div class="row">
+									<div class="col-lg-12">
+										<h4>Add Delivery Challan Details</h4>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Item Name</th>
+													<th>Stock Quantity</th>
+													<th>Delivered Quantity</th>
+													<th>Remaining Quantity</th>
+													<th>GST</th>
+													<th>Cess</th>
+													<th>Unit Price</th>
+													<th>Quantity</th>
+													<th class="discHeader">Discount</th>
+													<th>Line Total</th>
+													<!-- <th>Action</th> -->
+												</tr>
+											</thead>
+											<tbody id="tbodyData">
+												<tr id="tr_" class="tr_clone">
+													<td><input type="hidden" class="form-control ItemCat"
+														id="menuItemCat_"> <input type="hidden"
+														class="form-control ItemSubCat" id="menuItemSubCat_">
+														<input type="hidden" id="menuItemId_"
+														class="form-control ItemId"> <input type="text"
+														id="menuItem_" class="form-control ItemName"
+														onkeyup="menuItemAutoComplete(event);" readonly>
+														<div id="suggesstion-box1_"></div></td>
+
+													<td><input type="text" id="stockQuantity_"
+														class="form-control  stockQuantity" value='' readonly></td>
+													<td><input type="text" id="maxQuantity_"
+														class="form-control  maxQuantity" value='' readonly></td>
+
+													<td><input type="text" id="deliverdItemNo_"
+														class="form-control  deliverdItemNo" value='' readonly></td>
+													<td><input type="text" id="gstRate_"
+														class="form-control  gstRate" value='' readonly></td>
+													<td><input type="text" id="cessAmt_"
+														class="form-control cessAmount" value='' readonly></td>
+
+													<td><input type="text" id="qUnitPrice_"
+														class="form-control  unitPrice" value='' readonly></td>
+													<td><input type="text" id="qQuantity_"
+														class="form-control  quantity" value=''
+														onkeyup="calculateLineTotal(event) ;getGSTRate(); validSaleQty(event) ;"></td>
+
+													<td class="discountBody"><input type="text"
+														id="qDiscount_" class="form-control  discount money"
+														value=''><input type="hidden" id="soDiscount_"></td>
+													<td><input type="text" id="qLineTotal_" style="text-align:right;"
+														class="form-control lineTotal money" readonly value="0.00"></td>
+													<!-- <td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td> -->
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6"></div>
+									<div class="col-lg-6">
+										<table width="100%">
+											<tbody>
+												<tr>
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Sub
+															Total</label></td>
+													<td width="40%" align="right"><label id="subTotal"
+														class="form-control subTotal">0.00</label></td>
+												</tr>
+
+												<tr id="discDiv">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Discount</label></td>
+													<td width="40%" align="right"><input type="text"
+														class="form-control" id="discountTotal"
+														onKeyUp="return extractNumber(this,2),validateDiscount();"
+														onblur="checkDiscount(),formatOnZero();" value="0.00"
+														style="text-align: right; margin-bottom: 10px;" readonly /></td>
+
+												</tr>
+												<tr id="IgstTR">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelIgst">IGST</label></td>
+													<td width="40%" align="right"><label id="igst"
+														class="form-control igst">0.00</label></td>
+												</tr>
+												<tr id="CgstTR">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelCgst">CGST</label></td>
+													<td width="40%" align="right"><label id="cgst"
+														class="form-control cgst">0.00</label></td>
+												</tr>
+												<tr id="SgstTR">
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label id="labelSgst">SGST</label></td>
+													<td width="40%" align="right"><label id="sgst"
+														class="form-control sgst">0.00</label></td>
+												</tr>
+												<tr>
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>CESS</label></td>
+													<td width="40%" align="right"><label id="totalCess"
+														class="form-control totalCess">0.00</label></td>
+												</tr>
+												<tr>
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Grand
+															Total</label></td>
+													<td width="40%" align="right"><label id="grandTotal"
+														class="form-control grandTotal">0.00</label></td>
+												</tr>
+												<!-- <tr>
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Advance
+															Amount</label></td>
+													<td width="40%" align="right"><label id="advanceAmnt"
+														class="form-control advanceAmnt">0.00</label></td>
+												</tr>
+												<tr>
+													<td>&nbsp;</td>
+													<td width="60%" align="center"><label>Outstanding
+															Amount</label></td>
+													<td width="40%" align="right"><label id="remainAmnt"
+														class="form-control remainAmnt">0.00</label></td>
+												</tr> -->
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Tax Type</label>&nbsp;&nbsp;&nbsp; <input type="radio" disabled
+												readonly id="taxS" name="tax" value="false"
+												onclick="ShowHideTrS()" checked />&nbsp;<label
+												th:unless="${quotationId}">State Tax</label>&nbsp;&nbsp;&nbsp;
+											<input type="radio" readonly id="taxC" name="tax" disabled
+												value="true" onclick="ShowHideTrC()" />&nbsp;<label
+												th:unless="${quotationId}">Center Tax</label>
+										</div>
+										<div style="display:none;">
+											<strong>Discount:</strong>
+										</div>
+										<div style="display:none;">
+											<input type="radio" id="discHide" name="disc" value="false"
+												onclick="HideDisc()" checked />&nbsp;<label>Disable</label>&nbsp;&nbsp;&nbsp;
+											<input type="radio" id="discShow" name="disc" value="true"
+												onclick="ShowDisc()" />&nbsp;<label>Enable</label>
+										</div>
+										<!-- <div class="form-group">
+											<label>GST Rate</label> <input type="text" id="gstRate"
+												readonly class="form-control  gstRate" value=''
+												onkeyup="getGSTRate()">
+										</div> -->
+										<div class="form-group">
+											<label>Notes</label>
+											<textarea name="" cols="" rows=""
+												class="form-control textarea" id="qNote"></textarea>
+										</div>
+									</div>
+								</div>
+							</form>
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning"
+											onclick="funcLoad();">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

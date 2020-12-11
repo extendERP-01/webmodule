@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+function validateForm() {
+    if (!blankValidation("customerName", "TextField", "Customer Name can not be left blank"))
+        return false;
+    if ($("#customerName").val().length > 200) {
+        swal("Customer Name should not be greater than 200 characters.");
+        return false;
+    }
+    if (!checkSpecialCharacter("customerName", "Special character is not allowed!!!"))
+        return false;
+    if (!blankValidation("customerEmail", "TextField", "Customer Email can not be left blank"))
+        return false;
+    if (!checkEmailId("customerEmail", "Not an Email"))
+        return false;
+    if (!blankValidation("customerPhone", "TextField", "Customer Phone can not be left blank"))
+        return false;
+    /* if (!blankValidation("customerAddress","TextField", "Customer Address can not be left blank"))
+         return false; */
+    /*  if (!blankValidation("customerCity","TextField", "Customer City can not be left blank"))
+          return false; */
+    if (!checkSpecialCharacter("customerCity", "Special character is not allowed!!!"))
+        return false;
+    if (!blankValidation("customerDistrict", "TextField", "Customer District can not be left blank"))
+        return false;
+    if (!checkSpecialCharacter("customerDistrict", "Special character is not allowed!!!"))
+        return false;
+    if (!blankValidation("customerState", "TextField", "Customer State can not be left blank"))
+        return false;
+    if (!checkSpecialCharacter("customerState", "Special character is not allowed!!!"))
+        return false;
+    if (!blankValidation("customerCountry", "TextField", "Customer Country can not be left blank"))
+        return false;
+    if (!checkSpecialCharacter("customerCountry", "Special character is not allowed!!!"))
+        return false;
+    if (!blankValidation("customerZipCode", "TextField", "Customer Zip Code can not be left blank"))
+        return false;
+    /* if (!blankValidation("customerGSTNo","TextField", "Customer GST No can not be left blank"))
+         return false; */
+    if (!blankValidation("customerContactPerson", "TextField", "Customer Contact Person can not be left blank"))
+        return false;
+    if (!checkSpecialCharacter("customerName", "Special character is not allowed!!!"))
+        return false;
+    if (!blankValidation("customerActive", "SelectBox", "Status can not be left blank"))
+        return false;
+}
+
+function funcLoad() {
+    location.reload();
+}
+
+function returnToViewPage() {
+    var customer = $("#customerId").val();
+    if ((customer == null) || (customer == "")) {
+
+        funcLoad();
+    } else {
+        window.location.href = "/sales/view-customer";
+    }
+
+
+}
+
+
+$(document).ready(function() {
+
+    $("#customerCountry").on('change', function() {
+        var stateList = $(this).val();
+        if (stateList) {
+            $.ajax({
+                type: 'POST',
+                url: 'add-customer-get-state-list-master',
+                contentType: false,
+                data: stateList,
+                success: function(response) {
+                    if (response.message == "success") {
+                        $("#customerState").empty();
+                        var option = $("<option></option>");
+                        $(option).val(null);
+                        $(option).html("--Select--");
+                        $("#customerState").append(option);
+                        if (response.body.length > 0) {
+                            for (var i = 0; i < response.body.length; i++) {
+                                var option = $("<option></option>");
+                                $(option).val(response.body[i].key);
+                                $(option).html(response.body[i].name);
+                                $("#customerState").append(option);
+                            }
+                        } else {
+                            $("#customerState").empty();
+                            var option = $("<option></option>");
+                            $(option).val(null);
+                            $(option).html("--Select--");
+                            $("#customerState").append(option);
+
+                            $("#customerDistrict").empty();
+                            var option = $("<option></option>");
+                            $(option).val(null);
+                            $(option).html("--Select--");
+                            $("#customerDistrict").append(option);
+                        }
+                    } else {
+                        $("#customerState").empty();
+                        var option = $("<option></option>");
+                        $(option).val(null);
+                        $(option).html("--Select--");
+                        $("#customerState").append(option);
+
+                        $("#customerDistrict").empty();
+                        var option = $("<option></option>");
+                        $(option).val(null);
+                        $(option).html("--Select--");
+                        $("#customerDistrict").append(option);
+
+                    }
+
+                },
+                error: function(e) {
+                    alert("error");
+                }
+            });
+        } else {
+            $("#customerState").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("--Select--");
+            $("#customerState").append(option);
+        }
+    });
+
+    $("#customerState").on('change', function() {
+        var districtList = $(this).val();
+        if (districtList) {
+            $.ajax({
+                type: 'POST',
+                url: 'add-customer-get-district-list-master',
+                contentType: false,
+                data: districtList,
+                success: function(response) {
+                    if (response.message == "success") {
+                        $("#customerDistrict").empty();
+                        var option = $("<option></option>");
+                        $(option).val(null);
+                        $(option).html("--Select--");
+                        $("#customerDistrict").append(option);
+                        for (var i = 0; i < response.body.length; i++) {
+                            var option = $("<option></option>");
+                            $(option).val(response.body[i].key);
+                            $(option).html(response.body[i].name);
+                            $("#customerDistrict").append(option);
+                        }
+                    }
+
+                },
+                error: function(e) {
+                    alert("error");
+                }
+            });
+        } else {
+            $("#customerDistrict").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("--Select--");
+            $("#customerDistrict").append(option);
+        }
+    });
+});
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Customer</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12">
+				<!--Alert Box-->
+				<div class="alert alert-success alert-dismissible"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action. <span th:text="${message}"></span>
+				</div>
+				<!--Alert Box-->
+
+
+			</div>
+			<div class="card-title">
+				<h4>Add Customer</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<form th:action="@{add-customer}" th:object="${salesCustomerModel}" method="post" autocomplete="off" onsubmit="return validateForm();">
+								<input type="hidden" th:field="*{customerId}">
+
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Name</label> <input type="text" class="form-control"
+												name="" value="" th:field="*{customerName}">
+										</div>
+										<div class="form-group">
+											<label>Address 1</label> <input type="text"
+												class="form-control" name="" value=""
+												th:field="*{customerAddress}">
+										</div>
+										<div class="form-group">
+											<label>Address 2</label> <input type="text"
+												class="form-control" name="" value=""
+												th:field="*{customerAddress2}">
+										</div>
+										<div class="form-group">
+											<label>Address 3</label> <input type="text"
+												class="form-control" name="" value=""
+												th:field="*{customerAddress3}">
+										</div>
+										<div class="form-group">
+											<label>City</label> <input type="text" class="form-control"
+												name="" value="" th:field="*{customerCity}">
+										</div>
+										<div class="form-group">
+											<label>Country</label> <select class="form-control"
+												th:field="*{customerCountry}">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${countryList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>State</label> <select class="form-control"
+												th:field="*{customerState}">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${stateList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+
+											</select>
+										</div>
+										<div class="form-group">
+											<label>District</label>
+											<!-- <input type="text" class="form-control" name=""  value="" th:field="*{customerDistrict}"> -->
+											<select class="form-control" th:field="*{customerDistrict}">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${districtList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Zip Code</label> <input type="text"
+												class="form-control" name="" value=""
+												th:field="*{customerZipCode}">
+										</div>
+										<div class="form-group">
+											<label>Email</label> <input type="email" class="form-control"
+												name="" value="" th:field="*{customerEmail}">
+										</div>
+										<div class="form-group">
+											<label>Phone</label> <input type="text" class="form-control"
+												name="" value="" th:field="*{customerPhone}">
+										</div>
+										<div class="form-group">
+											<label>GSTNo</label> <input type="text" class="form-control"
+												name="" value="" th:field="*{customerGSTNo}">
+										</div>
+										<div class="form-group">
+											<label>PAN</label> <input type="text" class="form-control"
+												name="" value="" th:field="*{customerPAN}">
+										</div>
+										<div class="form-group">
+											<label>Contact Person Name</label> <input type="text"
+												class="form-control" name="" value=""
+												th:field="*{customerContactPerson}">
+										</div>
+										<div class="form-group">
+											<label>Status</label> <select class="form-control"
+												th:field="*{customerActive}">
+												<option th:value="null">Select</option>
+												<option th:value="true">Active</option>
+												<option th:value="false">Inactive</option>
+											</select>
+										</div>
+									</div>
+									<div class="form-group col-md-12">
+										<input type="submit" value="Submit" class="btn btn-success"
+											onclick="displaymessage();" /> <input type="reset"
+											value="Cancel" class="btn btn-warning"
+											onclick="returnToViewPage();" />
+										<!-- <button type="button" id="submitItems" class="btn btn-success">Submit</button> -->
+										<!-- <button type="button" class="btn btn-warning">cancel</button> -->
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+lightbox.option({
+	'resizeDuration':200,
+	'wrapAround':true,
+	
+})
+  function validateForm(){
+	  if (!blankValidation("planName","TextField", "plan Name can not be left blank"))
+          return false;
+	  if (!blankValidation("propertyCategory","SelectBox", "propertyCategory can not be left blank"))
+          return false;
+	  if (!blankValidation("planDescription","TextArea", "planDescription can not be left blank"))
+          return false;
+	  if (!blankValidation("planActive","SelectBox", " Status can not be left blank"))
+          return false;
+	  if (!checkSpecialCharacter("planName","Special character is not allowed!!!"))
+          return false;
+	  if (!imageValidate("fileUpload","Plese Insert An Image."))
+          return false;
+	
+  }
+  
+  
+  function saveFile() {
+		 $("#upload_prev").empty();
+			var uFile = $('#fileUpload')[0].files[0]; 
+			var fileName = $('#fileUpload').val();
+			
+			var lastIndex = fileName.lastIndexOf("\\");
+			if(lastIndex >= 0) {
+				fileName = fileName.substring(lastIndex + 1);
+			}
+			var iURL = URL.createObjectURL(uFile);
+			$("#uploadedImgDiv").html("");
+			var LightImg =  "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' data-lightbox='"+fileName+"'>Preview Image</a>";
+			$("#uploadedImgDiv").html(LightImg);
+			
+			var fileData = new FormData();
+			fileData.append('file',uFile);
+			fileData.append('path','none');
+			
+			$.ajax({
+				type        : "POST",
+				url         : "uploadFile",
+				enctype     : "multipart/form-data",
+				contentType : false,
+				data        : fileData,
+				processData : false,
+				cache       : false,
+				success     : function(response){
+								
+							},			  
+				error       : function(e) {
+					
+					  		}
+			});
+			
+		}
+  
+      </script>
+</head>
+<div layout:fragment="content">
+ <div class="content-wrap">
+        <div class="main mrt_20">
+            <div class="col-md-12">
+                <!--Alert Box-->
+                <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+             <span th:text="${message}"></span>
+          </div>
+          
+          <!--Alert Box-->
+                <ol class="breadcrumb breadcrumb-arrow">
+                    <li><a href="index.html">Home</a></li>
+                    <li class="active"><span>Add Property Seating plan </span></li>
+                </ol>
+            </div>
+            <div class="card-title">
+                <h4>Add Property Seating plan </h4>
+            </div>
+            <div class="container-fluid">
+               
+                <div class="card">
+                    
+                    <div class="card-body">
+                        <div class="basic-elements">
+                            <form th:action="@{/property/add-seatingplan}" th:object="${seattingPlan}" method="post" 
+                             onsubmit="return validateForm();" autocomplete="off" >
+                               <input type="hidden" th:field="*{seatingPlan}"/>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                    	<div class="form-group">
+                                            <label>Seating Plan Name</label>
+                                            <input type="text" class="form-control" th:field="*{planName}" onkeyup="checkAlphabetAndNumber('planName')">
+                                        </div>
+                                        <div class="form-group">
+											<label>Property Category</label> 
+											<select class="form-control" th:field="*{propertyCategory}">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${propertyNameList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==themeCategory}"></option>
+											</select>
+										</div>
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <textarea class="form-control textarea" th:field="*{planDescription}"></textarea>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-success">submit</button>
+                                        <a href="/property/view-sittingplan"><button type="button" class="btn btn-warning">cancel</button></a>
+                                    </div>
+                                    
+                                    <div class="form-group col-md-6">
+                                      <div class="form-group">
+                   						    <i class="fa fa-image"></i>
+                 						    <label for="user_photo">Sitting Plan Image</label>
+                       
+                       					   <!--  <input type="hidden" id="planlogo" name="planlogo" th:field="*{planlogo}"> return ValidateFileUpload(); -->
+                       					    <input type="file" id="fileUpload" th:field="*{planlogo}" name="file" style="display:block" onchange=" saveFile(); "/>
+                        
+                       					      <div id="uploadedImgDiv">
+												<span th:if="*{action !=null}">
+												 <a class="example-image-link" th:href="*{action}" data-lightbox="hsdjas" >Preview Image</a>
+											    </span>
+										    </div>
+										    <img th:if="${seattingPlan.planlogo!=null}" th:src="@{'/image/seating/thumb/'+${seattingPlan.planlogo}}" height="100px" wight="100px">
+										       <span class="fornerrormsg" id="subcategory_photoerr"></span>
+                       					 </div>
+                       					 
+                       					 <div class="form-group">
+                                            <label>Status</label>
+                                            <select class="form-control" th:field="*{planActive}">
+                                               <option th:value="null" th:text="--select--"></option>
+                                                <option th:value="true" th:text="Active"></option>
+                                                <option th:value="false" th:text="Inactive"></option>
+                                            </select>
+                                        </div>
+               						 </div>
+                                    
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

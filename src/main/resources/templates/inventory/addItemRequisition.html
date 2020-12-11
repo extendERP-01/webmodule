@@ -1,0 +1,1043 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<style type="text/css">
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 432px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list1 li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.red {
+	background-color: #b3ccff;
+}
+</style>
+
+<script>
+
+//Function for blank validation
+function checkEmpty(){
+
+	var itemValid =true;
+	$('.itemCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Item ")){
+			itemValid =false;
+	        return false;
+		}
+			
+	});
+
+	var qtyValid =true;
+	if(itemValid){
+	$('.iRQtyCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+			qtyValid =false;
+	        return false;
+		}
+			
+	});
+	}
+
+	if(itemValid && qtyValid ){
+       addMore();
+	}
+}
+//Function for adding more Table row
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+		
+	}
+			
+	// BLANK FIELD START
+ 	$("#myTable tbody tr:last").find(".itemCategoryCls").val("");
+	$("#myTable tbody tr:last").find(".itemSubCategoryCls").empty();
+	
+	$("#myTable tbody tr:last").find(".itemCls").empty();
+	$("#myTable tbody tr:last").find(".itemCls1").empty();
+	$("#myTable tbody tr:last").find(".itemCls1").val("");
+	
+	$("#myTable tbody tr:last").find(".iRQtyCls").empty();
+	$("#myTable tbody tr:last").find(".iRQtyCls").append(new Option("0",""));
+	$("#myTable tbody tr:last").find(".iRQtyCls").val("");
+ 	
+			
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput 	= $(this).find('input') ;
+		var divInput = $(this).find('div');
+		
+		textInput.eq(0).attr('id',"itemCategory_"+i);
+		textInput.eq(1).attr('id',"itemSubCategory_"+i);
+		textInput.eq(2).attr('id',"item_"+i);
+		textInput.eq(3).attr('id',"itemName_"+i);
+		textInput.eq(4).attr('id',"iRQty_"+i);
+		divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+	})
+	
+}
+$(document).ready(function(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		//displayTable();
+	
+	});
+	
+	//date picker
+		 $("#iRExpectedDateId").datetimepicker({
+					format:'d-m-Y',
+					closeOnDateSelect: true,
+					//minDate: new Date() ,
+					timepicker : false,
+		})  
+	
+	//Submit Function
+	
+	 $("#submitItems").click(function(){
+			var dataset = [];
+			$("#tbodyData > tr").each(function(){
+				item = {};
+				item['itemRequisition']	   =	$("#itemRequisition").val();
+				item['costCenter']	       =	$("#costCenterId").val();
+				item['tStore']	       =	$("#tStoreId").val();
+				item['iRDescription']      =	$("#iRDescriptionId").val();
+				item['iRExpectedDate']     =	$("#iRExpectedDateId").val();
+				item['iRType']		  	   =	$("#requisitionId").val();
+				item['iRStatus']	  	   =	$("#statusId").val();
+				item['dlItemCategory'] 	   =	$(this).find(".itemCategoryCls").val();
+			    item['dlItemSubCategory']  =	$(this).find(".itemSubCategoryCls").val();
+				item['dlItem']		       =	$(this).find(".itemCls").val();
+				item['dlQty']		       =	$(this).find(".iRQtyCls").val();
+				
+				dataset.push(item);
+			});//table tbody tr loop ends
+			
+			//Blank Validation
+			
+			if (!blankValidation("requisitionId","SelectBox" ,"Please Select Requisition Type"))
+		        return false;
+
+			if (!blankValidation("costCenterId","SelectBox" ,"Please Select Cost Center"))
+		        return false;
+			if (!blankValidation("tStoreId","SelectBox" ,"Please Select Store"))
+		        return false;
+			if (!blankValidation("iRExpectedDateId","TextField" ,"Please Enter Date"))
+		        return false;
+			
+			if (!blankValidation("iRDescriptionId","TextArea", "Please Enter Description"))
+		        return false;
+			
+			if (!blankValidation("statusId","SelectBox", "Please Select Status"))
+		        return false;
+			
+			
+			var itemValid =true;
+			$('.itemCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Item ")){
+					itemValid =false;
+			        return false;
+				}
+					
+			});
+
+			var qtyValid =true;
+			if(itemValid){
+			$('.iRQtyCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+					qtyValid =false;
+			        return false;
+				}
+					
+			});
+			}
+		
+			if(itemValid && qtyValid ){
+				
+				submitItemRequisition(dataset);
+			}
+			
+		});	
+	
+	
+		
+	
+//Function For Submit Pupup
+	function submitItemRequisition(dataset){
+
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down',
+			preConfirm: () => {
+				return new Promise((resolve) => {
+					setTimeout(() => {
+						console.log("Doing async operation");
+						resolve()
+					}, 3000)
+				})
+			}
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "add-item-requisitions",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/inventory/view-item-requisitions" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(response){
+					console.log(response.code);	
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends 
+
+	
+/* 	//////////////////////////////////MODAL STARTS//////////////////////////////////////////// */
+	
+	var tAccountGroupType = $("#tAccountGroupType").val();
+
+	$("#modalDiv1").hide();
+	$("#modalDiv2").hide();
+
+	if (tAccountGroupType == 'dp054') {
+		$("#modalDiv1").show();
+		$("#modalDiv2").hide();
+	}
+	if (tAccountGroupType == 'dp055') {
+		$("#modalDiv1").hide();
+		$("#modalDiv2").show();
+	}
+	if (tAccountGroupType == 'dp056') {
+
+		$("#modalDiv1").show();
+		$("#modalDiv2").show();
+	}
+
+	$("#itemCategory").on('change', function() {
+		var itemCategory = $(this).val();
+		//alert(itemCategory);
+		if (itemCategory) {
+			$.ajax({
+				type : 'POST',
+				url : 'add-item-requisitions-getSubCategory-throughAjax',
+				contentType : false,
+				data : itemCategory,
+				success : function(response) {
+					if (response.message == "success") {
+						$("#itemSubCategory").empty();
+						var option = $("<option></option>");
+						$(option).val(null);
+						$(option).html("Select");
+						$("#itemSubCategory").append(option);
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#itemSubCategory").append(option);
+						}
+					}
+
+				},
+				error : function(e) {
+					console.log("error");
+				}
+			});
+		} else {
+			$("#itemSubCategory").empty();
+			var option = $("<option></option>");
+			$(option).val(null);
+			$(option).html("Select");
+			$("#itemSubCategory").append(option);
+		}
+	});
+
+	// For Account Sub Group
+
+	$("#tAccountGroupType").on('change', function() {
+
+		var tAccountGroupType = $(this).val();
+		//alert(itemCategory);
+		if (tAccountGroupType == "dp054") {
+			$("#modalDiv1").show();
+			$("#modalDiv2").hide();
+			$.ajax({
+				type : 'POST',
+				url : 'add-item-requisitions-getPurchaseSubGroup-throughAjax',
+				contentType : false,
+				data : tAccountGroupType,
+				success : function(response) {
+					if (response.message == "success") {
+						$("#tPurchaseSubGroup").empty();
+						var option = $("<option></option>");
+						$(option).val(null);
+						$(option).html("Select");
+						$("#tPurchaseSubGroup").append(option);
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#tPurchaseSubGroup").append(option);
+						}
+					}
+
+				},
+				error : function(e) {
+					console.log("error");
+				}
+			});
+		}
+		if (tAccountGroupType == "dp055") {
+			$("#modalDiv2").show();
+			$("#modalDiv1").hide();
+			$.ajax({
+				type : 'POST',
+				url : 'add-item-requisitions-getSalesSubGroup-throughAjax',
+				contentType : false,
+				data : tAccountGroupType,
+				success : function(response) {
+					if (response.message == "success") {
+						$("#tsalesSubGroup").empty();
+						var option = $("<option></option>");
+						$(option).val(null);
+						$(option).html("Select");
+						$("#tsalesSubGroup").append(option);
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#tsalesSubGroup").append(option);
+						}
+					}
+
+				},
+				error : function(e) {
+					console.log("error");
+				}
+			});
+		}
+		if (tAccountGroupType == "dp056") {
+			$("#modalDiv2").show();
+			$("#modalDiv1").show();
+			var sales = "dp055";
+			var purchase = "dp054";
+
+			$.ajax({
+				type : 'POST',
+				url : 'add-item-requisitions-getSalesSubGroup-throughAjax',
+				contentType : false,
+				data : sales,
+				success : function(response) {
+					if (response.message == "success") {
+						$("#tsalesSubGroup").empty();
+						var option = $("<option></option>");
+						$(option).val(null);
+						$(option).html("Select");
+						$("#tsalesSubGroup").append(option);
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#tsalesSubGroup").append(option);
+						}
+					}
+
+				},
+				error : function(e) {
+					console.log("error");
+				}
+			});
+			$.ajax({
+				type : 'POST',
+				url : 'add-item-requisitions-getPurchaseSubGroup-throughAjax',
+				contentType : false,
+				data : purchase,
+				success : function(response) {
+					if (response.message == "success") {
+						$("#tPurchaseSubGroup").empty();
+						var option = $("<option></option>");
+						$(option).val(null);
+						$(option).html("Select");
+						$("#tPurchaseSubGroup").append(option);
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#tPurchaseSubGroup").append(option);
+						}
+					}
+
+				},
+				error : function(e) {
+					console.log("error");
+				}
+			});
+		} else {
+			$("#tPurchaseSubGroup").empty();
+			var option = $("<option></option>");
+			$(option).val(null);
+			$(option).html("Select");
+			$("#tPurchaseSubGroup").append(option);
+			$("#tsalesSubGroup").empty();
+			var option = $("<option></option>");
+			$(option).val(null);
+			$(option).html("Select");
+			$("#tsalesSubGroup").append(option);
+		}
+	});
+	
+	
+	
+	 $("#submitAddItems").click(function(){
+			
+				item = {};
+				item['itemName']	      			 =	$("#itemName").val(),
+				item['tAccountGroupType']	     	 =	$("#tAccountGroupType").val(),
+				item['tPurchaseSubGroup']     	     =	$("#tPurchaseSubGroup").val(),
+				item['tsalesSubGroup']	             =	$("#tsalesSubGroup").val(),
+				item['itemCategory']	        	 =	$("#itemCategory").val(),
+				item['itemSubCategory']	  			 =  $("#itemSubCategory").val(),
+				item['serveType']	  				 =	$("#serveType").val(),
+				item['serviceType']	 				 =	$("#serviceType").val(),
+				item['tSacCode']	 				 =	$("#tSacCode").val(),
+				item['itemMinStock']	 			 =	$("#itemMinStock").val(),
+				item['itemMaxStock']				 =	$("#itemMaxStock").val(),
+				item['itemActive']	  				 =  $("#itemActive").val()
+				
+				
+				
+				if (!blankValidation("itemName", "TextField",
+			"Item Name can not be left blank"))
+		return false;
+	if (!checkSpecialCharacter("itemName",
+			"Special character is not allowed!!!"))
+		return false;
+	if (!blankValidation("tAccountGroupType", "SelectBox",
+	"Item Type Name can not be left blank"))
+return false;
+	if (!blankValidation("tAccountGroupType", "SelectBox",
+	"Item Type Name can not be left blank"))
+return false;
+	if (!blankValidation("itemCategory", "SelectBox",
+			"Item Category Name can not be left blank"))
+		return false;
+	if (!blankValidation("itemSubCategory", "SelectBox",
+			"Sub Category Name can not be left blank"))
+		return false;
+	if (!blankValidation("serveType", "SelectBox",
+			"Serve Type  can not be left blank"))
+		return false;
+	if (!blankValidation("serviceType", "SelectBox",
+			"Service Type can not be left blank"))
+		return false;
+	if (!blankValidation("tSacCode", "SelectBox",
+	"Sac Code can not be left blank"))
+return false;
+	if (!blankValidation("itemMinStock", "TextField",
+			"Item Minimum Stock  can not be left blank"))
+		return false;
+	if (!blankValidation("itemMaxStock", "TextField",
+			"Item Maximum Stock can not be left blank"))
+		return false;
+	if (!blankValidation("itemActive", "SelectBox",
+			"Status can not be left blank"))
+		return false;
+
+			    submitAddItems(item);
+	 });
+	 
+	
+	 
+	 /* / Function for Submit PupUp /
+ */
+	 function submitAddItems(dataset){
+		 swal.fire({
+				title				: "Are you sure want to Submit?",
+				text				: "Once Submited,Can't revert back !",
+				type 				: "warning",
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Submit",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+				confirmButtonAriaLabel : 'Thumbs up, great!',
+				cancelButtonText : 'Cancel',
+				cancelButtonAriaLabel : 'Thumbs down',
+				preConfirm: () => {
+					return new Promise((resolve) => {
+						setTimeout(() => {
+							console.log("Doing async operation");
+							resolve()
+						}, 3000)
+					})
+				}
+			}).then((result) => {
+				if(result.value){
+	 			$.ajax({
+	 				type	: "POST",
+	 				url : "add-item-requisitions-addItem",
+	 				dataType	: "json",
+	 				contentType	: "application/json",
+	 				data	: JSON.stringify(dataset),
+	 				success	: function(response){ 
+	 					console.log(response.message)
+	 					if(response.message=="Success"){
+	 						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+							location.reload();
+						})
+	 						
+	 					}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+	 				},error	: function(response){
+	 					console.log(data)
+	 					swal(response.code);	
+	 				}
+	 		}) //ajax ends
+				}
+				})
+	 }//submit function ends
+
+	
+	/* 	//////////////////////////////////MODAL ENDS////////////////////////////////////////// */
+}) 
+
+// Function For Reloading The Page Or Reset
+
+function funcLoad(){
+	location.reload();
+} 
+function returnToAddPage(){
+	window.location.href = "/inventory/view-item-requisitions" ;
+}
+//Function to check  Dupicate Entry Of Item Name
+	
+function check(){
+
+	//window.open("/inventory/add-items",'_blank');
+	$('#addItems').modal('show');
+
+}
+function checkForDuplicate(name,counter) {
+	 var item=name;
+	 var count=0;
+	 var itemId=counter;
+	 $(".itemCls").each(function(){
+		 if(item == $(this).val()){
+			 count++;
+		 }
+	 })
+	 if(count>=2){
+		 swal('item already selected');
+		 $("#item_"+counter).val("");
+		 $("#itemName_"+counter).val("");
+		 $("#itemName_"+counter).attr('data-procat', "");
+	 }
+	
+}
+//function to validate Quantity field				
+			function checkQty(event){
+		 var currentId = event.currentTarget.id;
+		checkNum(currentId);
+	}	
+</script>
+
+<script type="text/javascript">
+
+function itemAutoComplete(event) {
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	var counter = l[1];
+	if(currentValue) {
+	
+	$.ajax({
+		type : "POST",
+		url : "add-item-requisitions-get-item",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : currentValue,
+		success : function(response) {
+			if (response.message == "success") {
+		
+			if(response.body.length!=0)	{
+				$(currentId).css("background","#FFF");
+				var content = '<ul id="autocomplete-list1">';
+				for (var i = 0; i < response.body.length; i++) {
+					content += '<li onClick="selectAutocompleteValue1(\''+response.body[i].dlItemId+'\',\''+response.body[i].dlItem+'\',\''+response.body[i].dlItemCategory+'\',\''+response.body[i].dlItemSubCategory+'\',\''+counter+'\')">'+response.body[i].dlItem+'('+ response.body[i].dlItemId+')'+'</li>';
+				} 
+				content += '</ul>';
+				$("#suggesstion-box1_"+counter).show();
+				$("#suggesstion-box1_"+counter).html(content);
+		
+			} else {
+			$(currentId).css("background","#FFF");
+				var content = '<ul id="autocomplete-list1">';
+				content += '<li onClick="selectAutocompleteValue(\''+counter+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box1_"+counter).show();
+				$("#suggesstion-box1_"+counter).html(content);
+			 }
+			}
+		},
+		error : function(data) {
+		console.log(data);
+		}
+	})
+	} else {
+		$(currentId).css("background","#FFF");
+		var content = '<ul id="autocomplete-list1">';
+		content += '<li onClick="selectAutocompleteValue(\''+counter+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#suggesstion-box1_"+counter).show();
+		$("#suggesstion-box1_"+counter).html(content);
+	 }
+	}
+
+	function selectAutocompleteValue1(key,name,dlItemCategory,dlItemSubCategory,counter) {
+		
+		if (key) {
+			
+				$("#item_"+counter).val(key);
+				$("#itemCategory_"+counter).val(dlItemCategory);
+				$("#itemSubCategory_"+counter).val(dlItemSubCategory);
+				$("#itemName_"+counter).val(name);
+				$("#itemName_"+counter).attr('data-procat', key);
+				$("#suggesstion-box1_"+counter).hide();
+				checkForDuplicate(key,counter);
+				
+			} else {
+			
+				$("#item_"+counter).val("");
+				$("#itemCategory_"+counter).val("");
+				$("#itemSubCategory_"+counter).val("");
+				$("#itemName_"+counter).val("");
+				$("#itemName_"+counter).attr('data-procat', "");
+				$("#suggesstion-box1_"+counter).hide();	
+			
+				
+		}
+	}
+	function selectAutocompleteValue(counter) {
+				$("#item_"+counter).val("");
+				$("#itemCategory_"+counter).val("");
+				$("#itemSubCategory_"+counter).val("");
+				$("#itemName_"+counter).val("");
+				$("#itemName_"+counter).attr('data-procat', "");
+				$("#suggesstion-box1_"+counter).hide();
+				check();
+	
+	 }
+	
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Item Requisition</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Item Requisition</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${itemRequisitionModel}" autocomplete="off">
+
+								<input type="hidden" id="itemRequisition" th:value="${itemReq}" />
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group" id="">
+											<label>Requisition Type</label> <select class="form-control"
+												id="requisitionId">
+												<option th:value="null">--Select--</option>
+												<option th:if="${itemReq}"
+													th:each="c:${RequisitionTypeList}" th:value='${c.key}'
+													th:text="${c.name}"
+													th:selected="${c.key==itemRequisitionModel[0].iRType}"></option>
+												<option th:unless="${itemReq}"
+													th:each="c:${RequisitionTypeList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Cost Center Name</label> <select class="form-control"
+												id="costCenterId">
+												<option th:value="null">--Select--</option>
+												<option th:if="${itemReq}" th:each="c:${costCenterList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==itemRequisitionModel[0].costCenter}"></option>
+												<option th:unless="${itemReq}" th:each="c:${costCenterList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Store Name</label> <select class="form-control"
+												id="tStoreId">
+												<option th:value="null">--Select--</option>
+												<option th:if="${itemReq}" th:each="c:${storeList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==itemRequisitionModel[0].tStore}"></option>
+												<option th:unless="${itemReq}" th:each="c:${storeList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group" id="iNType">
+											<label>Expected Date</label> <input type="text"
+												th:if="${itemReq}" class="form-control"
+												id="iRExpectedDateId" placeholder="Expected Date"
+												th:value="${itemRequisitionModel[0].iRExpectedDate}"
+												readonly> <input type="text" th:unless="${itemReq}"
+												class="form-control" placeholder="Expected Date"
+												id="iRExpectedDateId" readonly>
+										</div>
+									</div>
+
+
+									<div class="col-lg-6">
+										<div class="form-group" id="description">
+											<label id="porder">Description</label>
+											<textarea th:if="${itemReq}" style="height: 70px;" cols="50"
+												rows="4" id="iRDescriptionId" class="form-control textarea"
+												th:text="${itemRequisitionModel[0].iRDescription}"></textarea>
+											<textarea th:unless="${itemReq}" style="height: 70px;"
+												cols="50" rows="4" id="iRDescriptionId"
+												class="form-control textarea"></textarea>
+										</div>
+
+
+										<div class="form-group">
+											<label>Status</label> <select class="form-control"
+												id="statusId">
+												<!-- <option value="">--Select--</option> -->
+												<option th:if="${itemReq}" value=true
+													th:selected="${itemRequisitionModel[0].iRStatus}">Active</option>
+												<option th:unless="${itemReq}" value=true>Active</option>
+												<option th:if="${itemReq}" value=false
+													th:selected="${!itemRequisitionModel[0].iRStatus}">Inactive</option>
+												<option th:unless="${itemReq}" value=false>Inactive</option>
+											</select>
+										</div>
+
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+
+													<th>Item Name</th>
+													<th>Quantity</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<!-- working here  -->
+											<tbody id="tbodyData">
+												<tr class="tr_clone" th:if="${itemReq}"
+													th:each="a,iter:${itemRequisitionModel}">
+
+													<td><input type="hidden" id="itemCategory_"
+														class="form-control itemCategoryCls"
+														th:value='${a.dlItemCategory}' /> <input type="hidden"
+														id="itemSubCategory_"
+														class="form-control itemSubCategoryCls"
+														th:value='${a.dlItemSubCategory}' /> <input type="hidden"
+														id="item_" class="form-control itemCls"
+														th:value='${a.dlItem}' /> <input type="text"
+														id="itemName_" class="form-control itemCls1"
+														onkeyup="itemAutoComplete(event);" name="item_"
+														th:value='${a.dlItemId}' />
+														<div id="suggesstion-box1_"></div></td>
+													<td><input type="text" th:id="'iRQty_'+${iter.index}"
+														class="form-control  iRQtyCls" onkeyup="checkQty(event)"
+														th:value='${a.dlQty}'></td>
+
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+													</td>
+												</tr>
+												<tr class="tr_clone" th:unless="${itemReq}">
+
+
+													<td><input type="hidden" id="itemCategory_"
+														class="form-control itemCategoryCls" /> <input
+														type="hidden" id="itemSubCategory_"
+														class="form-control itemSubCategoryCls" /> <input
+														type="hidden" id="item_" class="form-control itemCls">
+														<input type="text" id="itemName_"
+														class="form-control itemCls1"
+														onkeyup="itemAutoComplete(event);" name="item_" />
+														<div id="suggesstion-box1_"></div></td>
+													<!-- <option th:each="c:${lServiceTRype}" th:value='${c.key}'
+															th:text="${c.name}"></option> -->
+
+
+													<td><input type="text" id="iRQty_"
+														class="form-control  iRQtyCls" onkeyup="checkQty(event)"
+														value=''></td>
+
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+										</table>
+							</form>
+
+						</div>
+					</div>
+
+				</div>
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="form-group">
+							<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+							<button type="button" class="btn btn-warning"
+								onclick="returnToAddPage();">Cancel</button>
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+
+			<!-- ///////////////////////////////////////////MODEL VIEW STARTS///////////////////////////////////////////// -->
+
+
+			<div id="addItems" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+					<!-- Modal content-->
+					<div class="modal-content" style="width: 750px;">
+						<div class="modal-header">
+
+							<h4 class="modal-title">Add Item</h4>
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+						</div>
+						<div class="modal-body">
+
+							<!-- text input -->
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Item Name</label> <input type="text"
+											class="form-control" name="itemName" value=""
+											th:id="itemName">
+									</div>
+
+									<div class="form-group">
+										<label>Item type</label> <select class="form-control"
+											th:id="tAccountGroupType">
+											<option value=>Select</option>
+											<option th:each="c:${itemList}" th:value='${c.key}'
+												th:text="${c.name}"
+												th:selected="${c.key==tAccountGroupType}"></option>
+										</select>
+									</div>
+									<div id="modalDiv">
+										<div class="form-group" id="modalDiv1">
+											<label>Purchase Sub Group</label> <select
+												class="form-control" th:id="tPurchaseSubGroup">
+												<option value=>Select</option>
+												<option th:each="c:${purchaseEditList}" th:value='${c.key}'
+													th:text="${c.name}"
+													th:selected="${c.key==tPurchaseSubGroup}"></option>
+											</select>
+										</div>
+										<div class="form-group" id="modalDiv2">
+											<label>Sales Sub Group</label> <select class="form-control"
+												th:id="tsalesSubGroup">
+												<option value=>Select</option>
+												<option th:each="c:${getsalesSubGroupList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==tsalesSubGroup}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="form-group">
+										<label>Category</label> <select class="form-control"
+											th:id="itemCategory">
+											<option value=>Select</option>
+											<option th:each="c:${itemCatList}" th:value='${c.key}'
+												th:text="${c.name}" th:selected="${c.key==itemCategory}"></option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>SubCategory</label> <select class="form-control"
+											th:id="itemSubCategory">
+											<option th:value="NULL">Select</option>
+											<option th:each="c:${itemSubCategoryList}"
+												th:value='${c.key}' th:text="${c.name}"
+												th:selected="${c.key==itemSubCategory}"></option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Serve/Quantity Type</label> <select
+											class="form-control" th:id="serveType">
+											<option th:value="null">Select</option>
+											<option th:each="c:${serveTypeList}" th:value='${c.key}'
+												th:text="${c.name}" th:selected="${c.key==serveType}"></option>
+										</select>
+									</div>
+								</div>
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Service Type</label> <select class="form-control"
+											th:id="serviceType">
+											<option th:value="null">Select</option>
+											<option th:each="c:${serviceTypeList}" th:value='${c.key}'
+												th:text="${c.name}"></option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Sac Code</label> <select class="form-control"
+											th:id="tSacCode">
+											<option th:value="null">Select</option>
+											<option th:each="c:${sacList}" th:value='${c.key}'
+												th:text="${c.name}"></option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Min Stock</label> <input type="text"
+											class="form-control" name="itemMinStock" value=""
+											th:id="itemMinStock" onkeyup="checkMax(event);">
+									</div>
+									<div class="form-group">
+										<label>Max Stock</label> <input type="text"
+											class="form-control" name="itemMaxStock" value=""
+											th:id="itemMaxStock" onkeyup="checkMax(event);">
+									</div>
+									<div class="form-group">
+										<label>Status</label> <select class="form-control"
+											th:id="itemActive">
+											<option th:value="null">Select</option>
+											<option th:value="true">Active</option>
+											<option th:value="false">Inactive</option>
+										</select>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<input type="submit" value="Submit" id="submitAddItems"
+										class="btn btn-success" /> <input type="reset" value="Cancel"
+										class="btn btn-warning" onclick="returnToAddPage();" />
+								</div>
+							</div>
+
+
+
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<div style="clear: both;"></div>
+</div>
+</div>
+</html>

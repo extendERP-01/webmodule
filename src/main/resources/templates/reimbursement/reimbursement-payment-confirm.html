@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<title>Payment</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+.maintbl tr td {
+	/*border: 1px solid black;*/
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.theader-padding {
+	padding: 10px;
+}
+
+.wrapper {
+	margin: 0 auto;
+	width: 100%;
+	position: relative;
+}
+
+.paid-red {
+	position: absolute;
+	right: 0px;
+	top: 0;
+	z-index: 9999;
+}
+/* .header{
+height: 130px;
+} */
+/* .logo{
+float: left;
+} */
+.hrline {
+	border: 2px solid #cccccc;
+}
+
+.clearfix {
+	clear: both;
+}
+
+/* .tableheader {
+padding: 5px;
+color: #418AB3;
+font-weight: 600;
+} */
+.tableheader {
+	padding: 10px 5px;
+	color: #418AB3;
+	font-weight: 600;
+	background: #f5f5f5;
+	border-bottom: 1px solid #ccc;
+	border-top: 10px solid #FFF;
+	text-align: center;
+}
+
+.bill {
+	text-align: center;
+	color: #fff !important;
+}
+
+.invoicedate {
+	color: #fff;
+	text-align: left;
+	padding: 5px;
+}
+
+.mailing {
+	height: 100px;
+	padding: 10px;
+	color: #fff;
+	text-align: right;
+}
+
+.strip2 {
+	width: 800px;
+	padding-left: 17px;
+	font-size: 14px;
+	color: #418ab3;
+	text-align: center;
+	margin: 19px;
+}
+
+.td-border {
+	border-bottom: 1px solid #BABABA;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: right;
+	width: 126px;
+	font-size: 12px;
+}
+
+.td-border-center {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.text-style {
+	color: #3B494A;
+	font-size: 12px;
+	padding: 10px;
+}
+
+.pdt {
+	padding: 4px;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	padding: 13px;
+	text-align: center
+}
+
+.text-style2 {
+	background-color: #f2f2f2;
+	padding: 10px;
+	color: #373757;
+}
+
+.btn-danger {
+	color: #fff !important;
+	background: #d9534f !important;
+	box-shadow: none !important;
+}
+</style>
+<script>
+	//"View Sale Invoice" Default Page Open On Click 'Close' Button
+	function cancel() {
+		window.location.href = "/reimbursement/view-reimbursement-payment-voucher";
+	}
+
+	//Sales Invoice Payment PDF Print On Click 'Print' Button
+	function confirmPrint() {
+		var paymentVoucher = $("#paymentVoucher").val();
+		window.open("/download/reimbursement-view-payment-pdf?id="
+				+ window.btoa(paymentVoucher), '_blank');
+	}
+</script>
+
+
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap ">
+			<div class="content-wrap">
+				<div class="main mrt_20">
+					<div class="col-md-12">
+						<ol class="breadcrumb breadcrumb-arrow">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="view-payment-voucher">View payment Voucher</a></li>
+
+						</ol>
+					</div>
+					<div class="card-title">
+						<h4>Payment Voucher</h4>
+					</div>
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<input type="hidden" id="paymentVoucher"
+									th:value="${PaymentVoucherModel[0].voucherNo}">
+
+								<div class="containersec">
+									<div class="wrapper">
+
+										<table cellpadding="0" cellspacing="0" width="100%">
+											<tr>
+												<td colspan="3">
+													<div class="paid-red">
+														<img src="../assets/images/paid-red.png" />
+													</div>
+												</td>
+											</tr>
+											<tr bgcolor="418AB3">
+												<td width="150"><img th:src="${logoImage}" /></td>
+												<td class="bill"><b> Payment Voucher</b></td>
+												<td></td>
+											</tr>
+
+											<tr bgcolor="595959">
+												<td class="invoicedate">Voucher: <span
+													th:text="${PaymentVoucherModel[0].voucherNo}"></span></td>
+												<td class="invoicedate">DATE: <span
+													th:text="${PaymentVoucherModel[0].transactionDate}"></span></td>
+
+											</tr>
+											<tr>
+												<td colspan="3">
+													<table width="100%" bgcolor="#F2F2F2"
+														style="padding-bottom: 30px; padding-top: 10px;">
+														<tr style="border-top: 10px solid #FFF;">
+
+															<td width="150" class="mailing" bgcolor="88BBD7"
+																valign="top">MAILING<br> INFO
+															</td>
+															<td width="250">
+																<div class="pdt">
+																	<b class="text-style">Name:</b><span
+																		th:text="${hotelList[0].compName}"></span>
+																</div>
+																<div class="pdt">
+																	<b class="text-style">Address:</b><span
+																		th:text="${hotelList[0].compAddrs}"></span>
+																</div>
+																<div class="pdt">
+																	<b class="text-style"> Phone no:</b><span
+																		th:text="${hotelList[0].compMod}"></span>
+																</div>
+																<div class="pdt">
+																	<b class="text-style"> GMail:</b><span
+																		th:text="${hotelList[0].compEmail}"></span>
+																</div>
+																<div class="pdt">
+																	<b class="text-style">GST NO:</b><span
+																		th:text="${hotelList[0].compGstNo}"></span>
+																</div>
+															</td>
+
+															<td width="150" class="mailing" bgcolor="BABABA"
+																valign="top">BILL<br> T0
+															</td>
+
+															<td width="250">
+																<div class="pdt">
+																	<b class="text-style">Name:</b><span
+																		th:text="${vendorList[0].empName}"></span>
+																</div>
+
+																<div class="pdt">
+																	<b class="text-style">Address:</b><span
+																		th:text="${vendorList[0].empAddrs}"></span>
+																</div>
+
+
+																<div class="pdt">
+																	<b class="text-style">Phone:</b><span
+																		th:text="${vendorList[0].empMod}"></span>
+																</div>
+																<div class="pdt">
+																	<b class="text-style">GMail:</b><span
+																		th:text="${vendorList[0].empEmail}"></span>
+																</div>
+																<div class="pdt">
+																	<b class="text-style">GST NO:</b><span
+																		th:text="${vendorList[0].empGstNo}"></span>
+																</div>
+															</td>
+
+														</tr>
+													</table>
+												</td>
+											</tr>
+											<tr style="border-top: 10px solid #FFF;">
+
+												<td colspan="3"><label id="trId"
+													style="font-size: 20px;"><b>GRN DETAILS</b></label>
+													<table class="table table-bordered" id="table"
+														style="width: 100%; border: none;">
+														<thead id="tblHead">
+															<tr style="width: 100%;">
+																<th>sl.no</th>
+																<th>Travel Requisition NO</th>
+																<th>Reimbursement No</th>
+																<th>Place Name</th>
+																<th>Requisition AMOUNT</th>
+																<th>TOTAL AMOUNT</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr th:each="other,iter : ${PaymentVoucherModel}">
+																<td class="td-border td-border-center"
+																	th:text=" ${iter.index+1}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.reqNo}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.reimbNo}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.placeName}"></td>
+																<td class="td-border td-border-right"
+																	th:text="${#numbers.formatDecimal(other.totalAmonut, 0, 'COMMA', 2, 'POINT')} "></td>
+																<td class="td-border td-border-right"
+																	th:text="${#numbers.formatDecimal(other.amountTobePaid, 0, 'COMMA', 2, 'POINT')} "></td>
+															</tr>
+														</tbody>
+													</table></td>
+
+
+											</tr>
+
+											<tr bgcolor="#F2F2F2" style="border-top: 20px solid #FFF;">
+												<td colspan="3">
+
+													<table>
+														<tr>
+															<td width="470px;" style="padding: 10px;"></td>
+															<td align="center" width="200"></td>
+															<td width="250">
+																<table cellpadding="0" cellspacing="0" width="450">
+																	<tr>
+																		<td width="200" align="right" style="color: #418AB3;"><b>BASE
+																				AMOUNT</b></td>
+
+																		<td width="130" align="right"><span
+																			style="border: none" id="subtotalamount"
+																			th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].totalAmonut, 0, 'COMMA', 2, 'POINT')} "></span></td>
+																	</tr>
+
+																	<tr>
+																		<td width="200" align="right" style="color: #418AB3;"><b>ADVANCE
+																				AMOUNT</b></td>
+
+																		<td width="130" align="right"><span
+																			style="border: none" id="subtotalamount"
+																			th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].advanceTaken, 0, 'COMMA', 2, 'POINT')} "></span></td>
+																	</tr>
+
+
+
+
+																	<tr>
+																		<td width="200" align="right" style="color: #418AB3;"><b>GRAND
+																				TOTAL</b></td>
+																		<td width="130" align="right"><span
+																			style="border: none" id="grandtamt"
+																			th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].amountTobePaid, 0, 'COMMA', 2, 'POINT')}"></span></td>
+																	</tr>
+
+																</table>
+															</td>
+														</tr>
+
+
+													</table>
+												</td>
+											</tr>
+											<tr>
+												<td colspan="3">
+													<div class="transcation-text">Transaction Details</div>
+												</td>
+											</tr>
+											<tr>
+												<td colspan="3">
+													<table id="" class="maintbl" cellpadding="1"
+														cellspacing="1" style="width: 100%;">
+														<thead>
+															<tr>
+																<th class="theader-padding">Transaction Date</th>
+																<th class="theader-padding">Payment Reference No.</th>
+																<th class="theader-padding"
+																	th:if="${PaymentVoucherModel[0].transactionNo !=null && PaymentVoucherModel[0].transactionNo !=''}">Transaction
+																	No</th>
+																<th class="theader-padding"
+																	th:if="${PaymentVoucherModel[0].chequeNo != null && PaymentVoucherModel[0].chequeNo != '' }">Cheque
+																	No</th>
+																<th class="theader-padding">Amount</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr>
+																<td><span
+																	th:text="${PaymentVoucherModel[0].transactionDate}"></span></td>
+																<td><span
+																	th:text="${PaymentVoucherModel[0].referenceNo}"></span></td>
+																<td
+																	th:if="${PaymentVoucherModel[0].transactionNo !=null && PaymentVoucherModel[0].transactionNo !=''}"><span
+																	th:text="${PaymentVoucherModel[0].transactionNo}"></span></td>
+																<td
+																	th:if="${PaymentVoucherModel[0].chequeNo !=null && PaymentVoucherModel[0].chequeNo != ''}"><span
+																	th:text="${PaymentVoucherModel[0].chequeNo}"></span></td>
+																<td><span
+																	th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].amountTobePaid, 0, 'COMMA', 2, 'POINT')}"></span></td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											<tr>
+												<td colspan="3">
+													<div class="strip2">
+														<b>THANKYOU FOR YOUR BUSINESS</b>
+													</div>
+												</td>
+											</tr>
+
+
+											<tr>
+												<td colspan="3" align="center">
+													<div class="modal-footer">
+														<button type="button" class="btn btn-primary"
+															data-dismiss="modal" onclick="confirmPrint();">Print</button>
+														<button type="button" class="btn btn-danger"
+															data-dismiss="modal" onclick="cancel();">Close</button>
+													</div>
+												</td>
+											</tr>
+
+										</table>
+									</div>
+								</div>
+								<!-- </form> -->
+							</div>
+							<div style="clear: both;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /# row -->
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.logotext {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+}
+
+.heading {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.slogan {
+	font-size: 14px;
+	color: #f26304;
+	padding: 5px;
+}
+
+.containersec {
+	width: 100%;
+	margin: 0 auto;
+}
+
+.address {
+	font-size: 14px;
+	text-align: left;
+	padding-right: 0px;
+	line-height: 16px;
+}
+
+div {
+	padding: 4px 0px;
+}
+
+.maintbl tr td {
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	text-align: center;
+}
+
+.resturantname {
+	font-size: 16px;
+	font-weight: bold;
+	color: #2d1ea5;
+}
+
+.total {
+	background: #f9965a;
+	color: #FFF;
+	padding: 8px 5px;
+	text-align: left;
+	font-weight: bold;
+}
+
+.description {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+}
+
+.points {
+	padding: 20px 0px;
+	line-height: 26px;
+}
+
+.points span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+	padding: 5px 10px;
+	border-radius: 12px;
+	margin: 3px;
+}
+
+.bill {
+	color: #000;
+	text-align: right;
+	font-size: 18px;
+	font-weight: bold;
+	width: 690px;
+}
+
+.strip2 {
+	margin-top: 60px;
+	width: 800px;
+	height: 20px;
+	padding: 2px;
+	text-align: center;
+	background-color: #d0e6f8;
+	margin-bottom: 12px;
+}
+
+.lefttag {
+	width: 40px;
+	float: left;
+}
+
+.note {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.textarea {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.money {
+	text-align: right;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+lightbox.option({
+	'resizeDuration':200,
+	'wrapAround':true,
+	
+}) 
+
+function calTotal(event){
+	
+   var currentId = event.currentTarget.id;
+   var currentValue = event.currentTarget.value;
+   var l = currentId.split("_"); 
+   var counter = l[1]; 
+   var price=$("#itemPrice_"+counter).val();
+   
+   var lineTotal=parseFloat(currentValue)*parseFloat(price);
+   $('#itemTotal_'+counter).val(lineTotal); 
+   calculateSubTotal();
+}
+
+ 
+ 
+//(document).ready() Starts
+$(document).ready(function() {
+	var approveActive = $('#approveActive').val();
+	var dataToday= new Date();
+	//alert(dataToday);
+	$("#dataToday").val('25-10-2019');
+	if(approveActive=="true") {
+	} else {
+		$("#pOrderDate").datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			timepicker : false
+		});
+		$('#transTR').hide();
+		$('#checkTR').hide();
+		$('#posTR').hide();
+		$("#payMode").on('change', function() {
+			var payMode = $(this).val();
+			$('#checkId').val("");
+			$('#transId').val("");
+			$('#posNo').val("");
+			$('#posNumber').val("");
+			if(payMode=="PMOD001") {
+				$('#transTR').show();
+				$('#posTR').show();
+				$('#checkTR').hide();
+				$('#checkId').val("");
+			} else if(payMode=="PMOD003") {
+				$('#transTR').hide();
+				$('#posTR').hide();
+				$('#checkTR').show();
+				$('#transId').val("");
+				$('#posNo').val("");
+				$('#posNumber').val("");
+			} else {
+				$('#checkId').val("");
+				$('#transId').val("");
+				$('#posNo').val("");
+				$('#posNumber').val("");
+				$('#transTR').hide();
+				$('#checkTR').hide();
+				$('#posTR').hide();
+			}
+		})
+	}
+	
+	
+	$("#submit").click(function(){
+		var taxType = $("#taxType1").val();
+		if(taxType=="true") {
+		//	alert('igst');
+			$("#cgst").val("0.00");
+			$("#sgst").val("0.00");
+		} else {
+			//alert(' No igst');
+			$("#igst").html("0.00");
+		}
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			item = {};
+			item['delChallanId']    =	$("#delChallanId").val(); 
+			item['saleOrderNo']	    =	$("#saleOrderNo").val(); 
+			item['customerId']		=	$("#customerId").val();
+			item['qNote']			=	$("#qNote").val();
+			item['taxType']			=	$("#taxType1").val();
+			item['gstRate']			=	parseFloat($("#gstRate").val());
+			item['subTotal']		=	parseFloat($("#subtotal").html().replace(/,/g , ''));
+			item['qIGST']			=	parseFloat($("#igst3").val());
+			item['qCGST']			=	parseFloat($("#cgst3").val());
+			item['qSGST']			=	parseFloat($("#sgst3").val());
+			item['grandTotal']		=	parseFloat($("#grandTotalt").html().replace(/,/g , ''));
+			item['advanceAmnt']		=	parseFloat($("#advanceAmnt").html().replace(/,/g , ''));
+			item['remainAmnt']		=	parseFloat($("#remainAmnt").html().replace(/,/g , ''));
+			item['itemId']		    =	$(this).find(".ItemId").val(); 
+			item['itemName']		=	$(this).find(".ItemName").val(); 
+			item['unitPrice']		=	parseFloat($(this).find(".unitPrice").val().replace(/,/g , ''));
+			item['quantity']		=	parseFloat($(this).find(".quantity").val().replace(/,/g , '')); 
+			item['itemWt']		    =	parseFloat($(this).find(".wt").val().replace(/,/g , '')); 
+			item['lineTotal']		=	parseFloat($(this).find(".lineTotal").val().replace(/,/g , '')); 
+			item['delChallanDate']	=	$("#delChallanDate").val(); 
+			item['invoiceNo']	=	$("#saleInvId").val(); 
+			dataset.push(item);
+		})
+		console.log('dateset---------',dataset); 
+		submitPurchaseOrder(dataset);
+	});
+	
+ 
+});
+
+
+//SUBMIT QUOTATION FUNCTION
+
+function submitPurchaseOrder(dataset){ 
+		console.log(dataset);
+			swal.fire({
+				title				: "Are you sure want to Submit?",
+				text				: "Once Submited,Can't revert back !",
+				type 				: "warning",
+				
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Submit",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+				confirmButtonAriaLabel : 'Thumbs up, great!',
+				cancelButtonText : 'Cancel',
+				cancelButtonAriaLabel : 'Thumbs down',
+				
+				preConfirm: () => {
+					return new Promise((resolve) => {
+						setTimeout(() => {
+							console.log("Doing async operation");
+							resolve()
+						}, 3000)
+					})
+				}
+			}).then((result) => {
+				if(result.value){
+					$.ajax({
+					type		: "POST",
+					url 		: "view-delivery-challan-invoice-page-save",
+					dataType	: "json",
+					contentType	: "application/json",
+					data		: JSON.stringify(dataset),
+					success		: function(response){
+						//console.log(response);
+						if(response.message=="Success"){
+							swal({
+									title:"Data Saved Successfully.",
+									type: "success",
+							}).then(function(){
+									window.location.href = "/sales/view-sale-invoice" ;
+							})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+					},error		: function(response){
+						swal(response.code);	
+					}
+				}) //ajax ends
+			}
+			})//swal function block ends
+		} 
+
+//(document).ready() Ends
+ 
+ 
+
+//Advance Payment PDF Function
+function pdfAdvPayment() {
+	var id = window.btoa($('#salesOrder').val());
+	window.open("/download/view-sales-order-advance-payment-pdf?id="+id,'_blank');
+}
+
+//"View Sales Order" Default Page Open On Click 'Close' Button
+function cancel() {
+	window.location.href = "/sales/view-sales-order" ;
+}
+ 
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+			<div class="content-wrap">
+				<div class="main mrt_20">
+					<div class="col-md-12">
+						<ol class="breadcrumb breadcrumb-arrow">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="view-delivery-challan">View Delivery
+									Challan</a></li>
+
+						</ol>
+					</div>
+					<div class="card-title">
+						<h4>Add Sales Invoice Order With Quotation</h4>
+					</div>
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<!-- <form th:object="${invChallandetls}" autocomplete="off"> -->
+								<form autocomplete="off">
+									<div class="containersec">
+										<table width="100%" height="100%">
+
+											<tr>
+												<td><img th:src="${logoImage}" /></td>
+												<td align="left" class="address" width="250">
+													<div class="resturantname"></div>
+
+												</td>
+											</tr>
+
+											<tr>
+												<td colspan="2" bgcolor="#cedefd"></td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<table width="700" class="innertable">
+														<tr>
+															<td colspan="2">
+
+																<table>
+
+																	<tr>
+																		<td width="150px;"><label><b>Challan
+																					Id</b></label></td>
+																		<td width="200px;"><input type="hidden"
+																			id="delChallanId"
+																			th:value="${invChallandetls[0].delChallanId}">
+																			<input type="hidden"
+																			id="saleInvId"
+																			th:value="${invChallandetls[0].invoiceNo}">
+																			<label id="delChallanId1"
+																			th:text="${invChallandetls[0].delChallanId}"
+																			class="form-control"> </label></td>
+																		<td width="150px;"></td>
+																		<td width="150px;"><label><b>Customer
+																					Name</b></label></td>
+																		<td width="200px;"><input type="hidden"
+																			id="customerId"
+																			th:value="${invChallandetls[0].customerId}">
+																			<label id="customerName"
+																			th:text="${invChallandetls[0].customerName}"
+																			class="form-control"> </label></td>
+																	<tr>
+																		<td width="150px;"><label><b>Sales
+																					Order No</b></label></td>
+																		<td width="200px;"><input type="hidden"
+																			id="saleOrderNo"
+																			th:value="${invChallandetls[0].saleOrderNo}">
+																			<label id="saleOrderNo"
+																			th:text="${invChallandetls[0].saleOrderNo}"
+																			class="form-control"> </label></td>
+																		<td width="150px;"></td>
+																		<td width="150px;"><input type="hidden"
+																			id="delChallanDate"
+																			th:value="${invChallandetls[0].delChallanDate}">
+																			<label><b>Challan Valid Upto</b></label></td>
+																		<td width="200px;"><label id="delChallanDate"
+																			th:text="${invChallandetls[0].delChallanDate}"
+																			class="form-control"></label></td>
+																	</tr>
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td colspan="2">
+
+																<table id="id_td" class="maintbl" cellpadding="0"
+																	cellspacing="0" border="1" style="width: 922px;">
+																	<thead>
+																		<tr>
+																			<th class="tableheader">SL No.</th>
+																			<th class="tableheader">ITEM GRADE</th>
+																			<th class="tableheader">ITEM THICKNESS</th>
+																			<th class="tableheader">ITEM NAME</th>
+																			<th class="tableheader">PRICE</th>
+																			<th class="tableheader">QUANTITY</th>
+																			<th class="tableheader">WEIGHT</th> 
+																			<th class="tableheader">TOTAL</th>
+																		</tr>
+																	</thead>
+																	<tbody id="tbodyData">
+
+
+
+
+																		<tr th:each="other,iter : ${invChallandetls}">
+																			<td th:text=" ${iter.index+1}"></td>
+
+																			<td><input type="text" readonly
+																				style="border: none"
+																				th:id="'itemCat_'+${iter.index}"
+																				class="form-control itemCat"
+																				th:value='${other.itemCatName}'></td>
+																			<td><input type="text" readonly
+																				style="border: none"
+																				th:id="'itemSubCat_'+${iter.index}"
+																				class="form-control itemSubCat"
+																				th:value='${other.itemSubCatName}'></td>
+																			<td>
+																				<!-- <input type="hidden" class="subCat" th:value="${other.subCat}">
+										<input type="hidden" class="category"  th:value="${other.category}">   -->
+
+																				<input type="hidden"
+																				th:id="'itemName_'+${iter.index}"
+																				class="form-control ItemId"
+																				th:value='${other.itemId}'> <input
+																				type="text" readonly style="border: none"
+																				th:id="'menuItem_'+${iter.index}"
+																				class="form-control ItemName"
+																				th:value='${other.itemName}'>
+																			</td>
+																			<td><input type="text" readonly
+																				style="border: none"
+																				th:id="'itemPrice_'+${iter.index}"
+																				class="form-control unitPrice"
+																				th:value='${other.unitPrice}'></td>
+
+
+																			<td><input type="text" style="border: none"
+																				th:id="'itemQty_'+${iter.index}"
+																				class="form-control quantity"
+																				th:value='${other.quantity}' readonly
+																				onchange="calTotal(event)"></td>
+																					<td><input type="text" style="border: none"
+																				th:id="'itemWt_'+${iter.index}"
+																				class="form-control wt"
+																				th:value='${other.itemWt}' readonly ></td>
+
+																			<td><input type="text" readonly
+																				style="border: none"
+																				th:id="'itemTotal_'+${iter.index}"
+																				class="form-control lineTotal"
+																				th:value='${other.lineTotal}'></td>
+
+																		</tr>
+																	</tbody>
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td width="130">
+																<div>
+																	<strong>Note</strong>
+																</div>
+																<div>
+																	<textarea class="form-control textarea" id="qNote"
+																		th:text="${invChallandetls[0].qNote}" readOnly></textarea>
+																</div>
+															</td>
+															<td width="80">
+																<table cellpadding="0" cellspacing="0" width="350">
+																	<tr>
+
+																		<td colspan="2" width="115" align="right"><b>SUB
+																				TOTAL</b> <input type="hidden" id="igst3"
+																			th:value="${invChallandetls[0].qIGST}"> <input
+																			type="hidden" id="cgst3"
+																			th:value="${invChallandetls[0].qCGST}"> <input
+																			type="hidden" id="sgst3"
+																			th:value="${invChallandetls[0].qSGST}"></td>
+																		<td width="40%" align="right"><label
+																			id="subtotal" class="form-control subtotal"
+																			style="border: none"
+																			th:text="${#numbers.formatDecimal(invChallandetls[0].subTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+																	</tr>
+
+																	<tr id="IgstTR" th:if="${invChallandetls[0].taxType}">
+
+																		<td colspan="2" width="115" align="right"><b
+																			th:text="'IGST ('+${#numbers.formatInteger(invChallandetls[0].gstRate,2,'POINT')}+'%)'"></b>
+																		</td>
+
+
+
+																		<td colspan="2" width="115" align="right">
+																			<!-- <input type="text" id="igst" th:value="${invChallandetls[0].qIGST}"> -->
+																			<label id="igst" class="form-control igst"
+																			style="border: none"
+																			th:text="${#numbers.formatDecimal(invChallandetls[0].qIGST, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+
+																	</tr>
+
+																	<tr id="CgstTR" th:if="${!invChallandetls[0].taxType}">
+																		<td colspan="2" id="getCGST" width="115" align="right"><b
+																			th:text="'CGST ('+${#numbers.formatInteger(invChallandetls[0].gstRate,2,'POINT')}/2+'%)'"></b>
+																			<input type="hidden" id="igst1"
+																			th:value="${invChallandetls[0].qIGST}"></td>
+
+
+																		<td width="40%"><label id="cgst"
+																			class="form-control money" style="border: none"
+																			th:text="${#numbers.formatDecimal(invChallandetls[0].qCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+
+																	</tr>
+
+																	<tr id="SgstTR" th:if="${!invChallandetls[0].taxType}">
+																		<td colspan="2" width="115" align="right"><b
+																			th:text="'SGST ('+${#numbers.formatInteger(invChallandetls[0].gstRate,2,'POINT')}/2+'%)'"></b></td>
+
+
+																		<td width="40%"><label id="sgst"
+																			class="form-control money" style="border: none"
+																			th:text="${#numbers.formatDecimal(invChallandetls[0].qSGST, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td colspan="2" width="115" align="right"><b>GRAND
+																				TOTAL</b></td>
+
+
+																		<td width="40%" align="right"><label
+																			id="grandTotalt" class="form-control grandTotalt"
+																			style="border: none"
+																			th:text="${#numbers.formatDecimal(invChallandetls[0].grandTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+
+																	</tr>
+
+
+																	<tr>
+																		<td colspan="2" width="115" align="right"><b>Advance
+																				Amount</b></td>
+
+
+																		<td width="40%" align="right"><label
+																			id="advanceAmnt" class="form-control advanceAmnt"
+																			style="border: none"
+																			th:text="${#numbers.formatDecimal(invChallandetls[0].advanceAmnt, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+
+																	</tr>
+
+																	<tr>
+																		<td colspan="2" width="115" align="right"><b>OutStanding
+																				Amount</b></td>
+
+
+																		<td width="40%" align="right"><label
+																			id="remainAmnt" class="form-control remainAmnt"
+																			style="border: none"
+																			th:text="${#numbers.formatDecimal(invChallandetls[0].remainAmnt, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+
+																	</tr>
+
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td width="90">
+
+																<table>
+																	<tr>
+																		<td width="150px;"><input type="hidden"
+																			th:value="${invChallandetls[0].taxType}"
+																			id="taxType1"> <label><b>Tax Type</b></label></td>
+
+																		<td width="200px;"><label id="taxType"
+																			th:if="${invChallandetls[0].taxType}"
+																			class="form-control taxType">Center Tax</label> <label
+																			id="taxType" th:if="${!invChallandetls[0].taxType}"
+																			class="form-control taxType">State Tax</label></td>
+																	</tr>
+																	<tr>
+																		<td width="150px;"><input type="hidden"
+																			id="gstRate" th:value="${invChallandetls[0].gstRate}">
+																			<label><b>GST Rate</b></label></td>
+																		<td width="200px;"><label id="gstRate"
+																			th:text="${invChallandetls[0].gstRate}"
+																			class="form-control gstRate"></label></td>
+																	</tr>
+
+																</table>
+															</td>
+															<td width="90">
+
+																<table>
+
+
+																</table>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+
+											<tr>
+												<td colspan="2" align="center">
+													<button type="button" id="submit" class="btn btn-success">Submit</button>
+													<button type="button" class="btn btn-warning"
+														onclick="window.location.href='view-delivery-challan'">
+														Back</button>
+
+												</td>
+											</tr>
+
+										</table>
+									</div>
+								</form>
+							</div>
+							<div style="clear: both;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /# row -->
+		</div>
+	</div>
+</body>
+</html>

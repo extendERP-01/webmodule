@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Reimbursement Payment</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+}
+
+.maintbl tr td {
+	/*border: 1px solid black;*/
+	border-collapse: collapse;
+	padding: 12px 2px;
+}
+
+.theader-padding {
+	padding: 10px 5px;
+	background: #f5f5f5;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	padding: 13px;
+	text-align: center;
+}
+
+.wrapper {
+	margin: 0 auto;
+	width: 1200px;
+	padding: 20px 10px;
+	position: relative;
+}
+
+.paid {
+	left: 500px;
+	top: 10;
+	z-index: 9999;
+	position: absolute;
+}
+
+.font-design {
+	font-size: 14px;
+	padding: 5px;
+}
+
+.brd-top {
+	border-bottom: 1px solid #ccc;
+	border-top: 1px solid #333;
+	padding: 10px 0px;
+}
+
+.brd-bottom {
+	border-bottom: 1px solid #ccc;
+	padding: 10px 0px;
+}
+/* .header{
+height: 130px;
+} */
+/* .logo{
+float: left;
+} */
+.hrline {
+	border: 2px solid #cccccc;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.tableheader {
+	padding: 10px 5px;
+	color: #333;
+	font-weight: 600;
+	border-bottom: 1px solid #ccc;
+	border-top: 1px solid #ccc;
+	text-align: center;
+}
+
+.bill {
+	text-align: left;
+	color: #000 !important;
+	font-size: 20px;
+	padding-left: 20px;
+}
+
+.invoicedate {
+	color: #000;
+	text-align: left;
+	padding: 5px;
+}
+
+.mailing {
+	height: 100px;
+	padding: 10px;
+	color: #fff;
+	text-align: right;
+}
+
+.strip2 {
+	width: 800px;
+	padding-left: 17px;
+	font-size: 14px;
+	color: #418ab3;
+	text-align: center;
+	margin: 19px;
+}
+
+.td-border {
+	border-bottom: 1px solid #BABABA;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.tStyle {
+	color: #418AB3;
+	font-size: 15px;
+	padding: 15px 10px;
+}
+
+.text-style {
+	color: #3B494A;
+	font-size: 12px;
+	padding: 10px;
+	text-align: left;
+}
+
+.pdt {
+	padding: 4px;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	margin-right: 180px;
+	color: #373757;
+}
+
+.text-style2 {
+	background-color: #f2f2f2;
+	padding: 10px;
+	color: #373757;
+}
+
+.btn-danger {
+	color: #fff !important;
+	background: #d9534f !important;
+	box-shadow: none !important;
+}
+
+.textarea {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	padding: 8px;
+}
+
+.invoice-number {
+	font-size: 20px;
+	padding: 10px;
+}
+</style>
+
+
+</head>
+<body th:attr="style='background: #fff url(\''+${image}+'\') no-repeat'">
+	<div layout:fragment="content">
+		<div class="content-wrap ">
+			<div class="content-wrap">
+				<div class="main mrt_20">
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<div class="containersec">
+									<div class="wrapper">
+
+										<table cellpadding="0" cellspacing="0" style="width: 680px;">
+
+
+											<tr>
+												<td style="border-bottom: 1px solid #000;"><img
+													th:src="@{classpath:static/assets/images/logoatithya.png}" />
+												</td>
+											</tr>
+
+											<tr>
+												<td>
+
+													<div class="pdt">
+														<b class="text-style">Name:</b><span
+															th:text="${hotelList[0].compName}"></span>
+													</div>
+													<div class="pdt">
+														<b class="text-style">Address:</b><span
+															th:text="${hotelList[0].compAddrs}"></span>
+													</div>
+													<div class="pdt">
+														<b class="text-style"> Phone no:</b><span
+															th:text="${hotelList[0].compMod}"></span>
+													</div>
+													<div class="pdt">
+														<b class="text-style"> GMail:</b><span
+															th:text="${hotelList[0].compEmail}"></span>
+													</div>
+													<div class="pdt">
+														<b class="text-style">GST NO:</b><span
+															th:text="${hotelList[0].compGstNo}"></span>
+													</div>
+													<div class="pdt">
+														<b>&nbsp;</b>
+													</div>
+													<div class="pdt">
+														<b>&nbsp;</b>
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td align="right">
+													<div class="pdt">
+														<b class="text-style">Name:</b><span
+															th:text="${vendorList[0].empName}"></span>
+													</div>
+
+													<div class="pdt">
+														<b class="text-style">Address:</b><span
+															th:text="${vendorList[0].empAddrs}"></span>
+													</div>
+
+
+													<div class="pdt">
+														<b class="text-style">Phone:</b><span
+															th:text="${vendorList[0].empMod}"></span>
+													</div>
+													<div class="pdt">
+														<b class="text-style">GMail:</b><span
+															th:text="${vendorList[0].empEmail}"></span>
+													</div>
+													<!-- <div class="pdt">
+														<b class="text-style">GST NO:</b><span
+															th:text="${vendorList[0].empGstNo}"></span>
+													</div> -->
+
+												</td>
+
+											</tr>
+											<tr>
+												<td>
+													<div class="invoice-number">
+														<span th:text="${poNumber}"></span>
+													</div>
+													<div style="float: left;">
+														<span class="font-design">Invoice Date:</span><br /> <span
+															class="font-design" th:text="${pdfCurrentDate}"></span>
+
+													</div> <!--<div style="float: left;">
+											<span class="font-design">Due Date:</span><br/>
+											<span class="font-design">14/05/2019</span>
+											</div> -->
+
+
+												</td>
+											</tr>
+											<tr>
+												<td>
+													<table class="maintbl" id="table" cellpadding="0"
+														cellspacing="0" style="width: 675px;">
+														<thead id="tblHead">
+															<tr>
+																<th class="tableheader">sl.no</th>
+																<th class="tableheader">Travel Requisition NO</th>
+																<th class="tableheader">Reimbursement No</th>
+																<th class="tableheader">Place Name</th>
+																<th class="tableheader">Requisition AMOUNT</th>
+																<th class="tableheader">TOTAL AMOUNT</th>
+															</tr>
+														</thead>
+														<tbody
+															th:if="${not #lists.isEmpty(HrmsReimbursementPaymentModal)}">
+															<tr
+																th:each="other,iter : ${HrmsReimbursementPaymentModal}">
+																<td class="td-border td-border-center"
+																	th:text=" ${iter.index+1}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.reqNo}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.reimbNo}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.placeName}"></td>
+																<td class="td-border td-border-right"
+																	th:text="${#numbers.formatDecimal(other.totalAmonut, 0, 'COMMA', 2, 'POINT')} "></td>
+																<td class="td-border td-border-right"
+																	th:text="${#numbers.formatDecimal(other.amountTobePaid, 0, 'COMMA', 2, 'POINT')} "></td>
+															</tr>
+														</tbody>
+
+														<tbody
+															th:unless="${not #lists.isEmpty(HrmsReimbursementPaymentModal)}">
+															<tr>
+																<td style="color: #e30f0f;" width="100%" valign="top"
+																	align="center" colspan="10"><b>No records
+																		found</b></td>
+															</tr>
+
+
+														</tbody>
+
+
+													</table>
+
+
+												</td>
+
+
+											</tr>
+
+
+
+											<tr>
+
+												<td>
+													<table>
+														<tr>
+															<td width="450"></td>
+															<td align="right">
+																<table cellpadding="0" cellspacing="0">
+																	<!-- <tr>
+												    
+												    <td class="brd-top">Subtotal:</td>
+												    <td class="brd-top"  width="100">6,000.00</td>
+												    </tr> -->
+																	<tr>
+																		<td class="brd-top">TOTAL REIMBURSEMENT</td>
+																		<td class="brd-top" width="100"><span
+																			style="border: none" id="subtotalamount"
+																			th:text="${#numbers.formatDecimal(HrmsReimbursementPaymentModal[0].totalAmonut, 0, 'COMMA', 2, 'POINT')} "></span>
+																		</td>
+																	</tr>
+
+																	<tr>
+																		<td class="brd-top">ADVANCE AMOUNT</td>
+
+																		<td class="brd-top" width="100"><span
+																			style="border: none" id="subtotalamount"
+																			th:text="${#numbers.formatDecimal(HrmsReimbursementPaymentModal[0].advanceTaken, 0, 'COMMA', 2, 'POINT')} "></span></td>
+																	</tr>
+
+																	<tr>
+																		<td class="brd-top"><b>AMOUNT PAID</b></td>
+
+																		<td class="brd-top" width="100"><span
+																			style="border: none" id="grandtamt"
+																			th:text="${#numbers.formatDecimal(HrmsReimbursementPaymentModal[0].amountTobePaid, 0, 'COMMA', 2, 'POINT')}"></span></td>
+
+																	</tr>
+																</table>
+															</td>
+														</tr>
+													</table>
+
+												</td>
+											</tr>
+
+
+
+											<tr>
+												<td>
+													<div align="left" class="transcation-text">TRANSACTION
+														DETAILS</div>
+												</td>
+											</tr>
+											<tr>
+												<td colspan="3">
+													<table id="" class="maintbl" cellpadding="1"
+														cellspacing="1" style="width: 650px;">
+
+														<thead>
+															<tr>
+																<th class="tableheader">Transaction Date</th>
+																<th class="tableheader">Payment Reference No.</th>
+																<th class="tableheader"
+																	th:if="${HrmsReimbursementPaymentModal[0].transactionNo !=null && HrmsReimbursementPaymentModal[0].transactionNo !=''}">Transaction
+																	No</th>
+																<th class="tableheader"
+																	th:if="${HrmsReimbursementPaymentModal[0].chequeNo != null && HrmsReimbursementPaymentModal[0].chequeNo != '' }">Cheque
+																	No</th>
+																<th class="tableheader">Amount</th>
+															</tr>
+														</thead>
+														<tbody>
+															<!--  -->
+															<tr>
+																<td align="center"><span
+																	th:text="${HrmsReimbursementPaymentModal[0].transactionDate}"></span></td>
+																<td align="center"> <span
+																	th:text="${HrmsReimbursementPaymentModal[0].referenceNo}"></span></td>
+																<td align="center"
+																	th:if="${HrmsReimbursementPaymentModal[0].transactionNo !=null && HrmsReimbursementPaymentModal[0].transactionNo !=''}"><span
+																	th:text="${HrmsReimbursementPaymentModal[0].transactionNo}"></span></td>
+																<td align="center"
+																	th:if="${HrmsReimbursementPaymentModal[0].chequeNo !=null && HrmsReimbursementPaymentModal[0].chequeNo != ''}"><span
+																	th:text="${HrmsReimbursementPaymentModal[0].chequeNo}"></span></td>
+																<td align="center"><span
+																	th:text="${#numbers.formatDecimal(HrmsReimbursementPaymentModal[0].amountTobePaid, 0, 'COMMA', 2, 'POINT')}"></span></td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											<tr>
+												<td height="150"></td>
+											</tr>
+											<tr>
+												<td valign="bottom"
+													style="height: 30px; border-top: 1px solid #ccc; margin-top: 200px;"
+													align="center">
+													<div>
+														<span style="padding-right: 5px;">Phone: 9861737766
+														</span> <span style="padding-right: 5px;">Email:
+															subharam@nirmalyalabs.com</span> <span
+															style="padding-right: 5px;">Web:
+															http://www.example.com</span> <span style="padding-right: 5px;">
+															GSTIN: 24BBBFF5679L8ZR</span>
+													</div>
+												</td>
+											</tr>
+
+
+										</table>
+									</div>
+								</div>
+							</div>
+							<div style="clear: both;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /# row -->
+		</div>
+	</div>
+</body>
+</html>

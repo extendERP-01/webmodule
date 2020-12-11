@@ -1,0 +1,289 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		var f = this.getField("#date");
+		f.value = util.printd("mmm/d/yyyy", new Date());
+	});
+</script>
+
+<title>Commercial Sales Invoice</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+}
+
+.logotext {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+}
+
+.heading {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.slogan {
+	font-size: 14px;
+	color: #f26304;
+	padding: 5px;
+}
+
+.containersec {
+	width: 800px;
+	margin: 0 auto;
+}
+
+.address {
+	font-size: 14px;
+	text-align: left;
+	padding-right: 120px;
+	line-height: 20px;
+}
+
+ div {
+	padding: 4px 0px;
+}
+
+.maintbl tr td {
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+}
+
+.containersec {
+	width: 800px;
+	margin: 0 auto;
+	/* background: #fff url(http://localhost:8051/assets/images/invoicebg.png) no-repeat; */
+}
+
+.total {
+	background: #f9965a;
+	color: #FFF;
+	padding: 8px 5px;
+	text-align: left;
+	font-weight: bold;
+}
+
+.description {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+}
+
+.points {
+	padding: 20px 0px;
+	line-height: 26px;
+}
+
+.points span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+	padding: 5px 10px;
+	border-radius: 12px;
+	margin: 3px;
+}
+
+
+
+.strip2 {
+	margin-top: 60px;
+	width: 800px;
+	height: 20px;
+	line-height: 20px;
+	padding: 2px;
+	text-align: center;
+	background-color: #d0e6f8;
+	margin-bottom: 12px;
+}
+
+.lefttag {
+	width: 100px;
+	float: left;
+}
+
+.note {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.bill {
+	font-size: 10px !important;
+	line-height:12px !important;
+}
+.tableheader-color{
+    font-size: 12px; 	
+	color:#fff;
+	font-weight:600;
+	padding:10px 5px;
+	text-align:center;
+}
+</style>
+</head>
+<body>
+		<table class="maintable" width="680">
+			<!-- <tr>
+				<td><div class="bill">Goods Requisition</div></td>
+			</tr> -->
+			<tr>
+				<td>
+				<img
+					th:src="@{classpath:static/assets/images/logo.png}" height="75"
+					width="300" /></td>
+			  	  <td class="bill" width="800"><div th:text="${hotelList[0].storeName}"></div>
+					<div style="padding:0 !important;">
+						Address - <span th:text="${hotelList[0].storeAddrs}"></span>
+					</div>
+					<div style="padding:0 !important;">
+						City - <span th:text="${hotelList[0].storeCity}"></span>
+					</div>
+					<div style="padding:0 !important;">
+						Phone - <span th:text="${hotelList[0].storeMob}"></span>
+					</div>
+					<div style="padding:0 !important;">
+						GST NO - <span th:text="${hotelList[0].storeGst}"></span>
+					</div></td>
+			</tr>
+
+			<tr>
+				<td colspan="2" bgcolor="#cedefd"></td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<table width="685" class="innertable">
+						<tr>
+							<td align="left">
+								<div class="lefttag">Requisition By:</div>
+								<div class="righttag" th:text="${requisitionBy}"></div>
+								<div class="clearfix"></div>
+								<div class="lefttag">CostCenter :</div>
+								<div class="righttag" th:text="${costCenter}"></div>
+								<div class="clearfix"></div>
+								<div class="lefttag">Requisition Type:</div>
+								<div class="righttag" th:text="${requisitionType}"></div>
+								<div class="clearfix"></div>
+								<div class="lefttag">Expected Date:</div>
+								<div class="righttag" th:text="${expectedDate}"></div>
+								<div class="clearfix"></div>
+								<div class="lefttag">RequisitionStatus:</div>
+								<div class="righttag" th:text="${status}"></div>
+							</td>
+							<td></td>
+							<td></td>
+							<td align="left" width="280">
+								<div>
+									Date : <span th:text="${createdDate}"></span>
+								</div>
+								<div>
+									Requisition No: <span th:text="${itemRequisition}"></span>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+
+			<tr>
+				<td colspan="2" style="border-bottom: 2px solid #ccc;"></td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<table width="700" class="maintbl">
+						<thead  style="background-color:#5c2e14;">
+							<tr>
+								<th class="tableheader-color">Sl. No.</th>
+								<th class="tableheader-color">Category Name</th>
+								<th class="tableheader-color">Sub Category</th>
+								<th class="tableheader-color">Item Name</th>
+								<th class="tableheader-color">Requisition Quantity</th>
+								<th class="tableheader-color">ServeUnit</th>
+								<th class="tableheader-color">Minimum Stock</th>
+								<th class="tableheader-color">Current Inventory Storage</th>
+							</tr>
+						</thead>
+						<tbody th:if="${not #lists.isEmpty(OneItemRequisition)}">
+							<tr th:each="items,iter : ${OneItemRequisition}">
+								<td bgcolor="#F5F5F5" th:text="${iter.index+1}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.dlItemCategory}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.dlItemSubCategory}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.dlItem}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.dlQty}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.serveUnit}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.minStock}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.crntInvStore}"></td>
+							</tr>
+							<tr>
+								<td width="100" align="right" colspan="8" valign="top"><strong>Total
+										Requisition Quantity</strong><span th:text="${gtotal}"
+									style="margin-left: 92px;"></span></td>
+							</tr>
+						</tbody>
+						<tbody th:unless="${not #lists.isEmpty(OneItemRequisition)}">
+							<tr>
+								<td colspan="18" align="center" bgcolor="#F5F5F5">No Record
+									Found</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+
+			<tr>
+				<td width="500">
+					<div>
+						<strong>Note:</strong>
+					</div>
+					<div class="note">
+						<b><span th:text="${description}"></span></b>
+					</div>
+				</td>
+
+
+			</tr>
+			<!-- <tr>
+				<td>
+					<div class="strip2" align="center">
+						<strong>Thank You For Your Business</strong>
+					</div>
+				</td>
+			</tr> -->
+
+		</table>
+
+</body>
+</html>

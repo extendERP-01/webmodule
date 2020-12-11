@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+$(document).ready(function() { 
+	
+	$(document).on('click', '.close', function() {
+		  $(this).siblings("img").toggle();
+	})
+	
+	
+	//date time picker
+	$( "#rfqValidDate" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		minDate: new Date() ,
+		timepicker : false,
+	})
+	
+	var extension = $("#extension").val();
+	 
+			//alert(extension);
+			if(extension) {
+				//alert('hello 1');
+				$('#uploadedImgDiv').hide();
+			}  else{
+				$('#pdfDiv').hide();
+			}
+		 
+});
+
+function openPdf(){
+	 
+	 var pdfName=$("#pdfName").val();
+	 var rootpath="/document/invImg/";
+	 var imagePath=rootpath+pdfName;
+	// alert(imagePath);
+	 window.open(imagePath, '_blank');
+			  
+}
+
+function saveFile() {
+	var file=$("#fileUpload").val();
+	
+	 var extension = file.substr( (file.lastIndexOf('.') +1) );
+	 //alert(extension);
+	 if(extension=="pdf"){
+		$("#uploadedImgDiv").hide();
+	 }
+	$("#upload_prev").empty();
+	var uFile = $('#fileUpload')[0].files[0]; 
+	var fileName = $('#fileUpload').val();
+	
+	var lastIndex = fileName.lastIndexOf("\\");
+	if(lastIndex >= 0) {
+		fileName = fileName.substring(lastIndex + 1);
+	}
+	var iURL = URL.createObjectURL(uFile);
+	$("#uploadedImgDiv").html("");
+	var LightImg =  "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' data-lightbox='"+fileName+"'>Preview Image</a>";
+	$("#uploadedImgDiv").html(LightImg);
+	
+	var fileData = new FormData();
+	fileData.append('file',uFile);
+	fileData.append('path','none');
+	
+	var ext = $('#fileUpload').val().split('.').pop().toLowerCase();
+	if($.inArray(ext, ['gif','png','jpg','pdf','jpeg']) == -1) {
+	    swal('Invalid  File Extension!');
+	}else{
+		$.ajax({
+			type        : "POST",
+			url         : "add-rfq-uploadFile",
+			enctype     : "multipart/form-data",
+			contentType : false,
+			data        : fileData,
+			processData : false,
+			cache       : false,
+			success     : function(response){
+							
+						},			  
+			error       : function(e) {
+				
+				  		}
+		});	
+	}
+
+}
+
+ 
+function validateForm(){
+	 if (!blankValidation("rfqName","TextField", "RFQ Name can not be left blank"))
+        	return false;
+	 if (!blankValidation("itemCategory","TextField", "Please Select Item Category"))
+        return false;
+	 if (!blankValidation("rfqValidDate","TextField", "RFQ Valid Date can not be left blank"))
+	        return false;
+	 if (!blankValidation("rfqBackground","TextField", "RFQ Background can not be left blank"))
+	        return false;
+	 if (!blankValidation("rfqDetails","TextArea", "RFQ Details Date can not be left blank"))
+	        return false;
+}
+
+function gotoview() {
+	window.location.href = "/inventory/view-rfq";
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="@{/index}">Home</a></li>
+					<li class="active"><a
+						th:href="@{/inventory/add-request-for-quotaion}">Add Request
+							For Quotation</a></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Request For Quotation</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:action="@{add-rfq}" th:object="${reqQuotation}"
+								onsubmit="return validateForm();" method="post"
+								autocomplete="off">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<input type="hidden" th:field="*{reqQuotId}" /> <input
+											type="hidden" id="extension" th:value="${extension}" /> <input
+											type="hidden" id="pdfName" th:value="${pdfName}" />
+										<div class="form-group">
+											<label>RFQ Name</label> <input type="text" name="" value=""
+												class="form-control" th:field="*{rfqName}" />
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>RFQ Validity</label>
+											<!-- th:field="*{lPeriodStartDate}" -->
+											<input readonly class="form-control datepickerforthis"
+												type="text" th:field="*{rfqValidDate}" name="" value="">
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Attachment</label> <input type="file" id="fileUpload"
+												th:field="*{rfqBackground}" style="display: block;"
+												onchange="saveFile()">
+											<div id="uploadedImgDiv">
+												<span th:if="*{action !=null}"> <a
+													class="example-image-link" th:href="*{action}"
+													th:title="*{rfqBackground}" data-lightbox="hsdjas">Preview
+														Image</a>
+												</span>
+											</div>
+											<div id="pdfDiv">
+												<span> <!-- <a  th:href="'document/invImg/'+${rfqBackground}" target="_blank"  >Open Pdf</a> -->
+													<!-- 	<a onclick="openPdf()" th:href="l;;lmm" >Open Pdf</a> -->
+													<a href="javascript:openPdf();">Open Pdf</a>
+												</span>
+											</div>
+										</div>
+										<span class="fornerrormsg" id="subcategory_photoerr"></span>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Item Category</label> <select class="form-control" th:field="*{itemCategory}">
+												<option value="">Select</option>
+												<option th:each="c,iter:${itemCategoryList}" th:value="${c.key}" th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="form-group">
+											<label id="porder">Details</label>
+											<textarea style="height: 100px;" cols="50" rows="4"
+												th:field="*{rfqDetails}" class="form-control textarea"></textarea>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12">
+										<div class="form-group">
+											<input type="submit" value="Submit" class="btn btn-success" />
+											<input type="button" value="Cancel" class="btn btn-warning"
+											onclick="gotoview();" />
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

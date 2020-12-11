@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+//Email validation
+function validateEmail(email) {
+    var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+    if (reg.test(email.value) == false) {
+        swal('Invalid Email Address');
+        $("#" + email.id).val('');
+        return false;
+    }
+
+    return true;
+
+}
+
+//validation
+function validateForm() {
+    if (!blankValidation("tStoreName", "TextField",
+            " Store Name can not be left blank"))
+        return false;
+
+    if (!blankValidation("tCountry", "SelectBox",
+            "Country can not be empty"))
+        return false;
+
+    if (!blankValidation("tState", "SelectBox",
+            "State can not be empty"))
+        return false;
+    if (!blankValidation("tDistrict", "SelectBox",
+            "District can not be empty"))
+        return false;
+    if (!blankValidation("tCity", "TextField", "City required"))
+        return false;
+
+    if (!blankValidation("tAddress", "TextField",
+            "Address can not be left blank"))
+        return false;
+
+    if (!blankValidation("tPinCode", "TextField", "Pin Code required"))
+        return false;
+
+    if (!fieldLengthCheck("tPinCode", 6, "PIN Code", "Max"))
+        return false;
+
+    if (!fieldLengthCheck("tPinCode", 6, "PIN Code", "Min"))
+        return false;
+    if (!blankValidation("tPhoneNo", "TextField",
+            "Contact No. can not be left blank"))
+        return false;
+    if (!checkMobileNumberIN("tPhoneNo", "invalid contact no.!!!"))
+        return false;
+    if (!checkEmailId("tEmailId", "TextField", "Email Id required"))
+        return false;
+
+    if (!blankValidation("tStoreDescription", "TextField",
+            "Description can not be left blank"))
+        return false;
+    if (!blankValidation("tStoreActive", "SelectBox",
+            "Status can not be left blank"))
+        return false;
+
+}
+
+function checkNumber() {
+    var qty = $('#tPinCode').val();
+    if (qty) {
+        checkNum("tPinCode");
+    }
+}
+
+lightbox.option({
+    'resizeDuration': 200,
+    'wrapAround': true,
+
+})
+
+$(document).on('click', '.close', function() {
+    $(this).siblings("img").toggle();
+})
+
+function saveFile() {
+    $("#upload_prev").empty();
+    var uFile = $('#fileUpload')[0].files[0];
+    var fileName = $('#fileUpload').val();
+
+    var lastIndex = fileName.lastIndexOf("\\");
+    if (lastIndex >= 0) {
+        fileName = fileName.substring(lastIndex + 1);
+    }
+    var iURL = URL.createObjectURL(uFile);
+    $("#uploadedImgDiv").html("");
+    var LightImg = "<a class='example-image-link' href='" + iURL + "' title='" + fileName + "' data-lightbox='" + fileName + "'>Preview Image</a>";
+    $("#uploadedImgDiv").html(LightImg);
+
+    var fileData = new FormData();
+    fileData.append('file', uFile);
+    fileData.append('path', 'none');
+
+    $.ajax({
+        type: "POST",
+        url: "add-store-master-uploadStore",
+        enctype: "multipart/form-data",
+        contentType: false,
+        data: fileData,
+        processData: false,
+        cache: false,
+        success: function(response) {
+
+        },
+        error: function(e) {
+
+        }
+    });
+
+}
+
+//Dropdown for District Name
+$(document).ready(function() {
+    $("#tState").on('change', function() {
+        var tState = $(this).val();
+        console.log(tState);
+        if (tState) {
+
+            $.ajax({
+                type: 'POST',
+                url: 'add-store-master-districtName-ajax',
+                contentType: false,
+                data: tState,
+                success: function(response) {
+                    if (response.message == "success") {
+                        $("#tDistrict").empty();
+
+                        var option = $("<option></option>");
+                        $(option).val(null);
+                        $(option).html("Select");
+                        $("#tDistrict").append(option);
+                        for (var i = 0; i < response.body.length; i++) {
+                            var option = $("<option></option>");
+                            $(option).val(response.body[i].key);
+                            $(option).html(response.body[i].name);
+                            $("#tDistrict").append(option);
+                        }
+                    }
+                },
+                error: function(e) {
+                    alert("error");
+                }
+            });
+        } else {
+            $("#tDistrict").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("Select");
+            $("#tDistrict").append(option);
+        }
+    });
+
+    //Dropdown for District Name
+    $("#tCountry").on('change', function() {
+        var tCountry = $(this).val();
+        console.log(tCountry);
+        if (tCountry) {
+            $("#tDistrict").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("Select");
+            $("#tDistrict").append(option);
+            $.ajax({
+                type: 'POST',
+                url: 'add-store-master-stateName-ajax',
+                contentType: false,
+                data: tCountry,
+                success: function(response) {
+                    if (response.message == "success") {
+                        $("#tState").empty();
+
+                        var option = $("<option></option>");
+                        $(option).val(null);
+                        $(option).html("Select");
+                        $("#tState").append(option);
+                        for (var i = 0; i < response.body.length; i++) {
+                            var option = $("<option></option>");
+                            $(option).val(response.body[i].key);
+                            $(option).html(response.body[i].name);
+                            $("#tState").append(option);
+                        }
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            });
+        } else {
+            $("#tState").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("Select");
+            $("#tState").append(option);
+            $("#tDistrict").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("Select");
+            $("#tDistrict").append(option);
+        }
+    });
+});
+
+function gotoview() {
+	window.location.href = "/inventory/view-store-master";
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class="active"><span>Add Store Details</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Store Details</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form action="#" th:action="@{add-store-master}"
+								th:object="${storeMaster}" method="post"
+								onsubmit="return validateForm();" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"> </span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"> </span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<input type="hidden" th:field="*{tStore}" />
+										<div class="form-group">
+											<label>Store Name</label> <input type="text"
+												class="form-control" name="tStoreName" value=""
+												th:field="*{tStoreName}">
+										</div>
+										<div class="form-group">
+											<label>Country</label> <select class="form-control"
+												th:field="*{tCountry}">
+												<option value="">Select</option>
+												<option th:each="c:${countryList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>State</label> <select class="form-control"
+												th:field="*{tState}">
+												<option value="">Select</option>
+												<option th:each="c:${stateList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>District</label> <select class="form-control"
+												th:field="*{tDistrict}">
+												<option value="">Select</option>
+												<option th:each="c:${districtList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>City</label> <input type="text" class="form-control"
+												name="" th:field="*{tCity}">
+										</div>
+										<div class="form-group">
+											<label>Address</label>
+											<textarea name="tAddress" cols="" rows=""
+												th:field="*{tAddress}" class="form-control textarea"></textarea>
+										</div>
+										<div class="form-group">
+											<label>Pin Code</label> <input type="text"
+												class="form-control" name="" th:field="*{tPinCode}"
+												onkeyup="checkNumber();">
+										</div>
+										<div class="form-group">
+											<label>Contact No.</label> <input type="text"
+												class="form-control" name="" th:field="*{tPhoneNo}">
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>GSTNo.</label> <input type="text" class="form-control"
+												name="" th:field="*{tGSTNo}">
+										</div>
+										<div class="form-group">
+											<label>Tin No.</label> <input type="text"
+												class="form-control" name="" th:field="*{tTinNo}">
+										</div>
+										<div class="form-group">
+											<label>Email Id</label> <input type="text"
+												class="form-control" name="" th:field="*{tEmailId}"
+												onblur="validateEmail(this);">
+										</div>
+										<div class="form-group">
+											<label>Description</label>
+											<textarea name="tStoreDescription" cols="" rows=""
+												th:field="*{tStoreDescription}"
+												class="form-control textarea"></textarea>
+										</div>
+										<div class="form-group">
+											<label>Status</label> <select class="form-control"
+												th:field="*{tStoreActive}">
+
+												<option th:value="true">Active</option>
+												<option th:value="false">Inactive</option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Store Logo</label> <input type="file" id="fileUpload"
+												style="display: block;" onchange="saveFile()"
+												th:field="*{tStoreLogo}">
+											<div id="uploadedImgDiv">
+												<span th:if="*{action !=null}"> <a
+													class="example-image-link" th:href="*{action}"
+													data-lightbox="hsdjas">Preview Image</a>
+												</span>
+											</div>
+											<span class="fornerrormsg" id="subcategory_photoerr"></span>
+										</div>
+									</div>
+									<div class="col-lg-12">&nbsp;</div>
+									<div class="col-lg-12">
+										<div class="form-group">
+											<input type="submit" value="Submit" class="btn btn-success" />
+											<input type="reset" value="Cancel" class="btn btn-warning"
+												onclick="gotoview();" />
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

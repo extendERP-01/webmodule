@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.theadCls > tr > th {
+	text-align: center;
+}
+
+#autocomplete-list2 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 440px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list2 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list2 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.trCls {
+	background: #d1e3f5;
+}
+
+.trCls > th {
+	color: #2c61e1;
+	font-size: 14px;
+}
+
+.tbll {
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+    margin-bottom: 20px;
+}
+</style>
+<script>
+function getGRNAutoSearch() {
+	var value = $('#grn').val();
+	if(value) {
+		$.ajax({
+			type : "POST",
+			url : "add-batch-code-get-grn",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : value,
+			success : function(response) {
+				if(response.body.length!=0)	{
+					$("#grn").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue2(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'('+response.body[i].name+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#pordersuggestion").show();
+					$("#pordersuggestion").html(content);
+				} else {
+					$("#grn").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					content += '<li onClick="selectAutocompleteValue2(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#pordersuggestion").show();
+					$("#pordersuggestion").html(content);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$("#grn").css("background","#FFF");
+				var content = '<ul id="autocomplete-list2">';
+				content += '<li onClick="selectAutocompleteValue2(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#pordersuggestion").show();
+				$("#pordersuggestion").html(content);
+			}
+		});
+	} else {
+		$("#grn").css("background","#FFF");
+		var content = '<ul id="autocomplete-list2">';
+		content += '<li onClick="selectAutocompleteValue2(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#pordersuggestion").show();
+		$("#pordersuggestion").html(content);	
+	}
+}
+function selectAutocompleteValue2(key,name) {
+	if (key) {
+ 		$("#grnId").val(key);
+    	$("#grn").val(key);
+    	$("#grn").attr('data-procat', key);
+    	$("#pordersuggestion").hide();
+    	getGRNDetails(key);
+	} else {
+		$("#grnId").val("");
+    	$("#grn").val("");
+    	$("#grn").attr('data-procat', "");
+    	$("#pordersuggestion").hide();
+    	getGRNDetails("");
+	}
+}
+
+function getGRNDetails(key) {
+	$("#tbodyData").empty();
+	if(key) {
+		$.ajax({
+			type : "POST",
+			url : "add-batch-code-get-grn-details",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : key,
+			success : function(response) {
+				if (response.message == "success") {
+					if(response.body.length!=0)	{
+						console.log(response.body)
+						$("#tbodyData").empty();
+						var count = 0;
+						for(var i=0; i<response.body.length;i++) {
+							for(var j=0; j<response.body[i].quantity;j++){
+								var table = '<tr>'
+									+'<td><input type="hidden" class="form-control gradeId" id="inputGradeId_'+count+'" value="'+response.body[i].gradeId+'"><input type="text" class="form-control grade" id="inputGrade_'+i+'" value="'+response.body[i].grade+'" readonly></td>'
+									+'<td><input type="hidden" class="form-control thicknessId" id="inputThicknessId_'+count+'" value="'+response.body[i].thicknessId+'"><input type="text" class="form-control thickness" id="inputThickness_'+i+'" value="'+response.body[i].thickness+'" readonly></td>'
+									+'<td><input type="hidden" class="form-control pipeSizeId" id="inputPipeSizeId_'+count+'" value="'+response.body[i].pipeSizeId+'"><input type="text" class="form-control pipeSize" id="inputPipeSize_'+i+'" value="'+response.body[i].pipeSize+'" readonly></td>'
+									+'<td><input type="text" class="form-control batchCode" id="inputBatchCode_'+count+'" value=""></td>'
+									+'</tr>';
+									$("#tbodyData").append(table);
+									count = count + 1 ;
+							}
+							
+						}
+					} else {
+						var table = '<tr>'
+									+'<td colspan="4" style="text-align: center; color:red;"><b>No Data Found</b></td>'
+									+'</tr>';
+						$("#tbodyData").append(table);
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+				var table = '<tr>'
+					+'<td colspan="4" style="text-align: center; color:red;"><b>No Data Found</b></td>'
+					+'</tr>';
+				$("#tbodyData").append(table);
+			}
+		})
+	} else {
+		var table = '<tr>'
+			+'<td colspan="4" style="text-align: center; color:red;"><b>No Data Found</b></td>'
+			+'</tr>';
+		$("#tbodyData").append(table);
+	}
+}
+
+$(document).ready(function(){
+	$("#submit").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			item = {};
+			
+			item['batchId']			=	$('#batchId').val();
+			item['grnId']			=	$('#grnId').val();
+			item['gradeId']			=	$(this).find(".gradeId").val();
+			item['thicknessId']		=	$(this).find(".thicknessId").val();
+			item['pipeSizeId']		=	$(this).find(".pipeSizeId").val();
+			item['batchCode']		=	$(this).find(".batchCode").val();
+			dataset.push(item);
+		});
+		if (!blankValidation("grnId","TextField" ,"Please Enter GRN"))
+		      return false;
+		
+		var itemNameValid = true;
+		$(".batchCode").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"TextField" ,"Please Enter Batch Code")){
+				itemNameValid = false;
+				return false;
+			}
+			
+		});
+		
+		if(itemNameValid) {
+			console.log(dataset)
+			submitBatchCode(dataset);
+		}
+	});
+})
+
+function submitBatchCode(dataset) {
+	swal.fire({
+		title					: "Are you sure want to Submit?",
+		text					: "Once Submited,Can't revert back !",
+		type 					: "warning",
+		showCancelButton		: true,
+		confirmButtonColor		: "#DD6BB5",
+		confirmButtonText		: "Submit",
+		showLoaderOnConfirm		: true,
+		reverseButtons 			: true,
+		confirmButtonAriaLabel 	: 'Thumbs up, great!',
+		cancelButtonText 		: 'Cancel',
+		cancelButtonAriaLabel 	: 'Thumbs down',	
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "add-batch-code-save",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					if(response.message=="Success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							window.location.href = "/inventory/view-batch-code" ;
+						})
+					} else {
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			}) 
+		}
+	})
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Batch Code</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Batch Code</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<input type="hidden" id="batchId" th:value="${batchId}">
+								<!-- <div class="col-lg-12"> -->
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>GRN</label> <input type="hidden" id="grnId"
+											th:value="${batch[0].grnId}" class="form-control"
+											th:if="${batchId}"> <input type="text"
+											id="grn" th:value="${batch[0].grnId}"
+											onkeyup="getGRNAutoSearch();" class="form-control"
+											th:if="${batchId}" disabled> <input type="hidden"
+											id="grnId" class="form-control" th:unless="${batchId}">
+										<input type="text" id="grn" class="form-control"
+											th:unless="${batchId}"
+											onkeyup="getGRNAutoSearch();">
+										<div id="pordersuggestion"></div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<h4><b style="color:#2c61e1;">Mother Coil Details</b></h4>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<!-- id="table-data" -->
+									<table class="tbll table table-bordered" id="myTable" width="100%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Grade</th>
+												<th>Thickness</th>
+												<th>Pipe Size</th>
+												<th>Batch Code</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<tr th:unless="${batchId}"><td colspan="4" style="text-align: center; color:red;"><b>No Data Found</b></td></tr>
+											<tr th:if="${batchId}" th:each="a,iter:${batch}">
+												<td><input type="hidden" class="form-control gradeId" th:id="inputGradeId_+${iter.index}" th:value="${a.gradeId}">
+													<input type="text" readonly class="form-control grade" th:id="inputGrade_+${iter.index}" th:value="${a.grade}"></td>
+												<td><input type="hidden" class="form-control thicknessId" th:id="inputThicknessId_+${iter.index}" th:value="${a.thicknessId}">
+													<input type="text" readonly class="form-control thickness" th:id="inputThickness_+${iter.index}" th:value="${a.thickness}"></td>
+												<td><input type="hidden" class="form-control pipeSizeId" th:id="inputPipeSizeId_+${iter.index}" th:value="${a.pipeSizeId}">
+													<input type="text" readonly class="form-control pipeSize" th:id="inputPipeSize_+${iter.index}" th:value="${a.pipeSize}"></td>
+												<td><input type="text" class="form-control batchCode" th:id="inputBatchCode_+${iter.index}" th:value="${a.batchCode}"></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

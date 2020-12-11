@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+
+<script type="text/javascript">
+
+function viewInModel(index){
+	
+	$('#table1').empty();
+		$.ajax({
+			type 		:	"POST",
+			url 		:	"view-job-modal",
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	index,
+			success 	: 	function(response) {
+				if(response.message=="success"){ 
+					var userRoleStatus = "";
+					if(response.body.userRoleStatus){
+						userRoleStatus = "Active";	
+					}else{
+						userRoleStatus = "Inactive";	
+					}
+				 
+					 table = '</tr><tr><td>JOB ID:</td><td align="left">'
+						+response.body.jobId+'</td>'+'</tr><tr><td>JOB TITTLE:</td><td align="left">'
+						+response.body.jObtitle+'</td>'+'</tr><tr><td>JOB TYPE:</td><td align="left">'
+						+response.body.jobType+'</td>'+'</td></tr>';
+					$('#myModal').modal('show');
+					$('#table1').append(table);
+				}				
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}  
+
+$(document).ready(function() {	 
+		$('#table').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : true,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-job-tittle-through-ajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val(); 
+				}
+			},
+			'dataSrc' : "",
+			"dom": 'lrtip',
+		    'columns' : [
+			{'data' : 'jobId'},
+			{'data' : 'jObtitle'},
+			{'data' : 'jobType'}, 
+			{'data' : 'activeStatus'},
+			{'data' : 'action'}
+				]	
+		});
+	  });
+
+function searchData() {
+	$('#table').DataTable().draw();
+}	
+
+
+
+const ipAPI = 'https://api.ipify.org?format=json';
+function DeleteItem(index){
+swal({
+		title				: "Are you sure want to Delete job detail ?",
+		text				: "Once Deleted,Can't revert back !",
+		type 				: "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : '<i class="fa fa-thumbs-down">cancel</i>',
+		cancelButtonAriaLabel : 'Thumbs down',
+		preConfirm: () => {
+		    return fetch(ipAPI)
+		      .then(response => response.json())
+		      .then(data => Swal.insertQueueStep(data.ip))
+		      .catch(() => {
+		        Swal.insertQueueStep({
+		          type: 'error',
+		          title: 'Unable to get your public IP'
+		        })
+		      })
+		 }  
+	}).then((result) => {
+		if(result.value){
+		$.ajax({
+		type		: "POST",
+		url 		: "job-tittle-delete?id="+index,
+		dataType	: "json",
+		contentType	: "application/json",
+		data		: JSON.stringify(index),
+		success		: function(response){
+			console.log(response);
+			if(response.message=="success"){
+				swal.fire({
+						title:"Data Deleted Successfully.",
+						type: "success"
+				}).then((result) => {
+					location.reload(); 
+				})
+			
+			}else{
+				swal({
+					title:response.code,
+					text: response.message,
+					type:"warning"
+				})
+			}
+		},
+		error: function(err){
+			console.log(err);	
+		}
+	}) //ajax ends
+		}
+	})//swal function block ends
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="main mrt_20">
+		<div class="main mrt_20">
+			<div class="main mrt_20">
+				<ol class="breadcrumb breadcrumb-arrow">
+				
+                   <li><a href="index.html">Home</a></li>
+                   
+               <li class="active"><a th:href="@{/recruitment/add-job-tittle}">Add Job Title</a></li>
+					 
+					<li class="active"><span>View Job Title</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Job Title</h4>
+			</div>
+			<div class="container-fluid">
+				 
+				
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-job-tittle">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Job Title</label>
+                             		<select class="org-name form-control" id="param1">
+                            			<option th:value="NULL">--Select--</option>
+						    			<option th:each="c:${jobTittleList}" th:value='${c.key}'
+							 			th:text="${c.name}"></option>
+                            		</select>
+                           		</div>
+								<div class="col-md-2">
+									<label>Job Type</label>
+                             		<select class="org-name form-control" id="param2">
+                            			<option th:value="NULL">--Select--</option>
+						    			<option th:each="c:${jobTypeList}" th:value='${c.key}'
+							 			th:text="${c.name}"></option>
+                            		</select>
+                           		</div>
+								
+								<div class="col-md-2 mrt_10">
+	                              <div class="form-group filtersearch">
+	                                 <input type="button" class="btn btn-info" value="Search"
+											onclick="searchData()" />
+	                                 
+	                              </div>
+	                           </div> 
+							</div>
+						</div>
+                  
+
+                     
+                     <div class="table-responsive" style="width:100%;">
+                        <table id="table" class="table table-bordered">
+                           <thead>
+                              <tr>
+                                 <th>Job Id</th>
+                                 <th>Job Title</th>
+                                 <th>Job Type</th>
+                                 <th>Status </th>
+                                 <th>Action</th>
+                              </tr>
+                           </thead>
+                           
+                        </table>
+                        
+                     </div>
+                     <div style="clear:both;"></div>
+                  
+               </div>
+			 
+			</div>
+		</div>
+	 
+         <!-- Modal Start-->
+         <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+               
+               <!-- Modal content-->
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <h4 class="modal-title">View Job Title Details</h4>
+                     <button type="button" class="close" data-dismiss="modal"><i class="fa fa-close fa-2x"></i></button>
+                  </div>
+                  <div class="modal-body">
+                     <table width="100%" border="0" id="table1">
+                        
+                     </table>
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+               </div>
+               
+            </div>
+         </div>
+         <!-- Modal End-->
+         <!-- /# row -->
+
+
+	</div>
+</div>
+</html>

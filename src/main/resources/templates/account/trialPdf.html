@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<link href="../assets/css/lib/font-awesome.min.css" rel="stylesheet">
+<link href="../assets/css/lib/themify-icons.css" rel="stylesheet">
+<!-- bootstrap datatable  -->
+<link href="../datatables/dataTables.bootstrap4.min.css"
+	rel="stylesheet">
+<link href="../assets/css/lib/bootstrap.min.css" rel="stylesheet">
+<link href="../assets/css/style.css" rel="stylesheet">
+<script src="../assets/js/lib/jquery-3.4.1.min.js"></script>
+<script src="../assets/js/lib/bootstrap.min.js"></script>
+<script>
+
+/**************** R A J E S H *******************/
+
+var parentStr = '';
+var target = [];
+function showTrialModal(parent,rootString){
+	parentStr = parent;
+	target = rootString.split(',');
+	//console.log(parent)
+	//console.log(target)
+	//console.log(target[0])
+
+	//$(".modal-body").html('');
+	//$("#myModal").modal('show');
+	$.ajax({
+		url:"view-account-tree-ajax",
+		method:"GET",
+		contentType:"application/json",
+		success:function(response){
+			var hlevel = 0;
+			for(var i = 0;i<response.body.length;i++){
+				var level = parseInt(response.body[i].levelName.substring(1));
+				if(level > hlevel){
+					hlevel = level;
+				}
+			}
+			var margin = 22;
+			var font = 20;
+			for(var i = 1;i<=hlevel;i++){
+				var str = "";
+				var substr = "";
+				margin +=3;
+				font -=2;
+				for(var j = 0;j<response.body.length;j++){
+					var level = parseInt(response.body[j].levelName.substring(1));
+					var id = response.body[j].groupId;
+					var parent = "#"+response.body[j].parentId;
+					if(level == i){
+						if(level == 1){
+							str += "<div><div onclick=\"hide('"+id+"')\" id=\""+id+"h\"><i class=\"indicator fa fa-plus-circl\"></i>"+response.body[j].groupName+"</div><p class=\"accgrHead accgr\" style=\"font-size:inherit;\" id=\""+id+"\"></p><div>";
+						}else{
+							if(level == hlevel){
+								substr ="<div style=\"margin-left:"+margin+"px;\"><p id=\""+id+"\" class=\"accgr\"></p></div>";
+							}else{
+								substr ="<div style=\"margin-left:"+margin+"px;\"><div onclick=\"hide('"+id+"')\" id=\""+id+"h\"><i class=\"indicator fa fa-plus-circl\"></i>"+response.body[j].groupName+"</div><p id=\""+id+"\" class=\"accgr\" ></p></div>";
+							}
+							$(parent).append(substr);
+						}
+					}
+				}
+				$("#target").append(str);
+				str = "";
+			}
+			addEvent();
+			//console.log(parentid)
+		},
+		error:function(err){
+			console.log(err)
+		}
+	})
+	
+}
+
+function hide(id){
+	//console.log(id)
+	if($("#"+id).html().length > 1){
+		$("#"+id).toggle("slow","swing");
+	}	
+	
+}
+
+
+function addEvent(){
+	var param1 = window.btoa($('#param1').val());
+	var param2 = window.btoa($('#param2').val());
+	var param3 = window.btoa($('#param3').val());
+	console.log($('#param3').val())
+	var trialData={};
+	var length = 0;
+	$.ajax({
+		url:"view-trial-balance-report-detls?param1="+param1+"&param2="+param2+"&param3="+param3,
+		method:"GET",
+		contentType:"application/json",
+		success:function(response){
+			trialData = response.data;
+			length = response.recordsTotal;
+			console.log(trialData)
+			
+			for(var j =0; j< response.data.length;j++){
+				$('.accgr').each(function(){
+					var tb = "";
+					var trid = response.data[j].desc;
+					//var trid1 = response.data[j].desc+"tr1";
+					if(trid == $(this).attr('id')){	
+						tb = //'<div style=\"color:red;\">ACCOUNTS:'+trialData[i].costCenter+'</div>'+
+							'<div style=\"float:right;width:50%;display:flex;text-align:right;\"><div  style=\"color:red;width:100px;margin-left:auto;\">'+trialData[j].debitBal.toFixed(2)+' Dr</div>'+
+							'<div style=\"color:red;margin-left:20px;width:100px;\">'+trialData[j].creditVal.toFixed(2)+' Cr</div></div>';	
+						
+					}
+					var id = "#"+$(this).attr('id')+"h";
+					$(id).append(tb);
+					tb="";
+				});
+			}
+		},
+		error:function(err){
+			console.log(err)
+		}
+	});
+			
+	$('.accgr').each(function(){
+		if(parentStr.includes($(this).attr('id') ) || target.includes($(this).attr('id'))){
+			$("#"+$(this).attr('id')).prev().css("color","limegreen");
+			$("#"+$(this).attr('id')).toggle();
+		}
+		
+		$("#"+$(this).attr('id')).toggle();
+	});
+}
+
+$(document).ready(function(){
+	showTrialModal("GN001","GN001");
+	$('#showall').on("click",function(){
+		console.log("hii")
+		if($("input[name='showall']:checked").val()!=null){
+			$('#param4').val('all');
+			$('#utype').DataTable().draw();
+		}else{
+			$('#param4').val('specific');
+			$('#utype').DataTable().draw();
+			
+		}
+	})
+})
+</script>
+</head>
+<body>
+<div>
+	<input type="hidden" id="param1" th:value="${param1}"/>
+	<input type="hidden" id="param2" th:value="${param2}"/>
+	<input type="hidden" id="param3" th:value="${param3}"/>
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="containersec">
+							<div class="wrapper">
+
+								<table cellpadding="0" cellspacing="0" style="width: 100%;">
+
+									<tr>
+										<td colspan="2" bgcolor="#418AB3"><img
+											src="/assets/images/logo.png" style="width:400px;height:100px;" /></td>
+										<td class="bill" bgcolor="#418AB3" style="text-align: center;font-size: 20px;color: wheat;
+   										 margin-right: 5px">Trial Balance</td>
+
+									</tr>
+
+
+
+									<tr >
+										<td style="font-size: 15px; padding:5px;" bgcolor="#C0C0C0" ><b>From Date : </b><span
+											th:text="${param1}"></span></td>
+										<td bgcolor="#C0C0C0"></td>
+										<td style="font-size: 15px; text-align:right; padding:5px;" bgcolor="#C0C0C0" ><b>To Date : </b><span
+											th:text="${param2}"></span></td>
+									</tr>
+									<tr style="border-top: 10px solid #FFF;" >
+										<td colspan="3" id="target">
+										
+										</td>
+									
+                                     </tr>
+
+								</table>
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+	
+</div>
+</body>
+</html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang='en' xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 224px;
+	position: absolute;
+	z-index:9999;
+}
+ 
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+function downloadPdf(id) {
+	var id = window.atob(id);
+	window.open("view-delivery-challan-pdf?id=" + window.btoa(id), '_blank');
+}
+
+function challanAutoComplete() {
+	$.ajax({
+		type: "POST",
+		url: "manage-challan-AutocompleteList",
+		dataType: 'json',
+		contentType: 'application/json',
+		data: $("#challanNo").val(),
+		success: function(response) {
+			if(response.message == "success") {
+				if(response.body.length != 0) {
+					$("#challanNo").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for(var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].key + '(' + response.body[i].name + ')' + '</li>';
+					}
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				} else {
+					$("#challanNo").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+			}
+		},
+		error: function(data) {
+			console.log(data);
+		}
+	})
+}
+
+function selectAutocompleteValue(key, name) {
+	if(key) {
+		$("#challanNo").val(key);
+		$("#challanNo").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+	} else {
+		$("#challanNo").val("");
+		$("#challanNo").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+}
+
+function cusAutoComplete() {
+	$.ajax({
+		type: "POST",
+		url: "manage-challan-AutocompleteCus",
+		dataType: 'json',
+		contentType: 'application/json',
+		data: $("#customerNo").val(),
+		success: function(response) {
+			if(response.message == "success") {
+				if(response.body.length != 0) {
+					$("#customerNo").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for(var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue1(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].key + '(' + response.body[i].name + ')' + '</li>';
+					}
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+				} else {
+					$("#customerNo").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue1(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+				}
+			}
+		},
+		error: function(data) {
+			console.log(data);
+		}
+	})
+}
+
+function selectAutocompleteValue1(key, name) {
+	if(key) {
+		$("#customerNo").val(key);
+		$("#customerNo").attr('data-procat', key);
+		$("#suggesstion-box1").hide();
+	} else {
+		$("#customerNo").val("");
+		$("#customerNo").attr('data-procat', "");
+		$("#suggesstion-box1").hide();
+	}
+}
+$(document).ready(function() {
+	//date time picker
+	$("#fromDate").datetimepicker({
+			format: 'd-m-Y',
+			closeOnDateSelect: true,
+			timepicker: false,
+		})
+		//date time picker
+	$("#toDate").datetimepicker({
+		format: 'd-m-Y',
+		closeOnDateSelect: true,
+		timepicker: false,
+	})
+	var extension = $("#extension").val();
+	if(extension) {
+		$('#uploadedImgDiv').hide();
+	} else {
+		$('#pdfDiv').hide();
+	}
+	//Method for listing of all the Item Records
+	$('#itemList').DataTable({
+		'processing': true,
+		'serverSide': true,
+		'searching': false,
+		'ordering': false,
+		"ajax": {
+			'url': 'manage-challan-through-ajax',
+			'data': function(d) {
+				d.param1 = $('#challanNo').val();
+				//d.param2 = $('#StatusId').val(); 
+				d.param3 = $('#fromDate').val();
+				d.param4 = $('#toDate').val();
+				d.param4 = $('#toDate').val();
+				d.param5 = $('#customerNo').val();
+			}
+		},
+		'dataSrc': "",
+		'columns': [{
+			'data': 'delChallanId'
+		}, {
+			'data': 'customerName'
+		}, {
+			'data': 'delChallanDate'
+		}, {
+			'data': 'approveShowStatus'
+		}, {
+			'data': 'toPlace'
+		}, {
+			'data': 'fromPlace'
+		}, {
+			'data': 'action'
+		}]
+	});
+});
+
+function searchData() {
+	$('#itemList').DataTable().draw();
+}
+
+function saveFile() {
+	var file = $("#fileUpload").val();
+	var extension = file.substr((file.lastIndexOf('.') + 1));
+	if(extension == "pdf") {
+		$("#uploadedImgDiv").hide();
+	}
+	$("#upload_prev").empty();
+	var uFile = $('#fileUpload')[0].files[0];
+	var fileName = $('#fileUpload').val();
+	var lastIndex = fileName.lastIndexOf("\\");
+	if(lastIndex >= 0) {
+		fileName = fileName.substring(lastIndex + 1);
+	}
+	var iURL = URL.createObjectURL(uFile);
+	$("#uploadedImgDiv").html("");
+	var LightImg = "<a class='example-image-link' href='" + iURL + "' title='" + fileName + "' data-lightbox='" + fileName + "'>Preview Image</a>";
+	$("#uploadedImgDiv").html(LightImg);
+	var fileData = new FormData();
+	fileData.append('file', uFile);
+	fileData.append('path', 'none');
+	$.ajax({
+		type: "POST",
+		url: "view-delivery-challan-uploadFile",
+		enctype: "multipart/form-data",
+		contentType: false,
+		data: fileData,
+		processData: false,
+		cache: false,
+		success: function(response) {},
+		error: function(e) {}
+	});
+}
+
+function viewInModel(index) {
+	var id = index;
+	$('#table1').empty();
+	$('#table2').empty();
+	$.ajax({
+		type: "POST",
+		url: "manage-challan-model",
+		dataType: 'json',
+		contentType: 'application/json',
+		data: id,
+		success: function(response) {
+			if(response.message == "success") {
+				var viewDocument = "View Document";
+				span = '<tr><td>Challan No :</td>' + '<td>' + response.body[0].delChallanId + '</td>' + '</tr><tr><td>Sale Order No:</td>' + '<td>' + response.body[0].saleOrderNo + '</tr><tr><td>To Place:</td>' + '<td>' + response.body[0].toPlace + '</tr><tr><td>From Place:</td>' + '<td>' + response.body[0].fromPlace + '</td></tr><tr><td>Grand Total:</td>' + '<td>' + (response.body[0].grandTotal).toFixed(2) + '</tr><tr><th><b>Details Of Item Details :<b></th></tr>';
+				$('#myModal').modal('show');
+				$('#table1').append(span);
+				table2 = '<tr><th><b>Item Name</b></th><th><b>Item Price</b></th><th><b>Item Qnty.</b></th><th><b>Line Total</b></th>';
+				$('#myModal').modal('show');
+				$('#table2').append(table2);
+				for(var i = 0; i < response.body.length; i++) {
+					table = '<tr><td>' + response.body[i].itemName + '</td><td>' + (response.body[i].unitPrice).toFixed(2) + '</td><td>' + response.body[i].quantity + '</td><td>' + (response.body[i].lineTotal).toFixed(2) + '</td> </tr>';
+					$('#myModal').modal('show');
+					$('#table2').append(table);
+				}
+			}
+		},
+		error: function(data) {
+			console.log(data);
+		}
+	})
+}
+
+function viewInModelApprove(index) {
+	$('#ChangeStatusModel').modal('show');
+	$('#delChallanId').val(index);
+}
+//INVOICE PAGE FUNCTION
+function invoiceCreate100(id) {
+	var id = window.atob(id);
+	window.location.href = "view-delivery-challan-invoice-page?id=" + window.btoa(id);
+}
+
+function dateValid() {
+	if($("#fromDate").val() && $("#toDate").val()) dateValidation('fromDate', 'toDate', 'To Date', 'From Date');
+}
+
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="#">Home</a></li>
+					<!-- <li><a href="add-delivery-challan">Add Delivery Challan</a></li> -->
+					<li class="active"><span>View Delivery Challan</span></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+
+
+				</ul>
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>Challan No</label> <input type="text"
+										class="form-control" id="challanNo"
+										onkeyup="challanAutoComplete();" />
+									<div id="suggesstion-box"></div>
+								</div>
+							</div>
+							<div class="col-md-2">
+								<div class="form-group">
+									<label>Customer Name</label> <input type="text"
+										class="form-control" id="customerNo"
+										onkeyup="cusAutoComplete();" />
+									<div id="suggesstion-box1"></div>
+								</div>
+							</div>
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>From Date</label> <input class="form-control"
+										type="text" readonly  id="fromDate" onchange="dateValid()">
+								</div>
+							</div>
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>To Date</label> <input class="form-control" type="text"
+										readonly  id="toDate"  onchange="dateValid()">
+								</div>
+							</div>
+							<div class="col-md-2" style="margin-top: auto;">
+								<div class="form-group">
+									<button class="btn btn-primary" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="itemList" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Challan No</th>
+										<th>Customer Name</th>
+										<th>Challan Date</th>
+										<th>Status</th>
+										<th>Supply To</th>
+										<th>Supply From</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Start-->
+
+
+		<!-- <div id="ChangeStatusModel" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				Modal content
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Challan Delivery Status</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form th:action="@{view-rfq-vendor-approve}"  th:object="${changeApprove}" onsubmit="return validateForm();" method="post" autocomplete="off">
+						<form th:action="@{view-delivery-challan-approve}"
+							th:object="${changeApprove}" onsubmit="return validateForm();"
+							method="post" autocomplete="off">
+
+							<div class="col-md-12" id="RFQDIV">
+								<label>Delivery Challan Id</label> <input type="text" readonly
+									class="form-control" th:field="*{delChallanId}">
+							</div>
+
+
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>Image</label> <input type="file" id="fileUpload"
+										th:field="*{imageName}" style="display: block;"
+										onchange="saveFile()">
+										th:field="*{imageName}"
+									<div id="uploadedImgDiv">
+										<span th:if="*{action !=null}"> <a
+											class="example-image-link" th:href="*{action}"
+											data-lightbox="hsdjas">Preview Image</a>
+										</span>
+									</div>
+
+									<div id="pdfDiv">
+										<span> <a  th:href="'document/invImg/'+${rfqBackground}" target="_blank"  >Open Pdf</a>
+												<a onclick="openPdf()" th:href="l;;lmm" >Open Pdf</a>
+											<a href="javascript:openPdf();">Open Pdf</a>
+										</span>
+									</div>
+
+									<span class="fornerrormsg" id="subcategory_photoerr"></span>
+								</div>
+							</div>
+
+							<div class="col-md-12">
+								<input type="submit" value="Submit" class="btn btn-success" />
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+							</div>
+						</form>
+
+					</div>
+					 <div class="modal-footer">
+                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+				</div>
+
+			</div>
+		</div> -->
+
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Challan</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%;" id="table1">
+						</table>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%;" id="table2">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

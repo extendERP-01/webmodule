@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script>
+function deleteBlkDens(id) {
+    swal.fire({
+        title: "Are you sure want to Delete?",
+        text: "Once Deleted,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Delete",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "GET",
+                url: "/qualitycontrol/view-bulk-density-delete?id=" + id,
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(id),
+                success: function(response) {
+                    console.log(response);
+                    if (response.message == "success") {
+                        swal({
+                            title: "Data Deleted Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            location.reload();
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            })
+        }
+    })
+}
+
+$(document).ready(function() {
+	  $("#param3").datetimepicker({
+		  format:'d-m-Y',
+		  closeOnDateSelect: true,
+		  timepicker : false,
+	})  
+	 $("#param4").datetimepicker({
+		  format:'d-m-Y',
+		  closeOnDateSelect: true,
+		  timepicker : false,
+	})  
+	  
+	
+});
+// for modal view of other service
+
+
+	 function viewInModelData(index) {
+		$('#table1').empty();
+		$('#table2').empty();
+		$('#table3').empty();
+		$.ajax({
+					type : "POST",
+					url : "view-bulk-density-model-view",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						
+						if (response.message == "success") {
+							
+							console.log(response);
+							table = '<tr><td>Lab Id :</td>'
+									+ '<td align="left">'
+									+ response.body[0].dLBDLabId
+									+ '</td>'
+									+ '</tr><tr><td>Date Of Sampling :</td><td align="left">'
+									+ response.body[0].dLBDDateOfSampling
+									
+									+ '</tr><tr><td>Date Of Testing :</td><td align="left">'
+									+ response.body[0].dLBDDateOfTesting
+									
+									+ '</tr><tr><td>SourceAggregrate:</td><td align="left">'
+									+ response.body[0].dLBDSourceAggregate
+									
+									+ '</tr><tr><td>Tested At:</td><td align="left">'
+									+ response.body[0].dLBDLocation
+									
+									+ '</tr><tr><td>GRN:</td><td align="left">'
+									+ response.body[0].dLBDGRN
+									
+									+ '</tr><tr><td>Type:</td><td align="left">'
+									+ response.body[0].dLBDTypeAggregate				
+									
+									+ '</tr><tr><td>Category:</td><td align="left">'
+									+ response.body[0].dLBDCategory
+									+ '</td></tr>'
+									+'<tr><td colspan="2" style="border-bottom:1px solid #ccc; font-size:18px;"><b>Deatils Of Particulars <b></td></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+							
+							table2 = '<tr><th><b> V</b></th><th><b>Wa</b></th><th><b>Wb</b></th><th><b>NetWeightWc</b></th><th><b>BulkDensity</b></th></tr>' ;
+								$('#myModal').modal('show');
+								
+								$('#table2').append(table2);
+				
+								for (var i=0; i<response.body.length; i++) {
+									// console.log("qcSandPercentageWt",(sieveList[i].qcSandPercentageWt))
+									table =  '<tr><td>'
+										+ (response.body[i].dLBDV).toFixed(2)
+										+ '</td><td>'
+										+ (response.body[i].dLBDWa).toFixed(2)
+										+'</td><td>'
+										+ (response.body[i].dLBDWb).toFixed(2)
+										+'</td><td>'
+										+ (response.body[i].netWeightWc).toFixed(2)
+										+'</td><td>'
+										+ (response.body[i].bulkDensity).toFixed(3)
+										+'</td></tr>';
+									$('#myModal').modal('show');
+									$('#table2').append(table);
+																	
+								}
+								table3 = '<tr><td>Avrg Value:</td><td align="left">'
+									+ response.body[0].avrgBulkDensity
+									+ '</td></tr>'
+								$('#table3').append(table3);
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+					
+				})
+	}
+	 
+
+	$(document).ready(function() {			
+		$('#tblExitIntiate').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-exit-initiate-throughajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				
+				}
+			},
+			'dataSrc' : "",
+		'columns' : [
+			{'data' : 'empId'},
+			{'data' : 'empName'},
+			{'data' : 'manager'},
+			{'data' : 'empDepartment'},
+			{'data' : 'action'}
+				]	
+		});
+	  });
+
+function searchData() {
+	$('#tblExitIntiate').DataTable().draw();
+}	
+function viewPdf(id) {
+    window.open("/download/view-bulk-density-one-pdf?id=" + id, '_blank');
+}
+function getVendor() {
+	var value = $('#vendor').val();
+	if (value) {
+		
+		$.ajax({
+			type : "POST",
+			url : "view-bulk-density-get-vendor",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : value,
+			success : function(response) {
+				if (response.body.length != 0) {
+					$("#vendor").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue1(\''
+								+ response.body[i].key
+								+ '\',\''
+								+ response.body[i].name
+								+ '\')">'
+								+ response.body[i].name + '</li>';
+					}
+					content += '</ul>';
+					$("#vendorDiv").show();
+					$("#vendorDiv").html(content);
+				} else {
+					$("#vendor").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue1(\''
+							+ ''
+							+ '\',\''
+							+ ''
+							+ '\')">'
+							+ "No Data Found" + '</li>';
+					content += '</ul>';
+					$("#vendorDiv").show();
+					$("#vendorDiv").html(content);
+				}
+			},
+			error : function(data) {
+				console.log(data)
+				$("#vendor").css("background", "#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue1(\''
+						+ ''
+						+ '\',\''
+						+ ''
+						+ '\')">'
+						+ "No Data Found" + '</li>';
+				content += '</ul>';
+				$("#vendorDiv").show();
+				$("#vendorDiv").html(content);
+			}
+		});
+	} else {
+		$("#vendor").css("background", "#FFF");
+		var content = '<ul id="autocomplete-list">';
+		content += '<li onClick="selectAutocompleteValue1(\'' + '' + '\',\''
+				+ '' + '\')">' + "No Data Found" + '</li>';
+		content += '</ul>';
+		$("#vendorDiv").show();
+		$("#vendorDiv").html(content);
+	}
+
+}
+function selectAutocompleteValue1(key, name) {
+if (key) {
+	$("#param5").val(key);
+	$("#vendor").val(name);
+	$("#vendor").attr('data-procat', key);
+	$("#vendorDiv").hide();
+} else {
+	$("#param5").val("");
+	$("#vendor").val("");
+	$("#vendor").attr('data-procat', "");
+	$("#vendorDiv").hide();
+}
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a th:href="@{add-bulk-density}">Add  Bulk Density</a></li> -->
+					<li class="active"><span>View Exit Initiate</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Listing Of Exit Initiate</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-2">
+								<div class="form-group">
+									<label>Employee Id</label> <select class="form-control"
+										id="param1">
+										<option th:value="null">--Select--</option>
+										<option th:each="c:${EmployeeList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div>
+							</div>
+
+
+
+							<div class="col-md-2" style="margin-top: 26px;">
+								<div class="form-group">
+
+									<input type="button" class="btn btn-info" value="Search"
+										onclick="searchData()" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblExitIntiate" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Employee Id</th>
+										<th>Employee Name</th>
+										<th>Manager</th>
+										<th>Department</th>
+
+										<th align="center">Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Employee Clearance Details</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1" cellpadding="5"
+							cellspacing="5">
+						</table>
+						<table style="width: 100%; border: 0;" id="table2"></table>
+						<table style="width: 100%; border: 0;" id="table3">
+
+						</table>
+
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+
+	</div>
+</div>
+</div>
+<!-- model for payment end -->
+</div>
+</div>
+</html>

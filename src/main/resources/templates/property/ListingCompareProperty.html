@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style type="text/css">
+.sidebar.sidebar-shrink ~.content-wrap {
+	margin-left: 250px;
+	-webkit-transition: margin-left 300ms ease-in-out;
+	transition: margin-left 300ms ease-in-out;
+	height: 100vh !important;
+}
+</style>
+<script>
+	function propertyCatagoryChange() {
+		//alert($("#param1").val());
+	
+		if($("#param1").val()!=''){
+		$.ajax({
+			type : "POST",
+			//url : "view-for-change-property-type",
+			url : "view-compare-property-onchange",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#param1").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#param2").empty();
+					var option = $("<option></option>");
+					$(option).val(null);
+					$(option).html("Select");
+					$("#param2").append(option);
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#param2").append(option);
+					}
+					$("#param3").empty();
+					var option = $("<option></option>");
+					$(option).val(null);
+					$(option).html("Select");
+					$("#param3").append(option);
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#param3").append(option);
+					}
+
+				}
+			},
+			error : function(data) {
+				console.log(data);
+				console.log('priya');
+			}
+		})
+		}
+		else{
+			$("#param1").empty();
+			var option = $("<option></option>");
+			$(option).val(null);
+			$(option).html("Select");
+			$("#param1").append(option);
+		}
+	}
+	
+
+ 	function compareRecord() {
+ 		var p1 = $("#param1 option:selected").text();
+ 		var p2 = $("#param2 option:selected").text();
+ 		var p3 = $("#param3 option:selected").text();
+ 		//alert(p1)
+		 if (!blankValidation("param1","SelectBox", "Please Select Property Category"))
+	            return false;
+		 if (!blankValidation("param2","SelectBox", "Please Select Property Type1"))
+	            return false;
+		 if (!blankValidation("param3","SelectBox", "Please Select Property Type2"))
+	            return false;
+		 
+		 var type1=$("#param2").val();
+		 var type2=$("#param3").val();
+		 if(type1==type2){
+			 swal('Property Type1 & Property Type2 Should Be Different');
+			 return false;
+		 }
+		
+			$.ajax({
+				type : "POST",
+				url : "view-compare-property-get-attribute-list-through-ajax",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#param1").val(),
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						//console.log(data);
+						$("#tableattr").empty();
+						var table = $("<thead><tr><th>Attribute(Facilities)</th></tr></thead>");
+						$(table).val(null);
+						$("#tableattr").append(table);
+						for (var i = 0; i < response.body.length; i++) {
+							var table = $("<thead><tr><th></th></tr></thead>");
+							$(table).val(response.body[i].key);
+							$(table).html(response.body[i].name);
+							$("#tableattr").append(table);
+						}
+
+					}
+				},
+				error : function(data) {
+					console.log(data);	 
+				}
+			})
+			
+		
+			 var dataset=[];
+			 for(var i =0;i<1;i++){
+				var params ={};
+				params["ptype1"]= $('#param1').val();
+		      	params["ptype2"] = $('#param2').val();
+		      	dataset.push(params);
+			}
+			
+			 var typeI=$
+
+			$.ajax({
+				type : "POST",
+				url : "view-compare-property-get-property-type11-list-through-ajax",
+				dataType : 'json',
+				contentType : 'application/json',
+				data: JSON.stringify(dataset),
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						//console.log(data);
+						$("#tableCat1").empty();
+						var table = $("<thead><tr><th>"+p1+': '+p2+"</th></tr></thead>");
+						$(table).val(null);
+						$("#tableCat1").append(table);
+						for (var i = 0; i < response.body.length; i++) {
+							var table = $("<thead><tr><th></th></tr></thead>");
+							$(table).val(response.body[i].key);
+							$(table).html(response.body[i].name);
+							$("#tableCat1").append(table);
+						}
+
+					}
+				},
+				error : function(data) {
+					console.log(data);	 
+				}
+			})
+	
+			
+			
+			
+
+			 var dataset2=[];
+			 for(var i =0;i<1;i++){
+				var params2 ={};
+				params2["ptype1"]= $('#param1').val();
+		      	params2["ptype2"] = $('#param3').val();
+		      	dataset2.push(params2);
+			}
+			
+		
+			$.ajax({
+				type : "POST",
+				url : "view-compare-property-get-property-type22-list-through-ajax",
+				dataType : 'json',
+				contentType : 'application/json',
+				data: JSON.stringify(dataset2),
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						//console.log(data);
+						$("#tableCat2").empty();
+						var table = $("<thead><tr><th>"+p1+': '+p3+"</th></tr></thead>");
+						$(table).val(null);
+						$("#tableCat2").append(table);
+						for (var i = 0; i < response.body.length; i++) {
+							var table = $("<thead><tr><th></th></tr></thead>");
+							$(table).val(response.body[i].key);
+							$(table).html(response.body[i].name);
+							$("#tableCat2").append(table);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);	 
+				}
+			})
+	   }
+	 
+</script>
+</head>
+<div layout:fragment="content">
+ <div class="content-wrap">
+         <div class="main mrt_20">
+            <div class="col-md-12">
+               <ol class="breadcrumb breadcrumb-arrow">
+                  <li><a href="index.html">Home</a></li>
+                  <!-- <li><a href="#">View User</a></li>
+                  <li><a href="#">Manage User</a></li> -->
+                  <li class="active"><span>Compare Property Type</span></li>
+               </ol>
+            </div>
+            <div class="card-title">
+               <h4>Compare Property Type</h4>
+            </div>
+            <div class="container-fluid">
+          
+               <div class="card">
+                
+                  
+                    
+                  <div class="row">
+                           <div class="col-md-3">
+                              <div class="org-name" th:style="*{param1} == null ? 'display:block' : 'display:none' ">Property Category</div>
+                           </div>
+                           
+                           <div class="col-md-3">
+                             <select class="org-name form-control" id="param1"  onchange="propertyCatagoryChange()">
+                            <option th:value="NULL">Select</option>
+						    <option th:each="c:${propertyCatData}" th:value='${c.key}'
+							 th:text="${c.name}" th:selected="${c.key==param1}"></option>
+                            </select>
+                           </div>
+                          
+                              
+    						 <div class="col-md-3">
+                              <div class="org-name" th:style="*{param2} == null ? 'display:block' : 'display:none' ">Property Type1</div>
+                           </div>
+    						
+    						  <div class="col-md-3">
+                             <select class="org-name form-control" id="param2">
+                            <option th:value="NULL">Select</option>
+						    
+                            </select>
+                           </div>
+                           
+                            <div class="col-md-3">
+                              <div class="org-name">Property Type2</div>
+                           </div>
+    						
+    						   <div class="col-md-3">
+	                            <select class="org-name form-control" id="param3"  >
+	                            <option th:value="NULL">Select</option>
+							    
+	                            </select>
+	                           </div>
+                         
+                         
+    
+                           <div class="col-md-3">
+                              <div class="form-group">
+                                 <button class="btn btn-primary" id="searchRoom" onclick="compareRecord()">Compare</button>
+                              </div>
+                           </div></div>
+                  <div class="row">
+                  <div class="col-md-4" style="padding-right:0px;">
+                  
+                     <table id="tableattr" class="table table-bordered">
+                        
+                        </table>
+                        </div>
+                        
+                        
+                        <div class="col-md-4" style="padding-right:0px;">
+                  
+                     <table id="tableCat1" class="table table-bordered">
+                        
+                        </table>
+                        </div>
+                        
+                        
+                        <div class="col-md-4" style="padding-right:0px;">
+                  
+                     <table id="tableCat2" class="table table-bordered">
+                        
+                        </table>
+                        </div>
+                        
+                         
+                
+                     <div style="clear:both;"></div>
+                  </div>
+                  
+               </div>
+            </div>
+         </div>   
+      </div>
+</div>
+</html>
+
+
+

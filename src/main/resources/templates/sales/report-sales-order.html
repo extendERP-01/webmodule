@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 240px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+	//datepicker() Starts
+	$(function() {
+		$("#param1").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false
+		});
+		$("#param2").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false
+		});
+		$("#param7").datetimepicker({
+			format : 'd-m-Y H:i',
+			closeOnDateSelect : true,
+		});
+		$("#param8").datetimepicker({
+			format : 'd-m-Y H:i',
+			closeOnDateSelect : true,
+		});
+		var fullDate = new Date();
+		var twoDigitMonth = ((fullDate.getMonth().length + 1) === 1) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
+		var twoDigitDate = ((fullDate.getDate()) >= 10) ? (fullDate.getDate()) : '0' + (fullDate.getDate());
+		var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+		$("#param1").val(currentDate);
+		$("#param2").val(currentDate);
+
+	});
+	//datepicker() Ends
+
+	//Validation Function (Two Date Field Must Required)
+	function validateForm() {
+		if (!blankValidation("param1", "TextField", "From Date Is Required"))
+			return false;
+		if (!blankValidation("param2", "TextField", "To Date Is Required"))
+			return false;
+		pdfCreation();
+	}
+
+	//PDF Print Preview Function
+	function pdfCreation() {
+		window.open("/sales/view-sales-order-download-report?param1="
+				+ window.btoa($('#param1').val()) 
+				+ "&param2=" + window.btoa($('#param2').val())
+				+ "&param3=" + window.btoa($('#param3').val())
+				+ "&param4=" + window.btoa($('#param4').val())
+				+ "&param5=" + window.btoa($('#param5').val())
+				+ "&param6=" + window.btoa($('#param6').val()) 
+				+ "&param7=" + window.btoa($('#param7').val()) 
+				+ "&param8=" + window.btoa($('#param8').val()) , '_blank');
+	}
+
+	//Reload Page Function
+	function funcLoad() {
+		location.reload();
+	}
+	
+	function getItemAutoSearch() {
+		var item = $("#item").val();
+		if(item) {
+		$.ajax({
+			type : "POST",
+			url : "view-sales-order-generate-report-get-item",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#item").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					if(response.body.length!=0)	{
+						$("#item").css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						for (var i = 0; i < response.body.length; i++) {
+								content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'('+ response.body[i].key+')'+'</li>';
+						} 
+						content += '</ul>';
+						$("#suggesstion-box").show();
+						$("#suggesstion-box").html(content);
+						
+					} else {
+						$("#item").css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#suggesstion-box").show();
+						$("#suggesstion-box").html(content);
+					}
+				}
+			}, error : function(data) {
+				console.log(data);
+			}
+		})
+		} else {
+			$("#item").css("background","#FFF");
+			var content = '<ul id="autocomplete-list">';
+			content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+			content += '</ul>';
+			$("#suggesstion-box").show();
+			$("#suggesstion-box").html(content);
+		}
+	}
+	function selectAutocompleteValue(key,name) {
+		if (key) {
+			$("#param6").val(key);
+			$("#item").val(name);
+			$("#item").attr('data-procat', key);
+			$("#suggesstion-box").hide();
+			}
+		else {
+			$("#param6").val("");
+			$("#item").val("");
+			$("#item").attr('data-procat', "");
+			$("#suggesstion-box").hide();
+		}
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="card-title">
+					<h4>Sales Order List Report</h4>
+				</div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Sale Order From Date</label> <input type="text"
+												class="form-control" id="param1" autocomplete="off" readonly>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Sale Order To Date</label> <input type="text"
+												class="form-control" id="param2" autocomplete="off" readonly>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Delivery From Date Time</label> <input type="text"
+												class="form-control" id="param7" autocomplete="off">
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Delivery To Date Time</label> <input type="text"
+												class="form-control" id="param8" autocomplete="off">
+										</div>
+									</div>
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Location</label> <input type="text"
+												class="form-control" id="param3" autocomplete="off">
+										</div>
+									</div>
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Item Category</label> <select class="form-control" id="param4">
+												<option value="">--Select--</option>
+												<option th:each="c,iter:${itemCategoryList}" th:value="${c.key}" th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Item Sub-Category</label> <select class="form-control" id="param5">
+												<option value="">--Select--</option>
+												<option th:each="c,iter:${subCategoryList}" th:value="${c.key}" th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Item</label> <input type="hidden" id="param6">
+											<input type="text" class="form-control" id="item" onkeyup="getItemAutoSearch()">
+											<div id="suggesstion-box"></div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="form-group">
+											<button class="btn btn-danger" onclick="funcLoad();">
+												Reset</button>
+											<button type="button" class="btn btn-info"
+												onclick="validateForm();">Print Preview</button>
+											<button type="button" class="btn btn-success"
+												onclick="pdfCreation();">Print</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+</div>
+</html>

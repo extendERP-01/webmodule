@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 325px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 230px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.money {
+	text-align: right;
+}
+
+.second-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 230px;
+}
+
+.text-heading {
+	background-color: #d1e3f5;
+	padding: 1px;
+	text-align: center;
+	margin-bottom: 14px;
+}
+
+.text-heading h4 {
+	font-size: 16px;
+	font-weight: 600;
+	color: #2c61e0;
+	padding-top: 7px;
+}
+
+.first-section-fuel1 {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 130px;
+}
+.first-section-fuel2 {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 230px;
+}
+</style>
+
+<script>
+	$(document)
+			.ready(
+					function() {
+						$("#couponDate").datetimepicker({
+							format : 'd-m-Y',
+							closeOnDateSelect : true,
+							timepicker : false,
+							defaultDate : new Date(),
+						});
+						$("#time").datetimepicker({
+							format : "h:m",
+							closeOnDateSelect : true,
+							minDate : new Date(),
+							timepicker : true,
+							datepicker : false,
+						});
+						var consumptionId = $("#consumptionId").val();
+						if (consumptionId != null && consumptionId != "") {
+							 
+
+						} else {
+							// for current date value
+							var fullDate = new Date();
+							var twoDigitMonth = ((fullDate.getMonth() + 1) >= 10) ? (fullDate
+									.getMonth() + 1)
+									: '0' + (fullDate.getMonth() + 1);
+							var twoDigitDate = ((fullDate.getDate()) >= 10) ? (fullDate
+									.getDate())
+									: '0' + (fullDate.getDate());
+							var currentDate = twoDigitDate + "-"
+									+ twoDigitMonth + "-"
+									+ fullDate.getFullYear();
+							$("#couponDate").val(currentDate);
+							/* $("#entryDate[value='']").datepicker("setDate", "-0d");  */
+							// for current time value
+							var d = new Date();
+							var hours = d.getHours();
+							var minutes = d.getMinutes();
+							hours = ((d.getHours()) >= 10) ? (d.getHours())
+									: '0' + (d.getHours());
+							minutes = ((d.getMinutes()) >= 10) ? (d
+									.getMinutes()) : '0' + (d.getMinutes());
+							$("#time").val(hours + ":" + minutes);
+						}
+
+					})
+
+	function validateForm() {
+		if (!blankValidation("entryDate", "TextField",
+				" Entry Date can not be left blank"))
+			return false;
+
+		if (!blankValidation("challanType", "SelectBox",
+				"Challan type can not be left blank"))
+			return false;
+		if (!blankValidation("saleOrder", "SelectBox",
+				"Sale Order can not be left blank"))
+			return false;
+		if (!blankValidation("deliveryAddress", "TextField",
+				"Delivery address can not be left blank"))
+			return false;
+		if (!blankValidation("deliverySite", "TextField",
+				"Delivery Site can not be left blank"))
+			return false;
+ 
+		if (!blankValidation("vechileNo", "SelectBox",
+				"Vechile Number can not be left blank"))
+			return false;
+ 
+ 
+
+	}
+
+	function driverAutoComplete() { 
+		$
+				.ajax({
+					type : "POST",
+					url : "add-fuel-consumption-getDriverDetails",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#driverName").val(),
+					success : function(response) {
+
+						if (response.message == "success") {
+							if (response.body.length != 0) {
+								$("#driverName").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list1">';
+								for (var i = 0; i < response.body.length; i++) {
+									content += '<li onClick="selectAutocompleteValue1(\''
+											+ response.body[i].key
+											+ '\',\''
+											+ response.body[i].name
+											+ '\')">'
+											+ response.body[i].key
+											+ '('
+											+ response.body[i].name
+											+ ')' + '</li>';
+								}
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+
+							} else {
+
+								$("#driverName").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list1">';
+								content += '<li onClick="selectAutocompleteValue1(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+	}
+
+	function selectAutocompleteValue1(key, name) {
+
+		if (key) {
+
+			$("#driverId").val(key);
+			$("#driverName").val(name);
+			$("#driverName").attr('data-procat', key);
+			$("#suggesstion-box").hide();
+
+		} else {
+
+			$("#driverId").val("");
+			$("#driverName").val("");
+			$("#driverName").attr('data-procat', "");
+			$("#suggesstion-box").hide();
+
+		}
+
+	}
+
+	function driverDetailsOnVechileOnChange() {
+		var vechileNo = $("#vechileNo").val();
+		$("#driverId").val("");
+		$("#driverName").val("");
+		if (vechileNo) {
+
+			$.ajax({
+				type : "POST",
+				url : "add-fuel-consumption-driverDetailsVechileOnchange",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : vechileNo,
+				success : function(response) { 
+					if (response.message == "success") {
+                         if(response.body.length != null){
+                        	 $("#driverId").val(response.body[0].key);
+     						 $("#driverName").val(response.body[0].name);
+                         }else{
+                        	 $("#driverId").val('');
+     						 $("#driverName").val('');
+                         }
+						
+
+					} else {
+						$("#driverId").val('');
+						$("#driverName").val('');
+					}
+				},
+				error : function(data) {
+
+				}
+			})
+		} else {
+			$("#driverId").val('');
+			$("#driverName").val('');
+		}
+	}
+</script>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Fuel Consumption</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Fuel Consumption</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:action="@{/asset/add-fuel-consumption}"
+								th:object="${assetFuelConsumptionModel}" method="post"
+								onsubmit="return validateForm();">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12">
+										<div class="first-section-fuel">
+											<div class="text-heading">
+												<h4>Store Details</h4>
+											</div>
+											<div class="row">
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label> Branch / Store</label> <input type="text"
+															th:field="*{branch}" class="form-control"
+															onchange='calculateTotal()' onkeyup="checkNum('sand2')">
+														<input type="hidden" th:field="*{consumptionId}">
+
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Fuel</label> <select class="form-control"
+															th:field="*{fuel}">
+															<option th:value="NULL">--Select--</option>
+															<option th:each="c:${FuelList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+														</select>
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Quantity</label> <input type="text"
+															th:field="*{quantity}" class="form-control"
+															onchange='calculateTotal()'
+															onkeyup="checkNum('quantity')">
+
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Fuel Slip Number </label> <input type="text"
+															th:field="*{fuelSlipNumber}" class="form-control"
+															onkeyup="checkNum('fuelSlipNumber')">
+													</div>
+
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Coupon Date</label> <input type="text"
+															th:field="*{couponDate}" class="form-control" readonly>
+
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Total Amount</label> <input type="text"
+															th:field="*{totalAmount}" class="form-control"
+															onkeyup="checkNum('totalAmount')">
+
+													</div>
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</div>
+
+
+								<div class="row">
+									<div class="col-md-12">
+										<div class="first-section-fuel2">
+											<div class="text-heading">
+												<h4>vehicle Details</h4>
+											</div>
+											<div class="row">
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label> vehicle Number</label> <select
+															class="form-control" th:field="*{vechileNo}"
+															onchange="driverDetailsOnVechileOnChange()">
+															<option th:value="NULL">--Select--</option>
+															<option th:each="c:${veichleList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+														</select>
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Driver Name</label> <input type="hidden"
+															class="form-control" th:field="*{driverId}"><input
+															type="text" th:field="*{driverName}" class="form-control"
+															onkeyup="driverAutoComplete()" />
+														<div id="suggesstion-box" class="autocomplete-list1"></div>
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Helper</label><input type="text"
+															class="form-control" th:field="*{helper}">
+
+													</div>
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Vehicle Weight </label> <input type="text"
+															th:field="*{vehicleWt}" class="form-control"
+															onkeyup="checkNum('vehicleWt')">
+													</div>
+
+												</div>
+												<div class="col-lg-4">
+													<div class="form-group">
+														<label>Is Tank Fuel</label>
+															<select class="form-control" th:field="*{isTankFuel}">
+															<option th:value="NULL">--Select--</option>
+															<option th:value=true>yes</option>
+															<option th:value=false>No</option>
+															 
+														</select>
+													</div>
+
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-12">
+										<div class="first-section-fuel1">
+											<div class="text-heading">
+												<h4>Meter Reading</h4>
+											</div>
+											<div class="row">
+												<div class="col-lg-3">
+													<div class="form-group">
+														<label>Time</label> <input type="text" th:field="*{time}"
+															class="form-control" readonly>
+
+													</div>
+												</div>
+												<div class="col-lg-3">
+													<div class="form-group">
+														<label>Running Km</label> <input type="text"
+															class="form-control" th:field="*{runningKm}">
+													</div>
+												</div>
+												<div class="col-lg-3">
+													<div class="form-group">
+														<label>Front Hour Meter</label><input type="text"
+															class="form-control" th:field="*{frontHrMeter}"
+															onkeyup="checkNum('frontHrMeter')">
+
+													</div>
+												</div>
+												<div class="col-lg-3">
+													<div class="form-group">
+														<label>Back Hour Meter</label> <input type="text"
+															th:field="*{backHrMeter}" class="form-control"
+															onkeyup="checkNum('backHrMeter')">
+													</div>
+
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-12">
+										<div class="form-group">
+											<input type="submit" value="Submit" class="btn btn-success" />
+											<input type="reset" value="Cancel" class="btn btn-warning"
+												onclick="window.location.reload();" />
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

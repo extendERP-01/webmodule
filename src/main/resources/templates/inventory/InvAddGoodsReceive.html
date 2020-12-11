@@ -1,0 +1,2456 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<style type="text/css">
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 184px;
+	position: absolute;
+	z-index: 999;
+	height: 200px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.red {
+	background-color: #b3ccff;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 500px;
+	position: absolute;
+	z-index: 999;
+	height: 200px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.label-align {
+	text-align: right;
+} 
+
+.label-head {
+	color: #2c61e1;
+    font-size: 18px;
+    font-weight:bold;
+}
+
+.slNoDiv {
+	margin-bottom: 3px;
+}
+
+</style>
+
+<script>
+function checkEmpty2() {
+	var addCharges = true;
+    $('.batchNo').each(function() {
+        if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Batch Number")) {
+        	addCharges = false;
+            return false;
+        }
+    });
+    
+    var addAmount = true;
+    if (addCharges) { 
+        $('.quantity').each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Quantity")) {
+            	addAmount = false;
+                return false;
+            }
+        });
+    }
+    
+    if(addCharges && addAmount) {
+    	addMore2();
+    }
+}
+
+function addMore2() {
+	
+	var lengthOfTableRow = $("#tbodyData2").children('tr').length;
+    var cloneHtml = $("#myTable2 tbody tr:first").clone();
+    
+    $("#myTable2 tbody tr:last").find('td:last').html('');
+    $("#myTable2 tbody").append($("#myTable2 tbody tr:first").clone());
+    $("#myTable2 tbody tr td:last").html("");
+    
+    var addMore = '<button type="button" class="btn btn-primary tr_clone_add m-t-12" name="add" onclick="checkEmpty2();"><span class="ti-plus"></span></button>&nbsp;'
+    var removeMore = '<button type="button" class="btn btn-warning rmv2 m-t-12" name="Remove"><span class="ti-minus"></span></button>';
+    
+    $("#myTable2 tbody tr:last").find('td:last').append(addMore);
+    $("#myTable2 tbody tr:last").find('td:last').append(removeMore);
+    
+    var editTr = 0;
+    if (lengthOfTableRow > editTr) {
+        $("#myTable2 tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+    }
+    
+    $("#myTable2 tbody tr:last").find(".batchNo").val("");
+    $("#myTable2 tbody tr:last").find(".quantity").val("");
+    $("#myTable2 tbody tr:last").find(".serialNo").val("");
+    $("#myTable2 tbody tr:last").find(".tdSlCls").empty("");
+    var tdDiv = '<input type="text" id="serialNo_" class="form-control serialNo">';
+	$("#myTable2 tbody tr:last").find(".tdSlCls").append(tdDiv);
+    $("#myTable2 > tbody > tr").each(function(i){
+    	$("#myTable2 tbody tr:last").find(".slNoCls").empty();
+    	var c = i + 1;
+    	$("#myTable2 tbody tr:last").find(".slNoCls").append(c);
+    	
+    })
+    
+    $("#myTable2 > tbody > tr").each(function(i) {
+        var textInput = $(this).find('input');
+        var tdInput = $(this).find('td');
+
+        tdInput.eq(3).attr('id', "slNo_" + i);
+        textInput.eq(0).attr('id', "batchNo_" + i);
+        textInput.eq(1).attr('id', "quantity_" + i);
+        textInput.eq(2).attr('id', "serialNo_" + i);
+
+    })
+}
+
+function checkEmpty1() {
+	var addCharges = true;
+    $('.charges').each(function() {
+        if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Expenses Head")) {
+        	addCharges = false;
+            return false;
+        }
+    });
+    
+    var addAmount = true;
+    if (addCharges) { 
+        $('.addAmount').each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Additional Charges Amount")) {
+            	addAmount = false;
+                return false;
+            }
+        });
+    }
+    
+    if(addCharges && addAmount) {
+    	addMore1();
+    }
+}
+
+function addMore1() {
+	
+	var lengthOfTableRow = $("#tbodyData1").children('tr').length;
+    var cloneHtml = $("#myTable1 tbody tr:first").clone();
+    
+    $("#myTable1 tbody tr:last").find('td:last').html('');
+    $("#myTable1 tbody").append($("#myTable1 tbody tr:first").clone());
+    $("#myTable1 tbody tr td:last").html("");
+    
+    var addMore = '<button type="button" class="btn btn-primary tr_clone_add m-t-12" name="add" onclick="checkEmpty1();"><span class="ti-plus"></span></button>&nbsp;'
+    var removeMore = '<button type="button" class="btn btn-warning rmv1 m-t-12" name="Remove"><span class="ti-minus"></span></button>';
+    
+    $("#myTable1 tbody tr:last").find('td:last').append(addMore);
+    $("#myTable1 tbody tr:last").find('td:last').append(removeMore);
+    
+    var editTr = 0;
+    if (lengthOfTableRow > editTr) {
+        $("#myTable1 tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+    }
+    
+    $("#myTable1 tbody tr:last").find(".charges").val("");
+    $("#myTable1 tbody tr:last").find(".addAmount").val("");
+    
+    $("#myTable1 > tbody > tr").each(function(i) {
+        var textInput = $(this).find('input');
+
+        textInput.eq(0).attr('id', "additionalCharges_" + i);
+        textInput.eq(1).attr('id', "additionalAmount_" + i);
+
+    })
+}
+
+//function to check each row column is not empty
+function checkEmpty() {
+    var catValid = true;
+
+    $('.itemCls').each(function() {
+        if (!blankValidation($(this).attr('id'), "SelectBox", "Please select item name")) {
+
+            catValid = false;
+            return false;
+        }
+
+    });
+
+    var subcatValid = true;
+    if (catValid) {
+        $('.lServiceQuantityCls').each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please enter quantity")) {
+
+                subcatValid = false;
+                return false;
+            }
+
+        });
+    }
+    var itemValid = true;
+    if (catValid && subcatValid) {
+        $('.invPriceCls').each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please enter invoice price ")) {
+
+                itemValid = false;
+                return false;
+            }
+
+        });
+    }
+    var qtyValid = true;
+    if (catValid && subcatValid && itemValid) {
+        $('.gstRateCls').each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter gst rate")) {
+
+                qtyValid = false;
+                return false;
+            }
+
+        });
+    }
+
+    if (catValid && subcatValid && itemValid && qtyValid) {
+        addMore();
+    }
+
+
+}
+//function to add more row
+
+function addMore() {
+    var lengthOfTableRow = $("#tbodyData").children('tr').length;
+    var cloneHtml = $("#myTable tbody tr:first").clone();
+    $("#myTable tbody tr:last").find('td:last').html('');
+    $("#myTable tbody").append($("#myTable tbody tr:first").clone());
+    $("#myTable tbody tr td:last").html("");
+    var addMore = '<button type="button" class="btn btn-primary tr_clone_add m-t-12" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+    var removeMore = '<button type="button" class="btn btn-warning rmv m-t-12" name="Remove"><span class="ti-minus"></span></button>';
+    $("#myTable tbody tr:last").find('td:last').append(addMore);
+    $("#myTable tbody tr:last").find('td:last').append(removeMore);
+    var editTr = 0;
+    if (lengthOfTableRow > editTr) {
+        $("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+
+    }
+    $("#myTable tbody tr:last").find(".itemCategory").val("");
+
+    $("#myTable tbody tr:last").find(".itemSubCategory").empty();
+    $("#myTable tbody tr:last").find(".itemSubCategory").val("");
+    $("#myTable tbody tr:last").find(".itemCls1").empty();
+    $("#myTable tbody tr:last").find(".itemCls1").val("");
+    $("#myTable tbody tr:last").find(".itemCls").empty();
+    $("#myTable tbody tr:last").find(".itemCls").val("");
+
+    $("#myTable tbody tr:last").find(".receivedQuantityCls").empty();
+    $("#myTable tbody tr:last").find(".pndgQuantityCls").empty();
+    $("#myTable tbody tr:last").find(".lServiceQuantityCls").val("");
+    $("#myTable tbody tr:last").find(".poPriceCls").empty();
+    $("#myTable tbody tr:last").find(".invPriceCls").val("");
+    $("#myTable tbody tr:last").find(".gstRateCls").val("");
+    $("#myTable tbody tr:last").find(".amountTotalCls").html("0.00");
+    $("#myTable > tbody > tr").each(function(i) {
+        var selectInput = $(this).find('select');
+        var textInput = $(this).find('input');
+        var labelInput = $(this).find('label');
+        var divInput = $(this).find('div');
+
+        textInput.eq(0).attr('id', "itemCategory_" + i);
+        textInput.eq(1).attr('id', "itemSubCategory_" + i);
+        textInput.eq(2).attr('id', "itemName_" + i);
+        textInput.eq(3).attr('id', "item_" + i);
+        labelInput.eq(0).attr('id', "receivedQuantity_" + i);
+        textInput.eq(4).attr('id', "ServiceQuantity_" + i);
+        textInput.eq(5).attr('id', "invPrice_" + i);
+        textInput.eq(6).attr('id', "gstRate_" + i);
+        textInput.eq(7).attr('id', "gstAmount_" + i);
+        labelInput.eq(1).attr('id', "poPrice_" + i);
+        labelInput.eq(2).attr('id', "amountTotal_" + i);
+        divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+
+    })
+
+}
+$(document).ready(function() {
+
+
+    //date picker
+    $("#invDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        //minDate: new Date() ,
+        timepicker: false,
+    })
+    //date picker
+    $("#dueDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        //minDate: new Date() ,
+        timepicker: false,
+    })
+
+    //method to show and hide tax type
+
+    var id = $("#gRNInvoiceId").val();
+    var taxType = $("input[name='tax']:checked").val();
+    if (id) {
+        if (taxType == "true") {
+            $('#igstR').show();
+            $('#cgstR').hide();
+            $('#sgstR').hide();
+        } else {
+            $('#igstR').hide();
+            $('#cgstR').show();
+            $('#sgstR').show();
+        }
+        /*   var discount = $("#discount").val();
+          discount = parseFloat(discount);
+          if(discount == 0) {
+          	$('#discDiv').hide();
+          	document.getElementById("discHide").checked = true;
+          } else {
+          	$('#discDiv').show();
+          	document.getElementById("discShow").checked = true;
+          } */
+    } else {
+        $('#igstR').hide();
+        $('#discDiv').hide();
+    }
+
+
+    var lengthOfTableRow = $("#tbodyData").children('tr').length;
+    $('.tbll').on('click', '.rmv', function() {
+        $(this).closest('tr').remove();
+
+        calculateSubTotal();
+        calculategstRate();
+        $("#myTable tbody tr:last").find('td:last').html('');
+        var add = '<button type="button" class="btn btn-primary tr_clone_add m-t-12" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+        var remove = '<button type="button" class="btn btn-warning rmv m-t-12" name="Remove"><span class="ti-minus"></span></button>';
+        if ($("#tbodyData").children('tr').length > 1) {
+            $("#myTable tbody tr:last").find('td:last').append(add);
+            $("#myTable tbody tr:last").find('td:last').append(remove);
+        } else {
+
+            $("#myTable tbody tr:last").find('td:last').append(add);
+        }
+
+    });
+    
+    
+    var lengthOfTableRow1 = $("#tbodyData1").children('tr').length;
+    $('.tbll1').on('click', '.rmv1', function() {
+        $(this).closest('tr').remove();
+
+        //calculateSubTotal();
+        //calculategstRate();
+        $("#myTable1 tbody tr:last").find('td:last').html('');
+        var add = '<button type="button" class="btn btn-primary tr_clone_add m-t-12" name="add" onclick="checkEmpty1();"><span class="ti-plus"></span></button>&nbsp;'
+        var remove = '<button type="button" class="btn btn-warning rmv1 m-t-12" name="Remove"><span class="ti-minus"></span></button>';
+        if ($("#tbodyData1").children('tr').length > 1) {
+            $("#myTable1 tbody tr:last").find('td:last').append(add);
+            $("#myTable1 tbody tr:last").find('td:last').append(remove);
+        } else {
+
+            $("#myTable1 tbody tr:last").find('td:last').append(add);
+        }
+        var newVal = $(this).closest('tr').find(".addAmount").attr("id");
+		var l = newVal.split("_");
+		var counter = l[1];
+		newCalculation(counter);
+    });
+    
+    var lengthOfTableRow2 = $("#tbodyData2").children('tr').length;
+    $('.tbll2').on('click', '.rmv2', function() {
+        $(this).closest('tr').remove();
+
+        //calculateSubTotal();
+        //calculategstRate();
+        $("#myTable2 tbody tr:last").find('td:last').html('');
+        var add = '<button type="button" class="btn btn-primary tr_clone_add m-t-12" name="add" onclick="checkEmpty2();"><span class="ti-plus"></span></button>&nbsp;'
+        var remove = '<button type="button" class="btn btn-warning rmv2 m-t-12" name="Remove"><span class="ti-minus"></span></button>';
+        if ($("#tbodyData2").children('tr').length > 1) {
+            $("#myTable2 tbody tr:last").find('td:last').append(add);
+            $("#myTable2 tbody tr:last").find('td:last').append(remove);
+        } else {
+
+            $("#myTable2 tbody tr:last").find('td:last').append(add);
+        }
+        /* var newVal = $(this).closest('tr').find(".addAmount").attr("id");
+		var l = newVal.split("_");
+		var counter = l[1];
+		newCalculation(counter); */
+    });
+
+    $(".detailsTbl").hide();
+    
+    $("#submitPacketData").click(function(){
+    	var dataset = [];
+    	
+    	$("#tbodyData2 > tr").each(function(i){
+    		
+    		var batchNo = $(this).find(".batchNo").val();
+    		var qty = parseFloat($(this).find(".quantity").val());
+	    	$(".slNoDiv_"+i).each(function(k){
+	    		item = {};
+	    		item.po  = $("#poNo").val();
+	    		item.itemId  = $("#itemId").val();
+	    		item.batchNo  = batchNo;
+	    		item.qty  = qty;
+	    		item.mulSlNo  = $("#serialNo_"+i+"_"+k).val();
+	    		dataset.push(item);
+	    	})
+	    	
+    	});
+    	
+    	console.log(dataset)
+    	submitBatchDetails(dataset);
+    })
+
+    //methid to  submit data
+
+    $("#submitItems").click(function() {
+    	
+    	var newD = [];
+		$("#tbodyData1 > tr").each(function(){
+			
+			add = {};
+			
+			add['key'] = $(this).find(".charges").val();
+			add['name'] = $(this).find(".addAmount").val();
+			
+			var addCharges = true;
+		    $('.charges').each(function() {
+		        if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Charges Type")) {
+		        	addCharges = false;
+		            return false;
+		        }
+		    });
+		    
+		    var addAmount = true;
+		    if (addCharges) { 
+		        $('.addAmount').each(function() {
+		            if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Additional Charges Amount")) {
+		            	addAmount = false;
+		                return false;
+		            }
+		        });
+		    }
+		    if(addCharges && addAmount) {
+		    	newD.push(add);
+		    } else {
+		    	swal("Additonal Charges Type Or Amount Can't Be Left Blank..!!")
+		    }
+		});
+    	
+        var dataset = [];
+        var i = 0;
+        $("#tbodyData > tr").each(function() {
+
+            item = {};
+            item['gRNInvoiceId'] = $("#gRNInvoiceId").val();
+            item['gRNPurchaseOrderId'] = $("#purchaseOrder").val();
+            item['gRnInvoiceNumber'] = $("#invoice_").val();
+            item['gRnInvoiceDescription'] = $("#gRtNDescription_").val();
+            item['gRnInvoiceActive'] = $("#statusId").val();
+            item['itmCategory'] = $(this).find(".itemCategory").val();
+            item['itmSubCategory'] = $(this).find(".itemSubCategory").val();
+            item['gRnInvoiceItmName'] = $(this).find(".itemCls1").val();
+            item['gRnInvoiceQuantity'] = $(this).find(".lServiceQuantityCls").val();
+            item['invPrice'] = $(this).find(".invPriceCls").val();
+            item['porder'] = $(this).find(".poPriceCls").val();
+            item['gstType'] = $("input[name='tax']:checked").val();
+            item['dGstRate'] = $(this).find(".gstRateCls").val();
+            item['cessAmount'] = $(this).find(".cessAmount").val();
+            item['gsubTotal'] = $("#subTotal").html();
+            item['discount'] = $("#discount").val();
+            item['sgst'] = $("#sgst").html();
+            item['cgst'] = $("#cgst").html();
+            item['igst'] = $("#igst").html();
+            item['grandTotal'] = $("#grandTotal").html();
+            item['lineTotal'] = $(this).find(".amountTotalCls").html();
+            item['vendorName'] = $("#vendorName").val();
+            item['invDate'] = $("#invDate").val();
+            item['dueDate'] = $("#dueDate").val();
+            item['vehicleNo'] = $("#vehicleNo").val();
+            item['driverName'] = $("#driverName").val();
+            item['mobileNo'] = $("#mobileNo").val();
+            item['godown'] = $("#godown").val();
+            item['totalCess'] = $("#cess").text();
+            item['totalAddCharges'] = $("#totalAddCharges").text();
+            if(newD.length > 0) {
+            	item['addChargeDetails'] = newD;
+            }
+            
+            dataset.push(item);
+            i++;
+
+        }); //table tbody tr loop ends
+
+        if ($("#purchaseOrderName").val() != null && $("#purchaseOrderName").val() != '') {
+            if (!blankValidation("invoice_", "TextField", "Invoice Number can not be left blank"))
+                return false;
+            if (!blankValidation("invDate", "TextField", "Invoice Date  can not be left blank"))
+                return false;
+            if (!blankValidation("dueDate", "TextField", "Payment due date  can not be left blank"))
+                return false;
+            if (!blankValidation("vehicleNo", "TextField", "vehicle number can not be left blank"))
+                return false;
+            if (!blankValidation("driverName", "TextField", "Driver Name  can not be left blank"))
+                return false;
+
+            if (!blankValidation("mobileNo", "TextField", " Driver Mobile Number can not be left blank"))
+                return false;
+            if (!checkMobileNumberIN("mobileNo", "Please Enter A Valid Mobile Number"))
+                return false;
+        }
+        if (!blankValidation("gRtNDescription_", "TextArea", "Please Enter Description"))
+            return false;
+
+        var catValid = true;
+
+        $('.itemCls').each(function() {
+            if (!blankValidation($(this).attr('id'), "SelectBox", "Please select item name")) {
+
+                catValid = false;
+                return false;
+            }
+
+        });
+
+        var subcatValid = true;
+        if (catValid) {
+            $('.lServiceQuantityCls').each(function() {
+                if (!blankValidation($(this).attr('id'), "TextField", "Please enter quantity")) {
+
+                    subcatValid = false;
+                    return false;
+                }
+
+            });
+        }
+        var itemValid = true;
+        if (catValid && subcatValid) {
+            $('.invPriceCls').each(function() {
+                if (!blankValidation($(this).attr('id'), "TextField", "Please enter invoice price ")) {
+
+                    itemValid = false;
+                    return false;
+                }
+
+            });
+        }
+        var qtyValid = true;
+        if (catValid && subcatValid && itemValid) {
+            $('.gstRateCls').each(function() {
+                if (!blankValidation($(this).attr('id'), "TextField", "Please Enter gst rate")) {
+
+                    qtyValid = false;
+                    return false;
+                }
+
+            });
+        }
+
+        if (catValid && subcatValid && itemValid && qtyValid) {
+            console.log(dataset);
+            submitGoodsReceive(dataset);
+
+        }
+
+    });
+}) //submit function ends */
+//function for submit popup
+
+function submitBatchDetails(dataset) {
+	
+	swal.fire({
+        title: "Are you sure want to Submit?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+        	
+            $.ajax({
+                type: "POST",
+                url: "add-goods-receive-note-save-batch",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            window.location.href = "/inventory/view-goods-receive-note";
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            }) //ajax ends
+        }
+    })
+}
+
+function submitGoodsReceive(dataset) { 
+    swal.fire({
+        title: "Are you sure want to Submit?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+        	$("#submitItems").prop('disabled', true);
+        	$("#cancelBtn").prop('disabled', true);
+            $.ajax({
+                type: "POST",
+                url: "add-goods-receive-note",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            window.location.href = "/inventory/view-goods-receive-note";
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                        $("#submitItems").removeAttr('disabled');
+                    	$("#cancelBtn").removeAttr('disabled');
+                    }
+                },
+                error: function(data) {
+                	$("#submitItems").removeAttr('disabled');
+                	$("#cancelBtn").removeAttr('disabled');
+                    console.log(data)
+                }
+            }) //ajax ends
+        }
+    }) //swal function block ends
+}
+
+
+
+//For getting Item SubCategory onChange of Item CAtegory
+function getInvItemSubCategory(event) {
+    var gRNPurchaseOrderId = $("#purchaseOrder").val();
+    var itmCategory = event.currentTarget.value;
+    var currentId = event.currentTarget.id;
+    var l = currentId.split("_");
+    var counter = l[1];
+    if (itmCategory != "" || itmCategory != null) {
+        $("#itemSubCategory_" + counter).empty();
+        $("#itemSubCategory_" + counter).append(new Option("--Select--", ""))
+        $("#item_" + counter).empty();
+        $("#item_" + counter).append(new Option("--Select--", ""))
+        $("#receivedQuantity_" + counter).text("0");
+        $("#ServiceQuantity_" + counter).val("");
+        $("#poPrice_" + counter).empty();
+        $("#gstRate_" + counter).empty();
+        $("#amountTotal_" + counter).empty();
+        //$(".subTotal").html("0.00");
+        $(".grandTotal").html("0.00");
+
+        $.ajax({
+            type: "GET",
+            url: "/inventory/add-goods-receive-note-get-itemSubCategory-through-ajax?itmCategory=" + itmCategory + "&gRNPurchaseOrderId=" + gRNPurchaseOrderId,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+                var items = response.body;
+                if (response.message == "success") {
+                    if (items.length > 0) {
+                        for (var i = 0; i < items.length; i++) {
+                            var option = $("<option></option>");
+                            $(option).val(items[i].key);
+                            $(option).html(items[i].name);
+                            $("#itemSubCategory_" + counter).append(option);
+                        }
+                    }
+                } else {
+                    swal("Please Try Again");
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+        $("#itemSubCategory_").empty();
+        $("#itemSubCategory_").append("<option value='NULL'>Select</option>");
+        $("#item_").empty();
+        $("#item_").append("<option value='NULL'>Select</option>");
+        $("#receivedQuantity_" + counter).text("0");
+        $("#ServiceQuantity_" + counter).val("");
+        $("#poPrice_" + counter).empty();
+        $("#gstRate_" + counter).empty();
+        $("#amountTotal_" + counter).empty();
+        //$(".subTotal").html("0.00");
+        $(".grandTotal").html("0.00");
+
+
+    }
+}
+//For Getting Item Name Onchange of ItemSubCategory
+
+function getInvItemName(event) {
+    var gRNPurchaseOrderId = $("#purchaseOrder").val();
+    var itmSubCategory = event.currentTarget.value;
+    var currentId = event.currentTarget.id;
+    var l = currentId.split("_");
+
+    var counter = l[1];
+    if (itmSubCategory != "") {
+        $("#item_" + counter).empty();
+        $("#item_" + counter).append(new Option("--Select--", ""))
+        $("#receivedQuantity_" + counter).text("0");
+        $("#ServiceQuantity_" + counter).val("");
+        $("#poPrice_" + counter).empty();
+        $("#gstRate_" + counter).empty();
+        $("#amountTotal_" + counter).empty();
+        //$(".subTotal").html("0.00");
+        $(".grandTotal").html("0.00");
+        $.ajax({
+            type: "GET",
+            url: "/inventory/add-goods-receive-note-get-itemName-through-ajax?itmSubCategory=" + itmSubCategory + "&gRNPurchaseOrderId=" + gRNPurchaseOrderId,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+                var items = response.body;
+                if (response.message == "success") {
+                    if (items.length > 0) {
+                        for (var i = 0; i < items.length; i++) {
+                            var option = i.toString();
+                            option = new Option(items[i].name, items[i].key)
+                            $(option).html(items[i].name);
+                            $("#item_" + counter).append(option);
+
+                        }
+                    }
+                } else {
+                    swal("Please Try Again");
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+        $("#item_" + counter).empty();
+        $("#item_" + counter).append("<option value=''>Select</option>");
+        $("#receivedQuantity_" + counter).text("0");
+        $("#ServiceQuantity_" + counter).val("");
+        $("#poPrice_" + counter).empty();
+        $("#gstRate_" + counter).empty();
+        $("#amountTotal_" + counter).empty();
+        //$(".subTotal").html("0.00");
+        $(".grandTotal").html("0.00");
+
+    }
+}
+
+// function for get all purchase order details
+function getDetails(key) {
+
+    $('#tbdy').hide();
+    $("#tbodyData").empty();
+    $(".itemCategory").val("");
+    $(".itemSubCategory").val("");
+    $(".itemCls1").val("");
+    $(".itemCls").val("");
+    $(".receivedQuantityCls").val("");
+    $(".lServiceQuantityCls").val("");
+    $(".poPriceCls").val("");
+    $(".invPriceCls").val("");
+    $(".gstRateCls").val("");
+    $(".gstAmountCls").val("");
+    $(".amountTotalCls").val("");
+    $("#invoice_").val('');
+    $("#description").val('');
+    $("#vehicleNo").val('');
+    $("#driverName").val('');
+    $("#mobileNo").val('');
+    $("#discount").val('0.00');
+    $("#subTotal").html('0.00');
+    $("#igst").html('0.00');
+    $("#sgst").html('0.00');
+    $("#cgst").html('0.00');
+    $("#grandTotal").html('0.00');
+
+
+    $("#myTable tbody tr:not(:first)").remove();
+    $("#myTable tbody tr:last").find('td:last').remove();
+    var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+    $("#myTable tbody tr:last").append('<td>' + add + '</td>');
+
+
+    if (key) {
+        $.ajax({
+            type: 'GET',
+            url: 'add-goods-receive-note-getpurchaseOrderDetails?id=' + key,
+            contentType: false,
+            success: function(response) {
+                if (response.message == "success") {
+                    //  $("#advanceAmnt").html(response.body[0].advAmount); 
+                    console.log(response);
+                    
+                    var gstType = response.body[0].gstType;
+                    
+                    if(gstType) {
+                    	document.getElementById("taxC").checked = true;
+                    	ShowHideTrC();
+                    } else {
+                    	document.getElementById("taxS").checked = true;
+                    	ShowHideTrS();
+                    }
+                    
+                    $("#godown").val(response.body[0].storeId);
+                    
+                    var c = 0;
+                    for (var i = 0; i < response.body.length; i++) {
+                        c = c + 1;
+                        
+                        var lineTotal = response.body[i].orderQuantity * response.body[i].poPrice;
+                        var cessAmount = response.body[i].cessAmount;
+                        
+                        var table1 = '<tr class="tr_clone">' +
+                        '<td><input type="hidden" id="itemCategory_' + i + '" class="form-control itemCategory" value="' + response.body[i].category + '" />' +
+                        '<input type="hidden" id="itemSubCategory_' + i + '" class="form-control itemSubCategory" value="' + response.body[i].subCategory + '" />' +
+                        '<input type="hidden" id="itemName_' + i + '" class="form-control itemCls1" value="' + response.body[i].itemId + '">' +
+                        '<input type="text" id="item_' + i + '" class="form-control itemCls" onkeyup="itemAutoComplete(event);" name="item_" value="' + response.body[i].itemName + '" readonly /><div id="suggesstion-box1_"></div></td>' +
+                        '<td><input type="text" id="receivedQuantity_' + i + '" readonly class="form-control receivedQuantityCls" value="' + response.body[i].receiveQuantity + '"></td>' +
+                        '<td><input type="text" id="ServiceQuantity_' + i + '" onkeyup="checkQty(event); calculateAmountTotal(event); checkGRNQuantity(event);"  class="form-control lServiceQuantityCls" value="' + response.body[i].orderQuantity + '"><input type="hidden" id="HiddenQuantity_' + i + '" value="' + response.body[i].orderQuantity + '"></td>' +
+                        //'<td><i class="fa fa-external-link" onclick="getPacketDetails(\''+window.btoa(key)+'\',\''+window.btoa(response.body[i].itemId)+'\');" style="font-size:24px;cursor:pointer;color:#2c61e1;"></i></td>'+
+                        '<td><input type="text" id="poPrice_' + i + '"  readonly class="form-control poPriceCls right-align" value="' + response.body[i].poPrice + '"></td>' +
+                        '<td><input type="text" id="invPrice_' + i + '"  onkeyup="return extractNumber(this,2),calculateAmountTotal(event);" class="form-control invPriceCls right-align" value="' + response.body[i].poPrice + '"></td>' +
+                        '<td><input type="text" id="gstRate_' + i + '" readonly class="form-control gstRateCls" value="' + response.body[i].gstRate + '"> ' +
+                        ' <input type="hidden" id="gstAmount_' + i + '" readonly class="form-control gstAmountCls"></td>' +
+                        '<td><input type="text" readonly id="cessAmt_'+i+'" class="form-control cessAmount" value="'+cessAmount+'"></td>'+
+                        '<td><input type="text" id="amountTotal_' + i + '" readonly class="form-control  amountTotalCls right-align" value="'+lineTotal.toFixed(2)+'"></td>' +
+                        /* '<td><button type="button" class="btn btn-warning rmv" name="Remove"> <span class="ti-minus"></span></button> &nbsp;</td>' + */
+                        '</tr>';
+                        
+                        $('#tbodyData').append(table1);
+                        calculateSubTotal();
+                    }
+
+                } else {
+                    $("#tbdy").css("text-align", "right").css("color", "red").css("font-size", "13").html('No Record Found');
+                    $('#tblid').empty();
+                    $("#receivedQuantity_").text("0");
+                }
+
+
+            },
+            error: function(e) {
+                console.log("error");
+            }
+        });
+    } else {
+        $("#tbdy").css("text-align", "right").css("color", "red").css("font-size", "13").html('No Record Found');
+        $('#tblid').empty();
+
+    }
+}
+
+function getPacketDetails(po,item) {
+	$(".batchNo").val("");
+	$(".serialNo").val("");
+	$(".quantity").val("");
+	$(".tdSlCls").empty();
+	var tdDiv = '<input type="text" id="serialNo_0" class="form-control serialNo">';
+	$(".tdSlCls").append(tdDiv);
+	$("#itemId").val(window.atob(item));
+	$("#poNo").val(window.atob(po));
+	$("#myModal1").modal('show');
+}
+
+//For Getting The Receive Quantity on Change of item Name and purchaseOrder
+function getReceiveQuantity(itemName1, counter) {
+    var gRNPurchaseOrderId = $("#purchaseOrder").val();
+    var itemName = itemName1;
+
+
+
+    var counter = counter;
+    if (itemName != "") {
+        $("#receivedQuantity_" + counter).empty();
+        // $(".subTotal").html("0.00");
+        // $(".grandTotal").html("0.00");
+        $("#amountTotal_" + counter).empty();
+        // $(".subTotal").html("0.00");
+        // $(".grandTotal").html("0.00");
+        // $("#igst").html("0.00");
+        // $("#sgst").html("0.00");
+        // $("#cgst").html("0.00");
+        // $("#discount").html("0.00");
+        $("#gstType").html("0.00");
+        $("#gstRate").html("0.00");
+        $.ajax({
+            type: "GET",
+            url: "/inventory/add-goods-receive-note-get-quantity-through-ajax?itemName=" + itemName + "&gRNPurchaseOrderId=" + gRNPurchaseOrderId,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+                var items = response.body;
+                if (response.message == "success") {
+                    if (items.length > 0) {
+                        for (var i = 0; i < items.length; i++) {
+                            var option = i.toString();
+                            option = new Option(items[i].key, items[i].key)
+                            $(option).html(items[i].key);
+                            $("#receivedQuantity_" + counter).append(option);
+
+                        }
+                    }
+                } else {
+                    swal("Please Try Again");
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+        $("#receivedQuantity_" + counter).empty();
+        $("#receivedQuantity_").append("<option value='NULL'>0</option>");
+        $("#ServiceQuantity_" + counter).val("");
+        $("#poPrice_" + counter).empty();
+        $("#gstRate_" + counter).empty();
+        $("#amountTotal_" + counter).empty();
+
+
+        $("#gstType").html("0.00");
+        $("#gstRate").html("0.00");
+
+
+    }
+}
+
+function checkGRNQuantity(event) {
+	var value = event.currentTarget.value;
+    var id = event.currentTarget.id;
+    var l = id.split("_");
+    var i = l[1];
+    
+    var hiddenQty = $("#HiddenQuantity_"+i).val();
+    var grnQty = $("#ServiceQuantity_"+i).val();
+    
+    if(parseFloat(grnQty) > parseFloat(hiddenQty)) {
+    	swal({
+    		title : "Quantity can't be greater than "+hiddenQty,
+    		type : "warning",
+    	})
+    	$("#ServiceQuantity_"+i).val(hiddenQty);
+    }
+}
+
+//For Quantity Comparision
+function quantityComparision(event) {
+    var AssignItemQty = event.currentTarget.value;
+    var currentQtyFldId = event.currentTarget.getAttribute('id');
+    var l = currentQtyFldId.split("_");
+    var counter = l[1];
+    var AssignItemCode = $("#" + currentQtyFldId).closest('tr').find('input').eq(2).val();
+
+    var POItemQty = $("#PO_" + AssignItemCode).text();
+
+    var receivedQty = $("#receivedQuantity_" + counter).text();
+    var reqQty = (parseFloat(POItemQty) - parseFloat(receivedQty));
+
+    if (parseFloat(POItemQty) == parseFloat(receivedQty)) {
+        swal('All Amounts Are Received of this Item.');
+        $("#ServiceQuantity_" + counter).val(" ");
+        return false;
+    } else if (parseFloat(AssignItemQty) > parseFloat(reqQty)) {
+        swal('quantity is more than available quantity.');
+        $("#ServiceQuantity_" + counter).val(" ");
+        return false;
+    } else if (parseFloat(AssignItemQty) == 0) {
+        swal('Quantity Can not be Zero');
+        $("#ServiceQuantity_" + counter).val(" ");
+        return false;
+
+    }
+
+}
+
+//For Price Comparision
+function priceComparision(event) {
+    var AssignPrice = event.currentTarget.value;
+    var currentPrcFldId = event.currentTarget.getAttribute('id');
+    var l = currentPrcFldId.split("_");
+    var counter = l[1];
+    if (parseFloat(AssignPrice) == 0) {
+        swal('Price Can not be Zero');
+        $("#poPrice_" + counter).val(" ");
+        return false;
+    }
+
+}
+
+function ShowHideTrS() {
+    calculategstRate();
+    $('#igstR').hide();
+    $('#cgstR').show();
+    $('#sgstR').show();
+}
+
+function ShowHideTrC() {
+    calculategstRate();
+    $('#igstR').show();
+    $('#cgstR').hide();
+    $('#sgstR').hide();
+}
+
+function HideDisc() {
+    calculategstRate();
+    $("#discount").val("0.00");
+    $('#discDiv').hide();
+}
+
+function ShowDisc() {
+    $('#discDiv').show();
+}
+
+lightbox.option({
+    'resizeDuration': 200,
+    'wrapAround': true,
+
+})
+
+//Function for cancel button
+function funcLoad() {
+    location.reload();
+}
+
+$(document).on('click', '.close', function() {
+    $(this).siblings("img").toggle();
+})
+
+lightbox.option({
+    'resizeDuration': 200,
+    'wrapAround': true,
+
+})
+$(document).on('click', '.close', function() {
+    $(this).siblings("img").toggle();
+})
+//function to upload image
+
+function saveFile() {
+    $("#upload_prev").empty();
+    var uFile = $('#fileUpload')[0].files[0];
+    var fileName = $('#fileUpload').val();
+    var lastIndex = fileName.lastIndexOf("\\");
+    if (lastIndex >= 0) {
+        fileName = fileName.substring(lastIndex + 1);
+    }
+    var iURL = URL.createObjectURL(uFile);
+    $("#uploadedImgDiv").html("");
+    var LightImg = '<a class="example-image-link" href=' + iURL + ' title="' + fileName + '" target="_blank" >Preview</a>';
+    $("#uploadedImgDiv").html(LightImg);
+
+    var fileData = new FormData();
+    fileData.append('file', uFile);
+    fileData.append('path', 'none');
+
+    $.ajax({
+        type: "POST",
+        url: "add-goods-receive-note-upload-file",
+        enctype: "multipart/form-data",
+        contentType: false,
+        data: fileData,
+        processData: false,
+        cache: false,
+        success: function(response) {
+
+        },
+        error: function(e) {
+
+        }
+    });
+}
+$(document).ready(function() {
+
+
+})
+//For duplicacy Check Of Item Name
+function checkForDuplicate(itemName, counter) {
+    var item = itemName;
+    var count = 0;
+    // var itemId=event.currentTarget.id;
+    $(".itemCls").each(function() {
+        if (item == $(this).val()) {
+            count++;
+        }
+    })
+    if (count >= 2) {
+        //swal('item already selected');
+        swal({
+            title: "Items Are Already Selected",
+            text: "So You Can't Select It Again...!!!",
+            type: "warning",
+        })
+        $("#item_" + counter).val("");
+
+
+    }
+
+}
+
+//For AutoComplete of purchase Order
+function guestAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "add-goods-receive-note-getGuestAutocompleteList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#purchaseOrderName").val(),
+        success: function(response) {
+            if (response.message == "success") {
+                if (response.body.length != 0) {
+                    $("#purchaseOrderName").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) {
+                        content += '<li onClick="selectAutocompleteValue(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].key + '</li>';
+                    }
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+
+                } else {
+
+                    $("#purchaseOrderName").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectAutocompleteValue(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box").show();
+                    $("#suggesstion-box").html(content);
+                }
+            }
+        },
+        error: function(data) {
+
+        }
+    })
+}
+
+function selectAutocompleteValue(key, name) {
+    if (key) {
+        $("#purchaseOrder").val(key);
+        $("#purchaseOrderName").val(key);
+        $("#purchaseOrderName").attr('data-procat', key);
+        $("#suggesstion-box").hide();
+        getSelectList();
+        getPurchaseOrderList();
+        getSelectVendor();
+        getDetails(key);
+    } else {
+        $("#purchaseOrder").val("");
+        $("#purchaseOrderName").val("");
+        $("#purchaseOrderName").attr('data-procat', "");
+        $("#suggesstion-box").hide();
+        getSelectList();
+        getPurchaseOrderList();
+        getSelectVendor();
+    }
+}
+
+//For Getting ItemCategory Onchange of Purchase Order 
+function getSelectList() {
+    var purchaseOrder = $("#purchaseOrder").val();
+
+    if (purchaseOrder) {
+
+        $(".itemCategory").empty();
+        $(".itemCategory").append("<option value>Select</option>");
+
+        $(".itemSubCategory").empty();
+        $(".itemSubCategory").append("<option value='NULL'>Select</option>");
+        $(".itemCls").empty();
+        $(".itemCls").append("<option value='NULL'>Select</option>");
+        $(".lServiceQuantityCls").val("");
+        $(".gPriceCls").empty();
+        $(".receivedQuantityCls").text("0");
+        $(".amountTotalCls").empty();
+        $(".grandTotal").html("0.00");
+
+        $.ajax({
+            type: 'POST',
+            url: 'add-goods-receive-note-get-itemCat-through-ajax',
+            contentType: false,
+            data: purchaseOrder,
+            success: function(response) {
+
+                for (var i = 0; i < response.body.length; i++) {
+                    var option = $("<option></option>");
+                    $(option).val(response.body[i].key);
+                    $(option).html(response.body[i].name);
+                    $(".itemCategory").append(option);
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        });
+    } else {
+        $(".itemCategory").empty();
+        $(".itemCategory").append("<option value>Select</option>");
+        $(".itemSubCategory").empty();
+        $(".itemSubCategory").append("<option value='NULL'>Select</option>");
+        $(".itemCls").empty();
+        $(".itemCls").append("<option value='NULL'>Select</option>");
+        $(".lServiceQuantityCls").val("");
+        $(".gPriceCls").empty();
+        $(".receivedQuantityCls").text("0");
+        $(".amountTotalCls").empty();
+        //$(".subTotal").html("0.00");
+        $(".grandTotal").html("0.00");
+    }
+}
+//For Getting The purchase OrderList in table
+function getPurchaseOrderList() {
+    var purchaseOrder = $("#purchaseOrder").val();
+    if (purchaseOrder) {
+        $('#tbdy').empty();
+        $('#tblid').empty();
+        $("#receivedQuantity_").text("0");
+
+        $.ajax({
+            type: 'POST',
+            url: 'add-goods-receive-note-list-view-goodsreceive',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: purchaseOrder,
+            success: function(response) {
+                if (response.message == "success") {
+                    for (var i = 0; i < response.body.length; i++) {
+                        table = '<tr><td class="categoryA">' +
+                            response.body[i].itmCategory + '</td><td class="subCategoryA">' +
+                            response.body[i].itmSubCategory + '</td><td class="itemA">' +
+                            response.body[i].gRnInvoiceItmName + '</td><td class="quantityA" id="PO_' + response.body[i].gRNItmId + '" >' +
+                            response.body[i].gRnInvoiceQuantity + '</td><td class="pendingA">' +
+                            response.body[i].createdBy + '</td></tr>';
+                        $('#tblid').append(table);
+                    }
+                }
+            },
+            error: function(e) {
+                console.log("error");
+            }
+        });
+    } else {
+        $("#tbdy").css("text-align", "right").css("color", "red").css("font-size", "13").html('No Record Found');
+        $('#tblid').empty();
+        $("#receivedQuantity_").text("0");
+    }
+}
+
+
+function getBase64(file) {
+    var reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function() {
+        console.log(reader.result);
+        return reader.result;
+    };
+    reader.onerror = function(error) {
+        console.log('Error: ', error);
+    };
+}
+
+
+
+//For Getting Vendor Name Onchange of Purchase Order 
+function getSelectVendor() {
+    var purchaseOrder = $("#purchaseOrder").val();
+    if (purchaseOrder) {
+        $(".vendorNameCls").html("");
+        $.ajax({
+            type: 'POST',
+            url: 'add-goods-receive-note-get-vendor-through-ajax',
+            contentType: false,
+            data: purchaseOrder,
+            success: function(response) {
+
+                for (var i = 0; i < response.body.length; i++) {
+                    $("#vendorName").val(response.body[i].key);
+                    $("#vendorNameId").text(response.body[i].name);
+                }
+            },
+            error: function(e) {
+                console.log("error");
+            }
+        });
+    } else {
+        $(".vendorNameCls").html("");
+    }
+}
+
+
+//function to validate Discount field
+
+function extractNumber(obj, decimalPlaces, allowNegative) {
+    var temp = obj.value;
+    // avoid changing things if already formatted correctly
+    var reg0Str = '[0-9]*';
+    if (decimalPlaces > 0) {
+        reg0Str += '\\.?[0-9]{0,' + decimalPlaces + '}';
+    } else if (decimalPlaces < 0) {
+        reg0Str += '\\.?[0-9]*';
+    }
+    reg0Str = allowNegative ? '^-?' + reg0Str : '^' + reg0Str;
+    reg0Str = reg0Str + '$';
+    var reg0 = new RegExp(reg0Str);
+    if (reg0.test(temp)) return true;
+
+    // first replace all non numbers
+    var reg1Str = '[^0-9' + (decimalPlaces != 0 ? '.' : '') + (allowNegative ? '-' : '') + ']';
+    var reg1 = new RegExp(reg1Str, 'g');
+    temp = temp.replace(reg1, '');
+
+    if (allowNegative) {
+        // replace extra negative
+        var hasNegative = temp.length > 0 && temp.charAt(0) == '-';
+        var reg2 = /-/g;
+        temp = temp.replace(reg2, '');
+        if (hasNegative) temp = '-' + temp;
+    }
+
+    if (decimalPlaces != 0) {
+        var reg3 = /\./g;
+        var reg3Array = reg3.exec(temp);
+        if (reg3Array != null) {
+            // keep only first occurrence of .
+            //  and the number of places specified by decimalPlaces or the entire string if decimalPlaces < 0
+            var reg3Right = temp.substring(reg3Array.index + reg3Array[0].length);
+            reg3Right = reg3Right.replace(reg3, '');
+            reg3Right = decimalPlaces > 0 ? reg3Right.substring(0, decimalPlaces) : reg3Right;
+            temp = temp.substring(0, reg3Array.index) + '.' + reg3Right;
+        }
+    }
+
+    obj.value = temp;
+}
+
+
+//for getting available quantity
+//Function to get pending Quantity On Change Of  item Name
+
+function getPndngQuantity(itemName, counter) {
+    var gRNPurchaseOrderId = $("#purchaseOrder").val();
+    if (itemName) {
+        $.ajax({
+            type: "GET",
+            url: "/inventory/add-goods-receive-note-get-Pendingquantity-through-ajax?itemName=" + itemName + "&gRNPurchaseOrderId=" + gRNPurchaseOrderId,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+                var items = response.body;
+                if (response.message == "success") {
+                    if (items.length > 0) {
+                        for (var i = 0; i < items.length; i++) {
+                            $("#pndgQuantity_" + counter).html(items[i].key);
+                        }
+                    }
+                } else {
+                    swal("Please Try Again");
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    }
+}
+
+//method to check discount amount could not be blank
+function checkDiscount() {
+    var discount = $('#discount').val();
+    if (discount == "") {
+        swal({
+            title: "Discount Amount Can't Be Empty.",
+            type: "warning",
+        })
+        return false;
+
+    }
+
+}
+//method to set discount amount 0
+function formatOnZero() {
+    var discount = $('#discount').val();
+    if (discount == 0) {
+        $('#discount').val("0.00");
+
+    }
+}
+
+//Function to get Price On Change Of  item Name
+function callUnitPriceItem(itemName, counter) {
+
+    var porder = $("#purchaseOrder").val();
+    if (itemName) {
+        $.ajax({
+            type: "GET",
+            url: "/inventory/add-goods-receive-note-get-calculated-price-items?item=" + itemName + "&pOrder=" + porder,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+
+                if (response.body[0] != null || response.body[0] != "") {
+                    var items = response.body;
+                    for (var i = 0; i < items.length; i++) {
+                        $("#poPrice_" + counter).html(items[i].key);
+                    }
+
+                } else {
+                    $("#errorMsg").html(response.message)
+
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+
+    }
+}
+
+//function to return used to return edit page to view page 
+function returnToViewPage() {
+    /* var item = $("#gRNInvoiceId").val();
+    if ((item == null) || (item == "")) {
+        funcLoad();
+    } else { */
+        window.location.href = "/inventory/view-goods-receive-note";
+    /* } */
+}
+//function to validate Quantity field				
+function checkQty(event) {
+    var currentId = event.currentTarget.id;
+    checkNum(currentId);
+}
+
+//for item auto complete
+function itemAutoComplete(event) {
+    var currentId = event.currentTarget.id;
+    var currentValue = event.currentTarget.value;
+    var l = currentId.split("_");
+    var counter = l[1];
+
+    var po = $("#purchaseOrder").val();
+
+    if (currentValue) {
+        obj = {};
+
+        obj.key = currentValue;
+
+        if (po != null && po != "") {
+            obj.name = po;
+        } else {
+            obj.name = "";
+        }
+        console.log(obj)
+        $.ajax({
+            type: "POST",
+            url: "add-goods-receive-note-get-item",
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(obj),
+            success: function(response) {
+                if (response.message == "success") {
+                    if (response.body.length != 0) {
+                        $(currentId).css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list1">';
+                        for (var i = 0; i < response.body.length; i++) {
+                            content += '<li onClick="selectAutocompleteValueItem1(\'' + response.body[i].itemName + '\',\'' + response.body[i].item_p + '\',\'' + response.body[i].categoryName + '\',\'' + response.body[i].subCategoryName + '\',\'' + counter + '\')">' + response.body[i].itemName + '(' + response.body[i].item_p + ')' + '</li>';
+                        }
+                        content += '</ul>';
+                        $("#suggesstion-box1_" + counter).show();
+                        $("#suggesstion-box1_" + counter).html(content);
+
+                    } else {
+                        $(currentId).css("background", "#FFF");
+                        var content = '<ul id="autocomplete-list1">';
+                        content += '<li onClick="selectAutocompleteValueItem(\'' + counter + '\')">' + "No Data Found" + '</li>';
+                        content += '</ul>';
+                        $("#suggesstion-box1_" + counter).show();
+                        $("#suggesstion-box1_" + counter).html(content);
+                    }
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+        $(currentId).css("background", "#FFF");
+        var content = '<ul id="autocomplete-list1">';
+        content += '<li onClick="selectAutocompleteValueItem(\'' + counter + '\')">' + "No Data Found" + '</li>';
+        content += '</ul>';
+        $("#suggesstion-box1_" + counter).show();
+        $("#suggesstion-box1_" + counter).html(content);
+    }
+}
+
+function selectAutocompleteValueItem1(itemName, item_p, categoryName, subCategoryName, counter) {
+    if (item_p) {
+        $("#itemName_" + counter).val(item_p);
+        $("#itemCategory_" + counter).val(categoryName);
+        $("#itemSubCategory_" + counter).val(subCategoryName);
+        $("#item_" + counter).val(itemName);
+        $("#item_" + counter).attr('data-procat', item_p);
+        $("#suggesstion-box1_" + counter).hide();
+        checkForDuplicate(itemName, counter);
+        getPndngQuantity(item_p, counter); //for pending quantity change
+        callUnitPriceItem(item_p, counter); //for call item price
+        getReceiveQuantity(item_p, counter); //for recive quantity
+        getGSTForItem(item_p, counter);
+    } else {
+        $("#itemName_" + counter).val("");
+        $("#itemSubCategory_" + counter).val("");
+        $("#item_" + counter).val("");
+        $("#item_" + counter).attr('data-procat', "");
+        $("#suggesstion-box1_" + counter).hide();
+        checkForDuplicate(item_p, counter);
+        getPndngQuantity(item_p, counter); //for pending quantity change
+        callUnitPriceItem(item_p, counter); //for call item price
+        getReceiveQuantity(item_p, counter); //for recive quantity
+    }
+}
+
+function selectAutocompleteValueItem(counter) {
+    $("#itemName_" + counter).val("");
+    $("#itemSubCategory_" + counter).val("");
+    $("#item_" + counter).val("");
+    $("#item_" + counter).attr('data-procat', "");
+    $("#suggesstion-box1_" + counter).hide();
+
+
+}
+
+function getGSTForItem(id, counter) {
+    $.ajax({
+        type: "POST",
+        url: "add-goods-receive-note-get-gst",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: id,
+        success: function(response) {
+            if (response.message == "success") {
+                if (response.body.length != 0) {
+                    console.log(parseFloat(response.body[0].name))
+                    $('#gstRate_' + counter).val(parseFloat(response.body[0].name));
+                    calculategstRate();
+                } else {
+                    $('#gstRate_' + counter).val(0.0);
+                    calculategstRate();
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    });
+}
+//function to calculate Amount Total
+function calculateAmountTotal(event) {
+    var currentId = event.currentTarget.id;
+    var currentValue = event.currentTarget.value;
+    var l = currentId.split("_");
+    var counter = l[1];
+    var price = $("#invPrice_" + counter).val();
+    var quantity = $("#ServiceQuantity_" + counter).val();
+    if (price && quantity) {
+        var mul = price * quantity;
+        $("#amountTotal_" + counter).val((mul).toFixed(2));
+
+    } else {
+        var mul = 0;
+        $("#amountTotal_" + counter).val((mul).toFixed(2));
+
+    }
+    calculateSubTotal();
+
+}
+//method to calculate subtotal
+function calculateSubTotal() {
+    var sum = 0;
+    var grandTotal = 0;
+    $(".amountTotalCls").each(function(i) {
+        sum = sum + parseFloat($(this).val());
+    })
+    $('#subTotal').html((sum).toFixed(2));
+    calculategstRate();
+}
+
+function calculategstRate() {
+    var sum = 0;
+    var j = 0;
+    var gstRate = 0;
+    var sum = 0;
+    $(".amountTotalCls").each(function(i) {
+        sum = sum + parseFloat($(this).val());
+    })
+    var gstRate = 0.0;
+    var itemCGST = 0.0;
+    var itemIGST = 0.0;
+    var cessValue = 0.0;
+    $("#tbodyData > tr").each(function(i) {
+        var gstval = parseFloat($(this).find(".gstRateCls").val());
+        var amt = parseFloat($(this).find(".amountTotalCls").val());
+        var itemCess = parseFloat($(this).find(".cessAmount").val());
+        var gstvalhalf = parseFloat(gstval) / 2;
+        var cgstval = ((amt * parseFloat(gstvalhalf)) / 100).toFixed(2);
+        var igstval = ((amt * parseFloat(gstval)) / 100).toFixed(2);
+        var cess = ((igstval * parseFloat(itemCess)) / 100).toFixed(2);
+        itemCGST = parseFloat(itemCGST) + parseFloat(cgstval);
+        itemIGST = parseFloat(itemIGST) + parseFloat(igstval);
+        cessValue = parseFloat(cessValue) + parseFloat(cess);
+    });
+    $('#subTotal').html((sum).toFixed(2));
+    $('#cess').html((cessValue).toFixed(2));
+    var subTotal = $('#subTotal').html();
+    var addTotalAmount = $('#totalAddCharges').html();
+    var gstType = $("input[name='tax']:checked").val();
+    /* 	var gstType = $("#gstType").val(); */
+    if (gstType == "true") {
+        $('#igst').html((itemIGST).toFixed(2));
+        $('#cgst').html("0.00");
+        $('#sgst').html("0.00");
+        var total = parseFloat(subTotal) + itemIGST;
+        var grandTotal = Math.round(total);
+        var grandTotal = Math.round((parseFloat(subTotal) + itemIGST + cessValue + parseFloat(addTotalAmount)));
+        $('#grandTotal').html((grandTotal).toFixed(2));
+        $('#hiddenGrandTotal').val((grandTotal - addTotalAmount).toFixed(2));
+    } else {
+        $('#igst').html("0.00");
+        $('#cgst').html((itemCGST).toFixed(2));
+        $('#sgst').html((itemCGST).toFixed(2));
+        var total = parseFloat(subTotal) + itemCGST + itemCGST + cessValue + parseFloat(addTotalAmount);
+        var grandTotal = Math.round(total);
+        $('#grandTotal').html((grandTotal).toFixed(2));
+        $('#hiddenGrandTotal').val((grandTotal - addTotalAmount).toFixed(2));
+    }
+}
+
+//Method to add and validate discount
+function validateDiscount() {
+    var subtotalamount = $('#subTotal').html();
+    console.log(subtotalamount);
+    var discount = $('#discount').val();
+    console.log(discount);
+    if (discount > parseInt(subtotalamount)) {
+        $('#discount').val("");
+        swal({
+            title: "Discount Amount Can't Be Greater Than Sub Total Amount.",
+            type: "warning",
+        })
+    }
+
+    var totalamountpay = parseInt(subtotalamount) - discount;
+    console.log("totalamountpay" + totalamountpay);
+    var sum = 0;
+    var j = 0;
+    var gstRate = 0;
+    $(".gstRateCls").each(function(i) {
+        sum = sum + parseFloat($(this).val());
+        j = j + 1;
+        gstRate = sum / j;
+
+    })
+    var IGST = gstRate;
+    if (IGST == "") {
+        IGST = 0;
+    }
+    console.log(IGST + "IGST");
+    var newValue = ((totalamountpay * IGST) / 100);
+    var value = newValue / 2;
+
+    $('#igst').html((newValue).toFixed(2));
+    $('#cgst').html((value).toFixed(2));
+    $('#sgst').html((value).toFixed(2));
+    if (totalamountpay >= 0) {
+        var newAmnt = totalamountpay + newValue;
+        $('#grandTotal').html((newAmnt).toFixed(2));
+    } else {
+        $('#grandTotal').html("");
+        $('#igst').html("");
+        $('#cgst').html("");
+        $('#sgst').html("");
+    }
+}
+
+
+function changeData() {
+    $(".itemCategory").val("");
+    $(".itemSubCategory").val("");
+    $(".itemCls1").val("");
+    $(".itemCls").val("");
+    $(".receivedQuantityCls").val("");
+    $(".lServiceQuantityCls").val("");
+    $(".poPriceCls").val("");
+    $(".invPriceCls").val("");
+    $(".gstRateCls").val("");
+    $(".gstAmountCls").val("");
+    $(".amountTotalCls").val("");
+
+    $("#invoice_").val('');
+    $("#description").val('');
+    $("#vehicleNo").val('');
+    $("#driverName").val('');
+    $("#mobileNo").val('');
+    $("#discount").val('0.00');
+    $("#subTotal").html('0.00');
+    $("#igst").html('0.00');
+    $("#sgst").html('0.00');
+    $("#cgst").html('0.00');
+    $("#grandTotal").html('0.00');
+
+    $("#myTable tbody tr:not(:first)").remove();
+    $("#myTable tbody tr:last").find('td:last').remove();
+    var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+    $("#myTable tbody tr:last").append('<td>' + add + '</td>');
+
+}
+
+function addTotalAdditionalCharges(e) {
+	var value = e.currentTarget.value;
+	var grandTotal = $("#hiddenGrandTotal").val();
+	var sum = 0;
+	if(value) {
+		$("#tbodyData1 > tr").each(function(){
+			var amount = $(this).find(".addAmount").val();
+			sum = parseFloat(sum) + parseFloat(amount);
+		})
+		$("#totalAddCharges").html(sum.toFixed(2));
+		var newTotal = parseFloat(grandTotal) + parseFloat(sum);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	} else {
+		$("#totalAddCharges").html("0.00");
+		var newTotal = parseFloat(grandTotal);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	}
+}
+
+function newCalculation(i) {
+	value = "A";
+	var grandTotal = $("#hiddenGrandTotal").val();
+	var sum = 0;
+	if(value) {
+		$("#tbodyData1 > tr").each(function(){
+			var amount = $(this).find(".addAmount").val();
+			sum = parseFloat(sum) + parseFloat(amount);
+		})
+		$("#totalAddCharges").html(sum.toFixed(2));
+		var newTotal = parseFloat(grandTotal) + parseFloat(sum);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	} else {
+		$("#totalAddCharges").html("0.00");
+		var newTotal = parseFloat(grandTotal);
+		$("#grandTotal").html(newTotal.toFixed(2));
+	}
+}
+
+function getSerialNo(e) {
+	var value = e.currentTarget.value;
+	var id = e.currentTarget.id;
+	var l = id.split("_");
+	var i = l[1];
+	
+	$("#slNo_"+i).empty();
+	
+	var div = "";
+	
+	if(value !=null && value > 0) {
+		for(var k = 0; k < value; k++) {
+			div = div + '<div class="slNoDiv_'+i+'"><input type="text" id="serialNo_'+i+'_'+k+'" class="form-control mulSlNo"></div>';
+		}
+	} else {
+		div = '<div class="slNoDiv_'+i+'"><input type="text" id="serialNo_'+i+'_0" class="form-control mulSlNo"></div>';
+	}
+	
+	$("#slNo_"+i).append(div);
+}
+
+function setPacketWiseRow() {
+	var value = $("#totalPacket").val();
+	$("#tbodyData2").empty();
+	if(value != null && value > 0) {
+		for(var i = 0; i < value; i++) {
+			var tbl = '<tr>'+
+					'<td valign="top" class="slNoCls" style="text-align: center;">'+(i+1)+'</td>'+	
+					'<td valign="top"><input type="text" id="batchNo_'+i+'" class="form-control batchNo"></td>'+
+					'<td valign="top"><input type="text" id="quantity_'+i+'" class="form-control quantity" onkeyup="checkQty(event);getSerialNo(event);"></td>'+
+					'<td valign="top" id="slNo_'+i+'" class="tdSlCls"><input type="text" id="serialNo_'+i+'" class="form-control serialNo">'+
+					'</tr>';
+			$("#tbodyData2").append(tbl);
+		}
+	} else {
+		var tbl = '<tr>'+
+			'<td valign="top" class="slNoCls" style="text-align: center;">1</td>'+	
+			'<td valign="top"><input type="text" id="batchNo_0" class="form-control batchNo"></td>'+
+			'<td valign="top"><input type="text" id="quantity_0" class="form-control quantity" onkeyup="checkQty(event);getSerialNo(event);"></td>'+
+			'<td valign="top" id="slNo_0" class="tdSlCls"><input type="text" id="serialNo_0" class="form-control serialNo">'+
+			'</tr>';
+		$("#tbodyData2").append(tbl);
+	}
+	
+}
+</script>
+
+
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<div class="alert alert-danger alert-dismissible"
+					th:if="${message != null}">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<span th:text="${message}"></span>
+				</div>
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+					<!-- <li><a href=add-goods-receive-note>Add Goods Receive Notes</a></li> -->
+					<li class="active"><span>Add Goods Receive Notes</span></li>
+
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Goods Receive Notes</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:object="${invGoodsReceiveModel}" autocomplete="off">
+								<input type="hidden" id="gRNInvoiceId" th:value="${invGoods}" />
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Purchase Order Number</label> <input
+												th:if="${invGoods !=null && purchase!=null }" type="hidden"
+												id="purchaseOrder"
+												th:value="${invGoodsReceiveModel[0].gRNPurchaseOrderId}" />
+											<input type="text"
+												th:if="${invGoods !=null && purchase!=null }"
+												class="form-control" id="purchaseOrderName"
+												th:value="${invGoodsReceiveModel[0].porder}"
+												onkeyup="guestAutoComplete();" /> <input
+												th:unless="${invGoods}" type="hidden" id="purchaseOrder" />
+											<input type="text" th:unless="${invGoods}"
+												class="form-control" id="purchaseOrderName"
+												onkeyup="guestAutoComplete();" />
+											<div id="suggesstion-box"></div>
+										</div>
+										<div class="form-group">
+											<label>Vendor Name</label> <input type="hidden"
+												id="vendorName" th:unless="${invGoods}"> <input
+												type="hidden" id="vendorName" th:if="${invGoods}"
+												th:value="${invGoodsReceiveModel[0].vendorName}"> <label
+												id="vendorNameId" th:if="${invGoods }"
+												class="form-control vendorNameCls"
+												th:text="${invGoodsReceiveModel[0].vendor}"></label><label
+												id="vendorNameId" th:unless="${invGoods}"
+												class="form-control vendorNameCls"></label>
+
+
+										</div>
+										<div class="form-group">
+											<label>Store</label> <select th:if="${invGoods}"
+												class="form-control" id="godown">
+												<option value=>Select</option>
+												<option th:each="c:${godownList}" th:value='${c.key}'
+													th:text="${c.name}"
+													th:selected="${c.key==invGoodsReceiveModel[0].godown}"></option>
+											</select> <select th:unless="${invGoods}" class="form-control"
+												id="godown">
+												<option value=>Select</option>
+												<option th:each="c:${godownList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group" id="iNType">
+											<label>Invoice Number</label> <input type="text"
+												th:if="${invGoods !=null && purchase!=null }"
+												class="form-control" id="invoice_"
+												th:value="${invGoodsReceiveModel[0].gRnInvoiceNumber}">
+
+											<input type="text" th:unless="${invGoods}"
+												class="form-control" id="invoice_">
+										</div>
+										<div class="form-group">
+											<label>Invoice Date</label> <input type="text"
+												th:if="${invGoods !=null && purchase!=null }"
+												class="form-control" id="invDate"
+												th:value="${invGoodsReceiveModel[0].invDate}" readonly>
+											<input type="text" th:unless="${invGoods}"
+												class="form-control" id="invDate" readonly
+												placeholder="Invoice Date" value=''>
+										</div>
+										<div class="form-group">
+											<label>Payment Due Date</label> <input type="text"
+												th:if="${invGoods !=null && purchase!=null }"
+												class="form-control" id="dueDate"
+												th:value="${invGoodsReceiveModel[0].dueDate}" readonly>
+											<input type="text" th:unless="${invGoods}"
+												class="form-control" id="dueDate" readonly
+												placeholder="Due Date" value=''>
+										</div>
+
+									</div>
+									<div class="col-lg-6">
+
+										<div class="form-group" style="display: none">
+											<label>Status</label> <select class="form-control"
+												id="statusId">
+												<!-- <option value="">--Select--</option> -->
+												<option th:if="${invGoods}" value=true
+													th:selected="${invGoodsReceiveModel[0].gRnInvoiceActive}">Active</option>
+												<option th:unless="${invGoods}" value=true>Active</option>
+												<option th:if="${invGoods}" value=false
+													th:selected="${!invGoodsReceiveModel[0].gRnInvoiceActive}">Inactive</option>
+												<option th:unless="${invGoods}" value=false>Inactive</option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Vehicle No.</label> <input type="text"
+												th:if="${invGoods}" class="form-control" id="vehicleNo"
+												th:value="${invGoodsReceiveModel[0].vehicleNo}"> <input
+												type="text" th:unless="${invGoods}" class="form-control"
+												id="vehicleNo">
+										</div>
+
+										<div class="form-group">
+											<label>Driver Name</label> <input type="text"
+												th:if="${invGoods}" class="form-control" id="driverName"
+												th:value="${invGoodsReceiveModel[0].driverName}"> <input
+												type="text" th:unless="${invGoods}" class="form-control"
+												id="driverName">
+										</div>
+
+										<div class="form-group">
+											<label>Driver Mobile No</label> <input type="text"
+												th:if="${invGoods}" class="form-control" id="mobileNo"
+												th:value="${invGoodsReceiveModel[0].mobileNo}"> <input
+												type="text" th:unless="${invGoods}" class="form-control"
+												id="mobileNo">
+										</div>
+										
+										<div class="form-group" id="description">
+											<label id="porder">Description</label>
+											<textarea th:if="${invGoods}" style="height: 70px;" cols="50"
+												rows="4" id="gRtNDescription_" class="form-control textarea"
+												th:text="${invGoodsReceiveModel[0].gRnInvoiceDescription}"></textarea>
+											<textarea th:unless="${invGoods}" style="height: 70px;"
+												cols="50" rows="4" id="gRtNDescription_"
+												class="form-control textarea"></textarea>
+										</div>
+
+										<div class="form-group">
+											<label>Upload File</label> <input type="file" id="fileUpload"
+												style="display: block;" accept="document/*"
+												onchange="saveFile()">
+											<div id="uploadedImgDiv">
+												<span th:if="${invGoods}"> <a
+													th:if="${invGoodsReceiveModel[0].invImg != null}"
+													class="example-image-link"
+													th:href="${invGoodsReceiveModel[0].action}" target="_blank">Preview</a>
+												</span>
+											</div>
+											<span class="fornerrormsg" id="subcategory_photoerr"></span>
+										</div>
+
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<Strong class="label-head">Invoice Details</Strong>
+									</div>
+
+								</div>
+
+								<table class="tbll" id="myTable" width="100%" border="0"
+									cellspacing="1" cellpadding="5">
+									<thead>
+										<tr>
+											<th>Item Name</th>
+											<th>Received Quantity</th>
+											<th>Quantity</th>
+											<!-- <th>Details</th> -->
+											<th>PO Price</th>
+											<th>Invoice Price</th>
+											<th>GST</th>
+											<th>Cess</th>
+											<th>Amount</th>
+											<!-- <th>Action</th> -->
+										</tr>
+									</thead>
+
+									<tbody id="tbodyData">
+										<tr class="tr_clone" th:if="${invGoods}"
+											th:each="a,iter:${invGoodsReceiveModel}">
+											<td><input type="hidden"
+												th:id="${'itemCategory_'+iter.index}"
+												class="form-control itemCategory"
+												th:value="${a.itmCategory}" /> <input type="hidden"
+												th:id="${'itemSubCategory_'+iter.index}"
+												class="form-control itemSubCategory"
+												th:value="${a.itmSubCategory}" /> <input type="hidden"
+												th:id="${'itemName_'+iter.index}"
+												class="form-control itemCls1"
+												th:value="${a.gRnInvoiceItmName}"> <input
+												type="text" th:id="${'item_'+iter.index}"
+												class="form-control itemCls"
+												onkeyup="itemAutoComplete(event);" th:value="${a.ItemName}">
+												<div id="suggesstion-box1_"></div></td>
+											<td><input type="text"
+												th:id="'receivedQuantity_'+${iter.index}"
+												class="form-control receivedQuantityCls"
+												th:each="c:${qtyLists[iter.index]}" th:value='${c.key}'
+												readonly></td>
+											<td><input type="text"
+												th:id="'ServiceQuantity_'+${iter.index}"
+												class="form-control lServiceQuantityCls"
+												onkeyup="checkQty(event); calculateAmountTotal(event); checkGRNQuantity(event);"
+												th:value='${a.gRnInvoiceQuantity}'></td>
+											<td><input type="text" th:id="'poPrice_'+${iter.index}"
+												class="form-control poPriceCls right-align" th:value='${a.gRnPrice}'
+												readonly></td>
+											<td><input type="text" th:id="'invPrice_'+${iter.index}"
+												class="form-control invPriceCls right-align" th:value='${a.invPrice}'
+												onkeyup="return extractNumber(this,2),calculateAmountTotal(event);" /></td>
+											<td><input type="text" th:id="'gstRate_'+${iter.index}"
+												class="form-control gstRateCls" th:value='${a.dGstRate}'
+												readonly onkeyup="calculategstRate();" /> <input
+												type="hidden" th:id="${'gstAmount_'+iter.index}"
+												class="form-control gstAmountCls" /></td>
+											<td><input type="text" readonly th:id="'cessAmt_'+${iter.index}" size="6" class="form-control cessAmount" th:value='${a.cessAmount}'></td>
+											<td><input type="text"
+												th:id="'amountTotal_'+${iter.index}"
+												class="form-control amountTotalCls right-align"
+												th:value="${a.lineTotal}" readonly></td>
+										</tr>
+										<tr class="tr_clone" th:unless="${invGoods}">
+											<td><input type="hidden"
+												id="itemCategory_0" class="form-control itemCategory" /> <input type="hidden"
+												id="itemSubCategory_0" class="form-control itemSubCategory" /> <input type="hidden"
+												id="itemName_0" class="form-control itemCls1"> <input
+												type="text" id="item_0" class="form-control itemCls" readonly></td>
+											<td><input type="text"
+												id="receivedQuantity_0"
+												class="form-control receivedQuantityCls" readonly></td>
+											<td><input type="text" id="ServiceQuantity_0"
+												class="form-control lServiceQuantityCls"
+												onkeyup="checkQty(event); calculateAmountTotal(event); checkGRNQuantity(event);"></td>
+											<!-- <td><i class='fa fa-external-link' onclick="getPacketDetails('');" style='font-size:24px;cursor:pointer;color:#2c61e1;'></i></td> -->
+											<td><input type="text" id="poPrice_0"
+												class="form-control poPriceCls right-align" readonly></td>
+											<td><input type="text" id="invPrice_0"
+												class="form-control invPriceCls right-align" 
+												onkeyup="return extractNumber(this,2),calculateAmountTotal(event);" /></td>
+											<td><input type="text" id="gstRate_0"
+												class="form-control gstRateCls" readonly onkeyup="calculategstRate();" /> <input
+												type="hidden" id="gstAmount_0" class="form-control gstAmountCls" /></td>
+											<td><input type="text" readonly id="cessAmt_0" size="6" class="form-control cessAmount"></td>
+											<td><input type="text" id="amountTotal_0" class="form-control amountTotalCls right-align" readonly></td>
+										</tr>
+									</tbody>
+								</table>
+							</form>
+						</div>
+					</div>
+					<div class="row" style="display:none;">
+						<div class="col-lg-6">
+							<div>
+								<strong>GST Type:</strong>
+							</div>
+							<div>
+								<input type="radio" th:if="${invGoods}" disabled
+									th:checked="${!invGoodsReceiveModel[0].gstType}" id="taxS"
+									name="tax" value="false" onclick="ShowHideTrS()" checked />&nbsp;<label
+									th:if="${invGoods}">State Tax</label>&nbsp;&nbsp;&nbsp; <input disabled
+									type="radio" th:if="${invGoods}"
+									th:checked="${invGoodsReceiveModel[0].gstType}" id="taxC"
+									name="tax" value="true" onclick="ShowHideTrC()" />&nbsp;<label
+									th:if="${invGoods}">Center Tax</label> <input type="radio" disabled
+									th:unless="${invGoods}" id="taxS" name="tax" value="false"
+									onclick="ShowHideTrS()" checked />&nbsp;<label
+									th:unless="${invGoods}">State Tax</label>&nbsp;&nbsp;&nbsp; <input disabled
+									type="radio" th:unless="${invGoods}" id="taxC" name="tax"
+									value="true" onclick="ShowHideTrC()" />&nbsp;<label
+									th:unless="${invGoods}">Center Tax</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-6">
+							<label class="label-head">Additional Expenses</label>
+							<table class="tbll1" id="myTable1" width="100%" border="0"
+								cellspacing="1" cellpadding="5">
+								<thead>
+									<tr>
+										<th>Expenses Head</th>
+										<th>Amount</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody id="tbodyData1">
+									<tr class="tr_clone" th:unless="${invGoods}">
+										<td><input type="text" id="additionalCharges_0"
+											class="form-control charges"></td>
+										<td><input type="text" id="additionalAmount_0"
+											onkeyup="checkQty(event);addTotalAdditionalCharges(event);"
+											class="form-control addAmount right-align"></td>
+										<td>
+											<button type="button" class="btn btn-primary tr_clone_add m-t-12"
+												name="add" onclick="checkEmpty1();">
+												<span class="ti-plus"></span>
+											</button>&nbsp;
+										</td>
+									</tr>
+									<tr class="tr_clone" th:if="${invGoods} AND ${addChargesListSize == 0}">
+										<td><input type="text" id="additionalCharges_0"
+											class="form-control charges"></td>
+										<td><input type="text" id="additionalAmount_0"
+											onkeyup="checkQty(event);addTotalAdditionalCharges(event);"
+											class="form-control addAmount right-align"></td>
+										<td><button 
+												type="button" class="btn btn-primary tr_clone_add m-t-12"
+												name="add" onclick="checkEmpty1();">
+												<span class="ti-plus"></span>
+											</button>
+										</td>
+									</tr>
+									<tr class="tr_clone" th:if="${invGoods} AND ${addChargesListSize > 0}" th:each="a,iter:${addChargesList}">
+										<td><input type="text" th:id="additionalCharges_+${iter.index}" th:value="${a.key}"
+											class="form-control charges"></td>
+										<td><input type="text" th:id="additionalAmount_+${iter.index}" th:value="${a.name}"
+											onkeyup="checkQty(event);addTotalAdditionalCharges(event);"
+											class="form-control addAmount right-align"></td>
+										<td><button th:if="${iter.size == iter.index+1}"
+												type="button" class="btn btn-primary tr_clone_add m-t-12"
+												name="add" onclick="checkEmpty1();">
+												<span class="ti-plus"></span>
+											</button>
+											<button th:if="${iter.size != 1}" type="button" class="btn btn-warning rmv1 m-t-12" name="Remove"><span class="ti-minus"></span></button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="col-lg-6">
+							<table width="100%">
+								<tbody>
+									<tr>
+									</tr>
+									<tr th:if="${invGoods}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label>Sub Total</label></td>
+										<td width="40%"><label id="subTotal"
+											class="form-control subTotal label-align"
+											th:text="${invGoodsReceiveModel[0].gsubTotal}">0.00</label></td>
+									</tr>
+									<tr th:unless="${invGoods}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label>Sub Total</label></td>
+										<td width="40%"><label id="subTotal"
+											class="form-control subTotal label-align">0.00</label></td>
+									</tr>
+
+									<tr th:if="${invGoods}" id="discDiv" style="display: none;">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label>Discount</label></td>
+										<td width="40%" align="right"><input type="text"
+											class="form-control label-align" id="discount"
+											th:value="${invGoodsReceiveModel[0].discount}"
+											onKeyUp="return extractNumber(this,2),validateDiscount();" /></td>
+
+									</tr>
+									<tr th:unless="${invGoods}" id="discDiv">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label>Discount</label></td>
+										<td width="40%" align="right"><input type="text"
+											class="form-control label-align" id="discount"
+											onKeyUp="return extractNumber(this,2),validateDiscount();"
+											onblur="checkDiscount(),formatOnZero();" value="0.00" /></td>
+
+									</tr>
+									<tr id="cgstR"
+										th:if="${invGoods} and ${!invGoodsReceiveModel[0].gstType}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label id="labelCgst">CGST</label></td>
+										<td width="40%"><label id="cgst"
+											class="form-control cgst label-align"
+											th:text="${invGoodsReceiveModel[0].cgst}">0.00</label></td>
+									</tr>
+									<tr id="cgstR"
+										th:unless="${invGoods} and ${!invGoodsReceiveModel[0].gstType}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label id="labelCgst">CGST</label></td>
+										<td width="40%"><label id="cgst"
+											class="form-control cgst label-align">0.00</label></td>
+									</tr>
+									<tr id="sgstR"
+										th:if="${invGoods} and ${!invGoodsReceiveModel[0].gstType}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label id="labelSgst">SGST</label></td>
+										<td width="40%"><label id="sgst"
+											class="form-control sgst label-align"
+											th:text="${invGoodsReceiveModel[0].sgst}">0.00</label></td>
+									</tr>
+									<tr id="sgstR"
+										th:unless="${invGoods} and ${!invGoodsReceiveModel[0].gstType}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label id="labelSgst">SGST</label></td>
+										<td width="40%"><label id="sgst"
+											class="form-control sgst label-align">0.00</label></td>
+									</tr>
+
+									<tr id="igstR"
+										th:if="${invGoods} and ${invGoodsReceiveModel[0].gstType}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label id="labelIgst">IGST</label></td>
+										<td width="40%"><label id="igst"
+											class="form-control igst label-align"
+											th:text="${invGoodsReceiveModel[0].igst}">0.00</label></td>
+									</tr>
+									<tr id="igstR"
+										th:unless="${invGoods} and ${invGoodsReceiveModel[0].gstType}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label id="labelIgst">IGST</label></td>
+										<td width="40%"><label id="igst"
+											class="form-control igst label-align">0.00</label></td>
+									</tr>
+
+
+									<tr th:if="${invGoods}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label>Cess</label></td>
+										<td width="40%"><label id="cess"
+											class="form-control cess label-align"
+											th:text="${invGoodsReceiveModel[0].totalCess}">0.00</label></td>
+									</tr>
+									<tr th:unless="${invGoods}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label>Cess</label></td>
+										<td width="40%"><label id="cess"
+											class="form-control cess label-align">0.00</label></td>
+									</tr>
+
+									<tr th:if="${invGoods}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label>Aditional
+												Expenses</label></td>
+										<td width="40%"><label id="totalAddCharges"
+											class="form-control totalAddCharges label-align"
+											th:text="${invGoodsReceiveModel[0].totalAddCharges}">0.00</label></td>
+									</tr>
+									<tr th:unless="${invGoods}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label>Aditional
+												Expenses</label></td>
+										<td width="40%"><label id="totalAddCharges"
+											class="form-control totalAddCharges label-align">0.00</label></td>
+									</tr>
+									<tr th:if="${invGoods}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label>Grand Total</label></td>
+										<td width="40%"><label id="grandTotal"
+											class="form-control grandTotal label-align"
+											th:text="${invGoodsReceiveModel[0].grandTotal}">0.00</label><input
+											type="hidden" id="hiddenGrandTotal"
+											th:value="${invGoodsReceiveModel[0].grandTotal-invGoodsReceiveModel[0].totalAddCharges}"></td>
+									</tr>
+									<tr th:unless="${invGoods}">
+										<td>&nbsp;</td>
+										<td width="60%" align="center"><label>Grand Total</label></td>
+										<td width="40%"><label id="grandTotal"
+											class="form-control grandTotal label-align">0.00</label><input
+											type="hidden" id="hiddenGrandTotal" value="0"></td>
+									</tr>
+
+
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-lg-6">
+							<div class="form-group">
+								<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+								<button type="button" id="cancelBtn" class="btn btn-warning"
+									onclick="returnToViewPage();">Cancel</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<div style="clear: both;"></div>
+	<div id="myModal1" class="modal fade" role="dialog">
+		<div class="modal-dialog modal-big">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Add Batch No.</h4>
+					<button type="button" class="close" data-dismiss="modal">
+						<i class="fa fa-close fa-2x"></i>
+					</button>
+				</div>
+				<div class="modal-body" style="height:405px; overflow-y:scroll;">
+					<input type="hidden" id="poNo">
+					<input type="hidden" id="itemId">
+					<div class="col-lg-3">
+						<div class="form-group">
+							<label>Total Packet</label>
+							<input type="text" id="totalPacket" class="form-control" onkeyup="checkNum('totalPacket');setPacketWiseRow();">
+						</div>
+					</div>
+					<table class="tbll2" id="myTable2" width="100%" border="0"
+						cellspacing="1" cellpadding="5">
+						<thead>
+							<tr>
+								<th>Packet No.</th>
+								<th>Batch No.</th>
+								<th>Quantity</th>
+								<th>Sequence No.</th>
+								<!-- <th>Action</th> -->
+							</tr>
+						</thead>
+						<tbody id="tbodyData2">
+							<tr class="tr_clone">
+								<td valign="top" class="slNoCls" style="text-align: center;">1</td>
+								<td valign="top"><input type="text" id="batchNo_0"
+									class="form-control batchNo"></td>
+								<td valign="top"><input type="text" id="quantity_0" 
+									class="form-control quantity" onkeyup="checkQty(event);getSerialNo(event);"></td>
+								<td valign="top" id="slNo_0" class="tdSlCls"><input type="text" id="serialNo_0"
+									class="form-control serialNo"></td>
+								<!-- <td valign="top">
+									<button type="button" class="btn btn-primary tr_clone_add"
+										name="add" onclick="checkEmpty2();">
+										<span class="ti-plus"></span>
+									</button>&nbsp;
+								</td> -->
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-success" id="submitPacketData">Submit</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

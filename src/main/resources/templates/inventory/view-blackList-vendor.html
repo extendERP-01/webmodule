@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 144px;
+	position: absolute;
+	z-index: 999;
+	height: 100px; 
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #3f4444;
+	color: #fff;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+	color: #000;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+    //Method for listing of all the Vendor Records
+
+    $('#vendorList').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'blacklist-vendor-through-ajax',
+            'data': function(d) {
+                d.param1 = $('#param1').val();
+                 d.param2 = $('#param2').val(); 
+            }
+        },
+        'dataSrc': "",
+        'columns': [
+			{
+                'data': 'vendorName'
+            }, {
+                'data': 'vendorAddress'
+            }, {
+                'data': 'vendorGSTNO'
+            }, {
+                'data': 'vendorBankAc'
+            }, {
+                'data': 'vendorIFSC'
+            }, {
+                'data': 'vendorEmail'
+            }, {
+                'data': 'vendorMobile'
+            }, {
+                'data': 'causeOfInactive'
+            }
+        ]
+    });
+    
+    $("#fromDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	
+	$("#toDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+    
+}); 
+
+function searchData() {
+    $('#vendorList').DataTable().draw();
+}
+
+function vendorAutoComplete() {
+    $.ajax({
+        type: "POST",
+        url: "blacklist-vendor-getVendorList",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#vendor").val(),
+        success: function(response) {
+            if (response.message == "success") {
+
+                if (response.body.length != 0) {
+                    $("#vendor").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) {
+                        content += '<li onClick="selectQAutocomplete(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\')">' + response.body[i].name + '</li>';
+                    }
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+
+                } else {
+                    $("#vendor").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="selectQAutocomplete(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box1").show();
+                    $("#suggesstion-box1").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+            $("#vendor").css("background", "#FFF");
+            var content = '<ul id="autocomplete-list">';
+            content += '<li onClick="selectQAutocomplete(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+            content += '</ul>';
+            $("#suggesstion-box1").show();
+            $("#suggesstion-box1").html(content);
+        }
+    })
+}
+
+function selectQAutocomplete(key, name) {
+    if (key) {
+        $("#param1").val(key);
+        $("#vendor").val(name);
+        $("#vendor").attr('data-procat', key);
+        $("#suggesstion-box1").hide();
+    } else {
+        $("#param1").val("");
+        $("#vendor").val("");
+        $("#vendor").attr('data-procat', "");
+        $("#suggesstion-box1").hide();
+    }
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a href="">Add Black List Vendor</a></li> -->
+					<li class="active"><span>View Blacklisted Vendor</span></li>
+				</ol>
+			</div>
+			
+			<div class="container-fluid">
+				
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-vendors">Create</a>
+								</div>
+							</div> -->
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Vendor Name</label>
+								
+									<input class="form-control" type=hidden placeholder="" name=""
+										id="param1">
+									<input class="form-control" type="text" placeholder="" name=""
+										id="vendor" onkeyup="vendorAutoComplete()">
+										<div id="suggesstion-box1"></div>
+								</div>
+
+								<div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<button class="btn btn-info" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+				
+						<div class="table-responsive" style="width: 100%;">
+							<table id="vendorList" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Vendor Name</th> 
+										<th>Address</th>
+										<th>GST No.</th>
+										<th>Bank A/C No.</th>
+										<th>IFSC Code</th>
+										<th>Email</th>
+										<th>Mobile</th>
+										<th>Comment</th>
+									</tr>
+								</thead>
+								<tbody>
+									
+								</tbody>
+							</table>
+
+						</div>
+						<div style="clear: both;"></div>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

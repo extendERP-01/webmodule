@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script>
+//Deleting the hotel detail
+lightbox.option({
+'resizeDuration':200,
+'wrapAround':true,
+
+})
+//Deleting the hotel detail
+
+
+
+const ipAPI = 'https://api.ipify.org?format=json'
+	function deleteItem(id){
+	 //var data = id.split(",");
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			/* confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : '<i class="fa fa-thumbs-down">&nbsp;Cancel</i>',
+			cancelButtonAriaLabel : 'Thumbs down', */
+	
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/property/view-hotel-delete-hotel?id="+id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+	function viewInModelData(index){
+$('#table1').empty();
+$.ajax({			type : "POST",
+			url : "view-hotel-modeldata",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : index,
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response.body.hotelStatus);
+					var hotelStatus = "";
+					if (response.body.hotelStatus) {
+						hotelStatus = "Active";
+					} else {
+						hotelStatus = "InActive";
+					}
+					
+	table =   table = '<tr><td>Hotel Name :</td>'+'<td align="left">'
+    +response.body.hotelName+'</td>'+'</tr><tr><td>Address:</td><td align="left">'
+	+response.body.hotelAdress+'</td></tr><tr><td>Country :</td>'+'<td align="left">'
+	+response.body.hotelCountry+'</td>'+'</tr><tr><td>PIN :</td>'+'<td align="left">'
+	+response.body.hotelPin+'</td>'+'</tr><tr><td>City :</td>'+'<td align="left">'
+	+response.body.hotelCity+'</td>'+'</tr><tr><td>PhoneNo :</td>'+'<td align="left">'
+	+response.body.hotelPhone+'</td>'+'</tr><tr><td>District :</td>'+'<td align="left">'
+	+response.body.district+'</td>'+'</tr><tr><td>State :</td>'+'<td align="left">'
+	+response.body.state+'</td>'+'</tr><tr><td>Email :</td>'+'<td align="left">'
+	+response.body.hotelEmail+'</td>'+'</tr><tr><td>Website :</td>'+'<td align="left">'
+	+response.body.hotelWebsite+'</td>'+'</tr><tr><td>TIN :</td>'+'<td align="left">'
+	+response.body.hotelTin+'</td>'+'</tr><tr><td>Reg No. :</td>'+'<td align="left">'
+	+response.body.hotelRegdNo+'</td>'+'</tr><tr><td>Status</td><td align="left">'
+	+hotelStatus+'</td></tr>';
+					$('#myModal').modal('show');
+					$('#table1').append(table);
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+
+	}
+	</script>
+<script type="text/javascript">
+
+	$(document).ready(function() {			
+		$('#hoteltbl').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-hotel-throughajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				}
+			},
+			'dataSrc' : "",
+		'columns' : [
+			{'data' : 'hotelName'},
+			{'data' : 'hotelRegdNo'},
+			{'data' : 'hotelTin'},	
+			{'data' : 'hotelCountry'},
+			{'data' : 'state'},
+			{'data' : 'district'},
+			{'data' : 'hotelCity'},
+			{'data' : 'hotelPin'},
+			{'data' : 'hotelAdress'},
+			{'data' : 'hotelWebsite'},
+			{'data' : 'hotelEmail'},
+			{'data' : 'hotelPhone'},
+			{'data' : 'hotelLogo'},
+			{'data' : 'hotelstatusName'},
+			{'data' : 'action'}
+				]	
+		});
+	  });
+
+function searchData() {
+	$('#hoteltbl').DataTable().draw();
+}	
+</script>  
+
+</head>
+<div layout:fragment="content">
+<div class="content-wrap">
+        <div class="main mrt_20">
+            <div class="col-md-12">
+                <ol class="breadcrumb breadcrumb-arrow">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a th:href="@{/property/add-hotel}">Add Hotel </a></li>
+                    <li class="active"><span>View Hotel </span></li>
+                </ol>
+            </div>
+             <div class="card-title">
+                <h4>View Hotel Form </h4>
+            </div>
+            	<div class="container-fluid">
+                <div class="card">
+                        <div class="search-field">
+                        <div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-hotel">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label>Hotel Name</label>
+                                
+                                    <input id="param1" class="form-control" type="text" placeholder="" name="">
+                                </div>
+                               <div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<button class="btn btn-info" onclick="searchData()">Search</button>
+									</div>
+                                </div>
+                            </div>
+                        </div>
+                   
+                        <div class="table-responsive" style="width:100%;">
+                            <table id="hoteltbl" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Hotel Name </th>
+                                        <th>Registionation NO</th>
+                                        <th>TIN</th>
+                                        <th>Country </th>
+                                        <th>State  </th>
+                                        <th>Dist  </th>
+                                        <th>City</th>
+                                        <th>PIN Code</th>
+                                        <th>Address </th>
+                                        <th>Website</th>
+                                        <th>Email</th>
+                                        <th>PhoneNo</th>
+                                        <th>Hotel Logo</th>
+                                        <th>Status</th>
+                                        
+                           
+                                        <th align="center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        
+                                        
+                                    </tr>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="clear:both;"></div>
+                 
+                </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Start-->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content" style="width: 750px;">
+                    <div class="modal-header">
+                        <h4 class="modal-title">ViewDetails of Hotel</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <table width="100%" border="0"  id="table1">
+                           <!--  
+                            <tr>
+                                <td>Hotel Name :</td>
+                                <td align="left">Swati</td>
+                            </tr>
+                            <tr>
+                                <td>Branch Name:</td>
+                                <td align="left">CS PUR</td>
+                            </tr>
+                            <tr>
+                                <td>Address:</td>
+                                <td align="left">HB COLONY</td>
+                            </tr>
+                            <tr>
+                                <td>Country:</td>
+                                <td align="left">INDIA</td>
+                            </tr>
+                            <tr>
+                                <td>State:</td>
+                                <td align="left">ODISHA</td>
+                            </tr>
+                            <tr>
+                                <td>Dist:</td>
+                                <td align="left">KHURDA</td>
+                            </tr>
+                            <tr>
+                                <td>PIN Code:</td>
+                                <td align="left">55555</td>
+                            </tr>
+                            <tr>
+                                <td>Email:</td>
+                                <td align="left">nirmalyalabs@gmail.com</td>
+                            </tr>
+                            <tr>
+                                <td>Website:</td>
+                                <td align="left">nirmalyalabs.com</td>
+                            </tr>
+                            <tr>
+                                <td>TIN:</td>
+                                <td align="left">44144</td>
+                            </tr>
+                            <tr>
+                                <td>Registionation NO:</td>
+                                <td align="left">55777</td>
+                            </tr>
+                            <tr>
+                                <td>Status:</td>
+                                <td align="left">Active</td>
+                            </tr> -->
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal End-->
+        
+    </div>
+</div>
+</html>

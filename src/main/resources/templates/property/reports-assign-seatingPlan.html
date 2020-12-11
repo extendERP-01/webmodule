@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+ $(document).ready(function() {
+	
+	$('#listAllItems').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'view-assigned-seatingplan-ThAjax',
+			'data' : function(d) {
+				d.param1 = $('#param1').val();
+				d.param2 = $('#param2').val();
+				d.param3 = $('#param3').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [ {
+			'data' : 'propertyCategoryName'
+		}, {
+			'data' : 'propertyTypeName'
+		},{
+			'data' : 'seatingPlanName'
+		}, {
+			'data' : 'pSplanCapacity'
+		},{
+			'data' : 'sPlanImage'
+		},{
+			'data' : 'statusName'
+		}, {
+			'data' : 'action'
+		} ]
+	});
+});
+
+ 
+ function validateForm(){
+		if( ($('#param1').val()=="")&&($('#param2').val()=="")&&($('#param3').val()==""))
+		{
+			swal({
+				title 		: "Select Any One from search Feild.."
+			})
+		}
+		else{
+			pdfCreation();
+		}
+			
+	}
+function searchData() {
+	$('#table').DataTable().draw();
+}
+function pdfCreation(){
+	window.open("view-assigned-seatingplan-download-report?param1="+window.btoa($('#param1').val())+"&param2="+window.btoa($('#param2').val())+"&param3="+window.btoa($('#param3').val()), '_blank');
+}
+function funcLoad(){
+	location.reload();
+}
+</script>
+</head>
+<div layout:fragment="content">
+ <div class="content-wrap">
+      <div class="content-wrap">
+        <div class="main mrt_20">
+          
+          <div class="card-title">
+            <h4>Assignment of Sitting</h4>
+          </div>
+          <div class="container-fluid">
+            
+            
+            <div class="card">
+              
+              <div class="card-body">
+                <div class="basic-elements">
+                  
+                	<div class="row">
+						<div th:if="${message != null}">
+							<span th:text="${message}" style="color: red;"></span>
+						</div>
+					</div>
+								<div class="row">
+								<div class="col-lg-6">
+							    <div class="row">
+								<div class="col-md-3">
+									<div class="org-name">Property Type</div>
+								</div>
+					
+								<div class="col-md-8">
+									<select class="form-control" id="param1">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${propertyIdList}" th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+								</div>
+								</div>
+								<div class="row">
+								<div class="col-md-3">
+									<div class="org-name">Seating Plan</div>
+								</div>
+								<div class="col-md-8">
+									<select class="form-control" id="param2">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${seatingPlanList}" th:value='${c.key}' th:text="${c.name}" ></option>
+											</select>
+								</div>
+								</div>
+								</div>
+								<div class="col-lg-6">
+							     <div class="row">
+							     <div class="col-md-3">
+									<div class="org-name">User Type</div>
+								</div>
+								<div class="col-md-8">
+									<select class="form-control" id="param3">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${UserTypeList}" th:value='${c.key}' th:text="${c.name}" ></option>
+									</select>
+								</div>
+								</div>
+								</div>
+								</div>
+								<div class="form-group">
+                        <button class="btn btn-primary" onclick="funcLoad();"> Reset</button>
+                        <button type="button" class="btn btn-primary" onclick="validateForm();"> Print Preview</button>
+                        <button type="button" class="btn btn-primary" onclick="validateForm();">Print</button>
+                        <!-- <input name="" type="reset" class="btn warning" value="Cancel"> -->
+                      </div>
+                    </div>
+                    
+                </div>
+              </div>
+              <div style="clear:both;"></div>
+            </div>
+            
+            
+            
+          </div>
+        </div>
+      </div>
+      <!-- /# row -->
+      
+    </div>
+</div>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.modalIn {
+	border-bottom: 1px solid #e8e4e4;
+}
+</style>
+<script>
+	//Deleting the travelingType
+	
+	
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+/* 		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-reimbursement-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'empName'
+			}, {
+				'data' : 'reqId'
+			},{
+				'data' : 'placeName'
+			},{
+				'data' : 'purpose'
+			},{
+				'data' : 'fromDate'
+			}, {
+				'data' : 'toDate'
+			}, {
+				'data' : 'statusName'
+			}, {
+				'data' : 'action'
+			} ]
+		}); */
+	});
+
+	/* function searchData() {
+		$('#tblTheme').DataTable().draw();
+	} */
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/recruitment/add-training-vendor-sourcing}">Add
+							Vendor Sourcing</a></li>
+					<li class="active"><span>View Vendor Sourcing</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Vendor Sourcing</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-training-vendor-sourcing">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Training Name</label>
+								
+									<input type="text" class="form-control"
+														id="param1" 
+														 />
+
+								</div>
+						
+								<div class="col-md-2 mrt_10">
+                              <div class="form-group">
+                                <input type="button"  class="btn btn-info" value="Search" onclick="searchData()" />
+                              </div>
+                           </div>
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Training Name</th>
+										<th>Training Type</th>
+										<th>Vendor</th>
+										
+										<th align="center">Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<th>LeaderShip</th>
+										<th>TL</th>
+										<th>Naukri</th>
+										
+										<th align="center"><a title='Edit' href="add-training-vendor-sourcing"><i class='fa fa-map'></i></a></th>
+									</tr>
+									<tr>
+										<th>LeaderShip</th>
+										<th>TL</th>
+										<th>Indeed</th>
+										<th align="center"><a title='Edit' href="add-training-vendor-sourcing"><i class='fa fa-map'></i></a></th>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Traveling Requisition</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+
+		<!-- Modal Start-->
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-lg">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" style="color: #007bff;">View
+							Requisition Approve Details</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table2">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+
+	</div>
+</div>
+</html>

@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+       
+     function validateForm(){
+    /* 	 function checkSpecialCharacter(hotelRegdNo,message){
+      	   var SpecialCharRegExp = /[ !@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]/;
+      	   var fieldVal = $("#hotelRegdNo").val();
+      	   
+      	   if(SpecialCharRegExp.test(fieldVal)){
+      	     $('#hotelRegdNo').focus();
+      	     swal(message);
+      	     return false;
+      	   }
+      	   return true;
+
+      	 }  */
+   
+    	
+	  if (!blankValidation("hotelName","TextField", "Name can not be left blank"))
+          return false;
+	  if (!blankValidation("hotelRegdNo","TextField", "Registration no  can not be left blank"))
+          return false;
+	  /* if (!checkSpecialCharacter("hotelRegdNo", "enter a valid registration no"))
+          return false;  */
+	  if (!blankValidation("hotelTin","TextField", "TIN  can not be left blank"))
+          return false;
+	  /* if (!checkNum("hotelTin", "Enter a valid TIN number"))
+          return false; */
+	/*   if (!checkAlphabetAndNumberWithOutSpace("hotelTin", "Enter valid TIN"))
+          return false; */
+	  if (!blankValidation("hotelCountry","TextField", "Country can not be left blank"))
+          return false;
+	  if (!blankValidation("state","TextField", "state can not be left blank"))
+          return false;
+	  if (!blankValidation("district","TextField", "district can not be left blank"))
+          return false;
+	  if (!blankValidation("hotelCity","TextField", "city can not be left blank"))
+          return false;
+	  if (!blankValidation("hotelPin","TextField", "PIN can not be left blank"))
+          return false;
+	  if (!checkNum("hotelPin", "Please enter a valid PIN"))
+          return false;
+      if (!blankValidation("hotelAdress","TextField", "Adress can not be left blank"))
+          return false;
+      if (!blankValidation("hotelWebsite","TextField", "Website can not be left blank"))
+          return false;
+      if (!checkEmailId("hotelWebsite", "Please Enter a valid website"))
+          return false;
+      if (!blankValidation("hotelEmail","TextField", "Email can not be left blank"))
+          return false;
+      if (!checkEmailId("hotelEmail", "Please Enter a valid email Id"))
+          return false;
+      if (!blankValidation("hotelPhone","TextField", "phone no can not be left blank"))
+          return false;
+      if (!checkMobileNumberIN("hotelPhone", "please enter a valid phone number"))
+          return false;
+     
+     
+     /*  if (!blankValidation("fileUpload","FileUpload", "	Image  can not be left blank"))
+          return false; */
+      if (!blankValidation("hotelStatus","TextField", "Status can not be left blank"))
+          return false;
+          
+ 	 
+     }  
+     
+     lightbox.option({
+ 		'resizeDuration':200,
+ 		'wrapAround':true,
+ 		
+ 	})
+ 	$(document).on('click', '.close', function() {
+ 		  $(this).siblings("img").toggle();
+ 	})
+ 	function saveFile() {
+ 		 $("#upload_prev").empty();
+ 			var uFile = $('#fileUpload')[0].files[0]; 
+ 			var fileName = $('#fileUpload').val();
+ 			
+ 			var lastIndex = fileName.lastIndexOf("\\");
+ 			if(lastIndex >= 0) {
+ 				fileName = fileName.substring(lastIndex + 1);
+ 			}
+ 			var iURL = URL.createObjectURL(uFile);
+ 			$("#uploadedImgDiv").html("");
+ 			var LightImg =  "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' data-lightbox='"+fileName+"'>Preview Image</a>";
+ 			$("#uploadedImgDiv").html(LightImg);
+ 			
+ 			var fileData = new FormData();
+ 			fileData.append('file',uFile);
+ 			fileData.append('path','none');
+ 			
+ 			$.ajax({
+ 				type        : "POST",
+ 				url         : "uploadhotelFile",
+ 				enctype     : "multipart/form-data",
+ 				contentType : false,
+ 				data        : fileData,
+ 				processData : false,
+ 				cache       : false,
+ 				success     : function(response){
+ 								
+ 							},			  
+ 				error       : function(e) {
+ 					
+ 					  		}
+ 			});
+ 			
+ 		}
+    /*  function for get district from state */
+     function districtChange() {
+			var dd = $("#state").val();
+			if (dd) {
+				$.ajax({
+					type : "POST",
+					url : "add-hotel-getdistrict",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#state").val(),
+					success : function(response) {
+						if (response.message == "success") {
+							//console.log(response);
+							$("#district").empty();
+							
+							$("#district").append(
+									$("<option value>Select</option>"));
+							for (var i = 0; i < response.body.length; i++) {
+								var option = $("<option></option>");
+								$(option).val(response.body[i].key);
+								$(option).html(response.body[i].name);
+								$("#district").append(option);
+							}
+
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+			} else {
+				$("#district").empty();
+				
+				$("#district").append(
+						$("<option value>Select</option>"));
+			}
+		}
+     function checkAlphaNumber() {
+ 		 
+			var tempVal = $("#hotelRegdNo").val().replace(/[^a-zA-Z0-9 -]/g,'');
+			$("#hotelRegdNo").val(tempVal);
+		} 
+     function checkNum(hotelTin){
+    	  var tempVal = $("#hotelTin").val().replace(/[^0-9\.]/g,'');
+    	  $("#hotelTin").val(tempVal);
+    	}
+     function checkPin(hotelPin){
+   	  var tempVal = $("#hotelPin").val().replace(/[^0-9\.]/g,'');
+   	  $("#hotelPin").val(tempVal);
+   	}
+    </script>
+</head>
+<div layout:fragment="content">
+<div class="content-wrap">
+        <div class="main mrt_20">
+            <div class="col-md-12">
+                <!--Alert Box-->
+                <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+             <span th:text="${message}"></span>
+          		</div>
+          		 
+                <ol class="breadcrumb breadcrumb-arrow">
+                    <li><a href="index.html">Home</a></li>
+                    <li class="active"><span>Add Hotel  </span></li>
+                </ol>
+            </div>
+            <div class="card-title">
+                <h4>Add Hotel Form </h4>
+            </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="basic-elements">
+                           <form th:action="@{/property/add-hotel}" th:object="${hotel}"   method="post" onsubmit="return validateForm();" >
+                            <input type="hidden" th:field="*{hotelId}" />
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Hotel Name</label>
+                                           <input type="text" class="form-control" th:id="hotelName" th:field="*{hotelName}" th:name="hotelName" >
+                                        </div>
+                                      <div class="form-group">
+                                            <label>Registionation NO.</label>
+                                           <input type="text" class="form-control"  th:id="hotelRegdNo" th:field="*{hotelRegdNo}" th:name="hotelRegdNo" onkeyup="checkAlphaNumber();">
+                                      </div>
+                                     <div class="form-group">
+                                            <label>TIN</label>
+										 <input type="text" class="form-control" th:id="hotelTin" th:field="*{hotelTin}" th:name="hotelTin" onkeyup="checkNum();">
+									 </div>
+									 <div class="form-group">
+                                            <label>Country</label>
+                                        	<select class="form-control" th:field="*{hotelCountry}">
+												<option th:value="NULL">Select</option>
+												<option th:value="India">India</option>
+											</select>
+                                      </div>
+                                     <div class="form-group">
+                                        <label>State</label>
+                                        <select class="form-control" th:field="*{state}" onChange="districtChange()">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${stateList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==state}"></option>
+											</select>
+                                          
+                                    </div>
+                                    <div  class="form-group">
+                                         <label>Dist</label>
+                                            <select class="form-control" th:field="*{district}">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${distList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==district}"></option>
+											</select>
+									</div>
+									<div class="form-group">
+                                            <label>City</label>
+                                           <input type="text" class="form-control" th:id="hotelCity" th:field="*{hotelCity}" th:name="hotelCity" >
+                                    </div>
+                                    <div class="form-group">
+                                            <label>PIN Code</label>
+                                           <input type="text" class="form-control" th:id="hotelPin" th:field="*{hotelPin}" th:name="hotelPin" onkeyup="checkPin();" >
+                                    </div>
+                                    <div class="form-group">
+                                            <label>Address</label>
+                                           <input type="text" class="form-control" th:id="hotelAdress" th:field="*{hotelAdress}" th:name="hotelAdress" >
+                                    </div>
+                                       <button type="submit" class="btn btn-success">submit</button>
+                                        <button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <!-- <div class="form-group">
+                                            <label>Branch Name</label>
+                                            <input type="text" class="form-control" placeholder="Branch Name">
+                                        </div> -->
+                                        
+                                    <div class="form-group">
+                                           <label>Website.</label>
+                                           <input type="text" class="form-control" th:id="hotelWebsite" th:field="*{hotelWebsite}" th:name="hotelWebsite" >
+                                    </div>
+                                    <div class="form-group">
+                                            <label>Email</label>
+                                          <input type="text" class="form-control" th:id="hotelEmail" th:field="*{hotelEmail}" th:name="hotelEmail">
+                                    </div>
+                                             
+                                    <div class="form-group">
+                                            <label>PhoneNo</label>
+                                           <input type="text" class="form-control" th:id="hotelPhone" th:field="*{hotelPhone}" th:name="hotelPhone" >
+                                    </div>
+                                        
+                                                                           
+                                     <div class="form-group">
+											<label>Image</label>
+											<input type="file" id="fileUpload"  style="display: block;" onchange="saveFile()" th:field="*{hotelLogo}">
+											<div id="uploadedImgDiv">
+												<span th:if="*{action !=null}">
+												<a class="example-image-link" th:href="*{action}" data-lightbox="hsdjas" >Preview Image</a>
+												</span>
+											</div>
+											<span class="fornerrormsg" id="subcategory_photoerr"></span>
+									</div>
+                                        <div class="form-group">
+                                            <label>Status</label>
+                                           <select class="form-control"  th:id="hotelStatus" th:field="*{hotelStatus}" th:name="hotelStatus">
+                                                <option th:value=null>select</option>
+                                                
+                                                <option th:value=1>Active</option>
+                                                <option th:value=0>Inactive</option>
+                                            </select>
+                                    </div>
+                                  </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

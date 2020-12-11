@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<title>Payment</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+.maintbl tr td {
+	/*border: 1px solid black;*/
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.theader-padding {
+	padding: 10px;
+}
+
+/* .wrapper {
+margin: 0 auto;
+width: 900px;
+padding: 20px 40px;
+position: relative;
+} */
+.wrapper {
+	margin: 0 auto;
+	width: 100%;
+	position: relative;
+}
+
+.paid-red {
+	position: absolute;
+	right: 0px;
+	top: 0;
+	z-index: 9999;
+}
+/* .header{
+height: 130px;
+} */
+/* .logo{
+float: left;
+} */
+.hrline {
+	border: 2px solid #cccccc;
+}
+
+.clearfix {
+	clear: both;
+}
+
+/* .tableheader {
+padding: 5px;
+color: #418AB3;
+font-weight: 600;
+} */
+.tableheader {
+	padding: 10px 5px;
+	color: #418AB3;
+	font-weight: 600;
+	background: #f5f5f5;
+	border-bottom: 1px solid #ccc;
+	border-top: 10px solid #FFF;
+	text-align: center;
+}
+
+.bill {
+	text-align: center;
+	color: #fff !important;
+}
+
+.invoicedate {
+	color: #fff;
+	text-align: left;
+	padding: 5px;
+}
+
+.mailing {
+	height: 100px;
+	padding: 10px;
+	color: #fff;
+	text-align: right;
+}
+
+.strip2 {
+	width: 800px;
+	padding-left: 17px;
+	font-size: 14px;
+	color: #418ab3;
+	text-align: center;
+	margin: 19px;
+}
+
+.td-border {
+	border-bottom: 1px solid #BABABA;
+}
+
+.td-border-center {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: right;
+	width: 126px;
+	font-size: 12px;
+}
+
+.text-style {
+	color: #3B494A;
+	font-size: 12px;
+	padding: 10px;
+}
+
+.pdt {
+	padding: 4px;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	padding: 13px;
+	text-align: center
+}
+
+.text-style2 {
+	background-color: #f2f2f2;
+	padding: 10px;
+	color: #373757;
+}
+
+.btn-danger {
+	color: #fff !important;
+	background: #d9534f !important;
+	box-shadow: none !important;
+}
+</style>
+<script>
+	//"View payment vouccher " Default Page Open On Click 'Close' Button
+	function cancel() {
+		window.location.href = "/inventory/view-payment-voucher";
+	}
+	$(document).ready(function() {
+
+		var taxType = $("taxType").val();
+		if (taxType) {
+			$(".stateTaxCls").hide();
+			$(".centerTaxCls").show();
+		} else {
+			$(".stateTaxCls").show();
+			$(".centerTaxCls").hide();
+		}
+	});
+</script>
+
+
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap ">
+			<div class="content-wrap">
+				<div class="main mrt_20">
+					<div class="col-md-12">
+						<ol class="breadcrumb breadcrumb-arrow">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="view-payment-voucher">View payment Voucher</a></li>
+
+						</ol>
+					</div>
+					<div class="card-title">
+						<h4>Payment Voucher Modal View</h4>
+					</div>
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<input type="hidden" id="paymentVoucher"
+									th:value="${PaymentVoucherModel[0].paymentVoucher}"> <input
+									type="hidden" id="taxType"
+									th:value="${PaymentVoucherModel[0].taxType}">
+								<!-- <form th:object="${salesInvoice}"> -->
+								<div class="containersec">
+									<div class="wrapper">
+
+										<table cellpadding="0" cellspacing="0" width="100%">
+
+
+											<tr bgcolor="595959">
+												<td class="invoicedate" colspan="3">Voucher: <span
+													th:text="${PaymentVoucherModel[0].paymentVoucher}"></span></td>
+
+											</tr>
+
+											<tr style="border-top: 10px solid #FFF;">
+
+												<td colspan="3"><label id="trId"
+													style="font-size: 20px;"><b>GRN DETAILS</b></label>
+													<table class="table table-bordered" id="table"
+														style="width: 100%; border: none;">
+														<thead id="tblHead">
+															<tr style="width: 100%;">
+																<th>sl.no</th>
+																<th>GRN NO</th>
+																<th>INVOICE No</th>
+																<th>PO No</th>
+																<th>BASE AMOUNT</th>
+																<th class="stateTaxCls">SGST</th>
+																<th class="stateTaxCls">CGST</th>
+																<th class="centerTaxCls">IGST</th>
+																<th>TOTAL AMOUNT</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr th:each="other,iter : ${PaymentVoucherModel}">
+																<td class="td-border td-border-center"
+																	th:text=" ${iter.index+1}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.grnNo}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.invNo}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.poNumber}"></td>
+																<td class="td-border td-border-right"
+																	th:text="${#numbers.formatDecimal(other.grnSubtotal, 0, 'COMMA', 2, 'POINT')} "></td>
+																<td class="td-border td-border-right stateTaxCls"
+																	th:text="${#numbers.formatDecimal(other.sgst, 0, 'COMMA', 2, 'POINT')} "></td>
+																<td class="td-border td-border-right stateTaxCls"
+																	th:text="${#numbers.formatDecimal(other.cgst, 0, 'COMMA', 2, 'POINT')} "></td>
+																<td class="td-border td-border-right centerTaxCls"
+																	th:text="${#numbers.formatDecimal(other.igst, 0, 'COMMA', 2, 'POINT')} "></td>
+																<td class="td-border td-border-right"
+																	th:text="${#numbers.formatDecimal(other.grnTotal, 0, 'COMMA', 2, 'POINT')} "></td>
+															</tr>
+														</tbody>
+													</table></td>
+
+
+											</tr>
+											<tr style="border-top: 10px solid #FFF;"
+												th:if="${PaymentVoucherModel[0].goodsReturnNote !=null}">
+												<td colspan="3"><label id="trId"
+													style="font-size: 20px;"><b>GOODS RETURN
+															DETAILS</b></label>
+													<table class="table table-bordered" id="table1"
+														style="width: 100%; border: none;">
+														<thead id="tblHead1">
+															<tr style="width: 100%;">
+																<th>sl.no</th>
+																<th>GRN No</th>
+																<th>PO No</th>
+																<th>GRN RETURN NO</th>
+																<th class="stateTaxCls">SGST</th>
+																<th class="stateTaxCls">CGST</th>
+																<th class="centerTaxCls">IGST</th>
+																<th>TOTAL AMOUNT</th>
+															</tr>
+														</thead>
+														<tbody
+															th:if="${PaymentVoucherModel[0].goodsReturnNote !=null}">
+															<tr th:each="other,iter : ${PaymentVoucherModel}">
+																<td class="td-border td-border-center"
+																	th:text=" ${iter.index+1}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.grnNo}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.poNumber}"></td>
+																<td class="td-border td-border-center"
+																	th:text="${other.goodsReturnNote}"></td>
+																<td class="td-border td-border-right stateTaxCls "
+																	th:text="${#numbers.formatDecimal(other.returnCgst, 0, 'COMMA', 2, 'POINT')} "></td>
+																<td class="td-border td-border-right stateTaxCls "
+																	th:text="${#numbers.formatDecimal(other.returnSgst, 0, 'COMMA', 2, 'POINT')} "></td>
+																<td class="td-border td-border-right centerTaxCls"
+																	th:text="${#numbers.formatDecimal(other.returnIgst, 0, 'COMMA', 2, 'POINT')} "></td>
+																<td class="td-border td-border-right"
+																	th:text="${#numbers.formatDecimal(other.returnTotal, 0, 'COMMA', 2, 'POINT')} "></td>
+
+															</tr>
+														</tbody>
+														<tbody id="tBodyTD1"
+															th:unless="${PaymentVoucherModel[0].goodsReturnNote !=null}">
+															<tr>
+																<td style="color: #e30f0f;" width="100%" valign="top"
+																	align="center" colspan="10"><b>No records
+																		found</b></td>
+															</tr>
+
+
+														</tbody>
+
+													</table></td>
+
+
+
+											</tr>
+
+
+
+											<tr>
+												<td colspan="3">
+													<div class="strip2">
+														<b>THANKYOU FOR YOUR BUSINESS</b>
+													</div>
+												</td>
+											</tr>
+
+
+											<tr>
+												<td colspan="3" align="center">
+													<div class="modal-footer">
+														<!-- <button type="button" class="btn btn-primary"
+															data-dismiss="modal" onclick="confirmPrint();">Print</button> -->
+														<button type="button" class="btn btn-danger"
+															data-dismiss="modal" onclick="cancel();">Close</button>
+													</div>
+												</td>
+											</tr>
+
+										</table>
+									</div>
+								</div>
+								<!-- </form> -->
+							</div>
+							<div style="clear: both;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /# row -->
+		</div>
+	</div>
+</body>
+</html>

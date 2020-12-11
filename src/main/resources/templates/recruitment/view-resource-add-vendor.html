@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.panel-title>a, .panel-title>a:active {
+	display: block;
+	padding: 9px;
+	color: #555;
+	font-size: 15px;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	word-spacing: 3px;
+	text-decoration: none;
+}
+
+.staffDesign {
+	background-color: rgb(255, 255, 255);
+	border: 1px solid #ccc;
+	color: white;
+	text-align: center;
+	padding: 8px;
+	font-size: 14px;
+	display: block;
+}
+
+.panel-heading.active a:before {
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
+
+.panel-heading  a:before {
+	font-family: 'FontAwesome';
+	content: "\f078";
+	float: right;
+	transition: all 0.5s;
+}
+
+.panel-title>a, .panel-title>a:active {
+	display: block;
+	padding: 9px;
+	color: #555;
+	font-size: 15px;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	word-spacing: 3px;
+	text-decoration: none;
+}
+
+#checkboxes {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+#checkboxes label {
+	display: block;
+}
+
+#checkboxes1 {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+#checkboxes1 label {
+	display: block;
+}
+
+</style>
+<script>
+
+/* $(document).ready(function() {
+
+	$.ajax({
+	        type: 'GET',
+	        url: 'view-resource-getVendor-ajax',
+	        contentType: false,
+	        success: function(response) {
+	        console.log(response);
+	           	if (response.message == "Success") {
+	           		console.log("hi"+response.message);
+	            }
+	        },
+	        error: function(e) {
+	            console.log("error");
+	        }
+	    }); 
+	
+}); */
+
+function validateForm(){
+	if(userRole == null || userRole == ""){
+		//alert("hi");
+		return false;
+	}
+	return true;
+}
+var userRole = [];
+//submit button function 	
+function submitVendor(){
+		//alert("hi")
+		
+		$("input:checkbox[name=userRole]:checked").each(function() {
+			userRole.push($(this).val());
+		})
+		console.log(userRole);
+		var status = validateForm();
+		//alert(status)
+	if(status){
+		obj={};
+		obj.vendorList=userRole;
+		obj.requisitionId=$('#reqiId').val();
+		
+		console.log(obj)
+		
+		swal.fire({
+			title				: "Are you sure! You want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton: true,
+	        confirmButtonColor: '#DD6BB5', 
+	        confirmButtonText: 'Submit',
+	        showLoaderOnConfirm: true,
+	        //closeOnConfirm: false,
+	        reverseButtons: true,
+			preConfirm: () => {
+	            return new Promise((resolve) => {
+	                setTimeout(() => {
+	                    console.log("Doing async operation");
+	                    resolve()
+	                }, 2000)
+	            })
+	        }
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "view-resource-vendor-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(obj),
+				success		: function(response){
+					console.log(response);
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/recruitment/view-resource" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					
+					console.log(data);
+					
+				}
+			}) //ajax ends
+		}
+		}) //swal function block ends
+	}
+	else{
+		swal.fire({
+			title				: "Select Vendor!",
+			type 				: "warning",
+			
+			showCancelButton	: false,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Ok",
+			reverseButtons : true,
+			 
+		})
+	}
+
+}
+
+function funcLoad(){
+	location.href = "/recruitment/view-resource";
+}
+
+var expanded = false;
+function showCheckboxes() {
+	if (!expanded) {
+		$("#checkboxes").show();
+		expanded = true;
+	} else {
+		$("#checkboxes").hide();
+
+		expanded = false;
+	}
+}
+
+	
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Planning And WorkSheet</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Planning And WorkSheet</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${vendor}" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+										
+										<input type="hidden" th:field="*{requisitionId}" id="reqiId">
+										
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Job Code</label> <input class="form-control"
+												type="text" th:field="*{jobId}" readonly />
+										</div>
+
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Job Tittle</label> <input class="form-control"
+												type="text" th:field="*{jobTitle}" readonly />
+										</div>
+
+									</div>
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Job Type</label> <input class="form-control"
+												type="text" th:field="*{jobType}" readonly />
+										</div>
+
+
+
+									</div>
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Department</label> <input class="form-control"
+												type="text" th:field="*{deptName}" readonly />
+										</div>
+										
+									</div>
+
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Hiring Manager</label>
+											 <input class="form-control"
+												type="text" th:field="*{hiringManager}" readonly />
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>On Board By</label> <input class="form-control"
+												type="text" th:field="*{boardBy}" readonly />
+										</div>
+
+
+
+									</div>
+
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Budget in Amount</label> <input class="form-control"
+												type="text" th:field="*{budget}" readonly />
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="" id="mselct">
+												<div class="wrapper center-block">
+													<div class="panel-group" id="accordion" role="tablist"
+														aria-multiselectable="true">
+														<div class="panel panel-default">
+															<div class="selectBox">
+																<div class="panel-heading active" role="tab"
+																	id="headingOne" onclick="showCheckboxes()">
+																	<h4 class="panel-title">
+																		<a role="button" data-toggle="collapse"
+																			data-parent="#accordion" href="#collapseOne"
+																			aria-expanded="true" aria-controls="collapseOne"
+																			class="staffDesign"> Select Vendor</a>
+																	</h4>
+																</div>
+																
+																<div id="collapseOne" class="panel-collapse collapse in"
+																	role="tabpanel" aria-labelledby="headingOne"
+																	style="position: relative; top: -6px;">
+																	<div class="panel-body">
+																		<div id="checkboxes"
+																			style="height: 75px; overflow-y: scroll; background-color: rgb(255, 255, 255);">
+																			<label
+																				class="multiselecttxxt"
+																				th:each="c,iter : ${vendorList}"> <input
+																				type="checkbox" name="userRole" class="userRoleCls"
+																				th:id="'staff_'+${iter.index}" th:value='${c.key}'
+																				th:text="${c.name}" th:attr="data-moduleId=${c.key}"
+																				style="margin-right: 7px;" />
+																			</label>
+																		</div>
+																	</div>
+																</div>
+																
+															</div>
+														</div>
+													</div>
+
+												</div>
+											</div>
+									</div>
+								
+
+								</div>
+
+								<div class="row">
+									<div class="form-group col-md-12">
+										<button type="button" id="submit" class="btn btn-success" onclick="submitVendor()">Submit</button>
+										<button type="button" class="btn btn-warning"
+											onclick="funcLoad();">Cancel</button>
+									</div>
+								</div>
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</html>

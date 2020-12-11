@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	 >
+<head>
+  <title>Go-Cool</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <!-- Gocool kitchen css Starts -->
+
+<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+
+<!-- Validator css Starts -->
+
+<link rel="stylesheet" href="../assets/css/sweetalert2.min.css">
+<!-- Validator css End -->
+<!-- Validator Js starts --> 
+
+<script src="../assets/js/sweetalert2.all.min.js"></script>
+<script src="../assets/js/lightbox.min.js"></script>
+<!-- Validator Js Ends -->
+ 
+  <style type="text/css">
+    .bg{
+      background-color: #ededed;
+    }
+    .top-buttons{
+      float: right;
+      margin-top: 20px;
+    }
+    .wrapper
+    {
+    position: relative;
+    margin-bottom: 100px;
+    }
+    .middle-section{
+      /* float: left; */
+      border:1px solid #000;
+      background-color: #000;
+      height: auto;
+      margin-top: 10px;
+    }
+    .box-header{
+      background-color: #00b611;
+      padding: 4px;
+    }
+    .order-id{
+      font-size: 14px;
+      color: #fff;
+      padding: 4px;
+
+    }
+    .box-body{
+      height: 259px;
+      /* overflow-y: scroll; */
+      overflow-x: hidden;
+    }
+    .order-no{
+      text-align: center;
+      color: #fff;
+      font-size: 14px;
+      padding: 4px;
+    }
+    .box-footer{
+     border-top: 1px solid #00b611;
+    }
+    .mrg-5{
+      margin-top: -5px;
+    }
+    .page-footer{
+   position: fixed;
+   left: 0;
+   bottom: 0;
+   width: 100%;
+   color: white;
+   text-align: center;
+    }
+    .footer-button{
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #00b611;
+      background:rgba(255,255,255,0.8);
+    }
+    .single-button{
+      margin: 0px 103px;
+    }
+  </style>
+ 
+<script type="text/javascript">
+ 
+ 
+function changeKitchenStatus(id){
+	
+		swal({
+			title				: "Are you sure want to Change Status?",
+			//text				: "Once Deleted,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	: "Change",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			preConfirm: () => {
+				return new Promise((resolve) => {
+					setTimeout(() => {
+						console.log("Doing async operation");
+						resolve()
+					}, 3000)
+				})
+			}
+		}).then((result) => {
+			if(result.value){
+			$.ajax({
+				type 		:	"GET",
+				url 		:	"/kitchen/assign-kitchen-to-food-order-change-status?id="+id,
+				success 	: 	function(response) {
+					
+					if(response.message=="success"){
+						swal({
+							title	: "Order Ready To Be Delivered.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}			
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			 }) 
+			}
+		}) 
+}
+
+function changePrepareStatus(id){
+	
+	swal({
+		title				: "Are you sure want to Receive Food Order ?",
+		//text				: "Once Deleted,Can't revert back !",
+		type 				: "warning",
+		showCancelButton	: true,
+		cancelButtonText	: "No",
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	: "Yes",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+		$.ajax({
+			type 		:	"GET",
+			url 		:	"/kitchen/assign-kitchen-to-food-order-change-prepare-status?id="+id,
+			success 	: 	function(response) {
+				
+				if(response.message=="success"){
+					swal({
+						title	: "Order Received.",
+						type: "success",
+				}).then(function(){
+					location.reload(); 
+				})
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}			
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		 }) 
+		}
+	}) 
+}
+
+</script>
+</head>
+<body class="bg">
+
+<div class="container-fluid wrapper">
+ <div class="row">
+  <div class="col-lg-12">
+   <div class="top-buttons">
+    <button class="btn btn-primary">Order</button>
+    <button class="btn btn-success">Order</button>
+    <button class="btn btn-success">Order</button>
+   </div>
+ </div>
+</div>
+<div class="row">
+  <div class="col-lg-4" th:each="c,iter:${orderData}">
+   <div class="middle-section">
+    <div class="box-header">
+      <div class="row">
+        <div class="col-lg-3">
+          <div class="order-id">No-23</div>
+        </div>
+        <div class="col-lg-6">
+          <div class="order-id" th:text="${c.foodOrderId}"> </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="order-id">Order</div>
+        </div>
+      </div>
+    </div>
+    <div class="box-body">
+      <div class="row" th:each="a:${c.KitchenItemDetailsModelList}">
+        <div class="col-lg-2">
+          <div class="order-no" th:text="${a.qty}"></div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id" th:text="${a.itemName}"></div>
+        </div>
+      </div>
+    </div>
+    <div class="box-footer">
+        <div class="row">
+        <div class="col-lg-3">
+          <div class="order-id">id-40</div>
+        </div>
+        <div class="col-lg-6">
+          <div class="order-no">Q-1</div>
+        </div>
+        <div class="col-lg-3" align="center" th:if="${c.foodPrepareStatus==1}">
+          <button class="btn btn-info mrg-5" th:attr="onclick=|changePrepareStatus('${c.foodOrderId}')|" >Rcv</button>
+        </div>
+        <div class="col-lg-3" align="center" th:if="${c.foodPrepareStatus!=1 && c.kitchenStatus==1}">
+          <button class="btn btn-success mrg-5" th:attr="onclick=|changeKitchenStatus('${c.foodOrderId}')|">Chng</button>
+        </div>
+        <div class="col-lg-3" align="center" th:if="${c.foodPrepareStatus!=1 && c.kitchenStatus==2}">
+          <button class="btn btn-info mrg-5">Rdy</button>
+        </div>
+      </div>
+    </div>
+   </div>
+ </div>
+
+
+   <!-- <div class="col-lg-4">
+   <div class="middle-section">
+    <div class="box-header">
+      <div class="row">
+        <div class="col-lg-3">
+          <div class="order-id">No-23</div>
+        </div>
+        <div class="col-lg-6">
+          <div class="order-id">Order Id</div>
+        </div>
+        <div class="col-lg-3">
+          <div class="order-id">Order</div>
+        </div>
+      </div>
+    </div>
+    <div class="box-body">
+      <div class="row">
+        <div class="col-lg-2">
+          <div class="order-no">1</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">2</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">3</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">4</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">5</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">6</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">7</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">8</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">9</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">10</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">11</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">12</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">13</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">14</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">15</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+      </div>
+    </div>
+    <div class="box-footer">
+        <div class="row">
+        <div class="col-lg-3">
+          <div class="order-id">id-40</div>
+        </div>
+        <div class="col-lg-6">
+          <div class="order-no">Q-1</div>
+        </div>
+        <div class="col-lg-3" align="center">
+          <button class="btn btn-warning mrg-5">1</button>
+        </div>
+      </div>
+    </div>
+   </div>
+ </div> -->
+
+
+   <!-- <div class="col-lg-4">
+   <div class="middle-section">
+    <div class="box-header">
+      <div class="row">
+        <div class="col-lg-3">
+          <div class="order-id">No-23</div>
+        </div>
+        <div class="col-lg-6">
+          <div class="order-id">Order Id</div>
+        </div>
+        <div class="col-lg-3">
+          <div class="order-id">Order</div>
+        </div>
+      </div>
+    </div>
+    <div class="box-body">
+      <div class="row">
+        <div class="col-lg-2">
+          <div class="order-no">1</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">2</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">3</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">4</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">5</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">6</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">7</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">8</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">9</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">10</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">11</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">12</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">13</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">14</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+        <div class="col-lg-2">
+          <div class="order-no">15</div>
+        </div>
+        <div class="col-lg-10">
+          <div class="order-id">Paneer Mancurian</div>
+        </div>
+      </div>
+    </div>
+    <div class="box-footer">
+        <div class="row">
+        <div class="col-lg-3">
+          <div class="order-id">id-40</div>
+        </div>
+        <div class="col-lg-6">
+          <div class="order-no">Q-1</div>
+        </div>
+        <div class="col-lg-3" align="center">
+          <button class="btn btn-warning mrg-5">1</button>
+        </div>
+      </div>
+    </div>
+   </div>
+ </div> -->
+ </div>
+ <div class="page-footer">
+ <div class="footer-button">
+  <div class="single-button">
+    <button class="btn btn-success">Order</button>
+  </div>
+  <div class="single-button">
+    <button class="btn btn-secondary">Order</button>
+  </div>
+  <div class="single-button">
+    <button class="btn btn-primary">Order</button>
+  </div>
+  <div class="single-button">
+    <button class="btn btn-warning">Order</button>
+  </div>
+  <div class="single-button">
+    <button class="btn btn-danger">Order</button>
+  </div>
+ </div>
+</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1178 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+select {
+	width: 500px;
+}
+
+.selectBox {
+	position: relative;
+}
+
+.selectBox select {
+	width: 100%;
+	font-weight: bold;
+}
+
+.overSelect {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.staffDesign {
+	background-color: rgb(167, 188, 206);
+	background-color: rgba();
+	color: white;
+	text-align: center;
+	padding: 8px;
+	font-size: 14px;
+	display: block;
+}
+
+.staffDesign .fa-caret-down {
+	font-size: 17px;
+	position: relative;
+	top: 1px;
+	left: 101px;
+}
+
+#checkboxes {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+#checkboxes label {
+	display: block;
+}
+
+.middle {
+	transition: .5s ease;
+	opacity: 0;
+	position: absolute;
+	top: 26%;
+	left: 120px;
+	transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	text-align: center;
+}
+
+.dinning:hover .middle {
+	opacity: 1;
+}
+
+.text {
+	background-color: rgba(28, 245, 58, 0.8);
+	background-color: rgba();
+	color: white;
+	position: relative;
+	right: 68px;
+	border-radius: 50%;
+	padding: 10px;
+	font-size: 12px;
+	display: block;
+	width: 120px;
+}
+
+#checkboxes label:hover {
+	background-color: #1e90ff;
+}
+
+.ulbg {
+	background-color: rgba(66, 139, 202, 0.3);
+	color: #2c61e1;
+	width: 92%;
+}
+
+.ulbg li {
+	border-bottom: 1px solid #fff;
+	padding: 5px;
+}
+
+/* The container */
+.dinning {
+	display: block;
+	position: relative;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+/* Hide the browser's default checkbox */
+.dinning input {
+	position: absolute;
+	opacity: 0;
+	cursor: pointer;
+	height: 0;
+	width: 0;
+}
+/* Create a custom checkbox */
+.checkmark {
+	position: absolute;
+	top: 40px;
+	left: 35px;
+	height: 25px;
+	width: 25px;
+}
+
+.dinning  input:checked ~ .checkmark {
+	/*  background-color: #2196F3;*/
+	
+}
+
+.checkmark:after {
+	content: "";
+	position: absolute;
+	display: none;
+}
+/* Show the checkmark when checked */
+.dinning  input:checked ~ .checkmark:after {
+	display: block;
+}
+/* Style the checkmark/indicator */
+.dinning  .checkmark:after {
+	left: 6px;
+	top: -7px;
+	width: 18px;
+	height: 27px;
+	border: solid #6880fb;
+	border-width: 0 3px 3px 0;
+	-webkit-transform: rotate(45deg);
+	-ms-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
+.table-tick {
+	width: 100%;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	/* width: 570px; */
+	position: absolute;
+	z-index: 9999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f2f2f2;
+	border-bottom: 1px solid #373757;
+	color: #373757;
+	font-weight: 500;
+}
+
+#autocomplete-list li:hover {
+	background: #373757;
+	color: #f2f2f2;
+	cursor: pointer;
+}
+
+.panel-heading {
+	padding: 0;
+	border: 0;
+}
+
+.panel-title>a, .panel-title>a:active {
+	display: block;
+	padding: 9px;
+	color: #555;
+	font-size: 13px;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	word-spacing: 3px;
+	text-decoration: none;
+}
+
+.panel-heading  a:before {
+	font-family: 'FontAwesome';
+	content: "\f078";
+	float: right;
+	transition: all 0.5s;
+}
+
+.panel-heading.active a:before {
+	-webkit-transform: rotate(180deg);
+	-moz-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
+</style>
+<style>
+.form-box {
+	background-color: rgba(91, 202, 239, 0.1);
+	border: 1px solid transparent;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+label {
+	font-weight: 500;
+	margin-bottom: 0px;
+	color: #19559e;
+	font-size: 13px;
+}
+
+.form-control {
+	border: 1px solid rgb(229, 244, 249);
+}
+</style>
+<script src="../assets/js/dob-validation.js"></script>
+<script type="text/javascript">
+
+
+	lightbox.option({
+		'resizeDuration' : 200,
+		'wrapAround' : true,
+
+	})
+	$(document).on('click', '.close', function() {
+		$(this).siblings("img").toggle();
+
+	})
+	//for refreshing image on the same page
+	function readIMG(input) {
+		if (input.files && input.files[0]) {
+			var reader = new FileReader();
+
+			reader.onload = function(e) {
+				$('#image').attr('src', e.target.result);
+			}
+
+			reader.readAsDataURL(input.files[0]);
+		}
+	}
+
+	var expanded = false;
+	function showCheckboxes() {
+		if (!expanded) {
+			$("#checkboxes").show();
+			expanded = true;
+		} else {
+			$("#checkboxes").hide();
+
+			expanded = false;
+		}
+	}
+	function saveFile() {
+		$("#upload_prev").empty();
+		var uFile = $('#fileUpload')[0].files[0];
+		var fileName = $('#fileUpload').val();
+
+		var lastIndex = fileName.lastIndexOf("\\");
+		if (lastIndex >= 0) {
+			fileName = fileName.substring(lastIndex + 1);
+		}
+		var iURL = URL.createObjectURL(uFile);
+		$("#uploadedImgDiv").html("");
+		var LightImg = "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' data-lightbox='"+fileName+"'>Preview Image</a>";
+		$("#uploadedImgDiv").html(LightImg);
+
+		var fileData = new FormData();
+		fileData.append('file', uFile);
+		fileData.append('path', 'none');
+		console.log(fileData, "sdcf")
+		$.ajax({
+			type : "POST",
+			url : "uploadEmployeeImageFile",
+			enctype : "multipart/form-data",
+			contentType : false,
+			data : fileData,
+			processData : false,
+			cache : false,
+			success : function(response) {
+
+			},
+			error : function(e) {
+
+			}
+		});
+
+	}
+
+	//date time picker
+	$(document).ready(function() {
+
+		$('.panel-collapse').on('show.bs.collapse', function() {
+			$(this).siblings('.panel-heading').addClass('active');
+		});
+
+		$('.panel-collapse').on('hide.bs.collapse', function() {
+			$(this).siblings('.panel-heading').removeClass('active');
+		});
+
+		$("#fileUpload").change(function() {
+			readIMG(this);
+		});
+		$("#employeeJoinDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+		$("#employeeTerminateDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+		$("#employeeConfirmDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+			$("#tEffectiveDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+		$("#employeeDob").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			/* minDate : new Date(), */
+			timepicker : false,
+		})
+
+		$("#submit").click(function() {
+			var userRole = [];
+			$("input:checkbox[name=userRole]:checked").each(function() {
+				userRole.push($(this).val());
+			})
+			$("#roleList").val(userRole);
+
+		});
+	});
+		$(document).ready(function() {
+			$("#employeeDepartment").on('change', function() {
+				var employeeDepartment = $(this).val();
+				console.log(employeeDepartment);
+				if (employeeDepartment) {
+
+					$.ajax({
+						type : 'POST',
+						url : 'View-offer-letter-dtls-EmployeeForm-designation-ajax',
+						contentType : false,
+						data : employeeDepartment,
+						success : function(response) {
+							if (response.message == "success") {
+								$("#empDesignation").empty();
+
+								var option = $("<option></option>");
+								$(option).val(null);
+								$(option).html("Select");
+								$("#empDesignation").append(option);
+								for (var i = 0; i < response.body.length; i++) {
+									var option = $("<option></option>");
+									$(option).val(response.body[i].key);
+									$(option).html(response.body[i].name);
+									$("#empDesignation").append(option);
+								}
+							}
+						},
+						error : function(e) {
+							alert("error");
+						}
+					});
+				} else {
+					$("#empDesignation").empty();
+					var option = $("<option></option>");
+					$(option).val(null);
+					$(option).html("Select");
+					$("#empDesignation").append(option);
+				}
+			});
+		
+		});
+
+ 
+
+	// Email validation
+	function validateEmail(email) {
+		var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+		if (reg.test(email.value) == false) {
+			swal('Invalid Email Address');
+			$("#" + email.id).val('');
+			return false;
+		}
+
+		return true;
+
+	}
+
+	// password validation
+	function CheckPassword(inputtxt) {
+		var decimal = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,15}$/;
+		if (inputtxt.value.match(decimal)) {
+
+			return true;
+		} else {
+			swal('Password must contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character ,and more than 6 characters')
+			$("#employeePassword").val('');
+			return false;
+		}
+	}
+
+	function dateValidation() {
+		var joinDate = $("#employeeJoinDate").val();
+		var confirmDate = $("#employeeConfirmDate").val();
+
+		var parts = joinDate.split('-');
+		var d1 = Number(parts[2] + parts[1] + parts[0]);
+		parts = confirmDate.split('-');
+		var d2 = Number(parts[2] + parts[1] + parts[0]);
+		if (d1 <= d2) {
+			return true;
+		} else {
+			swal("Confirm Date Can't  be Larger Than Joining Date.")
+			$("#employeeConfirmDate").val('');
+			return false;
+		}
+
+	}
+
+	function dateValidation1() {
+		var joinDate = $("#employeeConfirmDate").val();
+		var confirmDate = $("#employeeTerminateDate").val();
+
+		var parts = joinDate.split('-');
+		var d1 = Number(parts[2] + parts[1] + parts[0]);
+		parts = confirmDate.split('-');
+		var d2 = Number(parts[2] + parts[1] + parts[0]);
+		if (d1 <= d2) {
+			return true;
+		} else {
+			swal("Terminate Date Can't  be Larger Than Confirm Date.")
+			$("#employeeTerminateDate").val('');
+			return false;
+		}
+
+	}
+
+	function funcReset() {
+		location.href = "/employee/view-employee";
+	}
+</script>
+
+<script>
+
+
+	$(document).ready(function() {
+
+		
+
+		//Function for saving data
+
+		$("#submitItems").click(function(){
+			var userRole = [];
+			   
+	    $("input:checkbox[name=userRole]:checked").each(function(){userRole.push($(this).val());})
+	  var dataset = [];
+	
+	    $("#tbodyData > tr").each(function(){
+		item = {};
+		item['employeeNo']				       =	$("#employeeNo").val();
+		item['employeeFname'] 			       =	$("#employeeFname").val();
+		item['employeeMname']	  	           =	$("#employeeMname").val();
+		item['employeeLname']                  =    $("#employeeLname").val();
+		item['employeeNationality']	           =	$("#employeeNationality").val();
+		item['employeeDob']	        	       =	$("#employeeDob").val();
+		//item['employeeImage']                  =    $("#employeeImage").val(); 
+		item['employeeGender']	        	   =	$("#employeeGender").val();
+		item['employeeMarital']	        	   =	$("#employeeMarital").val();
+		item['employeeEsicNo']	        	   =	$("#employeeEsicNo").val();
+		item['employeePassword']               =    $("#employeePassword").val();
+		item['passPin']	       	       =	$("#employeeAdhar").val();
+		item['employeeAdhar']	       	       =	$("#employeeAdhar").val();
+		item['employeeOtherId']	        	   =	$("#employeeOtherId").val();
+		item['employeeDl']    	               =	$("#employeeDl").val();
+		item['employeeEmployment']	           =	$("#employeeEmployment").val();
+		item['roleList']	                   =	userRole;
+		item['employeePayGrade']               =    $("#employeePayGrade").val();
+		item['employeeWorkStationId']	       =	$("#employeeWorkStationId").val();
+		item['employeeAddress']	        	   =	$("#employeeAddress").val();
+		item['employeeCity']            	   =	$("#employeeCity").val();
+		item['employeeCountry']	        	   =	$("#employeeCountry").val();
+		item['employeePin']	        	       =	$("#employeePin").val();
+		item['employeeHomePhoneNo']            =    $("#employeeHomePhoneNo").val();
+		item['employeeMobilePhoneNo']	       =	$("#employeeMobilePhoneNo").val();
+		item['employeeWorkPhoneNo']	           =	$("#employeeWorkPhoneNo").val();
+		item['employeeWorkEmail']       	   =	$("#employeeWEmail").val();
+		item['employeePersonalEmail']	       =	$("#employeePEmail").val();
+		item['employeeJoinDate']	           =	$("#employeeJoinDate").val();
+		item['employeeConfirmDate']            =    $("#employeeConfirmDate").val();
+		item['employeeTerminateDate']	       =	$("#employeeTerminateDate").val();
+		item['employeeDepartment']	           =	$("#employeeDepartment").val();
+		item['empDesignation']                 =	$("#empDesignation").val(); 
+		item['employeeState']                  =	$("#employeeState").val();
+		item['tAnnualCTC']                  =	$("#tAnnualCTC").val();
+		item['tEffectiveDate']                  =	$("#tEffectiveDate").val();
+		///////////////////////////////////////////////////////////////////////////////////
+		 var	salComp = $(this).find(".tSalaryComponentCls").val();	
+	  		//alert(salComp);
+	  		if( salComp=="EEM009"){
+	  		  item['tBasicPay']   			=  $(this).find(".tSalaryComponentValueCls").val();
+		 		}
+	  		else if( salComp=="EEM002"){
+	  		  item['tHouseRentAllowance']   =	$(this).find(".tSalaryComponentValueCls").val();
+	  	  		}
+	  		else if( salComp=="EEM001"){
+	  			 item['tDearnessAllowance']   =	$(this).find(".tSalaryComponentValueCls").val();
+	  	  		}
+	  		else if( salComp=="EEM003"){
+	 			 item['tConveyanceAllowance']   =	$(this).find(".tSalaryComponentValueCls").val();
+	 	  		}
+	  		else if( salComp=="EEM004"){
+				 item['tLeaveTravelAllowance']   =	$(this).find(".tSalaryComponentValueCls").val();
+		  		}
+	  		else if( salComp=="EEM005"){
+				 item['tMedicalAllowance']   =	$(this).find(".tSalaryComponentValueCls").val();
+		  		}
+	  		else if( salComp=="EEM006"){
+				 item['tEmployeeProvidentFund']   =	$(this).find(".tSalaryComponentValueCls").val();
+		  		}
+	  		else if( salComp=="EEM007"){
+				 item['tESICscheme']   =	$(this).find(".tSalaryComponentValueCls").val();
+		  		}
+	  		else if( salComp=="EEM008"){
+				 item['tPerquisites']   =	$(this).find(".tSalaryComponentValueCls").val();
+		  		}
+	  		dataset.push(item);
+		});
+		///////////////////////////////////////////////////////////////////////////////////
+		//submitForm(dataset);
+	if (!fieldLengthCheck("employeePassword", 6, "Password", "Min"))
+			return false;
+		if (!blankValidation("employeePassword", "TextField",
+				"Password can not be left blank"))
+			return false;
+		if (!blankValidation("employeeAdhar", "TextField",
+				"Adhar Number can not be left blank"))
+			return false;
+		if (!blankValidation("employeeEsicNo", "TextField",
+				"ESIC NO  can not be left blank"))
+			return false;
+		if (!blankValidation("employeeEmployment", "SelectBox",
+				"Employement Type can not be left blank"))
+			return false;
+		if (!blankValidation("employeeJobTitle", "TextField",
+				"Job Title can not be left blank"))
+			return false;
+	
+		if (!blankValidation("employeeEmail", "TextField",
+				"Personal Email  can not be left blank"))
+			return false;
+		if (!blankValidation("employeeDepartment", "SelectBox",
+				"Department can not be left blank"))
+			return false;
+		if (!blankValidation("empDesignation", "SelectBox",
+		"Department can not be left blank"))
+	return false;
+			if (!checkSpecialCharacterFirst("employeeFname", "SelectBox",
+					"Special Character is not allowed at First Name"))
+				return false;
+		if (!checkSpecialCharacterFirst("employeeMname", "SelectBox",
+				"Special Character is not allowed at Middle Name"))
+			return false;
+		if (!checkSpecialCharacterFirst("employeeLname", "SelectBox",
+				"Special Character is not allowed at Last Name"))
+			return false;
+
+		var checkedCount = $('input:checkbox[name=userRole]:checked').length;
+		if (checkedCount == 0) {
+			swal({
+				title : "Please Choose User Role",
+			})
+			return false;
+		}
+
+		if (!fieldLengthCheck("employeeAdhar", 12, "Adhar Number", "Max"))
+			return false;
+		if (!fieldLengthCheck("employeeAdhar", 12, "Adhar Number", "Max"))
+			return false;
+		
+		
+		if (!fieldLengthCheck("passPin", 4, "PIN No", "Min"))
+			return false;
+		if (!fieldLengthCheck("passPin", 4, "PIN No", "Max"))
+			return false;
+		if (!checkMobileNumberIN("employeeMobilePhoneNo",
+				"Please Enter A Valid Mobile Number"))
+			return false;
+		if (!blankValidation("employeeConfirmDate","TextField", "Please Enter Employee Date of Confirmation"))
+			return false;
+		if (!blankValidation("tEffectiveDate","TextField", "Please Enter Effective Date"))
+			return false;
+	console.log(dataset)
+	submitForm(dataset);
+
+	
+		});
+		
+		
+	});
+	
+	
+	
+	
+
+	function submitForm(dataset){
+
+		console.log(dataset)
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+		
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down',
+			showLoaderOnConfirm	: true,
+			preConfirm: () => {
+							return new Promise((resolve) => {
+								setTimeout(() => {
+									console.log("Doing async operation");
+									resolve()
+								}, 3000)
+							})
+						}
+
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+			 	url 		: "View-offer-letter-dtls-EmployeeForm-submit", 
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "view-employee" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(response){
+					swal(response.code);	
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+
+</script>
+
+
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<!--Alert Box-->
+				<div class="alert alert-danger alert-dismissible"
+					th:if="${message != null}">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<span th:text="${message}"></span>
+				</div>
+
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class="active"><span>Add Employee </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Employee Form</h4>
+			</div>
+			<div class="card">
+				<div class="card-body">
+					<div class="basic-elements">
+						<!-- <form th:action="@{add-employee}" th:object="${employee}"
+							method="post" autocomplete="off"
+							onsubmit=" return validateForm();"> -->
+
+						<div class="row">
+							<div class="col-md-12">
+
+								<div align="center"
+									th:value="${employeeComponentDetails[0].employeeImage}">
+									<label for="fileUpload"> <img th:src="${image}"
+										alt="../assets/images/user.png"
+										onerror="this.onerror=null;this.src='../assets/images/user.png';"
+										height="140" width="140"
+										style="cursor: pointer; border-radius: 50%;" id="image" />
+									</label> <input type="file" name="fileUpload" id="fileUpload"
+										accept="image/*" onchange="saveFile()">
+									<div id="uploadedImgDiv" align="center">
+										<span th:if="*{action !=null}"> <a
+											class="example-image-link" th:href="*{action}"
+											data-lightbox="hsdjas">Preview Image</a>
+										</span>
+									</div>
+									<span class="fornerrormsg" id="subcategory_photoerr"></span>
+
+								</div>
+							</div>
+
+							<div class="col-md-12">
+								<div class="row">
+									<div style="width: 100%;">
+										<h3 class="header-text">PERSONAL INFO</h3>
+									</div>
+								</div>
+
+								<div class="row form-box">
+									<div class="col-md-4">
+										<input type="hidden" id="employeeNo" th:value="${id}" /> <label>First
+											Name</label> <input type="text"
+											th:value="${employeeComponentDetails[0].employeeFname}"
+											class="form-control" id="employeeFname">
+
+									</div>
+									<div class="col-md-4">
+										<label>Middle Name</label> <input type="text"
+											th:value="${employeeComponentDetails[0].employeeMname}"
+											class="form-control" id="employeeMname">
+
+									</div>
+									<div class="col-md-4">
+										<label>Last Name</label> <input type="text"
+											th:value="${employeeComponentDetails[0].employeeLname}"
+											class="form-control" id="employeeLname">
+
+									</div>
+
+									<div class="col-md-4">
+
+										<label>Date of Birth</label> <input type="text"
+											th:value="${employeeComponentDetails[0].employeeDob}"
+											class="form-control" id="employeeDob"
+											onchange="validateDOB('employeeDob')" readonly>
+
+									</div>
+									<div class="col-md-4">
+										<label>Nationality</label> <select class="form-control"
+											id="employeeNationality">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${nationalityList}" th:value='${c.key}'
+												th:text="${c.name}"
+												th:selected="${c.key==employeeComponentDetails[0].employeeNationality}"></option>
+
+										</select>
+
+									</div>
+									<div class="col-md-4">
+										<label>Gender</label> <select class="form-control"
+											id="employeeGender">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${genderList}" th:value='${c.key}'
+												th:text="${c.name}"
+												th:selected="${c.key==employeeComponentDetails[0].employeeGender}"></option>
+										</select>
+
+									</div>
+									<div class="col-md-4">
+										<label>Marital Status</label> <select class="form-control"
+											id="employeeMarital">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${maritalList}" th:value='${c.key}'
+												th:text="${c.name}"
+												th:selected="${c.key==employeeComponentDetails[0].employeeMarital}"></option>
+										</select>
+									</div>
+									<div class="col-md-4">
+										<!-- th:if="${employee.employeeNo==null}"> -->
+										<label>Password</label> <input type="text"
+											class="form-control" id="employeePassword"
+											onblur="CheckPassword(this);">
+
+									</div>
+									<div class="col-md-4">
+										<!-- th:if="${employee.employeeNo==null}"> -->
+										<label>4 Digit Pin</label> <input type="text"
+											class="form-control" id="passPin">
+
+									</div>
+								</div>
+
+							</div>
+							<div class="col-md-12">
+								<div class="row">
+									<div style="width: 100%;">
+										<h3 class="header-text">IDENTITY PROOF</h3>
+									</div>
+								</div>
+
+								<div class="row form-box">
+									<div class="col-md-4">
+
+										<label>Adhar No</label> <input type="text"
+											class="form-control" id="employeeAdhar"
+											onkeyup="checkNum('employeeAdhar')" />
+
+									</div>
+									<div class="col-md-4">
+										<label>PAN ID</label> <input type="text" class="form-control"
+											id="employeeOtherId">
+
+									</div>
+									<div class="col-md-4">
+										<label>ESIC No</label> <input type="text" class="form-control"
+											id="employeeEsicNo">
+
+									</div>
+									<div class="col-md-4">
+										<label>Driving License No</label> <input type="text"
+											class="form-control" id="employeeDl">
+									</div>
+								</div>
+
+							</div>
+
+							<div class="col-md-12">
+								<div class="row">
+									<div style="width: 100%;">
+										<h3 class="header-text">WORK DETAILS</h3>
+									</div>
+								</div>
+
+								<div class="row form-box">
+									<div class="col-md-4">
+
+										<label>Employment Status</label> <select class="form-control"
+											id="employeeEmployment">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${EmploymentList}" th:value='${c.key}'
+												th:text="${c.name}"
+												th:selected="${c.key==employeeEmployment}"></option>
+										</select>
+
+									</div>
+									<div class="col-md-4">
+										<div class="multiselect" id="mselct">
+											<div class="wrapper center-block">
+												<div class="panel-group" id="accordion" role="tablist"
+													aria-multiselectable="true">
+													<div class="panel panel-default">
+														<div class="selectBox">
+															<div class="panel-heading active" role="tab"
+																id="headingOne" onclick="showCheckboxes()">
+																<h4 class="panel-title">
+																	<a role="button" data-toggle="collapse"
+																		data-parent="#accordion" href="#collapseOne"
+																		aria-expanded="true" aria-controls="collapseOne"
+																		class="staffDesign"> Select User Role</a>
+																</h4>
+															</div>
+															<div id="collapseOne" class="panel-collapse collapse in"
+																role="tabpanel" aria-labelledby="headingOne">
+																<div class="panel-body">
+																	<div id="checkboxes"
+																		style="height: 50px; overflow-y: scroll;">
+																		<label class="multiselecttxxt"
+																			th:each="c,iter : ${jobTitleList}"> <input
+																			type="checkbox" name="userRole" class="userRoleCls"
+																			th:id="'staff_'+${iter.index}" th:value='${c.key}'
+																			th:text="${c.name}" th:attr="data-moduleId=${c.key}"
+																			style="margin-right: 7px;" />
+																		</label>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+
+											</div>
+											<input type="hidden" id="roleList">
+										</div>
+
+									</div>
+									<div class="col-md-4">
+										<label>Pay Grade</label> <select class="form-control"
+											id="employeePayGrade">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${payGradeList}" th:value='${c.key}'
+												th:text="${c.name}"
+												th:selected="${c.key==employeeComponentDetails[0].employeePayGrade}"></option>
+
+										</select>
+
+									</div>
+									<div class="col-md-4">
+										<label>Work Station Id</label> <input type="text"
+											class="form-control" id="employeeWorkStationId">
+									</div>
+									<div class="col-md-4">
+										<label>Department</label> <select class="form-control"
+											id="employeeDepartment" onchange="departmentChange()">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${DepartmentList}" th:value='${c.key}'
+												th:text="${c.name}"
+												th:selected="${c.key==employeeComponentDetails[0].employeeDepartment}"></option>
+										</select>
+									</div>
+									<!-- 	<div class="col-md-4">
+											<label>Designation</label> <select class="form-control"
+												id="empDesignation">
+												<option th:value="NULL">--Select--</option>
+												<option th:each="c:${designList}" th:value='${c.key}'
+													th:text="${c.name}" th:selected="${c.key==empDesignation}"></option>
+											</select>
+										</div> -->
+
+
+
+									<div class="col-md-4">
+										<label>Designation</label> <select class="form-control"
+											id="empDesignation">
+											<option th:value="NULL">--Select--</option>
+											<option th:if="${id}" th:each="c:${designList}"
+												th:value='${c.key}' th:text="${c.name}"
+												th:selected="${c.key==employeeComponentDetails[0].empDesignation}"></option>
+											<option th:unless="${id}" th:each="c:${designList}"
+												th:value='${c.key}' th:text="${c.name}"></option>
+										</select>
+
+									</div>
+
+
+
+
+
+								</div>
+
+							</div>
+
+							<div class="col-md-12">
+								<div class="row">
+									<div style="width: 100%;">
+										<h3 class="header-text">ADDRESS</h3>
+									</div>
+								</div>
+
+								<div class="row form-box">
+									<div class="col-md-4">
+										<label>Country</label> <select class="form-control"
+											id="employeeCountry">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${countryList}" th:value='${c.key}'
+												th:text="${c.name}"
+												th:selected="${c.key==employeeComponentDetails[0].employeeCountry}"></option>
+										</select>
+
+									</div>
+									<div class="col-md-4">
+										<label>State</label> <select class="form-control"
+											id="employeeState">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${stateList}" th:value='${c.key}'
+												th:text="${c.name}"
+												th:selected="${c.key==employeeComponentDetails[0].employeeState}"></option>
+										</select>
+
+									</div>
+									<div class="col-md-4">
+										<label>City</label> <input type="text" class="form-control"
+											id="employeeCity">
+
+									</div>
+									<div class="col-md-4">
+
+										<label>Address</label>
+										<textarea class="form-control textarea" id="employeeAddress"
+											th:text="${employeeComponentDetails[0].employeeAddress}"></textarea>
+
+									</div>
+
+
+									<div class="col-md-4">
+										<label>ZIP Code</label> <input type="text"
+											class="form-control" id="employeePin"
+											th:value="${employeeComponentDetails[0].employeePin}"
+											onkeyup="checkNum('employeePin')">
+									</div>
+								</div>
+
+							</div>
+
+							<div class="col-md-12">
+								<div class="row">
+									<div style="width: 100%;">
+										<h3 class="header-text">CONTACT INFO</h3>
+									</div>
+								</div>
+
+								<div class="row form-box">
+									<div class="col-md-4">
+										<label>Home Phone</label> <input type="text"
+											class="form-control" id="employeeHomePhoneNo"
+											onkeyup="checkNum('employeeHomePhoneNo')">
+
+									</div>
+									<div class="col-md-4">
+										<label>Mobile No</label> <input type="text"
+											class="form-control" id="employeeMobilePhoneNo"
+											th:value="${employeeComponentDetails[0].employeeMobilePhoneNo}"
+											onkeyup="checkNum('employeeMobilePhoneNo')">
+
+									</div>
+									<div class="col-md-4">
+										<label>Work Phone</label> <input type="text"
+											class="form-control" id="employeeWorkPhoneNo"
+											onkeyup="checkNum('employeeWorkPhoneNo')">
+
+									</div>
+									<div class="col-md-4">
+										<label>Work Email</label> <input type="text"
+											class="form-control" th:id="employeeWEmail"
+											id="employeeWorkEmail" onblur="validateEmail(this);">
+									</div>
+									<div class="col-md-4">
+										<label>Personal Email</label> <input type="text"
+											class="form-control" th:id="employeePEmail"
+											th:value="${employeeComponentDetails[0].employeePersonalEmail}"
+											id="employeePersonalEmail" onblur="validateEmail(this);">
+									</div>
+								</div>
+
+							</div>
+
+							<div class="col-md-12">
+								<div class="row">
+									<div style="width: 100%;">
+										<h3 class="header-text">DATES</h3>
+									</div>
+								</div>
+
+								<div class="row form-box">
+									<div class="col-md-4">
+										<label>Joined Date</label> <input type="text"
+											class="form-control" id="employeeJoinDate"
+											th:value="${employeeComponentDetails[0].employeeJoinDate}"
+											readonly>
+
+									</div>
+									<div class="col-md-4">
+										<label>Confirmation Date</label> <input type="text"
+											class="form-control" id="employeeConfirmDate" readonly
+											onchange="dateValidation()">
+
+									</div>
+									<!-- <div class="col-md-4">
+										<label>Terminated Date</label> <input type="text"
+											class="form-control" id="employeeTerminateDate" readonly
+											onchange="dateValidation1()">
+									</div> -->
+
+
+								</div>
+								<div class="col-md-12">
+									<div class="row">
+										<div style="width: 100%;">
+											<h3 class="header-text">SALARY DETAILS</h3>
+										</div>
+									</div>
+									<div class="row form-box">
+										<div class="col-md-4">
+											<label>Annual CTC</label> <input type="text"
+												class="form-control" id="tAnnualCTC"
+												th:value="${employeeComponentDetails[0].tAnnualCTC}"
+												readonly>
+										</div>
+										<div class="col-md-4">
+											<label>Effective date</label> <input type="text"
+												class="form-control" id="tEffectiveDate" readonly>
+										</div>
+										<div class="col-md-12">
+											<!-- id="table-data" -->
+											<table class="tbll" id="myTable" width="100%" border="0"
+												cellspacing="2" cellpadding="5">
+												<thead>
+													<tr>
+														<th>Sl No.</th>
+														<th>Salary Component</th>
+														<th>Monthly Amount</th>
+
+
+													</tr>
+												</thead>
+
+												<tbody id="tbodyData">
+
+													<!-- 	for edit -->
+
+													<tr class="tr_clone"
+														th:each="a,iter:${employeeComponentDetails}">
+														<td><input type="text" class="form-control" readonly
+															th:value="${iter.index + 1}"></td>
+
+														<td><input type="hidden"
+															th:id="'tSalaryComponent_'+${iter.index}"
+															class="form-control tSalaryComponentCls"
+															th:value="${a.tSalaryComponent}" readonly /> <input
+															type="text" th:id="'tSalaryComponentName_'+${iter.index}"
+															class="form-control tSalaryComponentNameCls"
+															th:value="${a.tSalaryComponentName}" readonly /></td>
+
+
+														<td><input type="text"
+															th:id="'tSalaryComponentValue_'+${iter.index}"
+															class="form-control tSalaryComponentValueCls"
+															th:value="${a.tSalaryComponentValue}" readonly /></td>
+
+													</tr>
+
+
+												</tbody>
+											</table>
+										</div>
+
+
+
+									</div>
+								</div>
+							</div>
+
+
+							<div class="row">
+
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="submit" id="submitItems" class="btn btn-success">Submit</button>
+										<button type="button" value="Reset" class="btn btn-warning"
+											onclick="funcReset()">Cancel</button>
+									</div>
+								</div>
+
+							</div>
+
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</html>

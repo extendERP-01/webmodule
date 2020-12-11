@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<title>Sales Invoice</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.logotext {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+}
+
+.money {
+	text-align: right;
+}
+
+.heading {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.slogan {
+	font-size: 14px;
+	color: #f26304;
+	padding: 5px;
+}
+
+.containersec {
+	width: 100%;
+	margin: 0 auto;
+}
+
+.address {
+	font-size: 14px;
+	text-align: left;
+	padding-right: 0px;
+	line-height: 16px;
+}
+
+.maintbl tr td {
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.tableheader {
+color:#fff;
+font-weight:bold;
+	padding: 5px;
+	background: #5d2f15;
+	text-align: center;
+}
+
+.resturantname {
+	font-size: 16px;
+	font-weight: bold;
+	color: #2d1ea5;
+}
+
+.total {
+	background: #f9965a;
+	color: #FFF;
+	padding: 8px 5px;
+	text-align: left;
+	font-weight: bold;
+}
+
+.description {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+}
+
+.points {
+	padding: 20px 0px;
+	line-height: 26px;
+}
+
+.points span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+	padding: 5px 10px;
+	border-radius: 12px;
+	margin: 3px;
+}
+
+.bill {
+	color: #000;
+	text-align: center;
+	font-size: 18px;
+	font-weight: bold;
+	width: 100%;
+}
+
+.strip2 {
+	margin-top: 60px;
+	width: 800px;
+	height: 20px;
+	padding: 2px;
+	text-align: center;
+	background-color: #d0e6f8;
+	margin-bottom: 12px;
+}
+
+.lefttag {
+	width: 40px;
+	float: left;
+}
+
+.note {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.textarea {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 480px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.important {
+	font-weight: bold;
+	font-size: 20px;
+}
+.hidden{
+   visibility:hidden;
+}
+</style>
+<script type="text/javascript">
+
+//GET POS NUMBER FUNCTION
+function posAutoComplete() {
+		$.ajax({
+				type : "POST",
+				url : "view-sale-invoice-posAutoComplete",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#posNo").val(),
+				success : function(response) {
+					if (response.message == "success") {
+
+						if (response.body.length != 0) {
+							$("#posNo").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							for (var i = 0; i < response.body.length; i++) {  //For Loop Starts
+								content += '<li onClick="selectAutocompleteValue(\''
+										+ response.body[i].key
+										+ '\',\''
+										+ response.body[i].name
+										+ '\')">'
+										+ response.body[i].key +' ('+ response.body[i].name +')'+ '</li>';
+							}  //For Loop Ends
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+
+						} else {
+							$("#posNo").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							content += '<li onClick="selectAutocompleteValue(\''
+									+ ''
+									+ '\',\''
+									+ ''
+									+ '\')">'
+									+ "No Data Found" + '</li>';
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+					$("#posNo").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''
+							+ ''
+							+ '\',\''
+							+ ''
+							+ '\')">'
+							+ "Try Again" + '</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+			})
+}
+function selectAutocompleteValue(key, name) {
+	if (key) {
+		$("#posNumber").val(key);
+		$("#posNo").val(key+' ('+name+')');
+		$("#posNo").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+	} else {
+		$("#posNumber").val("");
+		$("#posNo").val("");
+		$("#posNo").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+}
+
+//GET POS NUMBER FUNCTION
+function posAutoComplete1() {
+		$.ajax({
+				type : "POST",
+				url : "view-sale-invoice-posAutoComplete",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#posNo1").val(),
+				success : function(response) {
+					if (response.message == "success") {
+
+						if (response.body.length != 0) {
+							$("#posNo1").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							for (var i = 0; i < response.body.length; i++) {  //For Loop Starts
+								content += '<li onClick="selectAutocompleteValue1(\''
+										+ response.body[i].key
+										+ '\',\''
+										+ response.body[i].name
+										+ '\')">'
+										+ response.body[i].key +' ('+ response.body[i].name +')'+ '</li>';
+							}  //For Loop Ends
+							content += '</ul>';
+							$("#suggesstion-box1").show();
+							$("#suggesstion-box1").html(content);
+
+						} else {
+							$("#posNo1").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							content += '<li onClick="selectAutocompleteValue1(\''
+									+ ''
+									+ '\',\''
+									+ ''
+									+ '\')">'
+									+ "No Data Found" + '</li>';
+							content += '</ul>';
+							$("#suggesstion-box1").show();
+							$("#suggesstion-box1").html(content);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+					$("#posNo1").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue1(\''
+							+ ''
+							+ '\',\''
+							+ ''
+							+ '\')">'
+							+ "Try Again" + '</li>';
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+				}
+			})
+}
+function selectAutocompleteValue1(key, name) {
+	if (key) {
+		$("#posNumber1").val(key);
+		$("#posNo1").val(key+' ('+name+')');
+		$("#posNo1").attr('data-procat', key);
+		$("#suggesstion-box1").hide();
+	} else {
+		$("#posNumber1").val("");
+		$("#posNo1").val("");
+		$("#posNo1").attr('data-procat', "");
+		$("#suggesstion-box1").hide();
+	}
+}
+
+//(document).ready() Starts
+$(document).ready(function() {  
+	
+	$("#hidePayment").hide();
+	
+    $('#SecondPaymentId').change(function() {
+        var payMode = $(this).val();
+        $('#trnscId').val("");
+        $('#posNumber').val("");
+        $('#posNo').val("");
+        $('#firstAmount').val("");
+        if (payMode == 'PMOD001') {
+            $('#transcTR').show();
+            $("#hidePayment").show();
+            $('#posTR').show();
+        } else {
+        	   $('#transcTR').hide();
+               $('#posTR').hide();
+               $("#hidePayment").hide();
+        }
+        
+    })
+      $('#SecondPaymentId1').change(function() {
+        var payMode = $(this).val();
+        $('#trnscId1').val("");
+        $('#posNumber1').val("");
+        $('#posNo1').val("");
+        if (payMode == 'PMOD001') {
+            $('#transcTR1').show();
+            $('#posTR1').show();
+        } else {
+        	   $('#transcTR1').hide();
+               $('#posTR1').hide();
+        }
+    })
+	
+ 
+	$('#transcTR').hide();
+    $('#posTR').hide();	
+    $('#transcTR1').hide();
+    $('#posTR1').hide();	
+  
+	var paymentType = $("#paymentType").val();
+	if(paymentType=="true") {
+		$("#table").hide();
+		//document.getElementById("full").checked = true;
+		$('#fPaymentTR').show();	
+		$('#pPaymentTR').hide();	
+		$('#payPartialTypeTR').hide();	
+	} else {
+		$("#table").show();
+		$('#fPaymentTR').hide();	
+		$('#pPaymentTR').show();	
+		$('#payFullTypeTR').hide();
+		$('#payPartialTypeTR').show();
+		$('#lastPaymentTR').show();
+		
+		var tdVal = $("#outStndTD").text();
+		tdVal = tdVal.replace(/\,/g,'');
+		$("#outStndTD").text(tdVal);
+		$("#outStndTD").addClass("important");
+		$("#partialAmt").val(tdVal);
+		
+		getLastPaymentDetails();
+	}
+	
+	/* var saleInvReturn = $('#saleInvReturn').val();
+	var subTotalInvReturn = $('#subTotalInvReturn').val();
+	var subTotal = $('#subTotal').html();
+	subTotal = subTotal.replace(/\,/g,'');
+	var gstType = $('#gstType').val();
+	//If Sale Invoice Has Returned Value
+	if(saleInvReturn) {
+		var total = parseFloat(subTotal) - parseFloat(subTotalInvReturn);
+		$('#subTotal').html((total).toFixed(2));
+		var gstRate = $('#gstRate').val();
+		var value1 = (total * gstRate)/100;
+		var value2 = value1/2;
+		if(gstType=="true") {
+			$('#igst').html((value1).toFixed(2));
+			$('#cgst').html(0.00);
+			$('#sgst').html(0.00);
+			var advanceAmt = $('#advanceAmt').html();
+			advanceAmt = advanceAmt.replace(/\,/g,'');
+			$('#advanceAmt').html(advanceAmt);
+			var grandTotal = total + value1;
+			$('#payableAmt').html(grandTotal.toFixed(2));
+			var totalAmt = parseFloat(grandTotal) - parseFloat(advanceAmt);
+			$('#grandTotal').html((Math.round(totalAmt).toFixed(2)));
+		} else {
+			$('#igst').html(0.00);
+			$('#cgst').html((Math.round(value2)).toFixed(2));
+			$('#sgst').html((Math.round(value2)).toFixed(2));
+			var advanceAmt = $('#advanceAmt').html();
+			advanceAmt = advanceAmt.replace(/\,/g,'');
+			$('#advanceAmt').html(advanceAmt);
+			var grandTotal = total + value2 + value2 ;
+			$('#payableAmt').html(grandTotal.toFixed(2));
+			var totalAmt = parseFloat(grandTotal) - parseFloat(advanceAmt);
+			$('#grandTotal').html((Math.round(totalAmt).toFixed(2)));
+		}
+		
+	} else {
+		var subTotal = $('#subTotal').html();
+		subTotal = subTotal.replace(/\,/g,'');
+		if(gstType=="true") {
+			var igst = $('#igst').html();
+			igst = igst.replace(/\,/g,'');
+		} else {
+			var cgst = $('#cgst').html();
+			cgst = cgst.replace(/\,/g,'');
+			var sgst = $('#sgst').html();
+			sgst = sgst.replace(/\,/g,'');
+		}
+		var advanceAmt = $('#advanceAmt').html();
+		advanceAmt = advanceAmt.replace(/\,/g,'');
+		var payableAmt = $('#payableAmt').html();
+		payableAmt = payableAmt.replace(/\,/g,'');
+		var grandTotal = $('#grandTotal').html();
+		grandTotal = grandTotal.replace(/\,/g,'');
+		$('#subTotal').html(subTotal);
+		$('#igst').html(igst);
+		$('#cgst').html(cgst);
+		$('#sgst').html(sgst);
+		$('#payableAmt').html(payableAmt);
+		$('#advanceAmt').html(advanceAmt);
+		$('#grandTotal').html(grandTotal);
+	} */
+		
+	//Hide And Show Transaction Number On Chnage Payment Mode
+	$("#paymentId").on('change', function() {
+		var payMode = $(this).val();
+		if (payMode == 'PMOD001') {
+			$('#transcTR').show();
+			$('#posTR').show();
+			$('#checkTR').hide();
+			$('#checkId').val("");
+		} else if(payMode == 'PMOD003') {
+			$('#checkTR').show();
+			$('#transcTR').hide();
+			$('#posTR').hide();
+			$("#trnscId").val("");
+			$("#posNo").val("");
+			$("#posNumber").val("");
+		} else {
+			$('#checkTR').hide();
+			$('#transcTR').hide();
+			$('#posTR').hide();
+			$("#trnscId").val("");
+			$('#checkId').val("");
+			$('#posNo').val("");
+			$("#posNumber").val("");
+		}
+	});
+	
+	$("#paymentId1").on('change', function() {
+		var payMode = $(this).val();
+		if (payMode == 'PMOD001') {
+			$('#transcTRP').show();
+			$('#posTRP').show();
+			$('#checkTRP').hide();
+			$('#checkId1').val("");
+		} else if(payMode == 'PMOD003') {
+			$('#checkTRP').show();
+			$('#transcTRP').hide();
+			$('#posTRP').hide();
+			$("#trnscId1").val("");
+			$("#posNo1").val("");
+			$("#posNumber1").val("");
+		} else {
+			$('#checkTRP').hide();
+			$('#transcTRP').hide();
+			$('#posTRP').hide();
+			$("#trnscId1").val("");
+			$('#checkId1').val("");
+			$('#posNo1').val("");
+			$("#posNumber1").val("");
+		}
+	});
+		
+	//Transaction Date 
+	$("#trnscDate").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	});
+	
+	/* $("#trnscDate1").datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+		//defaultDate : new Date(),
+	}); */
+	var fullDate = new Date();
+	var twoDigitMonth=((fullDate.getMonth()+1)>=10)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+	var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+	var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+	$("#trnscDate").val(currentDate); 
+	/* $("#trnscDate1").val(currentDate);  */
+
+});
+//(document).ready() Ends
+
+//GET LAST PAYMENT DETAILS FUNCTION
+function getLastPaymentDetails() {
+	$('#tbodyTR').hide();
+	var saleInvoice = $("#salesInvoice").val();
+	if(saleInvoice) {
+		$.ajax({
+			type : 'POST',
+			url : 'view-sale-invoice-get-last-payment-list',
+			dataType : 'json',
+			contentType : 'application/json',
+			data : saleInvoice,
+			success : function(response) {
+				console.log(response)
+				if(response.body.length>0){
+					for(var i=0;i<response.body.length;i++){
+						table = '<tr><td align="center">'+ response.body[i].transactionDate+'</td><td align="center">'+
+								response.body[i].payMode+'</td><td align="center">'+
+						   		response.body[i].payRefNo+'</td><td align="center">'+
+						   		(response.body[i].grandTotal).toFixed(2)+'</td></tr>';
+					   			$('#tblBody').append(table);
+					}
+				} 
+			},
+			error : function(data) {
+				console.log(data)
+			}
+		});
+	}
+}
+	
+//Payment Function
+function confirmPay() {
+	
+	obj = {};
+	//var paymentType = $("input[name='payment']:checked").val();
+var paymentType = 'true';
+	if(paymentType=="true") {
+		if (!blankValidation("full","SelectBox" ,"Please Select Payment Mode"))
+		      return false;
+		var firstPaymode = $('#firstPaymentId').val();
+		if(firstPaymode=="PMOD002") {
+			if (!blankValidation("firstAmount","TextField" ,"Please enter amount  of cash"))
+			      return false;
+			
+		}
+		if($("#firstAmount").val() < parseFloat($("#outStndTD").html())){
+		var secondPaymode = $('#SecondPaymentId').val();		
+		if(secondPaymode=="PMOD001") {
+			if (!blankValidation("secondPayAmount","TextField" ,"Please enter amount"))
+			      return false;
+			if (!blankValidation("trnscId","TextField" ,"Please enter transaction number"))
+			      return false;
+			 if (!blankValidation("posNo","TextField" ,"Please enter POS number"))
+				   return false;
+		}
+		}
+		obj.cashAmount = $("#firstAmount").val();
+		obj.cardAmount = $("#secondPayAmount").val();
+		obj.payMode1 = $("#firstPaymentId").val();
+		obj.payMode2 = $("#SecondPaymentId").val();
+		obj.transactionId = $("#trnscId").val();
+		obj.posNumber = $("#posNumber").val();
+		obj.quotationId = $("#quotationId").text();
+		obj.transactionDate = $("#trnscDate").val();
+		var grandTotal = $("#grandTotal").html();
+		grandTotal = grandTotal.replace(/\,/g,'');
+		obj.grandTotal = parseFloat(grandTotal);
+	} else {
+		if (!blankValidation("full","SelectBox" ,"Please Select Payment Mode"))
+		      return false;
+		var firstPaymode = $('#firstPaymentId1').val();
+		if(firstPaymode=="PMOD002") {
+			if (!blankValidation("firstAmount1","TextField" ,"Please enter amount  of cash"))
+			      return false;
+			
+		}
+		if($("#firstAmount1").val() < parseFloat($("#outStndTD").html())){
+		if (!blankValidation("SecondPaymentId1","SelectBox" ,"Please select second payment mode"))
+		      return false;
+		var secondPaymode = $('#SecondPaymentId1').val();		
+		if(secondPaymode=="PMOD001") {
+			if (!blankValidation("secondPayAmount1","TextField" ,"Please enter amount"))
+			      return false;
+			if (!blankValidation("trnscId1","TextField" ,"Please enter transaction number"))
+			      return false;
+			 if (!blankValidation("posNo1","TextField" ,"Please enter POS number"))
+				   return false;
+		}
+		}
+		obj.payMode = $("#firstPaymentId1").val();
+		obj.transactionId = $("#trnscId1").val();
+		obj.posNumber = $("#posNumber1").val();
+		obj.cashAmount = $("#firstAmount1").val();
+		obj.cardAmount = $("#secondPayAmount1").val();
+		obj.payMode1 = $("#firstPaymentId1").val();
+		obj.payMode2 = $("#SecondPaymentId1").val();
+		obj.quotationId = $("#quotationId").text();
+		obj.transactionDate = $("#trnscDate1").val();
+		var grandTotal = $("#outStndTD").text();
+		grandTotal = grandTotal.replace(/\,/g,'');
+		obj.grandTotal = parseFloat(grandTotal);
+	}
+	
+	//obj.paymentType = $("input[name='payment']:checked").val();
+	obj.paymentType = true;
+	obj.salesInvoice = $("#salesInvoice").val();
+	obj.salesOrderId = $("#salesOrder").val();
+	var subTotal = $("#subTotal").html();
+	subTotal = subTotal.replace(/\,/g,'');
+	obj.subTotal = parseFloat(subTotal);
+	//obj.grandTotal = parseFloat($("#grandTotal").html());
+	var gstType = $('#gstType').val();
+	if(gstType=="true") {
+		var sIGST = $("#igst").html();
+		sIGST = sIGST.replace(/\,/g,'');
+		obj.sIGST = parseFloat(sIGST);
+		obj.sCGST = 0.0;
+		obj.sSGST = 0.0;
+	} else {
+		obj.sIGST = 0.0;
+		var sCGST = $("#cgst").html();
+		sCGST = sCGST.replace(/\,/g,'');
+		var sSGST = $("#sgst").html();
+		sSGST = sSGST.replace(/\,/g,'');
+		obj.sCGST = parseFloat(sCGST);
+		obj.sSGST = parseFloat(sSGST);
+	}
+	var salesInvoice = $("#salesInvoice").val();
+	var quatationNo=$("#quotationId").text();
+	console.log("here objects",obj)	
+	swal({
+		title				: "Are you sure want to Pay?",
+		text				: "Once Paid,Can't Return Back !",
+		type 				: "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	: "Pay",
+		showLoaderOnConfirm	: true,
+		reverseButtons 		: true,
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+				
+			$.ajax({
+				type 		: "POST",
+				url 		: "/sales/view-sale-invoice-make-payment",
+				dataType 	: 'json',
+				contentType : 'application/json',
+				data 		: JSON.stringify(obj),
+				success 	: 	function(response) {
+					if(response.message=="success"){
+						swal({
+							title	: "Paid Successfully.",
+							type: "success",
+					}).then(function(){
+						window.location.href = "/sales/view-sale-invoice-make-payment-print?id="+ window.btoa(salesInvoice)+"&id2="+window.btoa(quatationNo);
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}			
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			 }) 
+		}
+	})
+}
+	
+//Sale Invoice PDF Function
+function pdfCreation() {
+	var id = window.btoa($('#salesInvoice').val());
+	window.open("/download/view-sale-invoice-one-pdf?id=" + id, '_blank');
+}
+	
+//"View Sale Invoice" Default Page Open On Click 'Close' Button
+function cancel() {
+	window.location.href = "/sales/view-sale-invoice" ;
+}
+	
+//Check No Special Character/Space In Transaction Number
+function checkTransactionId() {
+	var tempVal = $("#trnscId").val().replace(/[^a-zA-Z0-9]/g,'');
+	$("#trnscId").val(tempVal);
+}
+
+function paymentTypeFull() {
+	$('#fPaymentTR').show();	
+	$('#pPaymentTR').hide();
+	$('#lastPaymentTR').hide();
+	$('#checkTR').hide();	
+	$('#transcTR').hide();	
+	$('#posTR').hide();
+//	$("#paymentId1").val("");
+	$("#trnscId1").val("");
+	$('#checkId1').val("");
+	$('#posNo1').val("");
+	$("#posNumber1").val("");
+}
+
+function paymentTypePartial() {
+	$("#table").show();
+	$('#fPaymentTR').hide();	
+	$('#checkTRP').hide();	
+	$('#transcTRP').hide();	
+	$('#posTRP').hide();	
+	$('#pPaymentTR').show();
+	$('#lastPaymentTR').show();
+	$("#paymentId").val("");
+	$("#trnscId").val("");
+	$('#checkId').val("");
+	$('#posNo').val("");
+	$("#posNumber").val("");
+	
+	var tdVal = $("#outStndTD").text();
+	tdVal = tdVal.replace(/\,/g,'');
+	$("#outStndTD").text(tdVal);
+	$("#outStndTD").addClass("important");
+	$("#partialAmt").val(tdVal);
+	getLastPaymentDetails();
+}
+
+function checkPartialAmount() {
+	var tdVal = $("#outStndTD").text();
+	var partialAmt = $("#partialAmt").val();
+	
+	if(parseFloat(partialAmt) > parseFloat(tdVal)) {
+		swal({
+			title: "Partial Amount Can't Be More Than Outstanding Amount.",
+			type: "warning",
+		})
+		$("#partialAmt").val(tdVal);
+	}
+}
+
+function getReturnAmount(){ 
+	var payAmt = parseFloat($("#grandTotal").text().replace(/\,/g,''));
+	var payAmtFirst  =  $("#firstAmount").val();
+	console.log(payAmtFirst);
+	var payAmtSecond  = $("#secondPayAmount").val();
+	console.log(payAmtSecond);
+	if(payAmtFirst){
+		payAmtFirst = parseFloat(payAmtFirst);
+	}
+	if(payAmtSecond){
+		payAmtSecond  = parseFloat(payAmtSecond);
+	}
+
+	var totalPay = payAmtFirst + payAmtSecond;
+	if(payAmtFirst!=null && payAmtFirst!='' && payAmtSecond != null && payAmtSecond !=''){
+	 
+		if(payAmtFirst>payAmt || payAmtSecond>payAmt){
+			swal("Can't Be More Than Total Amount.") ;
+			$("#secondPayAmount").val('0');
+			$("#secondPayAmount").val('0');
+		}else{
+			if(totalPay>payAmt){
+				var rutAmt = totalPay - payAmt;
+				$("#rutAmt").val(rutAmt);
+			} else{
+				$("#rutAmt").val('0');
+			}
+		}
+		
+	}
+
+}
+function getReturnAmount1(){ 
+	var payAmt = parseFloat($("#outStndTD").text().replace(/\,/g,''));
+	var payAmtFirst  =  $("#firstAmount1").val();
+	console.log(payAmtFirst);
+	var payAmtSecond  = $("#secondPayAmount1").val();
+	console.log(payAmtSecond);
+	if(payAmtFirst){
+		payAmtFirst = parseFloat(payAmtFirst);
+	}
+	if(payAmtSecond){
+		payAmtSecond  = parseFloat(payAmtSecond);
+	}
+	//alert("payAmt =" + payAmt +" payAmtFirst = " + payAmtFirst + " payAmtSecond = " + payAmtSecond)
+	var totalPay = payAmtFirst + payAmtSecond;
+	if(payAmtFirst!=null && payAmtFirst!='' && payAmtSecond != null && payAmtSecond !=''){
+	 
+		if(payAmtFirst>payAmt || payAmtSecond>payAmt){
+			swal("Can't Be More Than Total Amount.")
+		}else{
+			if(totalPay>payAmt){
+				var rutAmt = totalPay - payAmt;
+				$("#rutAmt1").val(rutAmt);
+			} else{
+				$("#rutAmt1").val('0');
+			}
+		}
+		
+	}
+
+}
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+			<div class="content-wrap">
+				<div class="main mrt_20">
+					<div class="col-md-12">
+						<ol class="breadcrumb breadcrumb-arrow">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="view-sale-invoice">View Sales Invoice</a></li>
+
+						</ol>
+					</div>
+					<div class="card-title">
+						<h4>Sales Invoice</h4>
+					</div>
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<form th:object="${salesInvoice}" autocomplete="off">
+									<div class="containersec">
+										<table width="100%" height="100%">
+											<tr>
+												<td colspan="2"><input type="hidden" id="salesInvoice"
+													th:value="${salesInvoice[0].salesInvoice}" /> <input
+													type="hidden" id="salesOrder"
+													th:value="${salesInvoice[0].salesOrderId}" /> <input
+													type="hidden" id="gstRate"
+													th:value="${salesInvoice[0].gstRate}" /> <input
+													type="hidden" id="gstType"
+													th:value="${salesInvoice[0].gstType}" /> <input
+													type="hidden" id="paymentType"
+													th:value="${salesInvoice[0].paymentType}" /> <input
+													type="hidden" id="saleInvReturn"
+													th:if="${not #lists.isEmpty(salesInvoiceReturn)}"
+													th:value="${salesInvoiceReturn[0].saleInvReturn}">
+													<input type="hidden" id="subTotalInvReturn"
+													th:if="${not #lists.isEmpty(salesInvoiceReturn)}"
+													th:value="${salesInvoiceReturn[0].subTotal}"></td>
+											</tr>
+
+											<tr>
+												<td colspan="2">
+													<div class="bill">Sales Invoice</div>
+												</td>
+											</tr>
+											<tr>
+												<td><img src="../assets/images/login_img/extend.png" height="80" width="150" /></td>
+												<td align="left" class="address" width="250">
+													<div class="lefttag">Date :</div>
+													<div th:text="${salesInvoice[0].curDate}"></div>
+												</td>
+											</tr>
+
+											<tr>
+												<td colspan="2" bgcolor="#cedefd"></td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<table width="100%" class="innertable">
+														<tr>
+															<td colspan="2">
+
+																<table>
+																	<tr>
+																		<td width="150px;"><label>Sales Invoice</label></td>
+																		<td width="200px;"><label id="salesInvoice"
+																			th:text="${salesInvoice[0].salesInvoice}"
+																			class="form-control quotationId"></label></td>
+																	</tr>
+																	<!-- <tr>
+																		<td width="150px;"><label>Purchase Order</label></td>
+																		<td width="200px;"><label id="purchaseOrder"
+																			th:text="${salesInvoice[0].purchaseOrder}"
+																			class="form-control quotationId"></label></td>
+																	</tr> -->
+																	<tr>
+																		<!-- <td width="150px;"><label>Quotation
+																				Number</label></td> -->
+																		<td width="200px;"  class="hidden"><label id="quotationId"
+																			th:text="${salesInvoice[0].quotationId}"
+																			class="form-control quotationId"></label></td>
+																	</tr>
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td colspan="2">
+																<table id="id_td" class="maintbl" cellpadding="0"
+																	cellspacing="0" border="1" style="width: 100%;">
+																	<thead>
+																		<tr>
+																			<th class="tableheader">SL NO.</th>
+																			<th class="tableheader">ITEM NAME</th>
+																			<th class="tableheader">ITEM CODE</th>
+																			<th class="tableheader">PRICE</th>
+																			<th class="tableheader">QUANTITY</th>
+																			<th class="tableheader" th:if="${count>0}">DISCOUNT</th>
+																			<th class="tableheader">GST</th>
+																			<th class="tableheader">CESS</th>
+																			<th class="tableheader">SERVE TYPE</th>
+																			<th class="tableheader">TOTAL</th>
+																		</tr>
+																	</thead>
+																	<tbody>
+																		<tr th:each="other,iter : ${salesInvoice}">
+																			<td th:text="${iter.index+1}"></td>
+																			<td th:text="${other.saleItem}"></td>
+																			<td th:text="${other.saleItemCode}"></td>
+																			<td class="money"
+																				th:text="${#numbers.formatDecimal(other.salePrice, 0, 'COMMA', 2, 'POINT')}"></td>
+																			<td th:text="${other.saleQuantity}"></td>
+																			<td class="money"
+																				th:if="${other.saleDiscount==0.00 && count > 0}">0.00</td>
+																			<td class="money" th:if="${other.saleDiscount!=0.00 && count > 0}"
+																				th:text="${#numbers.formatDecimal(other.saleDiscount, 0, 'COMMA', 2, 'POINT')}"></td>
+																			<td th:text="${other.gstRate}"></td>
+																			<td th:text="${other.itemCess}"></td>
+																			<td th:text="${other.sServeType}"></td>
+																			<td class="money"
+																				th:text="${#numbers.formatDecimal(other.saleAmount, 0, 'COMMA', 2, 'POINT')}"></td>
+																		</tr>
+																	</tbody>
+																</table>
+															</td>
+														</tr>
+														<tr style="border-top: 10px solid #FFF;"
+															th:if="${not #lists.isEmpty(salesInvoiceReturn)}">
+															<td colspan="2"><h3>
+																	<b>Sale Invoice Return Details</b>
+																</h3></td>
+														</tr>
+														<tr>
+															<td colspan="2"
+																th:if="${not #lists.isEmpty(salesInvoiceReturn)}">
+																<table id="id_td" class="maintbl" cellpadding="0"
+																	cellspacing="0" border="1" style="width:100%">
+																	<thead>
+																		<tr>
+																			<th class="tableheader">SL NO.</th>
+																			<th class="tableheader">ITEM NAME</th>
+																			<th class="tableheader">ITEM CODE</th>
+																			<th class="tableheader">PRICE</th>
+																			<th class="tableheader">QUANTITY</th>
+																			<th class="tableheader" th:if="${count>0}">DISCOUNT</th>
+																			<th class="tableheader">SERVE TYPE</th>
+																			<th class="tableheader">TOTAL</th>
+																		</tr>
+																	</thead>
+																	<tbody id="tBodyTblRcd"
+																		th:if="${not #lists.isEmpty(salesInvoiceReturn)}">
+																		<tr th:each="other,iter : ${salesInvoiceReturn}">
+																			<td th:text=" ${iter.index+1}"></td>
+																			<td th:text="${other.sRItemName}"></td>
+																			<td th:text="${other.sRItemCode}"></td>
+																			<td class="money"
+																				th:text="${#numbers.formatDecimal(other.sRItemPrice, 0, 'COMMA', 2, 'POINT')}"></td>
+																			<td th:text="${other.sRItemQty}"></td>
+																			<td class="money"
+																				th:if="${other.sRDiscount==0.0 && count > 0}">0.00</td>
+																			<td class="money" th:if="${other.sRDiscount!=0.0 && count > 0}"
+																				th:text="${#numbers.formatDecimal(other.sRDiscount, 0, 'COMMA', 2, 'POINT')}"></td>
+																			<td th:text="${other.sRServeTypeId}"></td>
+																			<td class="money"
+																				th:text="${#numbers.formatDecimal(other.sRAmount, 0, 'COMMA', 2, 'POINT')}"></td>
+																		</tr>
+																	</tbody>
+																	<tbody id="tBodyNoRcd"
+																		th:unless="${not #lists.isEmpty(salesInvoiceReturn)}">
+																		<tr>
+																			<td colspan="8" align="center"
+																				style="color: #e30f0f;"><b>No record found</b></td>
+																		</tr>
+																	</tbody>
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td width="130">
+																<div>
+																	<strong>Note</strong>
+																</div>
+																<div>
+																	<textarea class="form-control textarea"
+																		th:text="${salesInvoice[0].saleInvNote}"
+																		readOnly="readonly"></textarea>
+																</div>
+															</td>
+															<td width="50" align="right">
+																<table cellpadding="0" cellspacing="0" width="240">
+																	<tr>
+																		<td colspan="2" width="115"><label><b>SUB
+																					TOTAL</b></label></td>
+
+																		<td><label style="border: none" id="subTotal"
+																			class="form-control money"
+																			th:text="${#numbers.formatDecimal(salesInvoice[0].subTotal, 0, 'COMMA', 2, 'POINT')}"></label></td>
+																	</tr>
+																	<tr th:if="${count>0}">
+																		<td colspan="2" width="115"><label><b>DISCOUNT</b></label></td>
+
+																		<td><label style="border: none" id="totalDiscount"
+																			class="form-control money"
+																			th:text="${#numbers.formatDecimal(totalDiscount, 0, 'COMMA', 2, 'POINT')}"></label></td>
+																	</tr>
+																	<tr id="IgstTR" th:if="${salesInvoice[0].gstType}">
+																		<td colspan="2" width="115"><label><b>IGST</b></label></td>
+
+																		<td width="130"><label style="border: none"
+																			id="igst" class="form-control money"
+																			th:text="${#numbers.formatDecimal(salesInvoice[0].sIGST, 0, 'COMMA', 2, 'POINT')}"></label></td>
+																	</tr>
+																	<tr id="CgstTR" th:if="${!salesInvoice[0].gstType}">
+																		<td colspan="2" id="getCGST" width="115"><label><b>CGST</b></label></td>
+
+																		<td width="130"><label style="border: none"
+																			id="cgst" class="form-control money"
+																			th:text="${#numbers.formatDecimal(salesInvoice[0].sCGST, 0, 'COMMA', 2, 'POINT')}"></label></td>
+																	</tr>
+																	<tr id="SgstTR" th:if="${!salesInvoice[0].gstType}">
+																		<td colspan="2" width="115"><label><b>SGST</b></label></td>
+
+																		<td width="130"><label style="border: none"
+																			id="sgst" class="form-control money"
+																			th:text="${#numbers.formatDecimal(salesInvoice[0].sSGST, 0, 'COMMA', 2, 'POINT')}"></label></td>
+																	</tr>
+																	<!-- <tr>
+																		<td colspan="2" width="115"><label><b>TOTAL
+																					PAYABLE AMOUNT</b></label></td>
+
+																		<td width="130"><label style="border: none"
+																			id="payableAmt" class="form-control money"
+																			th:text="${#numbers.formatDecimal(salesInvoice[0].payableAmt, 0, 'COMMA', 2, 'POINT')}"></label></td>
+
+																	</tr>
+																	<tr th:if="${salesInvoice[0].advanceAmt!=0.0}">
+																		<td colspan="2" width="115"><label><b>ADVANCE
+																					AMOUNT</b></label></td>
+
+																		<td width="130"><label style="border: none"
+																			id="advanceAmt" class="form-control money"
+																			th:text="${#numbers.formatDecimal(salesInvoice[0].advanceAmt, 0, 'COMMA', 2, 'POINT')}"></label></td>
+
+																	</tr>
+																	<tr th:unless="${salesInvoice[0].advanceAmt!=0.0}">
+																		<td colspan="2" width="115"><label><b>ADVANCE
+																					AMOUNT</b></label></td>
+
+																		<td width="130"><label style="border: none"
+																			id="advanceAmt" class="form-control money">0.00</label></td>
+
+																	</tr> -->
+																	<tr th:unless="${salesInvoice[0].totalCess!=0.0}">
+																		<td colspan="2" width="115"><label><b>CESS</b></label></td>
+
+																		<td width="130"><label style="border: none"
+																			id="totalCess" class="form-control money">0.00</label></td>
+
+																	</tr>
+																	<tr th:if="${salesInvoice[0].totalCess!=0.0}">
+																		<td colspan="2" width="115"><label><b>CESS</b></label></td>
+
+																		<td width="130"><label style="border: none"
+																			id="totalCess" class="form-control money"
+																			th:text="${#numbers.formatDecimal(salesInvoice[0].totalCess, 0, 'COMMA', 2, 'POINT')}"></label></td>
+
+																	</tr>
+																	<tr>
+																		<td colspan="2" width="115"><label><b>GRAND
+																					TOTAL</b></label></td>
+
+																		<td width="130"><label style="border: none"
+																			id="grandTotal" class="form-control money"
+																			th:text="${#numbers.formatDecimal(salesInvoice[0].grandTotal, 0, 'COMMA', 2, 'POINT')}"></label></td>
+
+																	</tr>
+
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td colspan="2">
+
+																<table>
+
+																</table>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+											<tr>
+												<td colspan="2"><div class="modal-footer"></div></td>
+											</tr>
+											<!-- <tr id="payFullTypeTR">
+												<td colspan="2"><label><strong>Payment
+															Type&nbsp;&nbsp;&nbsp;&nbsp;</strong></label> <input type="radio"
+													onclick="paymentTypeFull()" id="full" name="payment"
+													value="true" checked>&nbsp;&nbsp;Full&nbsp;&nbsp; <input
+													type="radio" onclick="paymentTypePartial()" id="partial"
+													name="payment" value="false">&nbsp;&nbsp;Partial</td>
+											</tr>
+											<tr id="payPartialTypeTR">
+												<td colspan="2"><label><strong>Payment
+															Type&nbsp;&nbsp;&nbsp;&nbsp;</strong></label> <input type="radio"
+													onclick="paymentTypePartial()" id="partial1" checked
+													name="payment" value="false">&nbsp;&nbsp;Partial</td>
+											</tr> -->
+											<!-- <tr id="lastPaymentTR">
+												<td colspan="2">
+													<div class="row">
+														<div class="col-md-12">
+															<label id="trId" style="font-size: 20px;"><b>Last
+																	Payment Details</b></label>
+															<table class="table table-bordered" id="table"
+																style="width: 900px; " >
+																<thead id="tblHead">
+																	<tr style="width: 100%;">
+																		<th class="tableheader">Transaction Date</th>
+																		<th class="tableheader">Payment Mode</th>
+																		<th class="tableheader">Payment Reference Number</th>
+																		<th class="tableheader">Amount</th>
+																	</tr>
+																</thead>
+																<tbody id="tblBody">
+
+																</tbody>
+																<tbody id="tbodyTR">
+																	<tr>
+																		<td style="color: #e30f0f;" valign="top"
+																			align="center" colspan="4"><b>No records
+																				found</b></td>
+																	</tr>
+																</tbody>
+																<tbody>
+																	<tr>
+																		<td colspan="2">&nbsp;</td>
+																		<td align="center"
+																			style="border-left: 2px solid white;"><b>OUTSTANDING
+																				AMOUNT</b></td>
+																		<td align="center" id="outStndTD"><b
+																			th:text="${#numbers.formatDecimal(salesInvoice[0].outstndngAmt, 0, 'COMMA', 2, 'POINT')}"></b></td>
+																	</tr>
+																</tbody>
+															</table>
+														</div>
+													</div>
+												</td>
+											</tr> -->
+											<tr id="fPaymentTR">
+												<td colspan="2">
+													<div class="row">
+														<div class="col-lg-6">
+															<div class="form-group">
+																<label><strong>First Payment Mode</strong></label> <select
+																	class="form-control" id="SecondPaymentId">
+																	<option value="">--Select--</option>
+																	<option th:each="c:${payModeList}" th:value='${c.key}'
+																		th:text="${c.name}"></option>
+																</select>
+															</div>
+															<div class="form-group">
+																<label><strong>First Payment Amount</strong></label> <input
+																	type="text" class="form-control" id="secondPayAmount"
+																	onkeyup="getReturnAmount();checkNum('secondPayAmount')">
+															</div>
+
+
+														</div>
+														<div class="col-lg-6" id="hidePayment">
+															<div class="form-group">
+																<label><strong>Second Payment Mode</strong></label> <select
+																	class="form-control" id="firstPaymentId" disabled>
+																	<option value="">--Select--</option>
+																	<option th:each="c:${payModeList}" th:value='${c.key}'
+																		th:text="${c.name}" th:selected="${c.key=='PMOD002'}"></option>
+																</select>
+															</div>
+															<div class="form-group">
+																<label><strong>Second Payment Amount</strong></label> <input
+																	type="text" class="form-control" id="firstAmount"
+																	onkeyup="getReturnAmount();checkNum('firstAmount');">
+															</div>
+
+														</div>
+
+													</div>
+													<div class="row">
+														<div class="col-lg-6">
+															<div class="form-group">
+																<label><strong>Payment Date</strong></label> <input
+																	type="text" class="form-control" readonly
+																	id="trnscDate">
+															</div>
+															<div class="form-group">
+																<label>Return Amount</label> <input type="text"
+																	class="form-control" id="rutAmt" value="00.00" readonly>
+															</div>
+														</div>
+														<div class="col-lg-6" id="transcTR">
+															<div class="form-group">
+																<label><strong>Transaction Number</strong></label> <input
+																	onkeyup="checkTransactionId();" type="text"
+																	class="form-control" id="trnscId">
+															</div>
+															<div class="form-group">
+																<label><strong>POS Number</strong></label> <input
+																	type="hidden" id="posNumber"> <input
+																	onkeyup="posAutoComplete();" type="text"
+																	class="form-control" id="posNo">
+																<div id="suggesstion-box"></div>
+															</div>
+
+														</div>
+													</div>
+												</td>
+
+											</tr>
+											<!-- <tr id="pPaymentTR">
+												<td colspan="2">
+												<div class="row">
+														<div class="col-lg-6">
+															<div class="form-group">
+																<label><strong>First Payment Mode</strong></label> <select
+																	class="form-control" id="firstPaymentId1" disabled>
+																	<option value="">--Select--</option>
+																	<option th:each="c:${payModeList}" th:value='${c.key}'
+																		th:text="${c.name}" th:selected="${c.key=='PMOD002'}"></option>
+																</select>
+															</div>
+															<div class="form-group">
+																<label><strong>First Payment Amount</strong></label> <input
+																	type="text" class="form-control" 
+																	id="firstAmount1" onkeyup="getReturnAmount1()">
+															</div>
+															
+														</div>
+														<div class="col-lg-6">
+															<div class="form-group">
+																<label><strong>Second Payment Mode</strong></label> <select
+																	class="form-control" id="SecondPaymentId1">
+																	<option value="">--Select--</option>
+																	<option th:each="c:${payModeList}" th:value='${c.key}'
+																		th:text="${c.name}"></option>
+																</select>
+															</div>
+															<div class="form-group">
+																<label><strong>Second Payment Amount</strong></label>
+																<input type="text" class="form-control" id="secondPayAmount1" onkeyup="getReturnAmount1()">
+															</div>
+															
+
+														</div>
+
+													</div>
+													<div class="row">
+														<div class="col-lg-6">
+															<div class="form-group">
+																<label><strong>Payment Date</strong></label> <input
+																	type="text" class="form-control" readonly
+																	id="trnscDate1">
+															</div>
+															<div class="form-group">
+																<label>Return Amount</label> <input type="text"
+																	class="form-control" id="rutAmt1" value="00.00" readonly>
+															</div>
+														</div>
+														<div class="col-lg-6" id="transcTR1">
+															<div class="form-group" >
+																<label><strong>Transaction Number</strong></label> <input
+																	onkeyup="checkTransactionId();" type="text"
+																	class="form-control" id="trnscId1">
+															</div>
+															<div class="form-group">
+																<label><strong>POS Number</strong></label> <input
+																	type="hidden" id="posNumber1"> <input
+																	onkeyup="posAutoComplete1();" type="text"
+																	class="form-control" id="posNo1">
+																<div id="suggesstion-box1"></div>
+															</div>
+															
+														</div>
+													</div> 
+												</td>
+											</tr> -->
+											<tr>
+												<td colspan="2"></td>
+											</tr>
+											<tr>
+												<td colspan="2" align="center">
+													<div class="modal-footer">
+														<button type="button" class="btn btn-success"
+															data-dismiss="modal" onclick="confirmPay();">Submit</button>
+														<button type="button" class="btn btn-warning"
+															onclick="cancel();" data-dismiss="modal">Close</button>
+													</div>
+												</td>
+
+											</tr>
+										</table>
+									</div>
+								</form>
+							</div>
+							<div style="clear: both;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /# row -->
+		</div>
+	</div>
+</body>
+</html>

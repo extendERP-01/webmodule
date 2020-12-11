@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<title>Invoice Preview</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+.maintbl tr td {
+	/*border: 1px solid black;*/
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.theader-padding {
+	padding: 10px;
+}
+
+.wrapper {
+	margin: 0 auto;
+	width: 100%;
+	padding: 20px 40px;
+	position: relative;
+}
+
+.paid-red {
+	position: absolute;
+	right: 0px;
+	top: 0;
+	z-index: 9999;
+}
+/* .header{
+  height: 130px;
+} */
+/* .logo{
+  float: left;
+} */
+.hrline {
+	border: 2px solid #cccccc;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.tableheader {
+	padding: 5px;
+	color: #418AB3;
+	font-weight: 600;
+	background-color: darkgray;
+}
+
+.bill {
+	text-align: center;
+	color: #fff !important;
+}
+
+.bill1 {
+	text-align: center;
+	color: #333 !important;
+}
+
+.invoicedate {
+	color: #fff;
+	text-align: left;
+	padding: 5px;
+}
+
+.mailing {
+	height: 100px;
+	padding: 10px;
+	color: #fff;
+	text-align: right;
+}
+
+.strip2 {
+	width: 800px;
+	padding-left: 17px;
+	font-size: 14px;
+	color: #418ab3;
+	text-align: center;
+	margin: 19px;
+}
+
+.td-border {
+	border-bottom: 1px solid #BABABA;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.text-style {
+	color: #3B494A;
+	font-size: 12px;
+	padding: 10px;
+}
+
+.pdt {
+	padding: 4px;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	padding: 13px;
+	text-align: center
+}
+
+.text-style2 {
+	background-color: #f2f2f2;
+	padding: 10px;
+	color: #373757;
+}
+
+.btn-danger {
+	color: #fff !important;
+	background: #d9534f !important;
+	box-shadow: none !important;
+}
+</style>
+<script>
+	const ipAPI = 'https://api.ipify.org?format=json'
+	$(document).ready(checkIsPump);
+	$(document).ready(gstShow);
+	//for cancel button 
+	function cancel() {
+		window.location.href = "/sales/list-deliveryChalan";
+	}
+	//for  print   in pdf
+	function confirmPrint() {
+		var challanNo = $("#challanNo").val();
+		window.open("/download/delivery-challan-invoice-pdf?id="
+				+ window.btoa(challanNo), '_blank');
+
+	}
+	function checkIsPump() {
+
+		var isPumUsed = $("#isPumUsed").val();
+		if (isPumUsed) {
+			$('#pumpTR').show();
+		} else {
+			$('#pumpTR').hide();
+		}
+	}
+
+	function gstShow() {
+		var taxType = $("#taxType").val();
+		if (taxType==true) {
+			$('#IgstTR').show();
+			$('#CgstTR').hide();
+			$('#SgstTR').hide();
+		} else {
+			$('#IgstTR').hide();
+			$('#CgstTR').show();
+			$('#SgstTR').show();
+		}
+	}
+</script>
+
+
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap ">
+			<div class="content-wrap">
+				<div class="main mrt_20">
+					<div class="col-md-12">
+						<ol class="breadcrumb breadcrumb-arrow">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="view-gym-transaction">Invoice Of Gym
+									Service Used</a></li>
+
+						</ol>
+					</div>
+					<div class="card-title">
+						<h4>Invoice Of Service Used</h4>
+					</div>
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<form th:object="${deliveryChallanInvoiceModel}">
+									<div class="containersec">
+										<div class="wrapper">
+
+											<table cellpadding="0" cellspacing="0">
+
+												<tr bgcolor="">
+													<td width="150"><img
+														src="../assets/images/logo.png" height="150" width="150" /></td>
+													<td class="bill1" style="font-size: 20px">INVOICE
+														PREVIEW</td>
+												</tr>
+
+												<tr bgcolor="595959">
+												 <td colspan="2">
+												     <table  width="100%" style="text-align:center">
+												     <tr>
+												     <td class="invoicedate" >INVOICE NO : <span
+														th:text="${deliveryChallanInvoiceModel[0].invoiceNo}"></span></td>
+												     <td class="invoicedate">DATE : <span
+														th:text="${deliveryChallanInvoiceModel[0].date}"></span></td>
+												     <td class="invoicedate">Challan No : <span
+														th:text="${deliveryChallanInvoiceModel[0].challanNo}"></span></td>
+												     </tr>
+												     </table>
+												 </td>
+													 
+												</tr>
+
+												<tr>
+													<td colspan="2">
+														<table width="100%" bgcolor="#F2F2F2"
+															style="padding-bottom: 30px; padding-top: 10px;">
+
+															<tr>
+																<td width="150" class="mailing" bgcolor="88BBD7"
+																	valign="top">MAILING INFO</td>
+																<td width="250">
+																	<div class="pdt">
+																		<b class="text-style">Gym Name:</b><span
+																			th:text="${deliveryChallanInvoiceModel[0].customerName}"></span>
+																	</div>
+																	<div class="pdt">
+																		<b class="text-style">Address:</b><span
+																			th:text="${deliveryChallanInvoiceModel[0].custAdress}"></span>
+																	</div>
+																	<div class="pdt">
+																		<b class="text-style"> Phone no:</b><span
+																			th:text="${deliveryChallanInvoiceModel[0].phone}"></span>
+																	</div>
+																	<div class="pdt">
+																		<b class="text-style">GMail:</b><span
+																			th:text="${deliveryChallanInvoiceModel[0].email}"></span>
+																	</div>
+
+																</td>
+
+																<td width="150" class="mailing" bgcolor="BABABA"
+																	valign="top">BILL T0</td>
+
+																<td width="250">
+																	<div class="pdt">
+																		<b class="text-style">Name:</b><span
+																			th:text="${deliveryChallanInvoiceModel[0].customerName}"></span>
+																	</div>
+
+																	<div class="pdt">
+																		<b class="text-style"> Address:</b><span
+																			th:text="${deliveryChallanInvoiceModel[0].custAdress}"></span>
+																	</div>
+
+																	<div class="pdt">
+																		<b class="text-style">GMail:</b><span
+																			th:text="${deliveryChallanInvoiceModel[0].email}"></span>
+																	</div>
+																	<div class="pdt">
+																		<b class="text-style">Phone:</b><span
+																			th:text="${deliveryChallanInvoiceModel[0].phone}"></span>
+																	</div>
+																</td>
+															</tr>
+
+														</table>
+													</td>
+												</tr>
+												<tr style="border-top: 10px solid #FFF;">
+													<td colspan="2"><input type="hidden" id="challanNo"
+														th:value="${deliveryChallanInvoiceModel[0].challanNo}" />
+														<input type="hidden" id="taxType"
+														th:value="${deliveryChallanInvoiceModel[0].taxType}" /> <input
+														type="hidden" id="isPumUsed"
+														th:value="${deliveryChallanInvoiceModel[0].isPumUsed}" />
+													</td>
+												</tr>
+												<tr>
+
+													<td colspan="2">
+
+														<table id="id_td" class="maintbl" cellpadding="0"
+															cellspacing="0" style="width: 100%;">
+															<thead>
+																<tr>
+																	<th class="tableheader" width="500" align="left">SL
+																		No.</th>
+																	<th class="tableheader" width="500" align="left">ITEM
+																		NAME</th>
+																	<th class="tableheader" width="500" align="left">Quantity</th>
+																	<th class="tableheader" width="500" align="left">PRICE</th>
+																	<th class="tableheader" width="500" align="left">TOTAL</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr
+																	th:each="other,iter : ${deliveryChallanInvoiceModel}">
+																	<td class="td-border td-border-right"
+																		th:text=" ${iter.index+1}"></td>
+
+																	<td class="td-border td-border-right"
+																		th:text="${other.itemName}"></td>
+
+																	<td class="td-border td-border-right"
+																		th:text="${ other.Quantity } "></td>
+																	<td class="td-border td-border-right"
+																		th:text="${#numbers.formatDecimal(other.price, 0, 'COMMA', 2, 'POINT')}"></td>
+																	<td class="td-border td-border-right"
+																		th:text="${#numbers.formatDecimal(other.totalPrice, 0, 'COMMA', 2, 'POINT')}"></td>
+																</tr>
+															</tbody>
+														</table>
+													</td>
+
+
+												</tr>
+												<tr bgcolor="#F2F2F2" style="border-top: 10px solid #FFF;">
+													<td colspan="2">
+
+														<table>
+															<tr>
+																<td width="470px;" style="padding: 10px;">
+																<td align="center" width="200"></td>
+																<td width="250">
+																	<table cellpadding="0" cellspacing="0" width="235">
+																		<tr>
+																			<td width="115" style="color: #418AB3;"><b>SUB
+																					TOTAL</b></td>
+
+																			<td width="130"><span style="border: none"
+																				id="subtotalamount"
+																				th:text="${#numbers.formatDecimal(deliveryChallanInvoiceModel[0].subTotal, 0, 'COMMA', 2, 'POINT')} "></span></td>
+																		</tr>
+																		<tr>
+																			<td width="115" style="color: #418AB3;"><b>DISCOUNT</b></td>
+
+																			<td th:if="${deliveryChallanInvoiceModel[0].discount!=0.0} "><span style="border: none;" id="discount"
+																				th:text="${#numbers.formatDecimal(deliveryChallanInvoiceModel[0].discount, 0, 'COMMA', 2, 'POINT')} "></span></td>
+																			<td th:unless="${deliveryChallanInvoiceModel[0].discount!=0.0} "><span style="border: none;" id="discount">0.00</span></td>
+
+
+																		</tr>
+																		<!-- <tr id="pumpTR">
+																			<td width="115" style="color: #418AB3;"><b>PUMP
+																					PRICE</b></td>
+
+																			<td><span style="border: none;" id="pumpprice"
+																				th:text="${#numbers.formatDecimal(deliveryChallanInvoiceModel[0].pumpPrice, 0, 'COMMA', 2, 'POINT')} "></span></td>
+
+
+																		</tr> -->
+
+																		<tr id="CgstTR">
+																			<td width="115" style="color: #418AB3;"><b>CGST</b></td>
+
+																			<td width="130"><span style="border: none"
+																				id="cgst"
+																				th:text="${deliveryChallanInvoiceModel[0].cgst}"></span></td>
+																		</tr>
+
+																		<tr id="SgstTR">
+																			<td width="115" style="color: #418AB3;"><b>SGST</b></td>
+
+																			<td width="130"><span style="border: none"
+																				id="sgst"
+																				th:text="${deliveryChallanInvoiceModel[0].sgst}"></span></td>
+																		</tr>
+
+																		<tr id="IgstTR">
+																			<td width="115" style="color: #418AB3;"><b>IGST</b></td>
+
+																			<td width="130"><span style="border: none"
+																				id="igst"
+																				th:text="${deliveryChallanInvoiceModel[0].igst}"></span></td>
+																		</tr>
+
+																		<tr>
+																			<td width="115" style="color: #418AB3;"><b>GRAND
+																					TOTAL</b></td>
+
+																			<td width="130"><span style="border: none"
+																				id="grandtamt"
+																				th:text="${#numbers.formatDecimal(deliveryChallanInvoiceModel[0].grandTotal, 0, 'COMMA', 2, 'POINT')}"></span></td>
+
+																		</tr>
+
+																	</table>
+															</tr>
+
+
+														</table>
+													</td>
+												</tr>
+
+												<tr style="border-top: 10px solid #FFF;">
+													<td colspan="2">
+														<div class="strip2">
+															<b>THANKYOU FOR YOUR BUSINESS</b>
+														</div>
+													</td>
+												</tr>
+
+
+												<tr>
+													<td colspan="2" align="center">
+														<div class="modal-footer">
+															<button type="button" class="btn btn-primary"
+																data-dismiss="modal" onclick="confirmPrint();">Print</button>
+															<button type="button" class="btn btn-danger"
+																data-dismiss="modal" onclick="cancel();">Close</button>
+														</div>
+													</td>
+												</tr>
+
+											</table>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div style="clear: both;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /# row -->
+		</div>
+	</div>
+</body>
+</html>

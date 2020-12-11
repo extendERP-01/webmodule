@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	function validateForm() {
+
+		if (!blankValidation("subGroupName", "TextField","Subgroup name can not be left blank"))
+			return false;
+		 if (!blankValidation("groupName", "SelectBox","Group type can not be left blank"))
+			return false; 
+		if (!blankValidation("groupNameDesc", "TextField","Subgroup desc can not be left blank"))
+			return false;
+
+	}
+	
+function gotoview() {
+	window.location.href="/master/view-subgroup-master";
+}
+</script>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		
+
+		<ol class="breadcrumb breadcrumb-arrow">
+			<li><a href="index.html">Home</a></li>
+			<li class="active"><span>Add Account Sub-Group </span></li>
+			<!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+		</ol>
+			<div class="card-title">
+				<h4>Account Sub-Group </h4>
+			</div>
+			<div class="card">
+				<div class="card-body">
+					<div class="basic-elements">
+						<form th:action="@{add-subgroup-master}"
+							th:object="${GroupType}" method="post" class="GroupType"
+							onsubmit="return validateForm();" autocomplete='off'>
+							<input type="hidden" th:field="*{subGroupId}" />
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Account Sub-Group Name </label> <input type="text"
+											class="form-control" th:id="subGroupName"
+											th:field="*{subGroupName}" th:name="subGroupName"
+												onkeyup="checkAlphabetAndNumber('subGroupName')">
+									</div>
+									<div class="form-group">
+										<label>Group Type</label> <select class="form-control"
+										th:field="*{groupName}">
+										<option th:value="NULL">--Select--</option>
+										<option th:each="c:${grouplist}" th:value='${c.key}'
+											th:text="${c.name}" th:selected="${c.key==groupName}"></option>
+									</select>
+									</div>
+
+									<div class="form-group">
+										<label>Description</label>
+										<textarea class="form-control textarea"
+											th:id="groupNameDesc" th:field="*{groupNameDesc}"
+											th:name="groupNameDesc">
+                        </textarea>
+									</div>
+									<button type="submit" class="btn btn-success">Submit</button>
+									<button type="reset" onclick="gotoview();" value="Reset" class="btn btn-warning">Cancel</button>
+</div>
+						</div>
+					</form>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+	</div>
+</div>
+
+
+</html>

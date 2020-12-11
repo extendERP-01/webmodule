@@ -1,0 +1,247 @@
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+
+
+<title>Sales Ledger Report</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+@page {size: landscape}
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+}
+
+.logotext {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+}
+
+.heading {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.slogan {
+	font-size: 14px;
+	color: #f26304;
+	padding: 5px;
+}
+
+.containersec {
+	width: 800px;
+	margin: 0 auto;
+}
+
+.address {
+	font-size: 14px;
+	text-align: left;
+	padding-right: 120px;
+}
+
+.maintbl tr td {
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+}
+
+.total {
+	background: #f9965a;
+	color: #FFF;
+	padding: 8px 5px;
+	text-align: left;
+	font-weight: bold;
+}
+
+.description {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+}
+
+.points {
+	padding: 20px 0px;
+	line-height: 26px;
+}
+
+.points span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+	padding: 5px 10px;
+	border-radius: 12px;
+	margin: 3px;
+}
+
+.bill {
+	color: #000;
+	text-align: right;
+	font-size: 18px;
+	font-weight: bold;
+	width: 690px;
+}
+
+.strip2 {
+	margin-top: 60px;
+	width: 800px;
+	height: 20px;
+	padding: 2px;
+	text-align: center;
+	background-color: #d0e6f8;
+	margin-bottom: 12px;
+}
+
+.lefttag {
+	width: 160px;
+	float: left;
+	text-align: right;
+	padding: 5px;
+}
+
+.righttag {
+	text-align: left;
+	padding: 5px;
+}
+
+.note {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.clearfix {
+	clear: both;
+}
+</style>
+</head>
+<body >
+	<div class="containersec">
+		<table width="800" height="100%">
+			<tr>
+				<td colspan="2"><div class="bill">Sales Ledger Report</div></td>
+			</tr>
+			<tr>
+				<td valign="top"><img th:src="@{classpath:static/assets/images/login_img/extend.png}" height="50" width="150" /></td>
+				<td align="left" class="address" width="40">
+
+
+					<div class="clearfix"></div>
+					<!-- <div class="lefttag">
+						Printed Date :<span th:text="${currdate}"></span>
+					</div> -->
+
+
+				</td>
+
+
+			</tr>
+			<tr>
+				<td colspan="3" bgcolor="#cedefd">
+					<table width="800">
+						<tr>
+							<td th:if="${not #lists.isEmpty(dateFrom)}">
+								<div>
+									Date From: <span th:text="${dateFrom}"></span>
+								</div>
+							</td>
+							<td th:if="${not #lists.isEmpty(dateTo)}">
+								<div>
+									Date To: <span th:text="${dateTo}"></span>
+								</div>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2"></td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<table width="800" class="maintbl">
+						<thead>
+
+
+							<tr>
+								<th class="tableheader">Sl. No.</th>
+								<th class="tableheader">Invoice Id</th>
+								<th class="tableheader">Date</th>
+								<th class="tableheader">Customer Name</th>
+								<th class="tableheader">Address</th>
+								<th class="tableheader">GSTIN No.</th>
+								<th class="tableheader">CGST</th>
+								<th class="tableheader">SGST</th>
+								<th class="tableheader">IGST</th>
+								<th class="tableheader">Amount</th>
+								<th class="tableheader">Total Amount</th>
+							</tr>
+						</thead>
+						<tbody th:if="${not #lists.isEmpty(salesLedger)}">
+							<tr th:each="lists,iter : ${salesLedger}">
+								<td bgcolor="#F5F5F5" th:text="${iter.index+1}"></td>
+								<td bgcolor="#F5F5F5" th:text="${lists.tRVcInvoiceId}"></td>
+								<td bgcolor="#F5F5F5" th:text="${lists.createdOn}"></td>
+								<td bgcolor="#F5F5F5" th:text="${lists.tPaidFromCustomer}"></td>
+								<td bgcolor="#F5F5F5" th:text="${lists.tRVcPaymentFor}"></td>
+								<td bgcolor="#F5F5F5" th:text="${lists.tRVcOrderNo}"></td>
+								<td bgcolor="#F5F5F5" th:text="${lists.tRVcCGST}"></td>
+								<td bgcolor="#F5F5F5" th:text="${lists.tRVcSGST}"></td>
+								<td bgcolor="#F5F5F5" th:text="${lists.tRVcIGST}"></td>
+								<td bgcolor="#F5F5F5" th:text="${lists.tRVcTaxableAmount}"></td>
+								<td bgcolor="#F5F5F5" th:text="${lists.tRVcTotalAmount}"></td>
+							</tr>
+						</tbody>
+						<tbody th:unless="${not #lists.isEmpty(salesLedger)}">
+							<tr>
+								<td colspan="11" align="center" bgcolor="#F5F5F5">No Record
+									Found</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+
+			<tr>
+
+
+
+			</tr>
+
+			<tr>
+				<td colspan="3"></td>
+			</tr>
+			<!-- <tr>
+				<td colspan="2" class="strip2" align="center" valign="bottom">
+					<strong>Thank You For Your Business</strong>
+				</td>
+			</tr> -->
+
+		</table>
+	</div>
+</body>
+</html>

@@ -1,0 +1,321 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+table th:last {
+	width: 200px!important;
+}
+table td:last {
+	width: 200px!important;
+}
+</style>
+<script>
+//Deleting the asset detail
+const ipAPI = 'https://api.ipify.org?format=json'
+	function deleteAsset(id){
+	 //var data = id.split(",");
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			/* confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : '<i class="fa fa-thumbs-down">&nbsp;Cancel</i>',
+			cancelButtonAriaLabel : 'Thumbs down', */
+	
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/property/view-assetcode-delete?id=" + id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+	
+	
+function viewInModelData(index){
+	$('#table1').empty();
+	$.ajax({			type : "POST",
+				url : "view-assetcode-modal",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : index,
+				success : function(response) {
+					if (response.message == "success")
+					{
+						console.log(response.body.workingStatus);
+						var assetactive = "";
+						if (response.body.workingStatus)
+						{
+							workingStatus = "Active";
+						}
+						else 
+						{
+							workingStatus = "InActive";
+				        }
+						
+						console.log(response.body.assetactive);
+						var assetactive = "";
+						if (response.body.assetactive)
+						{
+							assetactive = "Active";
+						}
+						else 
+						{
+							assetactive = "InActive";
+				        }
+						
+		table =   table = '<tr><td>Store :</td>'+'<td align="left">'
+		+response.body.store+'</td><tr><td>Classification :</td>'+'<td align="left">'
+		+response.body.className+'</td><tr><td>Item Name :</td>'+'<td align="left">'
+	    +response.body.item+'</td>'+'</tr><tr><td>Serial No.:</td><td align="left">'
+		+response.body.tSerialNo+'</td></tr><tr><td>Asset Code:</td><td align="left">'
+		+response.body.assetCodeName+'</td></tr><tr><td>Description :</td>'+'<td align="left">'
+		+response.body.description+'</td>'+'</tr><tr><td>Date Of Purchase :</td>'+'<td align="left">'
+		+response.body.dop+'</td>'+'</tr><tr><td>GRN :</td>'+'<td align="left">'
+		+response.body.grn+'</td>'+'</tr><tr><td>Guarantee Period :</td>'+'<td align="left">'
+		+response.body.grrnty+'</td>'+'</tr><tr><td>Brand Name :</td>'+'<td align="left">'
+		+response.body.brndNm+'</td>'+'</tr><tr><td>Customer PhoneNo :</td>'+'<td align="left">'
+		+response.body.custPhone+'</td>'+'</tr><tr><td>Customer Email :</td>'+'<td align="left">'
+		+response.body.custEmail+'</td>'+'</tr><tr><td>Working Status :</td>'+'<td align="left">'
+		+workingStatus+'</td> '+'</tr><tr><td>Status :</td>'+'<td align="left">'
+		+assetactive+'</td></tr>';
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+
+		}
+</script>
+<script type="text/javascript">
+
+	$(document).ready(function() {			
+		$('#assettbl').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-assetcode-throughajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				}
+			},
+			'dataSrc' : "",
+		'columns' : [
+			{'data' : 'store'},
+			{'data' : 'item'},
+			{'data' : 'tSerialNo'},
+			{'data' : 'assetCodeName'},
+			{'data' : 'dop'},
+			{'data' : 'grrnty'},
+			{'data' : 'brndNm'},
+			{'data' : 'custPhone'},
+			{'data' : 'custEmail'},
+			{'data' : 'workingStatusName'},
+			{'data' : 'assetStatus'},
+			{'data' : 'action'}
+				]	
+		});
+	  });
+
+function searchData() {
+	$('#assettbl').DataTable().draw();
+}	
+</script>  
+
+</head>
+<div layout:fragment="content">
+ <div class="content-wrap">
+        <div class="main mrt_20">
+            <div class="col-md-12">
+                <ol class="breadcrumb breadcrumb-arrow">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a th:href="@{/property/add-assetcode}">Genrate AssetCode</a></li>
+                    <li class="active"><span>View AssetCode</span></li>
+                </ol>
+            </div>
+            <div class="card-title">
+                <h4>View AssetCode </h4>
+            </div>
+            <div class="container-fluid">
+                <div class="card">
+                        <div class="search-field">
+                        <div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-assetcode">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label>Asset Code</label>
+                                
+                                    <input id="param1" class="form-control" type="text" placeholder="" name="">
+                                </div>
+                                <div class="col-md-2 mrt_10">
+                                    <div class="form-group filtersearch">
+                                       <button class="btn btn-info" onclick="searchData()">Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div class="table-responsive" style="width:100%;">
+                            <table id="assettbl" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Store</th>
+                                        <th>Item Name</th>
+                                          <th>Serial No.</th>
+                                        <th>Asset Code</th>
+                                        <th>Date Of Purchase</th>
+                                        <th>Guarantee Period</th>
+                                        <th>Brand Name</th>
+                                        <th>Customer PhoneNo</th>
+                                        <th>Customer Email</th>
+                                        <th>WorkingStatus Name</th>
+                                        <th>Status</th>
+                                        <th align="center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                       
+                                        <td>
+                                             <a data-toggle="modal" data-target="#myModal"><i class="fa fa-search search"></i></a>
+                                            <i class="fa fa-edit edit"></i>
+                                            <i class="fa fa-trash trash"></i>
+                                        </td>
+                                    </tr>
+                                   
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="clear:both;"></div>
+                   
+                </div>
+            </div>
+        </div>
+        <!-- Modal Start-->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content" style="width: 750px;">
+                    <div class="modal-header">
+                        <h4 class="modal-title">ViewDetails of AssetCode</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <table width="100%" border="0" id="table1">
+                          <!--   <tr>
+                                <td>Item Name :</td>
+                                <td align="left">AC</td>
+                            </tr>
+                            <tr>
+                                <td>Assetcode:</td>
+                                <td align="left">Ass1234</td>
+                            </tr>
+                            <tr>
+                                <td>Description:</td>
+                                <td align="left">send me 10kg brown rice</td>
+                            </tr>
+                            <tr>
+                                <td>Date Of Purchase:</td>
+                                <td align="left">2019-02-19 17:03:12</td>
+                            </tr>
+                            <tr>
+                                <td>GuarrentyPeriod:</td>
+                                <td align="left">2020-02-19 17:03:12</td>
+                            </tr>
+                            <tr>
+                                <td>Brand Name:</td>
+                                <td align="left">LG</td>
+                            </tr>
+                            <tr>
+                                <td>Customer PhoneNo:</td>
+                                <td align="left">9787877777</td>
+                            </tr>
+                            <tr>
+                                <td>Customer Email:</td>
+                                <td align="left">nirmalyalabs@gmail.com</td>
+                            </tr>
+                            <tr>
+                                <td>Status:</td>
+                                <td align="left">Active</td>
+                            </tr> -->
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal End-->
+    </div>
+</div>
+</html>

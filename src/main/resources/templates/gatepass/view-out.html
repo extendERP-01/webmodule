@@ -1,0 +1,504 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<!-- BOLT Sandbox/test //-->
+<script id="bolt"
+	src="https://sboxcheckout-static.citruspay.com/bolt/run/bolt.min.js"
+	bolt- color="e34524"
+	bolt-logo="http://boltiswatching.com/wp-content/uploads/2015/09/Bolt-Logo-e14421724859591.png"></script>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 310px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+	//View 'Quotation Master' Modal Function
+	function viewInModel(index) {
+		$('#table1').empty();
+		$('#table2').empty();
+		$.ajax({
+			type : "POST",
+			url : "view-gate-out-modal",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : index,
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response.body);
+					
+					if (response.body[0].vehicleAsset == "OTH123") {
+						response.body[0].vehicleNo = "Other Vehicle";
+						response.body[0].driverName = "N/A";
+					}
+					
+					var weightType = "";
+					if (response.body[0].weightType == 1) {
+						weightType = "Container Wise";
+					} else if (response.body[0].weightType == 2) {
+						weightType = "Unit Wise";
+					}
+					var passType = "";
+					if (response.body[0].passType == 1) {
+						passType = "Gate In";
+					} else if (response.body[0].passType == 2) {
+						passType = "Gate Out";
+					}
+					if (response.body[0].pOrder == "" || response.body[0].pOrder == null) {
+						response.body[0].pOrder = "N/A";
+					}
+					if (response.body[0].runningKM == "" || response.body[0].runningKM == null) {
+						response.body[0].runningKM = "- -";
+					}
+					if (response.body[0].frontHR == "" || response.body[0].frontHR == null) {
+						response.body[0].frontHR = "- -";
+					}
+					if (response.body[0].backHR == "" || response.body[0].backHR == null) {
+						response.body[0].backHR = "- -";
+					}
+					if (response.body[0].exitTime == "" || response.body[0].exitTime == null) {
+						response.body[0].exitTime = "- -";
+					}
+					span = '<tr><td>Gate Pass : </td><td>'
+							+ response.body[0].gatePass
+							+ '</td></tr>'
+							+ '<tr><td>Purchase Order : </td><td>'
+							+ response.body[0].pOrder
+							+ '</td></tr>'
+							+ '<tr><td>GRN : </td><td>'
+							+ response.body[0].grn
+							+ '</td></tr>'
+							+ '<tr><td>Weight Type : </td><td>'
+							+ weightType
+							+ '</td></tr>'
+							+ '<tr><td>Out Date : </td><td>'
+							+ response.body[0].outDate
+							+ '</td></tr>'
+							+ '<tr><td>Out Time : </td><td>'
+							+ response.body[0].outTime
+							+ '</td></tr>'
+							+ '<tr><td>Reference Gate Pass : </td><td>'
+							+ response.body[0].refGatePassNo
+							+ '</td></tr>'
+							+ '<tr><td>Branch : </td><td>'
+							+ response.body[0].store
+							+ '</td></tr>'
+							+ '<tr><td>Pass Type : </td><td>'
+							+ passType
+							+ '</td></tr>'
+							+ '<tr><td>Vendor : </td><td>'
+							+ response.body[0].vendor
+							+ '</td></tr>'
+							+ '<tr><td>Challan No : </td><td>'
+							+ response.body[0].challanNo
+							+ '</td></tr>'
+							+ '<tr><td>Vehicle No : </td><td>'
+							+ response.body[0].vehicleNo
+							+ '</td></tr>'
+							+ '<tr><td>RST No : </td><td>'
+							+ response.body[0].rstNo
+							+ '</td></tr>'
+							+ '<tr><td>Driver Name : </td><td>'
+							+ response.body[0].driverName
+							+ '</td></tr>'
+							+ '<tr><td>Running KM : </td><td>'
+							+ response.body[0].runningKM
+							+ '</td></tr>'
+							+ '<tr><td>Front Hour : </td><td>'
+							+ response.body[0].frontHR
+							+ '</td></tr>'
+							+ '<tr><td>Back Hour : </td><td>'
+							+ response.body[0].backHR
+							+ '</td></tr>'
+							+ '<tr><td>Gross : </td><td>'
+							+ response.body[0].gross
+							+ '</td></tr>'
+							+ '<tr><td>Tare : </td><td>'
+							+ response.body[0].tare
+							+ '</td></tr>'
+							+ '<tr><td>Return Date : </td><td>'
+							+ response.body[0].returnDate
+							+ '</td></tr>'
+							+ '<tr><td>Return Time : </td><td>'
+							+ response.body[0].returnTime
+							+ '</td></tr>'
+							+ '<tr><td>Remarks : </td><td>'
+							+ response.body[0].remarks
+							+ '</td></tr>'
+							+ '<tr><th><b>Details Of Gate Pass Items</b></th></tr>';
+							
+					$('#myModal').modal('show');
+					$('#table1').append(span);
+					table2 = '<tr><th><b>Item Name</b></th><th><b>Item Code</b></th><th><b>Client Net Qty</b></th>'
+							+ '<th><b>Actual Qty</b></th><th><b>Serve Type</b></th></tr>';
+					$('#myModal').modal('show');
+					$('#table2').append(table2);
+					for (var i = 0; i < response.body.length; i++) {
+						table = '<tr><td>' + response.body[i].itemName
+								+ '</td><td>'
+								+ response.body[i].itemCode
+								+ '</td><td>'
+								+ response.body[i].clientNetQty
+								+ '</td><td>'
+								+ response.body[i].actualNetQty
+								+ '</td><td>'
+								+ response.body[i].serveType
+								+ '</td><td></tr>';
+						$('#myModal').modal('show');
+						$('#table2').append(table);
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+	function pdfGatePass(id) {
+		window.open("/gatepass/view-gatepass-pdf?id=" + id, '_blank');
+	}
+
+	//(document).ready() Starts
+	$(document).ready(function() {
+		$("#param4").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		});
+		$("#param5").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		});
+		$('#table').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-gate-out-through-ajax',
+				'data' : function(d) {
+
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+					d.param3 = $('#param3').val();
+					d.param4 = $('#param4').val();
+					d.param5 = $('#param5').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'gatePassOut'
+			}, {
+				'data' : 'passTypeName'
+			}, {
+				'data' : 'outDate'
+			}, {
+				'data' : 'outTime'
+			}, {
+				'data' : 'refGatePassNo'
+			}, {
+				'data' : 'challanNo'
+			}, {
+				'data' : 'returnDate'
+			}, {
+				'data' : 'returnTime'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+
+	});
+	//(document).ready() Ends
+
+	//Search Function
+	function searchData() {
+		$('#table').DataTable().draw();
+	}
+
+	//Quotation Master PDF Function
+	function pdfCreate(id) {
+		window.open("/download/view-quotation-master-one-pdf?id=" + id,
+				'_blank');
+	}
+
+	//Get Customer List Auto Search Function
+	function customerAutoComplete() {
+		$
+				.ajax({
+					type : "POST",
+					url : "add-quotation-master-getCustomerAutocompleteList  ",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#cName").val(),
+					success : function(response) {
+						if (response.message == "success") {
+
+							if (response.body.length != 0) {
+								$("#cName").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) {
+									content += '<li onClick="selectAutocompleteValue(\''
+											+ response.body[i].key
+											+ '\',\''
+											+ response.body[i].name
+											+ '\')">'
+											+ response.body[i].key
+											+ '('
+											+ response.body[i].name
+											+ ')'
+											+ '</li>';
+								}
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+
+							} else {
+								$("#cName").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteValue(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+	}
+
+	function selectAutocompleteValue(key, name) {
+		if (key) {
+			$("#param2").val(key);
+			$("#cName").val(name);
+			$("#cName").attr('data-procat', key);
+			$("#suggesstion-box").hide();
+		} else {
+			$("#param2").val("");
+			$("#cName").val("");
+			$("#cName").attr('data-procat', "");
+			$("#suggesstion-box").hide();
+		}
+	}
+
+	//Get Quotation List Auto Search Function
+	function quotationAutoComplete() {
+		$.ajax({
+			type : "POST",
+			url : "view-quotation-master-getQuotationList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#qNum").val(),
+			success : function(response) {
+				if (response.message == "success") {
+
+					if (response.body.length != 0) {
+						$("#qNum").css("background", "#FFF");
+						var content = '<ul id="autocomplete-list">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectQAutocomplete(\''
+									+ response.body[i].key + '\',\''
+									+ response.body[i].name + '\')">'
+									+ response.body[i].key + '</li>';
+						}
+						content += '</ul>';
+						$("#suggesstion-box1").show();
+						$("#suggesstion-box1").html(content);
+
+					} else {
+						$("#qNum").css("background", "#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectQAutocomplete(\'' + ''
+								+ '\',\'' + '' + '\')">' + "No Data Found"
+								+ '</li>';
+						content += '</ul>';
+						$("#suggesstion-box1").show();
+						$("#suggesstion-box1").html(content);
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+	function selectQAutocomplete(key, name) {
+		if (key) {
+			$("#param1").val(key);
+			$("#qNum").val(name);
+			$("#qNum").attr('data-procat', key);
+			$("#suggesstion-box1").hide();
+		} else {
+			$("#param1").val("");
+			$("#qNum").val("");
+			$("#qNum").attr('data-procat', "");
+			$("#suggesstion-box1").hide();
+		}
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li><a th:href="@{/gatepass/out}">Gate Pass Out</a></li>
+				<li class="active"><span>View Gate Out</span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>View Gate Pass</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+				<div class="search-field">
+					<div class="row">
+						<div class="col-md-1">
+							<div class="form-group">
+								<a class="btn btn-secondary" href="out">Create</a>
+							</div>
+						</div>
+						<div class="col-md-1">
+							<div class="form-group">
+								<button class="btn btn-info">Import</button>
+							</div>
+						</div>
+						<div class="col-md-1">
+							<div class="form-group">
+								<button class="btn btn-warning">
+									<i class="fa fa-download"> </i>
+								</button>
+							</div>
+						</div>
+						<div class="col-md-1"></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>Gate Pass</label> <input type="text" class="form-control"
+									id="param1">
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>Ref Pass Number</label> <input type="text"
+									class="form-control" id="param2">
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>Challan Number</label> <input type="text"
+									class="form-control" id="param3">
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>From Date</label> <input type="text" class="form-control"
+									id="param4" readonly>
+							</div>
+						</div>
+						<div class="col-lg-2">
+							<div class="form-group">
+								<label>To Date</label> <input type="text" class="form-control"
+									id="param5" readonly>
+							</div>
+						</div>
+						<div class="col-lg-2" style="margin-top: 26px;">
+							<div class="form-group">
+								<button class="btn btn-primary" onclick="searchData()">Search</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table  table-bordered">
+							<thead>
+								<tr>
+									<th>Gate Pass</th>
+									<th>Out Pass Type</th>
+									<th>Out Date</th>
+									<th>Out Time</th>
+									<th>Reference Pass No.</th>
+									<th>Challan No.</th>
+									<th>Return Date</th>
+									<th>Return Time</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content" width="100%">
+					<div class="modal-header">
+						<h4 class="modal-title">Gate Pass Item Details</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+						</table>
+						<table width="100%" border="0" id="table2">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

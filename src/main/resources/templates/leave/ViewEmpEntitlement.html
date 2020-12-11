@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>  
+ 	$(document).ready(function() {	
+ 		$('#table').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-leave-entitlement-through-ajax',
+					'data' : function(d) { 
+						d.param1 = $('#empl').val();  
+					}
+				},
+				'dataSrc' : "",
+			'columns' : [
+				{'data' : 'empl'},
+				{'data' : 'leaveTypeName'},
+				{'data' : 'leavePeriodName'},
+				{'data' : 'totalLeaveDays'},
+				{'data' : 'totalPending'},
+				{'data' : 'totalApproved'},
+				{'data' : 'totalRejected'},
+				{'data' : 'totalCancelled'},
+				//{'data' : 'action'},
+					]	
+			});
+		  });
+	  
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="@{/index}">Home</a></li>
+					<li class="inactive"><a
+						th:href="@{/leave/view-leave-entitlement}">View Leave
+							Entitlement</a></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>List of Entitlement Leave</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div th:object="${leavelist}">
+						<input type="hidden" th:field="*{empl}" />
+					</div>
+					<div class="row">
+
+						<div class="table-responsive" style="width: 100%;">
+
+							<table id="table" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Employee Name</th>
+										<th>Leave Type Name</th>
+										<th>Leave period Name</th>
+										<th>Total Leave</th>
+										<th>Pending Leave</th>
+										<th>Approved Leave</th>
+										<th>Rejected Leave</th>
+										<th>Cancelled Leave</th>
+										<!--  <th>Action</th>  -->
+									</tr>
+								</thead>
+
+							</table>
+
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

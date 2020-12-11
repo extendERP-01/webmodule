@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<title>Sales Invoice</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.logotext {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+}
+table{
+width:100%;}
+
+.heading {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.slogan {
+	font-size: 14px;
+	color: #f26304;
+	padding: 5px;
+}
+
+.containersec {
+	width: 100%;
+	margin: 0 auto;
+}
+
+.address {
+	font-size: 14px;
+	text-align: left;
+	padding-right: 0px;
+	line-height: 16px;
+}
+
+div {
+	padding: 4px 0px;
+}
+table .sub-tbl{
+width:30%;}
+.maintbl tr td {
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.tableheader {
+	font-weight: bold;
+    color: #fff;
+    padding: 5px;
+    background: #5c2e14;
+}
+
+.resturantname {
+	font-size: 16px;
+	font-weight: bold;
+	color: #2d1ea5;
+}
+
+.total {
+	background: #f9965a;
+	color: #FFF;
+	padding: 8px 5px;
+	text-align: left;
+	font-weight: bold;
+}
+
+.description {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+}
+
+.points {
+	padding: 20px 0px;
+	line-height: 26px;
+}
+
+.points span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+	padding: 5px 10px;
+	border-radius: 12px;
+	margin: 3px;
+}
+
+.money {
+	text-align: right;
+}
+
+.bill {
+	color: #000;
+	text-align: right;
+	font-size: 18px;
+	font-weight: bold;
+	width: 600px;
+}
+
+.strip2 {
+	margin-top: 60px;
+	width: 800px;
+	height: 20px;
+	padding: 2px;
+	text-align: center;
+	background-color: #d0e6f8;
+	margin-bottom: 12px;
+}
+
+.lefttag {
+	width: 40px;
+	float: left;
+}
+
+.note {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.textarea {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.bold-color {
+	color: #5c2e14;
+}
+</style>
+<script type="text/javascript">
+//"View Sale Invoice" Default Page Open On Click 'Close' Button
+function cancel() {
+	window.location.href = "/sales/view-sale-invoice" ;
+}
+
+//Sale Invoice PDF Function
+function pdfCreation() {
+	var salesInvoice = $('#salesInvoice').val();
+	var id = window.btoa(salesInvoice);
+	window.open("/download/view-sale-invoice-one-pdf?id="+id,'_blank');
+}
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+			<div class="content-wrap">
+				<div class="main mrt_20">
+					<div class="col-md-12">
+						<ol class="breadcrumb breadcrumb-arrow">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="add-sale-invoice">Add Sales Invoice</a></li>
+
+						</ol>
+					</div>
+					<div class="card-title">
+						<h4>Sales Invoice</h4>
+					</div>
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<!-- <form th:object="${salesInvoice}" autocomplete="off"> -->
+									<div class="containersec">
+										<table  >
+											<tr>
+												<td colspan="2">
+													<input type="hidden" id="salesInvoice"
+													th:value="${salesInvoice[0].salesInvoice}" />
+												</td>
+											</tr>
+
+											<tr>
+												<td colspan="2">
+													<div class="bill">Sales Invoice</div>
+												</td>
+											</tr>
+											<tr>
+												<td><img th:src="${logoImage}" height="100px"/>
+												</td>
+												<td align="left" class="address" width="250">
+													<div class="resturantname"></div>
+													<div class="lefttag">Date :</div>
+													<div th:text="${salesInvoice[0].invoiceDate}"></div>
+												</td>
+											</tr>
+
+											<tr>
+												<td colspan="2" bgcolor="#5c2e14"></td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<table width="800" class="innertable">
+														<tr>
+															<td colspan="2">
+
+																<table class="sub-tbl">
+																	<tr>
+																		<td width="150px;"><label>Sales Invoice</label></td>
+																		<td width="200px;"><label id="salesInvoice"
+																			th:text="${salesInvoice[0].salesInvoice}"
+																			class="form-control quotationId"></label></td>
+																	</tr>
+																	<!-- <tr>
+																		<td width="150px;"><label>Purchase Order</label></td>
+																		<td width="200px;"><label id="purchaseOrder"
+																			th:text="${salesInvoice[0].purchaseOrder}"
+																			class="form-control quotationId"></label></td>
+																	</tr> -->
+																	<!-- <tr>
+																		<td width="150px;"><label>Quotation Number</label></td>
+																		<td width="200px;"><label id="quotationId"
+																			th:text="${salesInvoice[0].quotationId}"
+																			class="form-control quotationId"></label></td>
+																	</tr> -->
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td colspan="2">
+																<table id="id_td" class="maintbl" cellpadding="0"
+																	cellspacing="0" border="1" >
+																	<thead>
+																		<tr>
+																			<th class="tableheader">SL NO.</th>
+																			<th class="tableheader">ITEM NAME</th>
+																			<th class="tableheader">ITEM CODE</th>
+																			<th class="tableheader">PRICE</th>
+																			<th class="tableheader">QUANTITY</th>
+																			<th class="tableheader" th:if="${count > 0}">DISCOUNT</th>
+																			<th class="tableheader">GST</th>
+																			<th class="tableheader">CESS</th>
+																			<th class="tableheader">SERVE TYPE</th>
+																			<th class="tableheader">TOTAL</th>
+																		</tr>
+																	</thead>
+																	<tbody>
+																		<tr th:each="other,iter : ${salesInvoice}">
+																			<td th:text=" ${iter.index+1}"></td>
+																			<td th:text="${other.saleItem}"></td>
+																			<td th:text="${other.saleItemCode}"></td>
+																			<td class="money" th:text="${#numbers.formatDecimal(other.salePrice, 0, 'COMMA', 2, 'POINT')}"></td>
+																			<td th:text="${other.saleQuantity}"></td>
+																			<td class="money"  th:if="${other.saleDiscount==0 && count > 0}">0.00</td>
+																			<td class="money"  th:if="${other.saleDiscount!=0 && count > 0}" th:text="${#numbers.formatDecimal(other.saleDiscount, 0, 'COMMA', 2, 'POINT')}"></td>
+																			<td th:text="${other.gstRate}"></td>
+																			<td th:text="${other.itemCess}"></td>
+																			<td th:text="${other.sServeType}"></td>
+																			<td class="money" th:text="${#numbers.formatDecimal(other.saleAmount, 0, 'COMMA', 2, 'POINT')}"></td>
+																		</tr>
+																	</tbody>
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td width="120">
+																<div>
+																	<strong class="bold-color">Note</strong>
+																</div>
+																<div>
+																	<textarea class="form-control textarea"
+																		th:text="${salesInvoice[0].saleInvNote}" readOnly/></textarea>
+																</div>
+															</td>
+															<td width="50">
+																<table cellpadding="0" cellspacing="0" width="265">
+																	<tr>
+																		<td colspan="2" width="115"><b class="bold-color">SUB TOTAL</b></td>
+
+																		<td><input type="text" style="border: none"
+																			id="subtotal" class="form-control money"
+																			th:value="${#numbers.formatDecimal(salesInvoice[0].subTotal, 0, 'COMMA', 2, 'POINT')}" /></td>
+																	</tr>
+																	<tr th:if="${count > 0}">
+																		<td colspan="2" width="115"><b class="bold-color">DISCOUNT</b></td>
+
+																		<td><input type="text" style="border: none"
+																			id="totalDiscount" class="form-control money"
+																			th:value="${#numbers.formatDecimal(totalDiscount, 0, 'COMMA', 2, 'POINT')}" /></td>
+																	</tr>
+																	<tr id="IgstTR" th:if="${salesInvoice[0].gstType}">
+																		<td colspan="2" width="115"><b class="bold-color">IGST</b></td>
+
+																		<td width="130"><input type="text" 
+																			style="border: none" id="igst" class="form-control money"
+																			th:value="${#numbers.formatDecimal(salesInvoice[0].sIGST, 0, 'COMMA', 2, 'POINT')}" /></td>
+																	</tr>
+																	<tr id="CgstTR" th:if="${!salesInvoice[0].gstType}">
+																		<td colspan="2" id="getCGST" width="115"><b class="bold-color">CGST</b></td>
+
+																		<td width="130"><input type="text" 
+																			style="border: none" id="cgst" class="form-control money"
+																			th:value="${#numbers.formatDecimal(salesInvoice[0].sCGST, 0, 'COMMA', 2, 'POINT')}" /></td>
+																	</tr>
+
+																	<tr id="SgstTR" th:if="${!salesInvoice[0].gstType}">
+																		<td colspan="2" width="115"><b class="bold-color"
+																			>SGST</b></td>
+
+																		<td width="130"><input type="text" 
+																			style="border: none" id="sgst" class="form-control money"
+																			th:value="${#numbers.formatDecimal(salesInvoice[0].sSGST, 0, 'COMMA', 2, 'POINT')}" /></td>
+																	</tr>
+																	<tr th:unless="${salesInvoice[0].totalCess!=0.0}">
+																		<td colspan="2" width="115"><b class="bold-color">CESS</b></td>
+
+																		<td width="130"><input type="text"
+																			style="border: none" id="totalCess"
+																			class="form-control money" value="0.00"  /></td>
+
+																	</tr>
+																	<tr th:if="${salesInvoice[0].totalCess!=0.0}">
+																		<td colspan="2" width="115"><b class="bold-color">CESS</b></td>
+
+																		<td width="130"><input type="text"
+																			style="border: none" id="totalCess"
+																			class="form-control money" 
+																			th:value="${#numbers.formatDecimal(salesInvoice[0].totalCess, 0, 'COMMA', 2, 'POINT')}" /></td>
+
+																	</tr>
+																	<!-- <tr>
+																		<td colspan="2" width="115"><b>ADVANCE PAYMENT</b></td>
+
+																		<td width="130"><input type="text"  th:unless="${salesInvoice[0].advanceAmt!=0.0}"
+																			style="border: none" id="grandTotal"
+																			class="form-control money" value="0.00" />
+																			<input type="text" th:if="${salesInvoice[0].advanceAmt!=0.0}"
+																			style="border: none" id="grandTotal"
+																			class="form-control money"
+																			th:value="${#numbers.formatDecimal(salesInvoice[0].advanceAmt, 0, 'COMMA', 2, 'POINT')}" /></td>
+
+																	</tr> -->
+																	<tr>
+																		<td colspan="2" width="115"><b class="bold-color">GRAND TOTAL</b></td>
+
+																		<td width="130"><input type="text" 
+																			style="border: none" id="grandTotal"
+																			class="form-control money"
+																			th:value="${#numbers.formatDecimal(salesInvoice[0].grandTotal, 0, 'COMMA', 2, 'POINT')}" /></td>
+
+																	</tr>
+
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td colspan="2">
+
+																<table>
+
+																</table>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+											<tr>
+												<td colspan="2" align="center">
+													<div class="modal-footer">
+															<button type="button" class="btn btn-primary"
+																data-dismiss="modal" onclick="pdfCreation();">Print</button>
+															<button type="button" class="btn btn-warning"
+																data-dismiss="modal" onclick="cancel();">Close</button>
+														</div>
+												</td>
+												
+											</tr>
+										</table>
+									</div>
+							</div>
+							<div style="clear: both;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /# row -->
+		</div>
+	</div>
+</body>
+</html>

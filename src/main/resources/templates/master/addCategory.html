@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+function validateForm(){
+	  if (!blankValidation("categoryName","TextField", "Category Name can not be left blank"))
+       return false;
+	  if (!checkSpecialCharacter("categoryName","Special character is not allowed!!!"))
+       return false;
+     
+	  if (!blankValidation("description","TextArea", "Description Code can not be left blank"))
+	         return false;
+	
+	}
+	
+function funcLoad(){
+	location.reload();
+}
+ function returnToViewPage(){
+	 var category = $("#category").val();
+	 if((category  == null) ||(category == "")){
+		
+		 funcLoad();
+	 }
+	 else{
+		 window.location.href = "/master/view-category" ;
+	 }
+	 
+	 
+ } 
+ 
+ 
+ // function popup() {
+ //    window.open("../popup/errorpopup", 'window', 'width=200,height=100');
+ // }
+ 
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Category</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12">
+				<!--Alert Box-->
+				<div class="alert alert-success alert-dismissible" th:if="${message != null}"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action.
+					<span th:text="${message}"></span>
+				</div>
+				<!--Alert Box-->	
+			</div>
+			<div class="card-title">
+				<h4>Add Category</h4></div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+							<form th:action="@{add-category}" th:object="${categoryModel}" method="post" onsubmit="return validateForm();" autocomplete="off" >
+							<input type="hidden" th:field="*{category}"/>
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+									
+                        				<div class="form-group">
+                         					<label>Category Name</label>
+											<input type="text" class="form-control" name=""  value="" th:field="*{categoryName}">
+										</div>
+										<div class="form-group">
+											<label>Description</label>
+											<textarea name="description" cols="" rows=""
+												th:field="*{description}" class="form-control textarea"></textarea>
+										</div>
+											<div class="form-group">
+											<input type="submit" value="Submit" class="btn btn-success" onclick="displaymessage();"/>
+											<input type="reset" value="Cancel" class="btn btn-warning" onclick="returnToViewPage();"/>
+											<!-- <button type="button" id="submitItems" class="btn btn-success">Submit</button> -->
+											<!-- <button type="button" class="btn btn-warning">cancel</button> -->
+										</div>
+									</div>
+									<div class="col-lg-6">
+
+										
+
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+	</div>
+</div>
+</div>
+</html>

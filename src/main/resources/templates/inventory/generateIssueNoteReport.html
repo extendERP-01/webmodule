@@ -1,0 +1,286 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.sidebar.sidebar-shrink ~.content-wrap {
+	margin-left: 250px;
+	-webkit-transition: margin-left 300ms ease-in-out;
+	transition: margin-left 300ms ease-in-out;
+	height: 100vh !important;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+
+	//date picker
+	 $("#param3").datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				//minDate: new Date() ,
+				timepicker : false,
+	})  
+	//date picker
+	 $("#param4").datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				//minDate: new Date() ,
+				timepicker : false,
+	})  
+	//Method for listing of all the Issue Note Records
+	$('#issueNoteList').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			//'url' : 'view-issue-note-throughAjax',
+			'data' : function(d) {
+				d.param1 = $('#param1').val();
+				d.param2 = $('#param2').val();
+				d.param3 = $('#param3').val();
+				d.param4 = $('#param4').val();
+
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [ {
+			'data' : 'reqstnIssueNote'
+		}, {
+			'data' : 'itemRequisition'
+		}, {
+			'data' : 'status'
+		}, {
+			'data' : 'action'
+		} ]
+	});
+});
+//Method to create report
+function createPdf() {
+
+	window.open("/inventory/view-issue-note-download-report?param1="
+			+ window.btoa($('#param1').val()) + "&param2="
+			+ window.btoa($('#param2').val()) + "&param3="
+			+ window.btoa($('#param3').val()) + "&param4="
+			+ window.btoa($('#param4').val()), '_blank');
+}
+//Page Reload Function
+	function funcLoad() {
+		location.reload();
+	}
+	//Page Validation Function
+	function validate(){
+		var param1 = $('#param1').val();
+		var param2 = $('#param2').val();
+	    var param3 = $('#param3').val();
+	    var param4 =$('#param4').val();
+		if( ($('#param1').val()=="")&&($('#param2').val()=="")&&($('#param3').val()=="")&&($('#param4').val()==""))
+		{
+		swal({
+		title : "Select Any One from search Feild.."
+		})
+		}
+		
+		else{
+			createPdf();
+		}
+	}
+//function for search param of requisition number
+	
+	function requisitionNoAutoComplete() {
+		$.ajax({
+			type : "POST",
+			url : "view-issue-note-generateReqNo",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#param1").val(),
+			success : function(response) {
+				if (response.message == "success") {
+				if(response.body.length!=0)	{
+					$("#param1").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+					} 
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+					
+				}
+				else {
+					$("#param1").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+				}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+	//AutoComplete Function of Search Param 
+	function selectAutocompleteValue(key,name) {
+		if (key) {
+			$("#param1").val(key);
+			$("#param1").attr('data-procat', key);
+			$("#suggesstion-box1").hide();
+			}
+		else {
+			$("#param1").val("");
+			$("#param1").attr('data-procat', "");
+			$("#suggesstion-box1").hide();
+		}
+	}
+//Function for searching through Issue Number
+ 	function issueNoAutoComplete() {
+		$.ajax({
+			type : "POST",
+			url : "view-issue-note-generateIssueNo",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#param2").val(),
+			success : function(response) {
+				if (response.message == "success") {
+				if(response.body.length!=0)	{
+					$("#param2").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="autocompleteValues(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+					} 
+					content += '</ul>';
+					$("#suggesstion-box2").show();
+					$("#suggesstion-box2").html(content);
+					
+				}
+				else {
+					$("#param2").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="autocompleteValues(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box2").show();
+					$("#suggesstion-box2").html(content);
+				}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+ 	//AutoComplete Function of Search Param 
+	function autocompleteValues(key,name) {
+		if (key) {
+			$("#param2").val(key);
+			$("#param2").attr('data-procat', key);
+			$("#suggesstion-box2").hide();
+			}
+		else {
+			$("#param2").val("");
+			$("#param2").attr('data-procat', "");
+			$("#suggesstion-box2").hide();
+		}
+	}
+
+
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="card-title">
+					<h4>Issue Note Report </h4>
+				</div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+								<div class="col-lg-6">
+									<div class="row">
+										<div class="col-md-6">
+											<div class="org-name">Requisition Number</div>
+										</div>
+										<div class="col-md-6">
+											<input type="text"
+											class="form-control" id="param1"
+											onkeyup="requisitionNoAutoComplete();" />
+										<div id="suggesstion-box1"></div>
+								</div>
+
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<div class="org-name">Issue Number</div>
+										</div>
+										<div class="col-md-6">
+											<input type="text"
+											class="form-control" id="param2"
+											onkeyup="issueNoAutoComplete();" />
+										<div id="suggesstion-box2"></div>
+								</div>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="row">
+										<div class="col-md-6">
+											<div class="org-name">From Date</div>
+										</div>
+										<div class="col-md-6">
+											<input class="form-control" type="text" placeholder="From Date"
+												name="" id="param3" readonly>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<div class="org-name">To Date</div>
+										</div>
+										<div class="col-md-6">
+											<input class="form-control" type="text" placeholder="To Date"
+												name="" id="param4" readonly>
+										</div>
+									</div>
+								</div>
+							
+							</div>
+
+								<div class="form-group">
+									<button class="btn btn-primary" onclick="funcLoad();">
+										Reset</button>
+									<button type="button" class="btn btn-primary"
+										onclick="validate()">Print Preview</button>
+									<button type="button" class="btn btn-primary"
+										onclick="validate()">Print</button>
+									<!-- <input name="" type="reset" class="btn warning" value="Cancel"> -->
+								</div>
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+
+</div>
+</div>
+</html>

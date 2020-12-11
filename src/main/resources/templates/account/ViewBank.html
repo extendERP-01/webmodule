@@ -1,0 +1,263 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script>
+ function viewInModel(index) {
+	 var id = window.atob(index);
+	$('#table1').empty();
+	
+	$.ajax({
+		type : "POST",
+		url : "view-bank-modal",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : id,
+		success : function(response) {
+			if (response.message == "success") {
+				//console.log(response.body.bankActive);
+				var status = "";
+				if (response.body.bankActive) {
+					status = "Active";
+				} else {
+					status = "InActive";
+				}
+				table = '<tr><td>Bank Name :</td>'
+						+ '<td align="left">'
+						+ response.body.bankName
+						+ '</td>'
+						+ '</tr><tr><td>Description :</td><td align="left">'
+						+ response.body.bankDescription
+						+ '</td></tr><tr><td>Stauts :</td><td align="left">'
+						+ status + '</td></tr>';
+						
+				$('#table1').append(table);
+				$('#myModal').modal('show');
+				
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+
+} 
+ 
+
+/* Datatable Ajax call */
+
+$(function() {
+	$('#utype').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		'paging' : true,
+		"ajax" : {
+			'url' : 'view-bank-through-ajax',
+			'data' : function(d) {
+				d.param1 = $('#param1').val();
+				//d.param2 = $('#param2').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [ {
+			'data' : 'bankName'
+		}, {
+			'data' : 'bankDescription'
+		}, {
+			'data' : 'statusName'
+		}, {
+			'data' : 'action'
+		} ]
+	});
+});
+function searchData() {
+	$('#utype').DataTable().draw();
+}
+</script>
+
+
+<script>
+	const ipAPI = 'https://api.ipify.org?format=json'; 
+	function DeleteItem(index){
+	 //alert(index);
+	swal({
+	title	: "Are you sure want to Delete?",
+	text	: "Once Deleted,Can't revert back !",
+	type : "warning",
+	showCancelButton	: true,
+	confirmButtonColor	: "#DD6BB5",
+	confirmButtonText	:"Submit",
+	showLoaderOnConfirm	: true,
+	reverseButtons : true,
+	confirmButtonAriaLabel : 'Thumbs up, great!',
+	cancelButtonText : '<i class="fa fa-thumbs-down">cancel</i>',
+	cancelButtonAriaLabel : 'Thumbs down',
+	/* preConfirm: () => {
+	    return fetch(ipAPI)
+	      .then(response => response.json())
+	      .then(data => Swal.insertQueueStep(data.ip))
+	      .catch(() => {
+	        Swal.insertQueueStep({
+	          type: 'error',
+	          title: 'Unable to get your public IP'
+	        })
+	      })
+	}  */
+	}).then((result) => {
+	if(result.value){
+	$.ajax({
+	type	: "GET",
+	url : "view-bank-delete?id="+index,
+	dataType	: "json",
+	contentType	: "application/json",
+	data	: JSON.stringify(index),
+	success	: function(response){
+	console.log(response);
+	if(response.message=="Success"){
+	swal({
+	title:"Data Deleted Successfully.",
+	type: "success",
+	}).then(function(){
+	location.reload();
+	})
+	}else{
+	console.log('i m in unsuccess');
+	swal({
+	title:response.code,
+	text: response.message,
+	type:"warning"
+	})
+	}
+	},error	: function(response){
+	swal(response.code);
+	}
+	}) //ajax ends
+	}
+	})//swal function block ends
+	
+	
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+
+					<li class="active"><span>View Bank</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Bank</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-bank">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Bank Name</label>
+								
+									<input type="text" class="form-control" name="" id="param1">
+								</div>
+								<div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<button class="btn btn-info" onClick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table id="utype" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Bank Name</th>
+										<th>Description</th>
+										<th>Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody>
+
+
+								</tbody>
+							</table>
+
+						</div>
+						<div style="clear: both;"></div>
+				
+
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Bank Details</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+							<tr>
+								<td>Bank Name :</td>
+								<td align="left">Priyabrat</td>
+							</tr>
+
+							<tr>
+								<td>Description :</td>
+								<td align="left">Priyabrat</td>
+							</tr>
+							<tr>
+								<td>Stauts</td>
+								<td align="left">Active</td>
+							</tr>
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

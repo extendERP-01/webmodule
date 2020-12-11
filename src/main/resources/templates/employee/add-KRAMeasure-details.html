@@ -1,0 +1,497 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0; /
+	width: 570px; /
+	position: absolute;
+	z-index: 9999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f2f2f2;
+	border-bottom: 1px solid #373757;
+	color: #373757;
+	font-weight: 500;
+}
+
+#autocomplete-list li:hover {
+	background: #373757;
+	color: #f2f2f2;
+	cursor: pointer;
+}
+</style>
+
+
+<script>	
+
+
+//Function for blank validation
+
+function checkEmpty()
+{
+	var goalValid =true;
+	$('.kGoalCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Goal")){
+
+		goalValid =false;
+	return false;
+	}
+
+	});
+
+	var KraMeasureValid =true;
+	if(goalValid){
+	$('.kMeasureCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"TextField" ,"Please define KRA Measure")){
+
+		KraMeasureValid =false;
+	return false;
+	}
+
+	});
+	}
+	var targetsValid =true;
+	if(goalValid && KraMeasureValid){
+	$('.kTargetCls').each(function(){
+	if (!blankValidation($(this).attr('id'),"TextField" ,"Please define target ")){
+		targetsValid =false;
+	return false;
+	}
+
+	});
+	}
+
+	if(goalValid && KraMeasureValid && targetsValid){
+
+  addMore();
+  }
+}
+//ADD MORE
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	//$("#myTable tbody tr:last").find(".NameCls").append(new Option("--Select--","")); 
+	$("#myTable tbody tr:last").find(".kGoalCls").val("");
+	$("#myTable tbody tr:last").find(".kMeasureCls").val("");
+	$("#myTable tbody tr:last").find(".kTargetCls").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	
+	$("#myTable tbody tr:last").find(".kGoalCls").val("");
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		
+		selectInput.eq(0).attr('id',"kGoal"+i);
+		selectInput.eq(1).attr('id',"kMeasure"+i);
+		selectInput.eq(2).attr('id',"kTarget"+i);
+		
+		
+	})
+	
+}
+   
+</script>
+<script>
+$(document).ready(function(){
+	
+	
+	//for minus
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+	
+	//displayBeautyChair();
+	});
+	
+	
+	//on change function
+	$("#kDepartment").on('change', function() {
+		var kDepartment = $(this).val();
+		if (kDepartment) {
+
+			$.ajax({
+				type : 'POST',
+				url : 'add-KRAMeasure-details-jobTitle-throughAjax',
+				contentType : false,
+				data : kDepartment,
+				success : function(response) {
+					console.log(response)
+					if (response.message == "success") {
+						$("#kJobTitle").empty();
+						console.log(response.body);
+						var option = $("<option></option>");
+						$(option).val(null);
+						$(option).html("--Select--");
+						$("#kJobTitle").append(option);
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							console.log(option);
+							$("#kJobTitle").append(option);
+						}
+					}
+				},
+				error : function(e) {
+					alert("error");
+				}
+			});
+		} else {
+			$("#kJobTitle").empty();
+			var option = $("<option></option>");
+			$(option).val(null);
+			$(option).html("select");
+			$("#kJobTitle").append(option);
+		}
+	});
+	
+	
+
+	//Function for saving data
+
+			$("#submitItems").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+		    item = {};
+			item['isedit']	        	 =	$("#isedit").val();
+			item['kDepartment']	        	 =	$("#kDepartment").val();
+			item['kJobTitle']          =  $("#kJobTitle").val();
+			item['kGoal']	                 =	$(this).find(".kGoalCls").val();
+			item['kMeasure']	        	 =	$(this).find(".kMeasureCls").val();
+			item['kTarget']   	 =	$(this).find(".kTargetCls").val();
+			
+			
+			dataset.push(item);
+		
+		});//table tbody tr loop ends
+		
+		submitAddKRAMeasure(dataset);
+	if (!blankValidation("kDepartment","SelectBox" ,"Please Select Department Name"))
+	return false;
+
+
+	if (!blankValidation("kJobTitle","SelectBox", "Please Select Job Title"))
+	return false;
+
+			var goalValid =true;
+			$('.kGoalCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Goal")){
+
+				goalValid =false;
+			return false;
+			}
+
+			});
+
+			var KraMeasureValid =true;
+			if(goalValid){
+			$('.kMeasureCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please define KRA Measure")){
+
+				KraMeasureValid =false;
+			return false;
+			}
+
+			});
+			}
+			var targetsValid =true;
+			if(goalValid && KraMeasureValid){
+			$('.kTargetCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please define target ")){
+				targetsValid =false;
+			return false;
+			}
+
+			});
+			}
+
+			if(goalValid && KraMeasureValid && targetsValid){
+
+		
+				submitAddKRAMeasure(dataset);
+		
+		}
+			});
+			
+	
+	
+	
+	
+});	
+	
+
+function submitAddKRAMeasure(dataset){
+
+	console.log(dataset)
+	swal.fire({
+		title				: "Are you sure want to Submit?",
+		text				: "Once Submited,Can't revert back !",
+		type 				: "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+	
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+		showLoaderOnConfirm	: true,
+		preConfirm: () => {
+						return new Promise((resolve) => {
+							setTimeout(() => {
+								console.log("Doing async operation");
+								resolve()
+							}, 3000)
+						})
+					}
+
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+			type		: "POST",
+			url 		: "add-KRAMeasure-details",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(dataset),
+			success		: function(response){
+				console.log(response);
+				if(response.message=="Success"){
+					swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+					}).then(function(){
+							window.location.href = "/employee/view-KRAMeasure-details" ;
+					})
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	}
+	})//swal function block ends
+}//submit function ends
+
+
+function disableStaffOption(){
+
+	$("#myTable > tbody > tr").each(function(i){
+		//$(".staffCls option").prop("visible", true); //enable everything
+
+		var arr = $.map(
+		$(".kGoalCls option:selected"), function (n) {
+			return n.value;
+		});
+
+		$(".kGoalCls option").filter(function () {
+			return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+		}).hide();
+
+		$(".kGoalCls option").filter(function () {
+			return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		}).show();
+	})
+}	
+	
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add KRA Measure Details</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add KRA Measure Details</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:object="${measureDetailsList}">
+								<input type="hidden" id="isedit" th:value="${id}">
+								<!--   <input  id="isedit" th:value="${id}">  -->
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Department Name</label> <select class="form-control"
+												id="kDepartment" th:disabled='${id}'>
+												<option th:value="null">--Select--</option>
+												<option th:if="${id}" th:each="c:${deptName}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==measureDetailsList[0].kDepartment}"></option>
+												<option th:unless="${id}" th:each="c:${deptName}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+
+
+
+
+
+										<div class="form-group">
+											<label>Job Title</label> <select class="form-control"
+												id="kJobTitle" th:disabled='${id}'>
+												<option th:value="null">--Select--</option>
+												<option th:if="${id}" th:each="c:${getJobTitle}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==measureDetailsList[0].kJobTitle}"></option>
+												<option th:unless="${id}" th:each="c:${jobTitleList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+
+
+								</div>
+
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="2" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Goal</th>
+													<th>KRA Measure</th>
+													<th>Target</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+											<tbody id="tbodyData">
+
+												<!-- FOR EDIT	 -->
+
+
+
+												<tr class="tr_clone" th:if="${id}"
+													th:each="a,iter:${measureDetailsList}">
+
+													<td><select id="kGoal" class="form-control kGoalCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${goalList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected="${c.key ==a.kGoal}"></option>
+													</select></td>
+
+													<td><input type="text" id="kMeasure"
+														class="form-control kMeasureCls" th:value="${a.kMeasure}" /></td>
+
+													<td><input type="text" id="kTarget"
+														class="form-control kTargetCls" th:value="${a.kTarget}" /></td>
+
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+													</td>
+												</tr>
+												<!-- /////////////////////////////////////////////////////////////////////// -->
+
+												<tr class="tr_clone" th:unless="${id}">
+													<td><select id="kGoal" class="form-control kGoalCls" onchange="disableStaffOption()">
+															<option value="">--Select--</option>
+															<option th:each="c:${goalList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+
+
+													<td><input type="text" id="kMeasure"
+														class="form-control kMeasureCls" /></td>
+
+
+
+
+													<td><input type="text" id="kTarget"
+														class="form-control kTargetCls" /></td>
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+										</table>
+
+
+									</div>
+								</div>
+						</div>
+						<div class="row">
+							<div class="form-group">
+								<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+								<button type="button" class="btn btn-warning"
+									onclick="returnToAddPage();">Cancel</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div style="clear: both;"></div>
+	</div>
+</div>
+</html>

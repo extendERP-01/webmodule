@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 310px;
+	position: absolute;
+	z-index: 999;
+	height: 100px; 
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+    //Method for listing of all the Vendor Records
+
+    /* $('#vendorList').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'view-vendors-through-ajax',
+            'data': function(d) {
+                d.param1 = $('#param1').val();
+                 d.param2 = $('#param2').val(); 
+            }
+        },
+        'dataSrc': "",
+        'columns': [
+			{
+                'data': 'vendorName'
+            }, {
+                'data': 'vendorAddress'
+            }, {
+                'data': 'vendorGSTNO'
+            }, {
+                'data': 'vendorTINNO'
+            }, {
+                'data': 'vendorBankAc'
+            }, {
+                'data': 'vendorIFSC'
+            }, {
+                'data': 'vendorEmail'
+            }, {
+                'data': 'vendorPhone'
+            }, {
+                'data': 'vendorMobile'
+            },
+            {
+                'data': 'vendorPaymentDays'
+            },  {
+                'data': 'action'
+            }
+        ]
+    });*/
+    
+    $("#fromDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	
+	$("#toDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+    
+}); 
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="">Add Vendor Contract</a></li>
+					<li class="active"><span>View Vendor Contract</span></li>
+				</ol>
+			</div>
+			
+			<div class="container-fluid">
+				
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-vendors">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Vendor Name</label>
+								
+									<input class="form-control" type=hidden placeholder="" name=""
+										id="param1">
+									<input class="form-control" type="text" placeholder="" name=""
+										id="vendor">
+										<div id="suggesstion-box1"></div>
+								</div>
+
+								<div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<button class="btn btn-info" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+				
+						<div class="table-responsive" style="width: 100%;">
+							<table id="vendorList" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Vendor Name</th> 
+										<th>Address</th>
+										<th>GST No.</th>
+										<th>TIN No.</th>
+										<th>Bank A/C No.</th>
+										<th>IFSC Code</th>
+										<th>Email</th>
+										<th>Phone</th>
+										<th>Mobile</th>
+										<th>Payment Days</th>
+										<th>Contract</th> 
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>							
+										<td>Behera Cake Vendor</td>
+										<td>Patia</td>
+										<td>gst0001</td>
+										<td>tin00001</td>
+										<td>20202304050</td>
+										<td>SBIN0001</td>
+										<td>sradhapanda1996@gmail.com</td>
+										<td>9809809800</td>
+										<td>9809809800</td>
+										<td>1</td>
+										<td></td>
+										<td><div class="fa fa-upload" style="color:blue;" data-toggle="modal" title="View" data-target="#myModal"></div></td>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
+						<div style="clear: both;"></div>
+					
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content" style="width:max-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Contract Upload</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="row">
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>From Date</label> <input type="text" id="fromDate" class="form-control"
+										readonly>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>To Date</label> <input type="text" id="toDate"
+										class="form-control" readonly>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>Upload</label> 
+									<input type="file" class="document"
+										style="display: block;" id="uploadDoc"
+										onchange="saveFile(event)" />
+									<div id="uploadedBillDiv" align="center"
+										class="uploadedBillCls"></div>
+							</div>
+						</div>
+						</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" id="submit" data-dismiss="modal">Submit</button>
+						<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+	</div>
+</div>
+</html>

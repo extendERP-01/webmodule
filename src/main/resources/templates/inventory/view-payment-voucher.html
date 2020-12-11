@@ -1,0 +1,638 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+
+<script type="text/javascript">
+function dateValid() {
+	if($("#param3").val() && $("#param4").val()) dateValidation('param3', 'param4', 'To Date', 'From Date');
+}
+
+//for view in modal 
+function viewInModal(index){
+	$('#table1').empty();
+	$.ajax({
+			type 		:	"POST",
+			url 		:	"view-payment-voucher-reference-modalview?id="+index,
+			dataType 	:	'json',
+			contentType :	'application/json',
+			success 	: 	function(response) {
+				if(response.message=="success"){
+					if(response.body.paymentMode=='Cheque'){
+					table = '<tr><td style="font-size:20px"><b> Payment Details</b> </td></tr>'+'<tr><td>Payment Mode :</td>'+'<td align="left">'
+					  +response.body.paymentMode+'</td>'+'</tr><tr><td>Total TDS:</td><td align="left">'
+					  +response.body.tdsAmount+'</td>'+'</tr><tr><td>Total Amount:</td><td align="left">'
+					  +response.body.total+'</td>'+'</tr><tr><td>Bank Name:</td><td align="left">'
+					  +response.body.bankName+'</td>'+'</tr><tr><td>Branch Name:</td><td align="left">'
+					  +response.body.branchName+'</td>'+'</tr><tr><td>Account Number:</td><td align="left">'
+					  +response.body.accNo+'</td>'+'</tr><tr><td>Cheque Number:</td><td align="left">'
+					  +response.body.chequeNo+'</td></tr>'; 
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+					}
+					if(response.body.paymentMode=='Cash'){
+						table = '<tr><td style="font-size:20px"><b> Payment Details</b> </td></tr>'+'<tr><td>Payment Mode :</td>'+'<td align="left">'
+						  +response.body.paymentMode+'</td>'+'</tr><tr><td>Total TDS:</td><td align="left">'
+						  +response.body.tdsAmount+'</td>'+'</tr><tr><td>Total Amount:</td></tr>'; 
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+					}
+					if(response.body.paymentMode=='Card'){
+						table = '<tr><td style="font-size:20px"><b> Payment Details</b> </td></tr>'+'<tr><td>Payment Mode :</td>'+'<td align="left">'
+						  +response.body.paymentMode+'</td>'+'</tr><tr><td>Total TDS:</td><td align="left">'
+						  +response.body.tdsAmount+'</td>'+'</tr><tr><td>Total Amount:</td><td align="left">'
+						  +response.body.total+'</td>'+'</tr><tr><td>Bank Name:</td><td align="left">'
+						  +response.body.bankName+'</td>'+'</tr><tr><td>Branch Name:</td><td align="left">'
+						  +response.body.branchName+'</td>'+'</tr><tr><td>Account Number:</td><td align="left">'
+						  +response.body.accNo+'</td>'+'</tr><tr><td>Transaction Number:</td><td align="left">'
+						  +response.body.transNo+'</td></tr>'; 
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+						}
+					if(response.body.paymentMode=='Online'){
+						table = '<tr><td style="font-size:20px"><b> Payment Details</b> </td></tr>'+'<tr><td>Payment Mode :</td>'+'<td align="left">'
+						  +response.body.paymentMode+'</td>'+'</tr><tr><td>Total TDS:</td><td align="left">'
+						  +response.body.tdsAmount+'</td>'+'</tr><tr><td>Total Amount:</td><td align="left">'
+						  +response.body.total+'</td>'+'</tr><tr><td>Bank Name:</td><td align="left">'
+						  +response.body.bankName+'</td>'+'</tr><tr><td>Branch Name:</td><td align="left">'
+						  +response.body.branchName+'</td>'+'</tr><tr><td>Account Number:</td><td align="left">'
+						  +response.body.accNo+'</td>'+'</tr><tr><td>Transaction Number:</td><td align="left">'
+						  +response.body.transNo+'</td></tr>'; 
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+						}
+				}	else{
+					console.log(data);
+				}			
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+</script>
+<script>
+function viewReturnDetails(index){
+	//var id = window.atob(index);
+	window.open("/inventory/view-payment-voucher-view-modal?id="
+			+ index, );
+	}
+	
+function addPaymentVoucher(index){
+	//var id = window.atob(index);
+	window.window.location.href ="/inventory/add-payment-voucher";
+	}
+ 	$(document).ready(function() {
+
+ 		$('#table').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-payment-voucher-ajax',
+					'data' : function(d) {         
+						d.param1 = $('#param1').val();
+						d.param2 = $('#param2').val();
+						d.param3 = $('#param3').val();
+						d.param4 = $('#param4').val();
+					}
+				},
+				'dataSrc' : "",
+			    'columns' : [
+				{'data' : 'vendorName'},
+				{'data' : 'poNumber'},
+				{'data' : 'grnNo'},
+				{'data' : 'subTotal'},
+				{'data' : 'tdsAmount'},
+				{'data' : 'total'},
+				{'data' : 'refno'},
+				
+				{'data' : 'action'}
+					]	
+			});
+		  });
+	
+	function searchData() {
+		$('#table').DataTable().draw();
+	}
+
+const ipAPI = 'https://api.ipify.org?format=json'
+	function DeleteTblShift(id){
+		var data = id.split(",");
+		console.log(id);
+		obj = {};
+		obj.assignId= data[0];
+		obj.lockerid = data[1];
+		
+		if(data[2]=="true"){
+			obj.status = false;
+		}else{
+			obj.status = true;
+		}
+		console.log(obj);
+		if(obj.status == true){
+			swal({
+				title				: "Are you sure want to Active?",
+				//text				: "Once Deleted,Can't revert back !",
+				type 				: "warning",
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Active",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+				preConfirm: () => {
+				    return fetch(ipAPI)
+				      .then(response => response.json())
+				      .then(data => Swal.insertQueueStep(data.ip))
+				      .catch(() => {
+				        Swal.insertQueueStep({
+				          type: 'error',
+				          title: 'Unable to get your public IP'
+				        })
+				      })
+				  } 
+			}).then((result) => {
+				if(result.value){
+				$.ajax({
+					type 		:"POST",
+					url : "view-assign-locker-change-status",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : JSON.stringify(obj),
+					success 	: 	function(response) {
+						
+						if(response.message=="success"){
+							
+							swal({
+								title	: "Status Activated Successfully.",
+								type: "success",
+						}).then(function(){
+							location.reload(); 
+						})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}			
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				 }) 
+				}
+			}) 
+		} else {
+			swal({
+				title				: "Are you sure want to Inactive?",
+				type 				: "warning",
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Inactive",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+				preConfirm: () => {
+				    return fetch(ipAPI)
+				      .then(response => response.json())
+				      .then(data => Swal.insertQueueStep(data.ip))
+				      .catch(() => {
+				        Swal.insertQueueStep({
+				          type: 'error',
+				          title: 'Unable to get your public IP'
+				        })
+				      })
+				  } 
+			}).then((result) => {
+				if(result.value){
+				$.ajax({
+					type 		:"POST",
+					url : "view-assign-locker-change-status",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : JSON.stringify(obj),
+					success 	: 	function(response) {
+						
+						if(response.message=="success"){
+							
+							swal({
+								title	: "Status Inactivated Successfully.",
+								type: "success",
+						}).then(function(){
+							location.reload(); 
+						})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}			
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				 }) 
+				}
+			}) 		
+		}
+	}  
+
+
+function confirmPrint(id) {
+	
+	window.open("/download/inventory-view-payment-voucher-view-pdf?id="
+			+ id, '_blank');
+}
+
+function POAutoComplete() {
+	$.ajax({
+		type : "POST",
+		url : "view-payment-voucher-getPOAutocompleteList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param2").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				
+			if(response.body.length!=0)	{
+		
+				$("#param2").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+				} 
+				
+				content += '</ul>';
+				$("#suggesstion-box").show();
+				$("#suggesstion-box").html(content);
+				
+			}
+			else {
+				
+				$("#param2").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box").show();
+				$("#suggesstion-box").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			
+		}
+	})
+    	}
+
+function selectAutocompleteValue(key,name) {
+	if (key) {
+		
+		$("#param2").val(key);
+		$("#param2").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+		getQuotationList();
+		
+	}else {
+		
+		$("#param2").val("");
+		$("#param2").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+	}
+	
+function venderAutoComplete() {
+	$.ajax({
+		type : "POST",
+		url : "view-payment-voucher-getVendorAutocompleteList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param").val(),
+		success : function(response) {
+			if (response.message == "success") {
+			
+			if(response.body.length!=0)	{
+		
+				$("#param").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="VenderAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'</li>';
+				} 
+				console.log(response.body);
+				content += '</ul>';
+				$("#suggesstion-box1").show();
+				$("#suggesstion-box1").html(content);
+				
+			}
+			else {
+				
+				$("#param").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="VenderAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box1").show();
+				$("#suggesstion-box1").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			
+		}
+	})
+    	}
+
+function VenderAutocompleteValue(key,name) {
+	if (key) {
+		$("#param1").val(key);
+ 	    $("#param").val(name);  
+		$("#param1").attr('data-procat', key);
+		$("#suggesstion-box1").hide();
+
+		
+	}else {
+		$("#param1").val(key);
+		$("#param").val("");
+		$("#param1").attr('data-procat', "");
+		$("#suggesstion-box1").hide();
+		 
+	}
+	}
+
+$(document).ready(function() {
+	//date time picker
+	$( "#param3" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+
+		timepicker : false,
+	})
+	//date time picker
+	$( "#param4" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	})
+});
+
+	/*
+	 * For ViewDetails of CostCenter
+	 */
+    function viewModalOfPartialPaymentDetailsPfd(id){
+    	window.open("/download/inventory-view-payment-voucher-all-payments?id="
+    			+ id, '_blank');
+    }
+
+	function viewModalOfPaymentDetails(index) {
+		$('#table1').empty();
+		$('#table2').empty();
+		$.ajax({
+					type : "POST",
+					url : "add-payment-voucher-getPartialPaymentDetails",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							table = '<tr><th><b>Transaction Date</b></th><th><b>Payment Mode</b></th><th><b>Voucher Number</b></th><th><b>Amount</b></th>' ;
+							$('#myModalPayments').modal('show');
+							$('#table2').append(table);
+							console.log(response);
+							for(var i=0;i<response.body.length;i++){
+							       table = '<tr><td>'
+									+ response.body[i].transactionDate
+									+ '</td><td>'
+									+ response.body[i].paymentMode
+									+ '</td><td><a href=/download/inventory-view-payment-voucher-view-pdf?id='+window.btoa(response.body[i].voucherNo)+' target =_blank>'
+									+ response.body[i].voucherNo
+									+ '</td><td>'
+									+ (response.body[i].outSatandingAmount).toFixed(2)
+									+ '</td></tr>';
+									$('#table2').append(table);
+									$('#myModalPayments').modal('show');
+									
+						  }
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+    
+	function viewModalOfPartialPaymentDetails(index) {
+		$('#table1').empty();
+		$('#table2').empty();
+		$.ajax({
+					type : "POST",
+					url : "add-payment-voucher-getPartialPaymentDetails",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							table = '<tr><th><b>Transaction Date</b></th><th><b>Payment Mode</b></th><th><b>Voucher Number</b></th><th><b>Amount</b></th>' ;
+							$('#myModalPayments').modal('show');
+							$('#table2').append(table);
+							console.log(response);
+							for(var i=0;i<response.body.length;i++){
+							       table = '<tr><td>'
+									+ response.body[i].transactionDate
+									+ '</td><td>'
+									+ response.body[i].paymentMode
+									+ '</td><td>'
+									+ response.body[i].referenceNo
+									+ '</td><td>'
+									+ (response.body[i].outSatandingAmount).toFixed(2)
+									+ '</td></tr>';
+									$('#table2').append(table);
+									$('#myModalPayments').modal('show');
+									
+						  }
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+	function dateValid() {
+		if($("#param3").val() && $("#param4").val()) dateValidation('param3', 'param4', 'To Date', 'From Date');
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{add-payment-voucher}">Add Payment
+							Voucher </a></li>
+					<li class="active"><span>View Payment Voucher </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Listing of Payment Voucher</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div>
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-payment-voucher">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Vender Name</label>
+								
+									<input type="text" class="form-control" id="param"
+										onkeyup="venderAutoComplete();" placeholder="Vender Name" style="height: 30px;" />
+									<input type="hidden" id="param1" /> 
+									<div id="suggesstion-box1"></div>
+								</div>
+								<div class="col-md-2">
+									<label>PO Number</label>
+								
+									<input type="text" class="form-control" id="param2"
+										onkeyup="POAutoComplete();" placeholder="Purchase Order" style="height: 30px;"/>
+									<div id="suggesstion-box"></div>
+								</div>
+
+							
+
+								<div class="col-md-2">
+									<label>From Date</label>
+								
+
+									<input type="text" class="form-control" id="param3"
+										th:name="fromDate" readonly onchange="dateValid()" style="height: 30px;" >
+								</div>
+								<div class="col-md-2">
+									<label>To Date</label>
+								
+									<input type="text" class="form-control" id="param4"
+										th:name="toDate" onchange="dateValid()" style="height: 30px;" readonly>
+								</div>
+							
+								<div class="col-md-2" style="margin-top: 6px;">
+									<div class="form-group filtersearch">
+										<button class="btn btn-primary" onclick="searchData()" style="padding: 6px 37px !important">Search</button>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				<!-- </div> -->
+				<!-- <a data-toggle="collapse" data-target="#demo"
+					class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+				</a> -->
+
+				<div>
+
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Vendor Name</th>
+									<th>PO Number</th>
+									<th>GRN Number</th>
+									<th>Taxable Amount</th>
+									<th>Total TDS</th>
+									<th>Total</th>
+									<th>Payment Details</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+
+						</table>
+
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- Modal Start-->
+	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Payment Details</h4>
+					<button type="button" class="close" data-dismiss="modal">
+						<i class="fa fa-close fa-2x"></i>
+					</button>
+				</div>
+				<div class="modal-body">
+					<table width="100%" border="0" id="table1">
+
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- Modal End-->
+	<!-- /# row -->
+
+<!-- Modal Start-->
+	<div id="myModalPayments" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Previous Payment Details</h4>
+					<button type="button" class="close" data-dismiss="modal">
+						<i class="fa fa-close fa-2x"></i>
+					</button>
+				</div>
+				<div class="modal-body">
+					<table width="100%" border="0" id="table2">
+
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- Modal End-->
+	
+
+</div>
+</html>

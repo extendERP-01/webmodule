@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	
+	function viewInModel(index) {
+		$('#table1').empty();
+		$.ajax({
+					type : "POST",
+					url : "view-emergency-contact-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							table = '<tr><td>Employee Name :</td>'
+								+ '<td align="left">'
+								+ response.body.empName
+								+ '</td>'
+								+ '</tr><tr><td>Name :</td><td align="left">'
+								+ response.body.name
+								+ '</tr><tr><td>Relationship :</td><td align="left">'
+								+ response.body.relation
+								+ '</tr><tr><td>Mobile Number :</td><td align="left">'
+								+ response.body.mobileNo
+								+ '</td></tr><tr><td>Adhar Number :</td><td align="left">'
+								+ response.body.adharNo + '</td></tr>';
+								$('#myModal').modal('show');
+								$('#table1').append(table);
+									
+							
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+	
+	//Deleting the emergency contact
+	const ipAPI = 'https://api.ipify.org?format=json'
+	function deleteEmgry(id){
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/employee/view-emergency-contact-delete?id=" +id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(data){
+				console.log(data);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+	
+	
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-emergency-contact-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'empName'
+			},  {
+				'data' : 'name'
+			},{
+				'data' : 'relation'
+			},{
+				'data' : 'mobileNo'
+			},{
+				'data' : 'adharNo'
+			},{
+				'data' : 'action'
+			} ]
+		});
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/employee/add-emergency-contact}">Add Emergency Contact</a></li>
+					<li class="active"><span>View Emergency Contact </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Emergency Contact</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-emergency-contact">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Employee Name</label>
+								
+									
+									<input type="text" id="param1" class="form-control" onkeyup="searchData()"/>
+								</div> 
+								<!-- <div class="col-md-2">
+									<div class="form-group">
+										<button type="search" class="btn btn-primary" value="Search" onclick="searchData()" >Search</button>
+										<input type="button" class="btn btn-info" value="Search"
+											onclick="searchData()" />
+									</div>
+								</div> -->
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+										
+										<th>Employee Name</th>
+										<th>Name</th>
+										<th>Relation</th>
+										<th>Mobile No</th>
+										<th>Adhar No</th>
+										<th align="center">Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Emergency Contact</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

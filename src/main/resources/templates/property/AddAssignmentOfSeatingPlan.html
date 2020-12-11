@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	//$("#myTable tbody tr:last").find(".userCls").append(new Option("--Select--","")); 
+	$("#myTable tbody tr:last").find(".userCls").val("");
+	$("#myTable tbody tr:last").find(".priceCls").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		
+		selectInput.eq(0).attr('id',"selectUser_"+i);
+		textInput.eq(0).attr('id',"selectPrice_"+i);
+		
+	})
+	
+}
+
+function disableTableOption(){
+	
+	 $("#myTable > tbody > tr").each(function(i){
+	   $(".userCls option").prop("disabled", false); //enable everything
+	
+	   var arr = $.map(
+	       $(".userCls option:selected"), function (n) {
+	             return n.value;
+	   });
+	   
+	   $(".userCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+	   }).hide();
+	
+	  
+	   $(".userCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+	   }).show();
+	 })
+}	
+
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".userCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".userCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+$(document).ready(function(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > lengthOfTableRow){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+	});
+	$("#propertyCatId").on('change', function() {
+		
+		var property = $(this).val();
+		if (property) {
+			
+			$.ajax({
+				type : 'POST',
+				url : 'assign-seatingplan-to-property-type-getPropertyType',
+				contentType : false,
+				data : property,
+				success : function(response) {
+					
+					$("#propertyTypeId").empty();
+					$("#propertyTypeId").append("<option value>Select</option>");
+					 for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#propertyTypeId").append(option);
+					} 
+				},
+				error : function(e) {
+					alert("error");
+				}
+			});
+		}
+		else {
+				$("#propertyTypeId").empty();
+				$("#propertyTypeId").append("<option value>Select</option>");
+		}
+	});
+	$("#propertyCatId").on('change', function() {
+		
+		var property = $(this).val();
+		if (property) {
+			
+			$.ajax({
+				type : 'POST',
+				url : 'assign-seatingplan-to-property-type-getSeatingPlanNameList',
+				contentType : false,
+				data : property,
+				success : function(response) {
+					
+					$("#seatPlanId").empty();
+					$("#seatPlanId").append("<option value>Select</option>");
+					 for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#seatPlanId").append(option);
+					} 
+				},
+				error : function(e) {
+					alert("error");
+				}
+			});
+		}
+		else {
+				$("#seatPlanId").empty();
+				$("#seatPlanId").append("<option value>Select</option>");
+		}
+	});
+//submit button function
+	
+	$("#submit").click(function(){
+		
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			assign = {};
+			assign['id']		        =	$("#id").val();
+			assign['propertyType']		=	$("#propertyTypeId").val();
+			assign['pSplanActive']		=	$("#statusId").val();
+			assign['seatingPlan']		=	$("#seatPlanId").val();
+			assign['pSplanCapacity']	=	parseInt($("#seatCatId").val());
+			assign['sPlanImage']	    =	$("#fileUpload").val();
+			assign['userType']			=	$(this).find(".userCls").val();
+			assign['pSplanPrice']		=	parseFloat($(this).find(".priceCls").val());
+			
+			dataset.push(assign);
+		
+		});//table tbody tr loop ends
+		
+		if (!blankValidation("propertyCatId","SelectBox" ,"Please Select Property Category"))
+		      return false;
+		if (!blankValidation("propertyTypeId","SelectBox" ,"Please Select Property Type"))
+		      return false;
+		if (!blankValidation("statusId","SelectBox" ,"Please Select Status"))
+		      return false;
+		if (!blankValidation("seatPlanId","SelectBox" ,"Please Select Seating Plan"))
+		      return false;
+		if (!blankValidation("seatCatId","SelectBox" ,"Seating Price can not be left Blank"))
+		      return false;
+		if (!blankValidation("statusId","SelectBox" ,"Please Select Status"))
+		      return false;
+		
+		var userTypeValid = true;
+		$(".userCls").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select User Type")){
+				userTypeValid = false;
+				return false;
+			}
+			
+		});
+		var SeatingPriceValid = true;
+		if(userTypeValid ){
+			$('.priceCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Sitting Price Can Not Be Left Blank")){
+					SeatingPriceValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		if(userTypeValid && SeatingPriceValid){
+			submitAssignTableStaff(dataset);
+		}
+		
+			
+		
+	})
+})
+
+	function submitAssignTableStaff(dataset){
+
+	//const ipAPI = 'https://api.ipify.org?format=json'
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			//showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "assign-seatingplan-to-property-type-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+				
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/property/view-assigned-seatingplan" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(response){
+					swal(response.code);	
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+
+function funcLoad(){
+	location.reload();
+}
+	
+function checkForDuplicate(event) {	
+	var item = event.currentTarget.value;
+	var count=0;
+	var itemId=event.currentTarget.id;
+		$(".userCls ").each(function(){
+	
+			if(item == $(this).val()){
+				count++;
+			}	
+		})	
+
+		if(count>=2){
+			swal('User Type is Already Selected');
+			$("#"+itemId).val("");
+		}	
+
+	}
+
+function priceValid(event) {
+	var currentId = event.currentTarget.id;
+	checkNum(currentId);
+	}
+
+</script>
+
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Assign Seating Plan</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Assign Seating Plan</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${assignmentOfSeatingPlan}" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+
+									<div class="col-lg-6">
+
+										<input type="hidden" th:if="${Edit}" id="id"
+											th:value="${assignmentOfSeatingPlan[0].id}" />
+
+										<div class="form-group" id="propertyDiv">
+											<label>Property Category</label> <select
+												class="form-control propertyCatName" id="propertyCatId">
+												<option value="">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${propertyNameList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==assignmentOfSeatingPlan[0].propertyCategory}'></option>
+												<option th:unless="${Edit}" th:each="c:${propertyNameList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+
+												<!-- <option th:each="c:${propertyNameList}" th:value='${c.key}'
+												th:text="${c.name}" onChange="propertyCatagoryChange();seatingPlanNameChange();"></option> -->
+											</select>
+										</div>
+										<div class="form-group" id="propertyDiv">
+											<label>Property Type</label> <select
+												class="form-control propertyTypeName" id="propertyTypeId">
+												<option value="">--Select--</option>
+												<!-- <option th:each="c:${propertyTypeList}" th:value='${c.key}'
+												th:text="${c.name}"></option> -->
+
+												<option th:if="${Edit}" th:each="c:${propertyTypeList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==assignmentOfSeatingPlan[0].propertyType}'></option>
+												<option th:unless="${Edit}" th:each="c:${propertyTypeList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group" id="statusDiv">
+											<label>Status</label> <select class="form-control status"
+												id="statusId">
+												<option value="">--Select--</option>
+												<option th:if="${Edit}" value=true
+													th:selected="${assignmentOfSeatingPlan[0].pSplanActive}">Active</option>
+												<option th:unless="${Edit}" value=true>Active</option>
+
+												<option th:if="${Edit}" value=false
+													th:selected="${assignmentOfSeatingPlan[0].pSplanActive}">Inactive</option>
+												<option th:unless="${Edit}" value=false>Inactive</option>
+
+
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group" id="seatPlanDiv">
+											<label>Seating Plan Name</label> <select
+												class="form-control seatPlanId" id="seatPlanId">
+												<option value="">--Select--</option>
+												<!-- <option th:each="c:${seatingPlanList}" th:value='${c.key}'
+												th:text="${c.name}"></option> -->
+												<option th:if="${Edit}" th:each="c:${seatingPlanList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==assignmentOfSeatingPlan[0].seatingPlan}'></option>
+												<option th:unless="${Edit}" th:each="c:${seatingPlanList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Seating Capacity.</label> <input class="form-control"
+												th:if="${Edit}" id="seatCatId"
+												th:value="${assignmentOfSeatingPlan[0].pSplanCapacity}"
+												onkeyup="checkNum('seatCatId')"> <input
+												class="form-control" th:unless="${Edit}" id="seatCatId"
+												onkeyup="checkNum('seatCatId')">
+										</div>
+
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>User Type</th>
+													<th>Price</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody id="tbodyData">
+
+												<tr class="tr_clone" th:if="${Edit}"
+													th:each="a,iter:${assignmentOfSeatingPlan}">
+													<td><select id="selectUser_"
+														class="form-control userCls"
+														onChange="checkForDuplicate(event);">
+															<option th:value="null">--select--</option>
+															<option th:each="c:${userTypeList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.userType}'></option>
+
+													</select></td>
+
+													<td><input type="text" class="form-control priceCls"
+														id="selectPrice_" th:value="${a.pSplanPrice}"
+														onKeyup="priceValid(event);" /></td>
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;
+														<button th:if="${iter.index}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+												</tr>
+
+												<tr class="tr_clone" th:unless="${Edit}">
+													<td><select id="selectUser_"
+														class="form-control userCls"
+														onChange="disableTableOption();">
+															<option value="">--Select--</option>
+															<option th:each="c:${userTypeList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+
+													<td><input type="text" class="form-control priceCls"
+														id="selectPrice_" value="00.00"
+														onKeyup="priceValid(event);" /></td>
+
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+
+
+										</table>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning"
+											onclick="funcLoad();">Cancel</button>
+									</div>
+									</div>
+								</div>
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</div>
+</html>

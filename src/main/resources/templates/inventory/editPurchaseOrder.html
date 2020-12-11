@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script>
+function funcLoad(){
+	location.reload();
+}
+
+$(document).ready(function() {
+	  var lengthOfRow = $("#tbodyData").children('tr').length;
+	 
+	  $('.minStockCls').prop('disabled', true);
+	  $('.totalReqCls').prop('disabled', true);
+	  $('.availQntCls').prop('disabled', true);
+	  $('#itemCategory_').prop('disabled', true);
+	  $('#store').prop('disabled', true);
+	  $('.itemSubCategoryCls').prop('disabled', true);
+	  $('.itemCls').prop('disabled', true);
+	  $('.rmv').hide();
+	  $('.tr_clone_add').hide();
+	  $('.vendorCls').prop('disabled', true);
+	
+	 var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	 
+	 $('.tbll').on('click', '.rmv', function () {
+			$(this).closest('tr').remove();
+			$("#myTable tbody tr:last").find('td:last').html('');
+			var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+			var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+			if($("#tbodyData").children('tr').length > 1){
+				$("#myTable tbody tr:last").find('td:last').append(add);
+				$("#myTable tbody tr:last").find('td:last').append(remove);
+			}else{
+				$("#myTable tbody tr:last").find('td:last').append(add);
+			}	
+		});
+	
+	
+	 var catid=$('#itemCategory_').val();
+	 var subcatid=$('#itemSubCategory_0').val();
+	 	 var dataset = [];
+	 	
+		item = {};
+		item['category_p']	       =	catid; 
+		dataset.push(item);
+		if(catid){
+		 $('.itemCategoryCls option[value='+catid+']').attr('selected','selected');
+          $('#param1').prop('disabled', true);
+          $('#param2').prop('disabled', true);
+          $('#param3').prop('disabled', true);
+          $('#param4').prop('disabled', true);
+         
+          $('#param5').prop('disabled', true);
+		}
+ 
+	      $('input[type="checkbox"][class="reqCheckboxCls"]').click(function () {
+		    var id = $(this).val();
+		    var str = id;
+			var res = str.replace("/", "");
+			res = res.slice(0, 9) + res.slice(10);		
+			
+			var checkedID=$(this).attr('id'); 
+	            if($('#'+checkedID).prop("checked")){
+	            	$('#'+res).prop("checked",true);	
+	            }
+	            else{ 
+	            	$('#'+res).prop("checked",false);
+	            }
+		  });  	
+
+		$("#submitItems").click(function(){
+			var x="";
+			var checkboxlist = [];
+	         $.each($("input[name='checkedItem']:checked"), function(){            
+	        	 checkboxlist.push($(this).val());
+	        	 x=x+$(this).val();
+	        	 x=x+",";
+	         });
+	         
+	         var lastChar = x.slice(-1);
+	         if (lastChar == ',') {
+	         x = x.slice(0, -1);
+	         }
+	         
+	         var y="";
+	   		 var checkboxlist = [];
+             $.each($("input[name='checkedPOComplete']:checked"), function(){            
+            	 checkboxlist.push($(this).val());
+           	     y=y+$(this).val();
+           	     y=y+",";
+             });
+	            
+             var lastChar = y.slice(-1);
+             if (lastChar == ',') {
+                y = y.slice(0, -1);
+             }
+	            
+	         
+	         console.log('value of  x: ',x);
+	         console.log('value of  y: ',y);
+	         
+	         var allcheckboxlist = [];
+	         $.each(checkboxlist, function(index, value ) {
+	        	 allchecked={};
+	        	 allchecked['checkedItem']=value;
+	        	  allcheckboxlist.push(allchecked);
+	        	});
+	         
+	         
+			 console.log('list for checked  :',allcheckboxlist);
+			 var dataset = [];
+			$("#tbodyData > tr").each(function(){
+				item = {};
+				item['purchaseOrder']	   =	$("#purchaseOrder").val(); 
+				item['store'] = $("#store").val();
+				item['vendor']	           =	$("#vendorId").val();
+				item['pODescription']      =	$("#descId").val();
+				item['pOStatus']	       =	$("#statusId").val();
+				item['porderDate']		   =	$("#porderDate").val();
+				item['deliveryPeriod']	   = 	$("#deliveryPeriod").val();
+				item['itemCategory']       =	$(this).find(".itemCategoryCls").val();
+				item['termsAndConditions'] =    $("#termsAndConditions").val();
+				item['itemSubCategory']    =	$(this).find(".itemSubCategoryCls").val();
+				item['itemName']		   =	$(this).find(".itemCls").val();
+				item['subGroup']		   =	$(this).find(".subGrpCls").val();
+				
+				
+				if($(this).find(".pOQtyCls").val()=='') {
+				   item['pOQty']		       =	parseFloat(1);
+				}else{
+					
+				   item['pOQty']		       =	parseFloat($(this).find(".pOQtyCls").val());
+				}
+				item['price']		       =	parseFloat($(this).find(".priceCls").val());
+				item['checkedItem']		   =x;
+				item['checkedPoStatus']	   =    y;
+				
+				
+				dataset.push(item);
+			});
+		 	if (!blankValidation("requisitionNumber_","SelectBox" ,"Please Select Requisition Number"))
+		        return false;
+			if (!blankValidation("descId","TextArea", "Please Enter Description"))
+		        return false;
+
+			if (!blankValidation("itemCategory_","SelectBox", "Please Select Item Category"))
+		        return false;
+
+			if (!blankValidation("vendor_","SelectBox", "Please Select Vendor"))
+		        return false;
+			
+			if (!blankValidation("statusId","SelectBox", "Please Select Status"))
+		        return false;
+			 
+			var subcatValid =true;
+			$('.itemSubCategoryCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Item SubCategory")){
+					return false;
+				}				
+			});
+					
+			var itemValid =true;
+			if(subcatValid){
+				$('.itemCls').each(function(){
+					if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Item ")){
+						itemValid =false;
+					    return false;
+					}	
+				});
+			}
+			var qtyValid =true;
+			if( subcatValid && itemValid){
+				$('.pOQtyCls').each(function(){
+					if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+						qtyValid =false;
+						return false;
+					}		
+				});
+			}
+				
+			
+			var priceValid =true;
+			if(subcatValid && itemValid && qtyValid){
+				$('.priceCls').each(function(){
+					if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Price")){
+						priceValid =false;
+						return false;
+					}		
+				});
+			}
+			
+		 	
+			if(subcatValid && itemValid && qtyValid && priceValid){
+				console.log("130 ",dataset);
+				
+				console.log('Dataset for  ',dataset);
+				submitPurchaseOrder(dataset);
+			}
+		});
+		
+		function submitPurchaseOrder(dataset){
+			console.log(dataset);
+			const ipAPI = 'https://api.ipify.org?format=json'
+			swal.fire({
+				title				: "Are you sure want to Submit?",
+				text				: "Once Submited,Can't revert back !",
+				type 				: "warning",
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Submit",
+				showLoaderOnConfirm	: true,preConfirm: () => {
+					return new Promise((resolve) => {
+						setTimeout(() => {
+							console.log("Doing async operation");
+							resolve()
+						}, 3000)
+					})
+				},
+				reverseButtons : true,
+				confirmButtonAriaLabel : 'Thumbs up, great!',
+				cancelButtonText : 'Cancel',
+				cancelButtonAriaLabel : 'Thumbs down',
+
+				  
+				}).then((result) => {
+					if(result.value){
+						$.ajax({
+						type		: "POST",
+						url 		: "edit-purchase-order",
+						dataType	: "json",
+						contentType	: "application/json",
+						data		: JSON.stringify(dataset),
+						success		: function(response){
+							console.log(response);
+							if(response.message=="Success"){
+								swal({
+										title:"Data Saved Successfully.",
+										type: "success",
+								}).then(function(){
+										window.location.href = "/inventory/view-purchase-order" ;
+								})
+							}else{
+								swal({
+									title:response.code,
+									text: response.message,
+									type:"warning"
+								})
+							}
+						},error		: function(response){
+							swal(response.code);	
+						}
+					}) //ajax ends
+				}
+				})//swal function block ends
+			}//submit function ends */
+});
+
+
+function checkQty(event){
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");	
+	var counter = l[1];
+	checkNum(currentId);
+	
+	}
+function incValue(counter){
+	var quantity =$("#pOQty_"+counter).val();
+	var price =$("#subGrp_"+counter).val();
+	var totalPrice=price*quantity;
+	$("#price_"+counter).val(price);
+	}
+
+function callMyfunction2(event){
+	var itemNameList = event.currentTarget.value;
+	var currentId = event.currentTarget.id;
+	var l = currentId.split("_");
+	var counter = l[1];
+	if(itemNameList !=""){
+		$("#item_"+counter).empty();
+		$("#item_"+counter).append(new Option("--Select--",""));
+	 	$.ajax({
+			type 		:	"POST",
+			 url 		:	"/inventory/edit-purchase-order-getItemName-throughAjax", 
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	JSON.stringify(itemNameList),
+			success 	: 	function(response){
+				var items = response.body;
+				console.log(response);
+				if(response.message=="success"){
+					if(items.length>0){
+						for(var i=0;i<items.length;i++){
+							var option	= i.toString();
+							option		= new Option(items[i].name,items[i].key)
+							$(option).html(items[i].name);
+							$("#item_"+counter).append(option);		
+						}
+					}
+				}else{
+					swal("Please Try Again");
+				}
+			},
+			error : function(data) {
+				swal(data);
+			}
+		})
+	}else{
+		$("#item_"+counter).empty();
+		$("#item_"+counter).append(new Option("--Select--",""));
+	}
+}
+
+ 
+
+ function addMore() {
+ 	 //alert("here");
+ 	var subcatValid =true;
+ 	$('.itemSubCategoryCls').each(function(){
+ 		if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Item SubCategory")){
+ 			return false;
+ 		}				
+ 	});
+ 			
+ 	var itemValid =true;
+ 	if(subcatValid){
+ 		$('.itemCls').each(function(){
+ 			if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Item ")){
+ 				itemValid =false;
+ 			    return false;
+ 			}	
+ 		});
+ 	}
+ 	var qtyValid =true;
+ 	if( subcatValid && itemValid){
+ 		$('.pOQtyCls').each(function(){
+ 			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+ 				qtyValid =false;
+ 				return false;
+ 			}		
+ 		});
+ 	}
+ 		
+ 	
+ 	var priceValid =true;
+ 	if(subcatValid && itemValid && qtyValid){
+ 		$('.priceCls').each(function(){
+ 			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Price")){
+ 				priceValid =false;
+ 				return false;
+ 			}		
+ 			
+ 		});
+ 	}
+ 	
+ 	if(!subcatValid || !itemValid || !qtyValid || !priceValid){
+ 		return false;
+ 	}
+ 	
+ 	
+ 		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+ 		
+ 		var cloneHtml = $("#myTable tbody tr:first").clone();
+ 		$("#myTable tbody tr:last").find('td:last').html('');
+ 		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+ 		
+ 		$("#myTable tbody tr td:last").html("");
+ 		var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+ 		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+ 		
+ 		$("#myTable tbody tr:last").find('td:last').append(addMore);
+ 		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+ 		// BLANK FIELD START
+ 		$("#myTable tbody tr:last").find(".itemSubCategoryCls").val("");
+     	$("#myTable tbody tr:last").find(".itemCls").val("");
+     	$("#myTable tbody tr:last").find(".minStockCls").val("");
+     	$("#myTable tbody tr:last").find(".totalReqCls").val("");
+     	$("#myTable tbody tr:last").find(".availQntCls").val("");
+     	$("#myTable tbody tr:last").find(".pOQtyCls").val("");
+     	$("#myTable tbody tr:last").find(".priceCls").val("");
+     	
+     	
+     	//BLANK FIELD END
+       
+     	//alert(lengthOfTableRow);
+     	if(lengthOfTableRow>0){
+     		 $("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+     	}
+     	
+ 		 
+ 		 
+		 
+   	 $("#myTable > tbody > tr").each(function(i){
+   			var selectInput = $(this).find('select');
+   			var textInput 	= $(this).find('input') ;
+   			var btnid 	= $(this).find('button') ;
+   			var divInput = $(this).find('div');
+   			
+   			textInput.eq(0).attr('id',"itemCategory_"+i);
+   			textInput.eq(1).attr('id',"itemSubCategory_"+i);
+   			textInput.eq(2).attr('id',"item_"+i);
+   			textInput.eq(3).attr('id',"itemName_"+i);
+   			textInput.eq(4).attr('id',"minStock_"+i);
+   			textInput.eq(5).attr('id',"totalReq_"+i);
+   			textInput.eq(6).attr('id',"availQnt_"+i);
+   			textInput.eq(7).attr('id',"pOQty_"+i);
+   			textInput.eq(8).attr('id',"price_"+i);
+   			textInput.eq(9).attr('id',"subGrp_"+i);
+   			/* textInput.eq(9).attr('id',"porderDate_"+i);
+   			textInput.eq(10).attr('id',"deliveryPeriod_"+i); */
+   			btnid.eq(0).attr('id',"addbtn_"+i);
+   			divInput.eq(0).attr('id', "suggesstion-box1_" + i);
+   		})
+
+ }
+ 
+ function checkForDuplicate(event) {	
+		
+		var item = event.currentTarget.value;
+		var count=0;
+		var itemId=event.currentTarget.id;
+		 $(".itemCls ").each(function(){
+			
+			if(item == $(this).val()){
+				count++;
+			}
+			
+			
+		})	
+		 
+		 if(count>=2){
+			 swal('item already selected');
+			 $("#"+itemId).val("");
+		 }			
+		
+
+	}
+ 
+ function getMinStock(event){
+		var itemList = event.currentTarget.value;
+		var currentId = event.currentTarget.id; 
+		var l = currentId.split("_");
+		var counter = l[1];
+		if(itemList !=""){
+			$("#minStock_"+counter).empty();
+			 	$.ajax({
+				type 		:	"POST",
+				 url 		:	"/inventory/edit-purchase-order-getMinStock-throughAjax", 
+				dataType 	:	'json',
+				contentType :	'application/json',
+				data 		:	JSON.stringify(itemList),
+				success 	: 	function(response){
+					var items = response.body;
+					console.log('data for minStock == ',response);
+					if(response.message=="success"){
+						if(items.length>0){
+							var minStock	=items[0].minStock;
+							var totalReq	=items[0].totalReq;
+							var availQnt	=items[0].availQnt;
+						//	$("#minStock_"+counter).val(minStock);	
+						//	$("#totalReq_"+counter).val(totalReq);	
+						//	$("#availQnt_"+counter).val(availQnt);	
+						
+							if(minStock == null){
+								$("#minStock"+counter).val(0);	
+							}else{
+								$("#minStock"+counter).val(minStock);
+							}
+							
+							if(availQnt == null){
+								$("#availQnt_"+counter).val(0);	
+							}else{
+								$("#availQnt_"+counter).val(availQnt);
+							}
+							
+							if(totalReq == null){
+								$("#totalReq_"+counter).val(0);	
+							}else{
+								$("#totalReq"+counter).val(totalReq);
+							}
+							 
+							$("#minStock_"+counter).prop('disabled', true);	
+							$("#totalReq_"+counter).prop('disabled', true);	
+							$("#availQnt_"+counter).prop('disabled', true);
+							
+						}
+					}else{
+						swal("Please Try Again");
+					}
+				},
+				error : function(data) {
+					swal(data);
+				}
+			})
+		}
+	}
+ function funcLoad(){
+		location.reload();
+	} 
+	//method to return view page when click on cancel button at edit time
+	
+	function returnToAddPage(){
+		var item = $("#purchaseOrder").val();
+		if((item == null)||(item == "")){
+			funcLoad();
+		}
+		else{
+			window.location.href = "/inventory/view-purchase-order" ;
+		}
+	}
+ 
+	
+	function getTotalPrice(event){
+		var currentId = event.currentTarget.id;
+		var currentValue = event.currentTarget.value;
+		var l = currentId.split("_");	
+		var counter = l[1];
+		var itemName=$("#item_"+counter).val();
+		console.log(itemName);
+		var vendor = $("#vendorId").val();
+		console.log(vendor);
+		if(itemName !=""){
+			 	$.ajax({
+				type 		:	"GET",
+				 url 		:	"/inventory/add-purchase-order-getTotalPrice-throughAjax?itemId="+itemName+"&vendor="+vendor, 
+				dataType 	:	'json',
+				contentType :	'application/json',
+				//data 		:	JSON.stringify(itemList),
+				success 	: 	function(response){
+					var items = response.body;
+					console.log(response);
+					if(response.message=="success"){
+						$("#subGrp_"+counter).val(response.body.totalReq);
+						incValue(counter);
+					}else{
+						swal("Please Try Again");
+					}
+				},
+				error : function(data) {
+					swal(data);
+				}
+			})
+			
+		}
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap" id="mainDiv">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="inactive"><a
+						th:href="@{/inventory/view-purchase-order}">View Purchase
+							Order</a></li>
+				</ol>
+			</div>
+
+
+			<div class="card-title">
+				<h4>Edit Purchase Order</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${purchaseList}" autocomplete="off"
+								id="frm-example">
+
+								<!--<input type="text" id="purchaseOrder"
+									th:value="${purchase}" />  -->
+								<input type="hidden" id="purchaseOrder" th:value="${purchase}" />
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group" id="">
+											<label>Store</label> <select id="store"
+												class="form-control" th:if="${purchase}">
+												<option value="">--Select--</option>
+												<option th:each="c:${storeList}" th:value='${c.key}'
+													th:text="${c.name}"
+													th:selected="${c.key==purchaseList[0].store}">
+												</option>
+											</select>
+										</div>
+										<!-- <div class="form-group" id="">
+											<label>Category Name</label> <select id="itemCategory_"
+												class="form-control itemCategoryCls" th:if="${purchase}"
+												onchange="callMyfunction(event);">
+												<option value="">--Select--</option>
+												<option th:each="c:${CategoryList}" th:value='${c.key}'
+													th:text="${c.name}"
+													th:selected="${c.key==purchaseList[0].itemCategory}">
+												</option>
+											</select> <select id="itemCategory_"
+												class="form-control itemCategoryCls" th:unless="${purchase}"
+												onchange="callMyfunction(event);">
+												<option value="">--Select--</option>
+												<option th:unless="${purchase}"
+													th:each="c:${itemCategoryList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div> -->
+
+										<div class="form-group" id="">
+											<div class="form-group" id="">
+													<label>Vendor Name</label> <input type="text"
+														id="vendorName" onkeyup="venderAutoComplete()" th:value="${purchaseList[0].venderName}"
+														class="form-control vendorCls" /> <input type="hidden"
+														id="vendorId" class="form-control vendorIdCls" th:value="${purchaseList[0].vendor}"/>
+													<div id="suggesstion-box"></div>
+												</div>
+										</div>
+
+										<div class="form-group">
+											<label id="porder">Description</label>
+											<textarea th:if="${purchase}" style="height: 70px;" cols="50"
+												rows="4" id="descId" class="form-control textarea"
+												th:text="${purchaseList[0].pODescription}"></textarea>
+											<textarea th:unless="${purchase}" style="height: 70px;"
+												cols="50" rows="4" id="descId" class="form-control textarea"></textarea>
+										</div>
+
+									</div>
+
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Purchase Order Date</label> <input th:if="${purchase}"
+												type="text" class="form-control porderDateCls"
+												id="porderDate" placeholder="Date" readonly
+												th:value="${purchaseList[0].porderDate}">
+
+										</div>
+										<div class="form-group">
+											<label>Delivery Period</label> <input type="text"
+												th:if="${purchase}" class="form-control deliveryPeriodCls"
+												id="deliveryPeriod" placeholder="Date" readonly
+												th:value="${purchaseList[0].deliveryPeriod}" />
+
+										</div>
+
+
+										<div class="form-group" style="display: none;">
+											<label>Status</label> <select class="form-control"
+												id="statusId">
+												<option value="">--Select--</option>
+												<option th:if="${purchase}" value=true
+													th:selected="${purchaseList[0].pOStatus}">Active</option>
+												<option th:unless="${purchase}" value=true>Active</option>
+												<option th:if="${purchase}" value=false
+													th:selected="${!purchaseList[0].pOStatus}">Inactive</option>
+												<option th:unless="${purchase}" value=false>Inactive</option>
+											</select>
+										</div>
+
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+
+											<thead>
+												<tr>
+
+													<th>Item Name</th>
+													<th>Min. Stock</th>
+													<th>Total Request</th>
+													<th>Avail Qnty</th>
+													<th>Quantity</th>
+													<th>Price</th>
+													<!-- <th id="actionth">Action</th> -->
+												</tr>
+											</thead>
+
+
+											<tbody id="tbodyData">
+												<tr class="tr_clone" th:if="${purchase}"
+													th:each="a,iter:${purchaseList}">
+
+													<td>
+													
+													<input type="hidden"
+														th:id="'itemCategory_'+${iter.index}"
+														class="form-control itemCategoryCls"
+														th:value='${a.itemCategory}'>
+														<input type="hidden"
+														th:id="'itemSubCategory_'+${iter.index}"
+														class="form-control itemSubCategoryCls"
+														th:value='${a.itemSubCategory}'> <select
+														th:id="'item_'+${iter.index}" class="form-control itemCls"
+														name="item"
+														onchange="checkForDuplicate(event);getMinStock(event);">
+															<option value="">--Select--</option>
+															<option th:each="c:${itemLists[iter.index]}"
+																th:value='${c.key}' th:text="${c.name}"
+																th:selected="${c.key ==a.itemName}"></option>
+													</select></td>
+													<td><input type="text" th:id="'minStock_'+${iter.index}"
+														class="form-control  minStockCls" th:value='${a.minStock}'></td>
+
+													<td><input type="text"  th:id="'totalReq_'+${iter.index}"
+														class="form-control  totalReqCls" th:value='${a.totalReq}'></td>
+
+													<td><input type="text" th:id="'availQnt_'+${iter.index}"
+														class="form-control  availQntCls" th:value='${a.availQnt}'></td>
+
+													<td><input type="text"   th:id="'pOQty_'+${iter.index}"
+														class="form-control  pOQtyCls" 
+														th:value='${a.pOQty}' onkeyup="getTotalPrice(event);checkQty(event);"></td>
+
+													<td><input type="text" th:id="'price_'+${iter.index}"
+														class="form-control  priceCls right-align" th:value='${a.price}' readonly>
+														<input type="hidden"  th:id="'subGrp_'+${iter.index}"
+														class="form-control  subGrpCls" ></td>
+
+												</tr>
+											</tbody>
+										</table>
+										</div>
+										<div>&nbsp;</div>
+										<div>&nbsp;</div>
+										<div class="col-lg-6">
+											<div class="form-group">
+												<label id="porder">Terms & Conditions</label>
+												<textarea style="height: 40px;" cols="20" rows="2"
+													th:if="${purchase}" id="termsAndConditions"
+													class="form-control textarea"
+													th:text="${purchaseList[0].termsAndConditions}" readonly></textarea>
+											</div>
+										</div>
+									
+								</div>
+							</form>
+						</div>
+						<div class="row">
+						<div class="col-lg-12">
+							<div class="form-group">
+								<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+								<button type="button" class="btn btn-warning"
+									onclick="returnToAddPage();">Cancel</button>
+							</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+			<!-- Modal Start-->
+			<div id="myModal" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+
+					<!-- Modal content-->
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title">View Details of Requisition</h4>
+							<button type="button" class="close" data-dismiss="modal">
+								<i class="fa fa-close fa-2x"></i>
+							</button>
+						</div>
+						<div class="modal-body">
+							<table style="width: 100%;" id="table1">
+							</table>
+						</div>
+						<div class="modal-body">
+							<table style="width: 100%;" id="table2">
+							</table>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default"
+								data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div></div>
+		</div>
+	</div>
+	<div style="clear: both;"></div>
+</div>
+</html>

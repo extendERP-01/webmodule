@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	function modelview1() {
+		$('#myModal1').modal('show');
+
+	}
+	function modelview2() {
+		$('#myModal2').modal('show');
+
+	}
+	function modelview3() {
+		$('#myModal3').modal('show');
+	}
+</script>
+<script type="text/javascript">
+	$(document)
+			.ready(
+					function() {
+
+						$("#param4").datetimepicker({
+							format : 'd-m-Y',
+							closeOnDateSelect : true,
+							//minDate: new Date() ,
+							timepicker : false,
+						})
+						$("#date").datetimepicker({
+							format : 'd-m-Y',
+							closeOnDateSelect : true,
+							//minDate: new Date() ,
+							timepicker : false,
+						})
+
+						var lengthOfTableRow = $("#tbodyData").children('tr').length;
+						$('.tbll')
+								.on(
+										'click',
+										'.rmv',
+										function() {
+											$(this).closest('tr').remove();
+											$("#myTable tbody tr:last").find(
+													'td:last').html('');
+											var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+											var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+											if ($("#tbodyData").children('tr').length > 1) {
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(add);
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(remove);
+											} else {
+												$("#myTable tbody tr:last")
+														.find('td:last')
+														.append(add);
+											}
+
+											displayTable();
+										});
+
+					});
+
+	function addMore() {
+
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+		$("#myTable tbody tr td:last").html("");
+		var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+
+		//$("#myTable tbody tr:last").find(".qualifCls").append(new Option("--Select--",""));
+		$("#myTable tbody tr:last").find(".specificCls").val("");
+		$("#myTable tbody tr:last").find(".questionCls").val("");
+		$("#myTable tbody tr:last").find(".lowCls").val("");
+		$("#myTable tbody tr:last").find(".medCls").val("");
+		$("#myTable tbody tr:last").find(".highCls").val("");
+
+		var editTr = 0;
+
+		if (lengthOfTableRow > editTr) {
+
+			$("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last')
+					.append(removeMore);
+		}
+		$("#myTable > tbody > tr").each(function(i) {
+			var selectInput = $(this).find('select');
+			var textInput = $(this).find('input');
+			var fileInput = $(this).find('file');
+			var divInput = $(this).find('div');
+			var checkInput = $(this).find('checkbox');
+
+			textInput.eq(0).attr('id', "selectStart_" + i);
+			textInput.eq(1).attr('id', "question_" + i);
+			checkInput.eq(0).attr('id', "low_" + i);
+			checkInput.eq(1).attr('id', "medium_" + i);
+
+			checkInput.eq(2).attr('id', "high_" + i);
+
+		})
+
+	}
+	function displayTable() {
+		$("#myTable > tbody > tr").each(function(i) {
+			var arr = $.map($(".qualifCls option:selected"), function(n) {
+				return n.value;
+			});
+			$(".qualifCls option").filter(function() {
+				return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+			}).show();
+		})
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/recruitment/add-recruitment}">Add
+							Employee Recruitment</a></li>
+					<li class="active"><span>View Employee Recruitment </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Employee Recruitment</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-recruitment">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>From Date</label> <input id="param3" class="form-control"
+									type="text" placeholder=" From Date" name="" readonly>
+							</div>
+							<div class="col-md-2">
+								<label>To Date</label> <input id="param4" class="form-control"
+									type="text" placeholder=" To Date" name="" readonly>
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblTheme" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Job Id</th>
+									<th>Department</th>
+									<th>Hiring Manager</th>
+									<th>Post</th>
+									<th>Sourcing</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th>JOB001</th>
+									<th>Sale</th>
+									<th>Jinesh</th>
+									<th>Sales Manager</th>
+									<th>Vender</th>
+									<th><a data-toggle='modal' title='View'
+										href='javascript:void' onclick='modelview1();'><i
+											class='fa fa-map'></i></a></th>
+								</tr>
+								<tr>
+									<th>JOB002</th>
+									<th>Sale</th>
+									<th>Omraj</th>
+									<th>Sales Manager</th>
+									<th>Internal</th>
+									<th><a data-toggle='modal' title='View'
+										href='javascript:void' onclick='modelview1();'><i
+											class='fa fa-map'></i></a></th>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 850px;">
+					<div class="modal-header">
+						<h4 class="modal-title">HR Screening</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Vender</th>
+										<th>Candidate Name</th>
+										<th>DOB</th>
+										<th>Father Name</th>
+										<th align="center">Attachment</th>
+										<th>Screening Status</th>
+										<th>InterViewer</th>
+										<th>Feedback</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<th>Indeed</th>
+										<th>Omraj</th>
+										<th>01/08/1996</th>
+										<th>Rk</th>
+										<th width="50"><input type="file" id="fileUploadReq"
+											style="display: block;" onchange="saveFileReq()">
+											<div id="uploadedImgDivReq"></div></th>
+										<th><select name="cars" id="cars">
+												<option value="volvo">Select</option>
+												<option value="volvo">ShortListed</option>
+												<option value="saab">Hold</option>
+												<option value="opel">Rejected</option>
+										</select></th>
+										<td>
+											<div
+												style="border: 1px solid #ccc; padding: 4px; height: 30px; overflow-y: scroll;">
+												<input type="checkbox" name="1" value="1"> Sumit <br />
+												<input type="checkbox" name="1" value="2"> Rajesh <br />
+												<input type="checkbox" name="1" value="3"> Rahul
+											</div>
+										<th><a data-toggle='modal' title='View'
+											href='javascript:void' onclick='modelview3();'><i
+												class='fa fa-bars'></i></a></th>
+
+									</tr>
+									<tr>
+										<th>Naukri</th>
+										<th>Jinesh</th>
+										<th>01/08/1997</th>
+										<th>Sk</th>
+										<th width="50"><input type="file" id="fileUploadReq"
+											style="display: block;" onchange="saveFileReq()">
+											<div id="uploadedImgDivReq"></div></th>
+										<th><select name="cars" id="cars">
+												<option value="volvo">Select</option>
+												<option value="volvo">ShortListed</option>
+												<option value="saab">Hold</option>
+												<option value="opel">Rejected</option>
+										</select></th>
+										<td>
+											<div
+												style="border: 1px solid #ccc; padding: 4px; height: 30px; overflow-y: scroll;">
+												<input type="checkbox" name="1" value="1"> Sumit <br />
+												<input type="checkbox" name="1" value="2"> Rajesh <br />
+												<input type="checkbox" name="1" value="3"> Rahul
+											</div> <!-- <th><input type="checkbox" name="vehicle" value="Bike">Sumit<br>
+											<input type="checkbox" name="vehicle" value="Car">Rajesh</th> -->
+										<th><a data-toggle='modal' title='View'
+											href='javascript:void' onclick='modelview3();'><i
+												class='fa fa-bars'></i></a></th>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" data-dismiss="modal">Submit</button>
+						<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		<div id="myModal2" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">HR Screening</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="col-lg-12">
+							<div class="form-group">
+								<!-- <h3>Action</h3> -->
+								<form action="" method="get">
+									<input type="checkbox" name="vehicle1" value="Bike"> <label
+										for="vehicle1"> ShortListed</label><br> <input
+										type="checkbox" name="vehicle2" value="Car"> <label
+										for="vehicle2"> Hold</label><br> <input type="checkbox"
+										name="vehicle3" value="Boat" checked> <label
+										for="vehicle3"> Rejected</label><br> <br>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" id="submitModal">Submit</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- Modal Start-->
+		<div id="myModal3" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 850px;">
+					<div class="modal-header">
+						<h4 class="modal-title">Interview FeedBack</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+										<td>Position Name :</td>
+										<td align="left">
+											<div>
+												<input type="text" class="form-control" id="positionName">
+											</div>
+										</td>
+										<td>Job Description :</td>
+										<td align="left"><div>
+												<input type="text" class="form-control" id="jd">
+											</div></td>
+									</tr>
+									<tr>
+										<td>Candidate Name :</td>
+										<td align="left"><div>
+												<input type="text" class="form-control" id="candidateNo">
+											</div></td>
+										<td>Registration No :</td>
+										<td align="left"><div>
+												<input type="text" class="form-control" id="regNo">
+											</div></td>
+									</tr>
+									<tr>
+										<td>Interviewer Name :</td>
+										<td align="left"><div>
+												<input type="text" class="form-control" id="interviewrName">
+											</div></td>
+										<td>Date:</td>
+										<td align="left"><div>
+												<input type="text" class="form-control" id="date">
+											</div></td>
+									</tr>
+								</thead>
+							</table>
+							<table class="tbll table table-bordered" id="myTable"
+								width="100%" border="0" cellspacing="1" cellpadding="5">
+								<thead class="theadCls">
+
+									<tr>
+										<th>Specific</th>
+										<th>Question</th>
+										<th>Low</th>
+										<th>Medium</th>
+										<th>High</th>
+										<th>Comment</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody id="tbodyData">
+									<tr class="tr_clone">
+										<td><input type="text" class="form-control specificCls"
+											id="specific_" /></td>
+										<td><input type="text" class="form-control questionCls"
+											id="question_" /></td>
+										<td><div>
+												<input type="checkbox" name="1" value="3" id="low_"
+													class="lowCls">
+											</div></td>
+										<td><div>
+												<input type="checkbox" name="1" value="3" id="medium_"
+													class="medCls">
+											</div></td>
+										<td><div>
+												<input type="checkbox" name="1" value="3" id="high_"
+													class="highCls">
+											</div></td>
+										<td><input type="text" class="form-control commentCls"
+											id="comment_" /></td>
+
+										<td width="150"><button type="button"
+												class="btn btn-primary tr_clone_add" name="add"
+												onclick="addMore();">
+												<span class="ti-plus"></span>
+											</button>&nbsp;</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" data-dismiss="modal">Submit</button>
+						<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

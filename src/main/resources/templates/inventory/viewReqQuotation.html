@@ -1,0 +1,445 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.checkListContainer {
+	border: 0.5px solid;
+	padding: 5px;
+	display: flex;
+	align-items: center;
+}
+
+input[type="checkbox"] {
+	margin-right: 10px;
+}
+
+.checkClass {
+	height: 121px;
+    overflow-y: scroll;
+}
+</style>
+<script>
+function showCheckboxes(event) {
+	var cId = event.currentTarget.id;
+	var l = cId.split("_");
+	var counter = l[1];		
+	$("#checkboxes_").toggle('slow','swing');
+}
+ 
+  function viewInModel(index){
+		$('#table1').empty();
+			$.ajax({
+				type 		:	"POST",
+				url 		:	"view-rfq-model",
+				dataType 	:	'json',
+				contentType :	'application/json',
+				data 		:	index,
+				success 	: 	function(response) {
+					
+					   if(response.message=="success"){ 
+				     	var VStatus = "";
+						if(response.body.approvedStatus){
+							VStatus = "Approved";	
+						}else{
+							VStatus = "Pending for Approval";	
+						}
+						
+						var assignVendor="";
+						if(response.body.rfqVendor == null){
+							assignVendor = "Not Assigned Yet";	
+						}else{
+							
+							assignVendor = response.body.rfqVendor;
+						}
+					 
+					 
+						 table = '<tr><td>RFQ Name:</td>'+'<td align="left">'
+						    +response.body.rfqName+'</td>'+'</tr><tr><td>Item Category:</td><td align="left">'
+						    +response.body.itemCategory+'</td>'+'</tr><tr><td>Validity Date:</td><td align="left">'
+							+response.body.rfqValidDate+'</td>'+'</tr><tr><td> Vendor Status:</td><td align="left">'
+							+VStatus+'</td>'+'</tr><tr><td>Vendors:</td><td align="left">'
+							+assignVendor+'</td>'+'</tr><tr><td>Background:</td><td align="left">'
+							+response.body.rfqDetails+'</td></tr>';
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+					}				
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+		}  
+
+  
+  
+function viewInModelApprove(index, itemCat){ 
+	//$('#ChangeStatusModel').modal('show');
+	$('#reqQuotId').val(index);
+	$('#catId').val(itemCat);
+	
+	$.ajax({
+		type 		:	"POST",
+		url 		:	"view-rfq-get-vendor-list-through-ajax",
+		dataType 	:	'json',
+		contentType :	'application/json',
+		data 		:	itemCat,
+		success 	: 	function(response) {
+			if(response.message=="success"){ 
+				var vendorList = response.body;
+				var div = "";
+				for(var i = 0; i < vendorList.length; i++) {
+					div = div + '<div class="checkListContainer"><input type="checkbox" class="userNameCls" name="category" id="rfqVendors" value="'+vendorList[i].key+'">'+vendorList[i].name+'</div>';
+				}
+				
+				$(".checkClass").append(div);
+				$('#ChangeStatusModel').modal('show');
+			}				
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+	
+}
+ 	$(document).ready(function() {
+ 		$("#checkboxes_").toggle();
+ 		$("#vendDIv").hide();
+ 		
+ 		$('#table').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-rfq-through-ajax',
+					'data' : function(d) { 
+						d.param1 = $('#param1').val();
+						//d.param2 = $('#param2').val();
+					}
+				},
+				'dataSrc' : "",
+			'columns' : [
+				{'data' : 'rfqName'},
+				{'data' : 'itemCategory'},
+				{'data' : 'rfqCreatedOn'},
+				{'data' : 'rfqValidDate'},
+				{'data' : 'rfqBackground'},
+				{'data' : 'rfqVendor'}, 
+				{'data' : 'action'}
+					]	
+			});
+ 		
+ 		$("#submitVendorList").click(function(){
+			var data = [];
+			item = {};
+			
+			var c = 0;
+			$("input:checkbox[name=category]:checked").each(function(){
+				c = c + 1;
+				data.push($(this).val());
+			});
+			
+			item.reqQuotId = $("#reqQuotId").val();
+			item.rfqVendors = data;
+			
+			if(c == 0) {
+				swal({
+					title: 'Please Choose Vendor',
+					type: "warning",
+				})
+			} else {
+				console.log(item)
+				$.ajax({
+					type		: "POST",
+					url 		: "view-rfq-vendor-approve",
+					dataType	: "json",
+					contentType	: "application/json",
+					data		: JSON.stringify(item),
+					success		: function(response){
+						console.log(response);
+						if(response.message=="Success"){
+							swal({
+									title:"Vendor Assigned Successfully.",
+									type: "success",
+							}).then(function(){
+									location.reload(); 
+							})
+						} else {
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+					},error		: function(data){
+						console.log(data)
+					}
+				})
+			}
+			
+		}) 
+		  });
+	
+	function searchData() {
+		$('#table').DataTable().draw();
+	}	
+	
+	 
+	
+	  const ipAPI = 'https://api.ipify.org?format=json';
+	  function DeleteItem(index){
+	//	  alert(index);
+	  swal({
+			title				: "Are you sure to Delete this Leave Period?",
+			text				: "Once Deleted,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : '<i class="fa fa-thumbs-down">cancel</i>',
+			cancelButtonAriaLabel : 'Thumbs down',
+			preConfirm: () => {
+			    return fetch(ipAPI)
+			      .then(response => response.json())
+			      .then(data => Swal.insertQueueStep(data.ip))
+			      .catch(() => {
+			        Swal.insertQueueStep({
+			          type: 'error',
+			          title: 'Unable to get your public IP'
+			        })
+			      })
+			 }  
+		}).then((result) => {
+			if(result.value){
+			$.ajax({
+			type		: "POST",
+			url 		: "delete-rfq",
+			dataType	: "json",
+			contentType	: "application/json",
+			data		: JSON.stringify(index),
+			success		: function(response){
+				console.log(response);
+				if(response.message=="Success"){
+					swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+					}).then(function(){
+							location.reload(); 
+					})
+				}else{
+					console.log('i m in unsuccess');
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+			}
+		})//swal function block ends
+		
+	  }
+	  
+	  
+	  function selectVen(event){
+		  var currentId = event.currentTarget.id;
+		  var currentValue = event.currentTarget.value;
+		  $("#RFQDIV").hide();
+		  $("#vendDIv").show();
+		 // alert('hello----------------'+currentValue);
+		  if(currentValue !=""){
+				$("#rfqVendors").empty();
+				//$("#rfqVendors").append(new Option("--Select--",""))
+			 	$.ajax({
+					type 		:	"POST",
+					 url 		:	"view-rfq-getVendorName-throughAjax", 
+					dataType 	:	'json',
+					contentType :	'application/json',
+					data 		:	JSON.stringify(currentValue),
+					success 	: 	function(response){
+						var items = response.body;
+						console.log('data for vendor == ',response);
+						if(response.message=="success"){
+							if(items.length>0){
+								for(var i=0;i<items.length;i++){
+									var option	= i.toString();
+									option		= new Option(items[i].name,items[i].key)
+									$(option).html(items[i].name);
+									$("#rfqVendors").append(option);	
+									
+								}
+							}
+						}else{
+							swal("Please Try Again");
+						}
+					},
+					error : function(data) {
+						swal(data);
+					}
+				})
+			}
+		  
+	  }
+
+	  function gotovendorquot() {
+		  window.location.href="/inventory/add-rfq-quotation-detail";
+	  }
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="@{/index}">Home</a></li>
+					<li class="active"><a th:href="@{/inventory/add-rfq}">Add
+							Request Quotation</a></li>
+					<li class="inactive"><a th:href="@{/inventory/view-rfq}">View
+							Request Quotation</a></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>List of Request Quotation For Vendor Assigned</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-rfq">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>RFQ Name</label> <select class="org-name form-control"
+									id="param1">
+									<option th:value="NULL">Select</option>
+									<option th:each="c:${lRFQData}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+								</select>
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>RFQ Name</th>
+									<th>Item Category</th>
+									<th>RFQ Created On</th>
+									<th>RFQ Validity</th>
+									<th>Attachment</th>
+									<th>Assigned Vendors</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+					<!-- Modal Start-->
+					<div id="myModal" class="modal fade" role="dialog">
+						<div class="modal-dialog">
+							<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title">View Details of Request Quotation
+									</h4>
+									<button type="button" class="close" data-dismiss="modal">
+										<i class="fa fa-close fa-2x"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<table width="100%" border="0" id="table1">
+
+									</table>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Modal End-->
+					<div id="ChangeStatusModel" class="modal fade" role="dialog">
+						<div class="modal-dialog">
+							<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title">Add Vendors For Request Quotation</h4>
+									<button type="button" class="close" data-dismiss="modal">
+										<i class="fa fa-close fa-2x"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+										<div class="col-md-12" id="RFQDIV">
+											<label>RFQ ID</label> <input type="text" readonly
+												class="form-control" id="reqQuotId" />
+										</div>
+										<div class="col-md-12">
+											<label>Category</label> <select class="org-name form-control"
+												id="catId" onchange="selectVen(event)" disabled>
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${lCatDate}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<!-- id="vendDIv" -->
+										<div class="col-md-12">
+											<div id="mselct_">
+												<label>Vendors</label>
+												<div class="input-group md-form form-sm form-2 pl-0">
+													<input type="text" class="form-control"
+														value="Choose Vendors" th:id="'selectUser_'"
+														readonly>
+													<div style="float: right;">
+														<button type="button" class="fa fa-caret-down"
+															style="font-size: 28px" name="add" th:id="'selectDiv_'"
+															onclick="showCheckboxes(event);"></button>
+													</div>
+												</div>
+												<div th:id="'checkboxes_'" class="checkClass">
+													<!-- <div th:each="c:${VendorList}"
+														class="checkListContainer">
+														<input type="checkbox" class="userNameCls" name="category"
+															th:text="${c.name}" th:field="*{rfqVendors}" th:value='${c.key}'>
+														th:checked="${#lists.contains(SSupervisorEmp, c.key)}"
+
+													</div> -->
+												</div>
+											</div>
+										</div>
+										<div class="modal-footer col-md-12">
+											<input type="submit" value="Submit" id="submitVendorList" class="btn btn-success"
+												style="margin-top: 6px;" />
+											<button type="button" class="btn btn-default"
+												data-dismiss="modal" style="margin-top: 6px;">Close</button>
+										</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

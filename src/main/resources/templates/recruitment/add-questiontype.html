@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	$("#myTable tbody tr:last").find(".speTypeCls").val("");
+	$("#myTable tbody tr:last").find(".NameCls").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		
+		selectInput.eq(1).attr('id', "selectQue_" + i);
+		textInput.eq(0).attr('id',"selectName_"+i);
+	})
+	
+}
+
+
+var count=0;
+$(document).ready(function(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+		});
+	
+	
+	
+
+	
+//submit button function
+	
+	$("#submit").click(function(){
+		count=0;
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			
+			assign = {};
+			assign['editId']    =	$("#id").val();
+			assign['speTypeId']    =	  $(this).find(".speTypeCls").val();
+			assign['questionType']  = $(this).find(".NameCls").val();
+			dataset.push(assign);
+			console.log(assign);
+			count++;
+		});//table tbody tr loop ends
+		
+		var speValid =true;
+		$('.speTypeCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Question Type ")){
+				speValid =false;
+		        return false;
+			}
+				
+		});
+		
+		
+		var nameValid =true;
+		if(speValid ){
+		$('.NameCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Question Name")){
+				nameValid =false;
+		        return false;
+			}
+				
+		});
+		
+		}
+		
+		
+		if(speValid && nameValid){
+			submitAssignQuestionType(dataset);
+			console.log(dataset);
+		}
+											
+			
+		
+	})
+})
+
+	function submitAssignQuestionType(dataset){
+	
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "add-questiontype-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					//console.log(response);
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/recruitment/view-questiontype" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+
+function funcLoad(){
+	location.reload();
+}
+    
+	
+		
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Question Type Name </span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Question Type Name</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${queAssign}" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+
+									<div class="col-lg-4">
+
+										<input type="hidden" th:if="${Edit}" id="id"
+											th:value="${queAssign[0].editId}" >
+											
+
+
+                                  <!-- 
+										<div class="form-group">
+											<label>Question Type Name</label> <select
+												class="form-control propertyCatName" id="speTypeId">
+												<option value="">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${SpecificList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==queAssign[0].speTypeId}'></option>
+												<option th:unless="${Edit}" th:each="c:${SpecificList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+
+											</select>
+										</div>
+
+                                   -->
+
+									</div>
+								</div>
+								
+								
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Specific Type</th>
+													<th>Question</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody id="tbodyData">
+
+												<tr class="tr_clone" th:if="${Edit}"
+													th:each="a,iter:${queAssign}">
+													
+													<td><select id="selectQue_0"
+														class="form-control speTypeCls"
+														th:id="${'selectQue_0'+iter.index}">
+												<option value="">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${SpecificList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==queAssign[0].speTypeId}'></option>
+													</select></td>
+													
+													
+													<td><select id="selectName__0"
+														class="form-control NameCls"
+														th:id="${'selectName_0'+iter.index}">
+												<option value="">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${QuestionList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==queAssign[0].questionType}'></option>
+													</select></td>
+													
+													
+													<!-- <td><input type="text" id="selectName_"
+														class="form-control NameCls" th:value="${a.questionType}"
+														></td>
+										 -->
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+
+													</td>
+												</tr>
+
+     
+												<tr class="tr_clone" th:unless="${Edit}"
+												th:each="a,iter:${queAssign}">
+												<td><select id="selectQue_0"
+														class="form-control speTypeCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${SpecificList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+													
+													<td><select id="selectName_0"
+														class="form-control NameCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${QuestionList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+													
+													
+													<!-- <td><input type="text" id="selectName_0"
+														class="form-control NameCls"
+														>
+															</td> -->
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+
+
+										</table>
+									</div>
+								
+						</div>
+						<div class="row">
+							<div class="form-group col-md-12">
+								<button type="button" id="submit" class="btn btn-success"onclick="submitAssignQuestionType();">Submit</button>
+								<button type="button" class="btn btn-warning"
+									onclick="funcLoad();">Cancel</button>
+							</div>
+						</div>
+						</form>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<div style="clear: both;"></div>
+	</div>
+
+</div>
+</div>
+</html>

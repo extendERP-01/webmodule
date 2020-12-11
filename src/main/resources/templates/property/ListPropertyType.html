@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	$(function() {
+		$('#property').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			'paging'      : true,
+			"ajax" : {
+				'url' : 'view-propertytype-throughajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+                'data' : 'pTypeName'
+            }, {
+                'data' : 'pCategoryName'
+            }, {
+                'data' : 'activityStatus'
+            }, {
+                'data' : 'action'
+            } ]
+		});
+	});
+	function searchData() {
+		$('#property').DataTable().draw();
+	}
+	
+function viewInModel(index){
+	$('#table1').empty();
+		$.ajax({
+			type 		:	"POST",
+			url 		:	"view-propertytype-modal",
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		:	index,
+			success 	: 	function(response) {
+				if(response.message=="success" && response.body.length>1 ){
+					console.log(response.body);
+				    var status = "";
+					if(response.body.pTypeActive){
+						status = "Active";	
+					}else{
+						status = "Inactive";	
+					}
+					var amenityname = "";
+					for(var i=0;i<response.body.length;i++){
+						amenityname += ""+response.body[i].amntsName+","; 
+					}
+					amenityname = amenityname.substring(0, amenityname.length - 1)
+					table =  '<tr><td>Amenitys Name :</td>'+'<td align="left">'+amenityname+'</td></tr>'+
+					'<tr><td>Property Type Name :</td><td align="left">'+response.body[0].pTypeName+
+				    '</td></tr><tr><td>Property Category Name :</td><td align="left">'+response.body[0].pCategoryName
+				    +'</td></tr><tr><td>Status</td><td align="left">'+status+'</td></tr><tr><td>Description</td><td align="left">'
+				    +response.body[0].pTypeDescription
+				    +'</td></tr>'
+					$('#myModal').modal('show');
+					$('#table1').append(table); 
+				}else{
+					table = "<h1>No Data Available</h1>";
+					$('#table1').append(table); 
+					$('#myModal').modal('show');
+				}				
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+
+	}
+	
+
+//Deleting the Theme Item
+const ipAPI = 'https://api.ipify.org?format=json'
+function deletePropertyType(id){
+ //var data = id.split(",");
+		swal.fire({
+		title	: "Are you sure want to Delete?",
+		text	: "Once Deleted,Can't revert back !",
+		type : "warning",
+
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Delete",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		preConfirm: () => {
+			return fetch(ipAPI)
+			.then(response => response.json())
+			.then(data => Swal.insertQueueStep(data.ip))
+			.catch(() => {
+			Swal.insertQueueStep({
+				type: 'error',
+				title: 'Unable to get your public IP'
+		, })
+		})
+	  } 
+	}).then((result) => {
+	if(result.value){
+		$.ajax({
+			type	: "GET",
+			url : "/property/view-propertytype-deletPropertyType?id=" +id,
+			dataType	: "json",
+			contentType	: "application/json",
+			data	: JSON.stringify(id),
+			success	: function(response){
+				console.log(response);
+				if(response.message=="success"){
+					
+					swal({
+						title	: "Data Deleted Successfully.",
+						type: "success",
+				}).then(function(){
+					location.reload(); 
+				})
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+		},error	: function(response){
+			swal(response.code);	
+		}
+	}) //ajax ends
+  }
+ })//swal function block ends
+}
+
+</script>
+
+
+</head>
+<div layout:fragment="content">
+   
+        <div class="main mrt_20">
+        <div class="col-md-12">
+            <ol class="breadcrumb breadcrumb-arrow">
+             <li><a href="index.html">Home</a></li>
+             <li><a href="add-propertytype">Add Property Type</a></li>
+             <li class="active"><span th:text="${session.title}"></span></li>
+          </ol>
+          </div>
+        </div>
+        <div class="card-title">
+           <h4 th:text="${session.title}"></h4>
+        </div>
+            <div class="container-fluid">
+               
+                <div class="card">
+                        <div class="search-field">
+                        <div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-propertytype">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+                            <div class="row">
+                                
+                                <div class="col-md-2">
+                                    <label>Property Type Name</label>
+                                
+                                    <input id="param1" class="form-control" type="text" placeholder="" name="">
+                                </div>
+                                <div class="col-md-2 mrt_10">
+                                    <div class="form-group filtersearch">
+                                        <button class="btn btn-info" onclick="searchData()">Search</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive" style="width:100%;">
+                            <table id="property" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                       <th>Property Type Name</th>
+                                        <th>Property Category</th>
+                                        <th>Status</th>
+                                        <th align="center">Action</th>
+                                    </tr>
+                                </thead>
+                                
+                            </table>
+                        </div>
+                        <div style="clear:both;"></div>
+                </div>
+            </div>
+        
+        <!-- Modal Start-->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content" style="width: 750px;">
+                    <div class="modal-header">
+                        <h4 class="modal-title">ViewDetails of Property Type </h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                            <table width="100%" border="0" id="table1">
+                           
+                            </table>
+                          </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal End-->
+        
+    </div>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+function validateForm(){
+	  if (!blankValidation("countryName","TextField", "Country Name can not be left blank"))
+       return false;
+	  if (!checkSpecialCharacter("countryName","Special character is not allowed!!!"))
+       return false;
+     
+	  if (!blankValidation("countryCode","TextArea", "Country Code can not be left blank"))
+	         return false;
+	  if (!blankValidation("countryActive","SelectBox", "Status can not be left blank"))
+    return false;
+	}
+	
+function funcLoad(){
+	window.location.href="/master/view-country";
+}
+ function returnToViewPage(){
+	 var country = $("#countryId").val();
+	 if((country  == null) ||(country == "")){
+		
+		 funcLoad();
+	 }
+	 else{
+		 window.location.href = "/master/view-country" ;
+	 }
+	 
+	 
+ }
+ 
+ 
+ // function popup() {
+ //    window.open("../popup/errorpopup", 'window', 'width=200,height=100');
+ // }
+ 
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Country</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12">
+				<!--Alert Box-->
+				<div class="alert alert-success alert-dismissible" th:if="${message != null}"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action.
+					<span th:text="${message}"></span>
+				</div>
+				<!--Alert Box-->	
+			</div>
+			<div class="card-title">
+				<h4>Add Country</h4></div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+							<form th:action="@{add-country}" th:object="${masterCountryModel}" method="post" onsubmit="return validateForm();" autocomplete="off" >
+							
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<input type="hidden" th:field="*{countryId}">
+								<div class="row">
+									<div class="col-lg-6">
+									
+                        				<div class="form-group">
+                         					<label>Country Name</label>
+											<input type="text" class="form-control" name=""  value="" th:field="*{countryName}">
+										</div>
+										<div class="form-group">
+                         					<label>Country Code</label>
+											<input type="text" class="form-control" name=""  value="" th:field="*{countryCode}">
+										</div>
+										
+										
+										<div class="form-group" >
+											   <label>Status</label> 
+											   <select class="form-control" th:field="*{countryActive}">
+												  <option th:value="null" >Select</option>
+												  <option th:value="true">Active</option>
+												  <option th:value="false">Inactive</option>
+											 </select>
+										</div>
+										<div class="form-group">
+											<input type="submit" value="Submit" class="btn btn-success" onclick="displaymessage();"/>
+											<input type="reset" value="Cancel" class="btn btn-warning" onclick="returnToViewPage();"/>
+										</div>	
+										
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+	</div>
+</div>
+</div>
+</html>

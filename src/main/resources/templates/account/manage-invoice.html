@@ -1,0 +1,573 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	text-align: center;
+}
+
+.tableTDBody {
+	padding: 5px;
+	text-align: center;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 310px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+	//View Payment Details Modal Function
+	function viewPaymentDetails(index) {
+
+		$('#paymentTbl').empty();
+		$
+				.ajax({
+					type : "POST",
+					url : "manage-invoice-payment-details",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+
+							for (var i = 0; i < response.body.length; i++) {
+								table = '<tr><td class="tableTDBody">'
+										+ response.body[i].transactionDate
+										+ '</td><td class="tableTDBody">'
+										+ response.body[i].payMode
+										+ '</td><td class="tableTDBody">'
+										+ response.body[i].payRefNo
+										+ '</td><td class="tableTDBody">'
+										+ (response.body[i].grandTotal)
+												.toFixed(2)
+										+ '</td><td class="tableTDBody">'
+										+ '<a href="/download/view-sale-invoice-download-pdf?id='
+										+ window
+												.btoa(response.body[i].salesInvoice)
+										+ '&id2='
+										+ window
+												.btoa(response.body[i].voucherId)
+										+ '" target="_blank">'
+										+ response.body[i].voucherId + '</a>'
+										+ '</td></tr>';
+								$('#myModalPayment').modal('show');
+								$('#paymentTbl').append(table);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+	}
+
+	//View Sale Invoice Modal Function
+	function viewInModel(index) {
+		$('#table1').empty();
+		$('#table2').empty();
+		$('#table3').empty();
+		$('#table4').empty();
+		$
+				.ajax({
+					type : "POST",
+					url : "manage-invoice-modal",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+
+							var gstType = "";
+							if (response.body[0].gstType) {
+								gstType = "Center Tax";
+							} else {
+								gstType = "State Tax";
+							}
+							span = '<tr><td>Sales Invoice :</td>'
+									+ '<td align="left">'
+									+ response.body[0].salesInvoice
+									+ '</td>'
+									+ '</tr><tr><td>Sales Order :</td>'
+									+ '<td align="left">'
+									+ response.body[0].salesOrderId
+									/* + '</td>'
+									+ '</tr><tr><td>Purchase Order :</td>'
+									+ '<td align="left">'
+									+ response.body[0].purchaseOrder */
+									+ '</td>'
+									+ '</tr><tr><td>Quotation Number :</td>'
+									+ '<td align="left">'
+									+ response.body[0].quotationId
+									+ '</td>'
+									+ '</tr><tr><td>Notes :</td>'
+									+ '<td align="left">'
+									+ response.body[0].saleInvNote
+									+ '</td>'
+									+ '</tr><tr><td>Tax Type :</td>'
+									+ '<td align="left">'
+									+ gstType
+									+ '</td>'
+									+ '</tr><tr><td>GST Rate :</td>'
+									+ '<td align="left">'
+									+ response.body[0].gstRate
+									+ '%'
+									+ '</td></tr>'
+									+ '<th><b>Details Of Sales Invoice</b></th></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(span);
+
+							table2 = '<tr><th><b>ItemName</b></th><th><b>ItemCode</b></th><th><b>Price</b></th>'
+									+ '<th><b>Quantity</b></th><th><b>Discount</b></th><th><b>ServeType</b></th><th><b>Amount</b></th></tr>';
+							$('#myModal').modal('show');
+							$('#table2').append(table2);
+
+							for (var i = 0; i < response.body.length; i++) {
+
+								table = '<tr><td>'
+										+ response.body[i].saleItem
+										+ '</td><td>'
+										+ response.body[i].saleItemCode
+										+ '</td><td>'
+										+ (response.body[i].salePrice)
+												.toFixed(2)
+										+ '</td><td align="center">'
+										+ response.body[i].saleQuantity
+										+ '</td><td>'
+										+ (response.body[i].saleDiscount)
+												.toFixed(2)
+										+ '</td><td>'
+										+ response.body[i].sServeType
+										+ '</td><td>'
+										+ (response.body[i].saleAmount)
+												.toFixed(2) + '</td></tr>';
+								$('#myModal').modal('show');
+								$('#table2').append(table);
+							}
+							if (response.body[0].gstType) {
+								table3 = '<tr><td colspan="5" align="right" width="480px"><b>Sub Total :</b></td>'
+										+ '<td align="left">'
+										+ (response.body[0].subTotal)
+												.toFixed(2)
+										+ '</td>'
+										+ '</tr><tr><td colspan="5" align="right"><b>IGST :</b></td>'
+										+ '<td align="left">'
+										+ (response.body[0].sIGST).toFixed(2)
+										+ '</td>'
+										+ '</tr><tr><td colspan="5" align="right"><b>Total Payable Amount :</b></td>'
+										+ '<td align="left">'
+										+ (response.body[0].payableAmt)
+												.toFixed(2)
+										+ '</td>'
+										+ '</tr><tr><td colspan="5" align="right"><b>Advance Payment :</b></td>'
+										+ '<td align="left">'
+										+ (response.body[0].advanceAmt)
+												.toFixed(2)
+										+ '</td>'
+										+ '</tr><tr><td colspan="5" align="right"><b>Grand Total :</b></td>'
+										+ '<td align="left">'
+										+ (response.body[0].grandTotal)
+												.toFixed(2) + '</td>' + '</tr>';
+								$('#table3').append(table3);
+							} else {
+								table3 = '<tr><td colspan="5" align="right" width="480px"><b>Sub Total :</b></td>'
+										+ '<td align="left">'
+										+ (response.body[0].subTotal)
+												.toFixed(2)
+										+ '</td>'
+										+ '</tr><tr><td colspan="5" align="right"><b>CGST :</b></td>'
+										+ '<td align="left">'
+										+ (response.body[0].sCGST).toFixed(2)
+										+ '</td>'
+										+ '</tr><tr><td colspan="5" align="right"><b>SGST :</b></td>'
+										+ '<td align="left">'
+										+ (response.body[0].sSGST).toFixed(2)
+										+ '</td>'
+										+ '</tr><tr><td colspan="5" align="right"><b>Total Payable Amount :</b></td>'
+										+ '<td align="left">'
+										+ (response.body[0].payableAmt)
+												.toFixed(2)
+										+ '</td>'
+										+ '</tr><tr><td colspan="5" align="right"><b>Advance Payment :</b></td>'
+										+ '<td align="left">'
+										+ (response.body[0].advanceAmt)
+												.toFixed(2)
+										+ '</td>'
+										+ '</tr><tr><td colspan="5" align="right"><b>Grand Total :</b></td>'
+										+ '<td align="left">'
+										+ (response.body[0].grandTotal)
+												.toFixed(2) + '</td>' + '</tr>';
+								$('#table3').append(table3);
+							}
+							/* if(response.body[0].payStatus) {
+								$('#table4Id').show();
+								table4 = '<tr><th><b>Transaction Date</b></th><th><b>Payment Reference Number</b></th><th><b>Payment Mode</b></th></tr>'+
+										'<tr><td>'+response.body[0].transactionDate+'</td><td>'+response.body[0].payRefNo+'</td><td>'+response.body[0].payMode+'</td></tr>';
+								$('#table4').append(table4);
+							} else {
+								$('#table4Id').hide();
+							} */
+
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+	}
+
+	//(document).ready() Starts
+	$(document).ready(function() {
+		$('#table').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'manage-invoice-through-ajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'salesInvoice'
+			}, {
+				'data' : 'salesOrderId'
+			},
+			/* {
+			    'data': 'quotationId'
+			}, */
+			{
+				'data' : 'dateFrom'
+			},
+			//{'data' : 'voucherId'},
+			{
+				'data' : 'action'
+			} ]
+		});
+	});
+	//(document).ready() Starts
+
+	//Search Function
+	function searchData() {
+		$('#table').DataTable().draw();
+	}
+
+	//Sale Invoice PDF Function
+	function pdfCreation(id) {
+		window.open("/download/view-sale-invoice-one-pdf?id=" + id, '_blank');
+	}
+
+	//Sale Invoice Payment PDF Function
+	function pdfCreateVoucher(id) {
+
+		window.open("/download/view-sale-invoice-download-pdf?id=" + id,
+				'_blank');
+	}
+
+	//Sale Invoice Payment PDF Function
+	function pdfTotalVoucher(id, id1) {
+		window.open("/download/view-sale-invoice-total-payment-pdf?id=" + id
+				+ "&id2=" + id1, '_blank');
+	}
+
+
+	//Sales Invoice Auto Search Function
+	function salesInvoiceAutoComplete() {
+		$
+				.ajax({
+					type : "POST",
+					url : "manage-invoice-saleInvoiceAutoCompleteList",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#saleInvoice").val(),
+					success : function(response) {
+						if (response.message == "success") {
+
+							if (response.body.length != 0) {
+								$("#salesOrder").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+									content += '<li onClick="selectAutocompleteValue(\''
+											+ response.body[i].key
+											+ '\',\''
+											+ response.body[i].name
+											+ '\')">'
+											+ response.body[i].key + '</li>';
+								} //For Loop Ends
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+
+							} else {
+								$("#salesOrder").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteValue(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box").show();
+								$("#suggesstion-box").html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+						$("#saleInvoice").css("background", "#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue(\''
+								+ '' + '\',\'' + '' + '\')">' + "Try Again"
+								+ '</li>';
+						content += '</ul>';
+						$("#suggesstion-box").show();
+						$("#suggesstion-box").html(content);
+					}
+				})
+	}
+
+	function selectAutocompleteValue(key, name) {
+		if (key) {
+			$("#param1").val(key);
+			$("#saleInvoice").val(key);
+			$("#saleInvoice").attr('data-procat', key);
+			$("#suggesstion-box").hide();
+		} else {
+			$("#param1").val("");
+			$("#saleInvoice").val("");
+			$("#saleInvoice").attr('data-procat', "");
+			$("#suggesstion-box").hide();
+		}
+	}
+
+	//Voucher Number Auto Search Function
+	function voucherAutoComplete() {
+		$
+				.ajax({
+					type : "POST",
+					url : "view-sale-invoice-voucherAutoComplete",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : $("#voucher").val(),
+					success : function(response) {
+						if (response.message == "success") {
+
+							if (response.body.length != 0) {
+								$("#voucher").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								for (var i = 0; i < response.body.length; i++) { //For Loop Starts
+									content += '<li onClick="selectAutocompleteVoucherValue(\''
+											+ response.body[i].key
+											+ '\',\''
+											+ response.body[i].name
+											+ '\')">'
+											+ response.body[i].key + '</li>';
+								} //For Loop Ends
+								content += '</ul>';
+								$("#suggesstion-box1").show();
+								$("#suggesstion-box1").html(content);
+
+							} else {
+								$("#voucher").css("background", "#FFF");
+								var content = '<ul id="autocomplete-list">';
+								content += '<li onClick="selectAutocompleteVoucherValue(\''
+										+ ''
+										+ '\',\''
+										+ ''
+										+ '\')">'
+										+ "No Data Found" + '</li>';
+								content += '</ul>';
+								$("#suggesstion-box1").show();
+								$("#suggesstion-box1").html(content);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+						$("#voucher").css("background", "#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteVoucherValue(\''
+								+ ''
+								+ '\',\''
+								+ ''
+								+ '\')">'
+								+ "Try Again"
+								+ '</li>';
+						content += '</ul>';
+						$("#suggesstion-box1").show();
+						$("#suggesstion-box1").html(content);
+					}
+				})
+	}
+
+	function selectAutocompleteVoucherValue(key, name) {
+		if (key) {
+			$("#param2").val(key);
+			$("#voucher").val(key);
+			$("#voucher").attr('data-procat', key);
+			$("#suggesstion-box1").hide();
+		} else {
+			$("#param2").val("");
+			$("#voucher").val("");
+			$("#voucher").attr('data-procat', "");
+			$("#suggesstion-box1").hide();
+		}
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="#">Home</a></li>
+				<li class="active"><span>Manage Invoice</span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>Manage Invoice</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+				<div class="search-field">
+					<div class="row">
+						<div class="col-lg-3">
+							<div class="form-group">
+								<label>Invoice</label> <input type="hidden" id="param1">
+								<input type="text" class="form-control" id="saleInvoice"
+									onkeyup="salesInvoiceAutoComplete();">
+								<div id="suggesstion-box"></div>
+							</div>
+						</div>
+						<div class="col-md-2" style="margin-top: auto;">
+							<div class="form-group">
+								<button class="btn btn-info" onclick="searchData()">Search</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table  table-bordered">
+							<thead>
+								<tr>
+									<th>Invoice</th>
+									<th>Order</th> 
+									<th>Payment Details</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content" width="100%">
+					<div class="modal-header">
+						<h4 class="modal-title">View Invoice Details</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+						</table>
+						<table width="100%" border="0" id="table2">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<table width="100%" border="0" id="table3">
+
+						</table>
+					</div>
+					<!-- <div class="modal-footer" id="table4Id">
+						<table width="100%" border="0" id="table4">
+
+						</table>
+					</div> -->
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- VIEW PAYMENT DETAILS MODAL -->
+		<div id="myModalPayment" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content" width="100%">
+					<div class="modal-header">
+						<h4 class="modal-title">
+							<b>View Payment Details</b>
+						</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" class="table table-bordered" id="tbl">
+							<thead id="tblHead">
+								<tr style="width: 100%;">
+									<th class="tableheader">Transaction Date</th>
+									<th class="tableheader">Payment Mode</th>
+									<th class="tableheader">Payment Reference Number</th>
+									<th class="tableheader">Amount</th>
+									<th class="tableheader">Voucher</th>
+								</tr>
+							</thead>
+							<tbody id="paymentTbl">
+
+							</tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

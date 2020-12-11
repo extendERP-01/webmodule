@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	//Deleting the employee
+	
+	const ipAPI = 'https://api.ipify.org?format=json'
+	function deleteemployee(id){
+	 //var data = id.split(",");
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/employee/view-employee-delete?id=" +id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(data){
+				console.log(data);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-employee-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'employeeNo'
+			}, {
+				'data' : 'employeeFname'
+			}, {
+				'data' : 'employeeLname'
+			}, {
+				'data' : 'employeeGender'
+			}, {
+				'data' : 'employeeMobilePhoneNo'
+			}, {
+				'data' : 'employeeDepartment'
+			}, {
+				'data' : 'statusName'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+		
+		$("#terminationDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+		
+		$("#add").click(function (){
+			var date = $("#terminationDate").val();
+			if(date == "" || date == null) {
+				swal({
+		        	title: "Enter Termination Date",
+					type: "warning",
+		        })
+			} else {
+				var id = $("#employeeNo").val();
+	    		
+	    		obj = {};
+	    		obj.key = id;
+	    		obj.name = date;
+	    		console.log(obj)
+	    		$.ajax({
+	    			type : "POST",
+	    			url : "view-employee-add-termination-date",
+	    			dataType : 'json',
+	    			contentType : 'application/json',
+	    			data : JSON.stringify(obj),
+	    			success : function(response) {
+	    				if (response.message == "success") {
+	    					swal({
+								title	: "Termination Date Added Successfully.",
+								type: "success",
+							}).then(function(){
+								window.location.href = "/employee/view-employee";
+							})
+	    				}
+	    			}, error : function(data) {
+	    				console.log(data)
+	    			}
+	    		});
+			}
+		})
+		
+		$('#change').click(function (){
+			
+			var newP = $('#newP').val();
+			var confirmP = $('#confirmP').val();
+			
+			if(confirmP == "" || confirmP == null) {
+				swal({
+		        	title: "Enter Confirm Password",
+					type: "warning",
+		        })
+			}
+			if(newP == "" || newP == null) {
+				swal({
+		        	title: "Enter New Password",
+					type: "warning",
+		        })
+			}
+			if(newP != "" && confirmP != "") {
+				if (newP != confirmP) {
+		            swal({
+		            	title: "Password Don't Match",
+						type: "warning",
+		            })
+		       		return false;
+		    	} else {
+		    		var id = $("#employeeId").val();
+		    		
+		    		obj = {};
+		    		obj.key = id;
+		    		obj.name = newP;
+		    		console.log(obj)
+		    		$.ajax({
+		    			type : "POST",
+		    			url : "view-employee-change-password",
+		    			dataType : 'json',
+		    			contentType : 'application/json',
+		    			data : JSON.stringify(obj),
+		    			success : function(response) {
+		    				if (response.message == "success") {
+		    					swal({
+									title	: "Password Changed Successfully.",
+									type: "success",
+								}).then(function(){
+									window.location.href = "/employee/view-employee";
+								})
+		    				}
+		    			}, error : function(data) {
+		    				console.log(data)
+		    			}
+		    		});
+		    	}
+			}
+		});
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+	
+	function resetPassword(id) {
+		$('#myModal').modal('show');
+		$("#employeeId").val(id);
+		$('#newP').val("");
+		$('#confirmP').val("");
+	}
+	
+	function terminationDate(id) {
+		$('#myModal1').modal('show');
+		$("#employeeNo").val(id);
+		$("#terminationDate").val("");
+	}
+</script>
+<style>
+.viewRed {
+	color: red;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/employee/add-employee}">Add Employee</a></li>
+					<li class="active"><span>View Employee </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Employee</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-employee">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Employee No</label> <input id="param1"
+									class="form-control" type="text" placeholder="" name="">
+							</div>
+
+							<div class="col-md-2">
+								<label>Employee Name</label> <input id="param2"
+									class="form-control" type="text" placeholder="" name="">
+							</div>
+
+							<div class="col-md-2" style="margin-top: 27px;">
+								<input type="button" class="btn btn-info " value="Search"
+									onclick="searchData()" />
+
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblTheme" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Employee No</th>
+									<th>First Name</th>
+									<th>Last Name</th>
+									<th>Gender</th>
+									<th>Mobile No</th>
+									<th>Department</th>
+									<th>Status</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-sm">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Reset Password</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="employeeId">
+						<div class="col-md-12">
+							<label>New Password</label> <input type="text"
+								class="form-control" id="newP" required>
+						</div>
+						<div class="col-md-12">
+							<label>Confirm Password</label> <input type="text"
+								class="form-control" id="confirmP" required>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-info" id="change">Submit</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-sm">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Assign Termination Date</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="employeeNo">
+						<div class="col-md-12">
+							<label>Termination Date</label> <input type="text"
+								class="form-control" readonly id="terminationDate" required>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-info" id="add">Submit</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

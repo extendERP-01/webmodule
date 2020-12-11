@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Print Cash Book</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+}
+
+.maintbl tr td {
+	border-right: 1px solid #BABABA;
+	border-bottom: none;
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.theader-padding {
+	padding: 10px 5px;
+	background: #f5f5f5;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	padding: 13px;
+	text-align: center;
+}
+
+.wrapper {
+	margin: 0 auto;
+	width: 900px;
+	padding: 100px 20px;
+	position: relative;
+}
+
+.hrline {
+	border: 2px solid #cccccc;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.tableheader {
+	padding: 10px 5px;
+	color: #418AB3;
+	font-weight: 600;
+	background: #f5f5f5;
+	border-bottom: 1px solid #ccc;
+	border-top: 10px solid #FFF;
+	text-align: center;
+}
+
+.bill {
+	color: #000 !important;
+	font-size: 20px;
+	padding-right: 180px;
+	color: #000 !important;
+}
+
+.invoicedate {
+	color: #000;
+	text-align: left;
+	padding: 5px;
+}
+
+.mailing {
+	height: 100px;
+	padding: 10px;
+	color: #fff;
+	text-align: right;
+}
+
+.strip2 {
+	width: 800px;
+	padding-left: 17px;
+	font-size: 14px;
+	color: #418ab3;
+	text-align: center;
+	margin: 19px;
+}
+
+/* .td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+} */
+.td-border-all {
+	height: 1px;
+	border: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.text-style {
+	color: #3B494A;
+	font-size: 12px;
+	padding: 10px;
+}
+
+.pdt {
+	padding: 4px;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	margin-right: 180px;
+	color: #418AB3;
+}
+
+.text-style2 {
+	background-color: #f2f2f2;
+	padding: 10px;
+	color: #373757;
+}
+
+.btn-danger {
+	color: #fff !important;
+	background: #d9534f !important;
+	box-shadow: none !important;
+}
+
+.textarea {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	padding: 8px;
+}
+
+.cashbook {
+	font-size: 20px;
+	padding: 10px;
+}
+
+.dr {
+	font-size: 16px;
+	float: left;
+	padding: 13px;
+}
+
+.cr {
+	font-size: 16px;
+	float: right;
+	padding: 13px;
+}
+
+.cBook {
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.td-border-center {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.td-border-left {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: left;
+	width: 126px;
+	font-size: 12px;
+}
+
+.td-border-right {
+	height: 1px;
+	border-right: 1px solid #BABABA;
+	text-align: right;
+	width: 126px;
+	font-size: 12px;
+}
+</style>
+
+</head>
+<body>
+
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="containersec">
+							<div class="wrapper">
+
+								<table cellpadding="0" cellspacing="0" style="width: 1000px;">
+
+									<tr>
+										<td colspan="2"><img th:src="@{classpath:static/assets/images/login_img/extend.png}" height="50" width="150" /></td>
+
+										<td class="bill">Cash Book</td>
+
+									</tr>
+
+
+
+									<tr>
+										<td class="cBook" width="290">Dr.(Receipts)</td>
+										<td class="cBook" width="250">CASH BOOK</td>
+										<td class="cBook">Cr.(Payments)</td>
+									</tr>
+
+									<tr style="border-top: 10px solid #FFF;">
+
+										<td colspan="4" width="1000px">
+
+											<table class="maintbl" id="table" cellpadding="0"
+												cellspacing="0" style="width: 320px; float: left;">
+												<thead id="tblHead">
+													<tr style="width: 100%;">
+														<th class="tableheader">Date</th>
+														<th class="tableheader">Description</th>
+														<th class="tableheader">Voucher Number</th>
+														<th class="tableheader">Amount</th>
+
+													</tr>
+												</thead>
+												<tbody
+													th:if="${not #lists.isEmpty(accountCashBookDebitModel)}">
+													<tr th:each="other,iter : ${accountCashBookDebitModel}"
+														style="height: 30px;">
+														<td class="td-border-center"
+															style="max-height: 32px; min-height: 32px;"
+															th:text=" ${other.date}"></td>
+														<td class="td-border-right"
+															style="max-height: 32px; min-height: 32px;"
+															th:text="${other.desc}"></td>
+														<td class="td-border-right"
+															style="max-height: 32px; min-height: 32px;"
+															th:text="${other.voucherNO} "></td>
+														<td class="td-border-right "
+															style="max-height: 32px; min-height: 32px;"
+															th:text="${#numbers.formatDecimal(other.amount, 0, 'COMMA', 2, 'POINT')} "></td>
+													</tr>
+												</tbody>
+												<tbody th:if="${count<0}">
+													<tr th:each="i: ${debitcount}">
+														<td class="td-border-left"
+															style="max-height: 32px; min-height: 32px;"></td>
+														<td class="td-border-right"
+															style="max-height: 32px; min-height: 32px;"></td>
+														<td class="td-border-right"
+															style="max-height: 32px; min-height: 32px;"></td>
+														<td class="td-border-right"
+															style="max-height: 32px; min-height: 32px;"></td>
+													</tr>
+												</tbody>
+												<tbody
+													th:if="${not #lists.isEmpty(accountCashBookDebitModel)}">
+													<tr>
+														<td colspan="3" class="td-border-all"
+															style="font-size: 20px; border-bottom: 1px solid #BABABA;"><b>Total</b>
+														</td>
+														<td class="td-border-all"
+															style="border-bottom: 1px solid #BABABA;"><span
+															th:text="${totalDebit}"></span></td>
+													</tr>
+												</tbody>
+												<tbody
+													th:unless="${not #lists.isEmpty(accountCashBookDebitModel)}">
+													<tr>
+														<td style="color: #e30f0f;" width="100%" valign="top"
+															align="center" colspan="4"><b>No records found</b></td>
+													</tr>
+
+
+												</tbody>
+
+
+											</table>
+											<table class="maintbl" id="table" cellpadding="0"
+												cellspacing="0" style="width: 375px; float: left;">
+												<thead id="tblHead">
+													<tr style="width: 100%;">
+														<th class="tableheader" style="borde: none;">Date</th>
+														<th class="tableheader">Description</th>
+														<th class="tableheader">Voucher Number</th>
+														<th class="tableheader">Amount</th>
+
+													</tr>
+												</thead>
+
+												<tbody
+													th:if="${not #lists.isEmpty(accountCashBookCreditModel)}">
+													<tr th:each="other,iter : ${accountCashBookCreditModel}"
+														style="height: 30px;">
+														<td class="td-border-center"
+															style="max-height: 32px; min-height: 32px;"
+															th:text=" ${other.date}"></td>
+														<td class="td-border-right"
+															style="max-height: 32px; min-height: 32px;"
+															th:text="${other.desc}"></td>
+														<td class="td-border-right"
+															style="max-height: 32px; min-height: 32px;"
+															th:text="${other.voucherNO} "></td>
+														<td class="td-border-right"
+															style="max-height: 32px; min-height: 32px;"
+															th:text="${#numbers.formatDecimal(other.amount, 0, 'COMMA', 2, 'POINT')} "></td>
+													</tr>
+
+												</tbody>
+												<tbody th:if="${count>0}">
+													<tr th:each="i: ${debitcount}">
+														<td class="td-border-left"
+															style="max-height: 32px; min-height: 32px;"></td>
+														<td class="td-border-right"
+															style="max-height: 32px; min-height: 32px;"></td>
+														<td class="td-border-right"
+															style="max-height: 32px; min-height: 32px;"></td>
+														<td class="td-border-right"
+															style="max-height: 32px; min-height: 32px;"></td>
+													</tr>
+												</tbody>
+												<tbody
+													th:if="${not #lists.isEmpty(accountCashBookCreditModel)}">
+													<tr>
+														<td colspan="3" class="td-border-all"
+															style="font-size: 20px; border-bottom: 1px solid #BABABA;"><b>Total</b>
+														</td>
+														<td class="td-border-all"
+															style="border-bottom: 1px solid #BABABA;"><span
+															th:text="${totalCredit}"></span></td>
+													</tr>
+												</tbody>
+												<tr>
+
+												</tr>
+												<tbody
+													th:unless="${not #lists.isEmpty(accountCashBookCreditModel)}">
+													<tr>
+														<td style="color: #e30f0f;" width="100%" valign="top"
+															align="center" colspan="4"><b>No records found</b></td>
+													</tr>
+
+
+												</tbody>
+
+											</table>
+										</td>
+
+
+									</tr>
+
+									<!-- <tr>
+										<td colspan="3">
+											<div class="strip2">
+												<b>THANKYOU FOR YOUR BUSINESS</b>
+											</div>
+										</td>
+									</tr>
+ -->
+
+								</table>
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+
+</body>
+</html>
+

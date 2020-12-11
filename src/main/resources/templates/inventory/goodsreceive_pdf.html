@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>GoodsReceiveNote Invoice</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+.td-border {
+	border-bottom: 1px solid #BABABA;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.tableheader {
+	padding: 10px 5px;
+	color: #418AB3;
+	font-weight: 600;
+	background: #f5f5f5;
+	border-bottom: 1px solid #ccc;
+	border-top: 10px solid #FFF;
+	text-align: center;
+}
+
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+}
+
+.mainheading {
+	font-size: 16px; 	
+	color:#5c2e14;
+	/* padding: 20px; */
+	font-weight:600;
+/* 	padding-left:30px; */
+text-align:center
+}
+
+.subheading {
+	font-size: 14px;
+	padding: 10px 0px;
+}
+
+.maintable tr td {
+	padding: 10px 5px;
+}
+
+.bill {
+	font-size: 10px;
+	line-height:12px !important;
+}	
+.tableheader-color{
+    font-size: 12px; 	
+	color:#fff;
+	font-weight:600;
+	padding:10px 5px;
+	text-align:center;
+}
+</style>
+</head>
+<body>
+	<div class="containersec">
+	 
+
+		<table class="maintable" width="680">
+			<tr>
+				<td width="200"><img
+					th:src="@{classpath:static/assets/images/login_img/extend.png}" height="80" width="150" /></td>
+				  <td class="bill"><div th:text="${hotelList[0].storeName}"></div>
+					<div>
+						Address - <span th:text="${hotelList[0].storeAddrs}"></span>
+					</div>
+					<div>
+						City - <span th:text="${hotelList[0].storeCity}"></span>
+					</div>
+					<div>
+						Phone - <span th:text="${hotelList[0].storeMob}"></span>
+					</div>
+					<div>
+						GST NO - <span th:text="${hotelList[0].storeGst}"></span>
+					</div></td> 
+			</tr>
+			<tr>
+				<td colspan="2">
+					<hr></hr>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<table width="680">
+
+						<tr>
+							<td colspan="4" align="center" class="mainheading">Good
+								Receive Details</td>
+						</tr>
+						<tr>
+							<td>GRN Number :</td>
+							<td th:text="${OneGoodsReceive[0].gRNInvoiceId}"></td>
+							<!-- <td>Store :</td>
+						<td th:text="${gatePass[0].store}"></td> -->
+						</tr>
+						<tr>
+							<td>PurchaseOrderNumber:</td>
+							<td th:text="${OneGoodsReceive[0].gRNPurchaseOrderId}"></td>
+							<td>Invoice Number:</td>
+							<td th:text="${OneGoodsReceive[0].driverName}"></td>
+						</tr>
+
+						<tr>
+							<td>Vehicle Number :</td>
+							<td th:text="${OneGoodsReceive[0].vehicleNo}"></td>
+							<td>Mobile Number:</td>
+							<td th:text="${OneGoodsReceive[0].mobileNo}"></td>
+						</tr>
+
+
+
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<table width="680" class="maintbl">
+						<thead style="background-color:#5c2e14;">
+							<tr>
+								<th class="tableheader-color">Sl. No.</th>
+								<th class="tableheader-color">Category Name</th>
+								<th class="tableheader-color">Sub Category</th>
+								<th class="tableheader-color">Item Name</th>
+								<th class="tableheader-color">Quantity</th>
+								<th class="tableheader-color">PO Price</th>
+								<th class="tableheader-color">Invoice Price</th>
+								<th class="tableheader-color">Total Price</th>
+							</tr>
+						</thead>
+						<tbody th:if="${not #lists.isEmpty(OneGoodsReceive)}">
+							<tr th:each="items,iter : ${OneGoodsReceive}">
+								<td bgcolor="#F5F5F5" th:text="${iter.index+1}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.itmCategory}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.itmSubCategory}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.gRnInvoiceItmName}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.gRnInvoiceQuantity}"></td>
+								<td bgcolor="#F5F5F5" align="right"
+									th:text="${#numbers.formatDecimal(items.gRnPrice, 0, 'COMMA', 2, 'POINT')} "></td>
+								<td bgcolor="#F5F5F5" align="right"
+									th:text="${#numbers.formatDecimal(items.invPrice, 0, 'COMMA', 2, 'POINT')} "></td>
+								<td bgcolor="#F5F5F5" align="right"
+									th:text="${#numbers.formatDecimal(items.lineTotal, 0, 'COMMA', 2, 'POINT')} "></td>
+							</tr>
+
+
+							<tr>
+								<td width="135" colspan="7" align="right"><b>SUB TOTAL</b></td>
+								<td width="120" align="right"
+									th:text="${#numbers.formatDecimal(OneGoodsReceive[0].gsubTotal, 0, 'COMMA', 2, 'POINT')} "></td>
+							</tr>
+
+							<tr th:if="${OneGoodsReceive[0].discount } !=0">
+								<td width="135" colspan="7" align="right"><b>DISCOUNT</b></td>
+
+								<td width="115" align="right"><span style="border: none;"
+									id="discount"
+									th:text="${#numbers.formatDecimal(OneGoodsReceive[0].discount, 0, 'COMMA', 2, 'POINT')} "></span></td>
+
+
+							</tr>
+
+
+
+
+
+							<tr id="CgstTR" th:if="${!OneGoodsReceive[0].gstType}">
+								<td width="115" colspan="7" align="right"><b
+									th:text="'CGST ('+${#numbers.formatInteger(OneGoodsReceive[0].gstRate,2,'POINT')}/2+'%)'"></b></td>
+
+								<td width="130" align="right"><span style="border: none"
+									id="cgst"
+									th:text="${#numbers.formatDecimal(OneGoodsReceive[0].cgst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+							</tr>
+
+							<tr id="SgstTR" th:if="${!OneGoodsReceive[0].gstType}">
+								<td width="115" colspan="7" align="right"><b
+									th:text="'SGST ('+${#numbers.formatInteger(OneGoodsReceive[0].gstRate,2,'POINT')}/2+'%)'"></b></td>
+
+								<td width="130" align="right"><span style="border: none"
+									id="sgst"
+									th:text="${#numbers.formatDecimal(OneGoodsReceive[0].sgst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+
+							</tr>
+
+							<tr id="IgstTR" th:if="${OneGoodsReceive[0].gstType}">
+								<td width="115" colspan="7" align="right"><b
+									th:text="'IGST ('+${#numbers.formatInteger(OneGoodsReceive[0].gstRate,2,'POINT')}+'%)'"></b></td>
+
+								<td width="130" align="right"><span style="border: none"
+									id="igst"
+									th:text="${#numbers.formatDecimal(OneGoodsReceive[0].igst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+							</tr>
+
+
+							<tr>
+								<td width="135" colspan="7" align="right"><b>GRAND
+										TOTAL</b></td>
+								<td width="120" align="right"
+									th:text="${#numbers.formatDecimal(OneGoodsReceive[0].grandTotal, 0, 'COMMA', 2, 'POINT')} "></td>
+							</tr>
+
+						</tbody>
+						<tbody th:unless="${not #lists.isEmpty(OneGoodsReceive)}">
+							<tr>
+								<td colspan="18" align="center" bgcolor="#F5F5F5">No Record
+									Found</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</table>
+
+
+	</div>
+</body>
+</html>

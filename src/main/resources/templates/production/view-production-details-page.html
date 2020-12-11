@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.search-field {
+	float: left;
+	width: 100%;
+}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		$("#param3").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		});
+		$("#param4").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+
+		});
+
+		//Method for listing of all the Country Records
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-production-details-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val(); 
+					d.param3 = $('#param3').val(); 
+
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'planId'
+			},   {
+				'data' : 'storeId'
+			}, { 
+				'data' : 'mixStartDate'
+			}, {
+				'data' : 'action'
+			}
+
+			]
+		});
+	});
+
+	//Method For Searching Records In The List
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+
+	function viewInModel(index) {
+		$('#table1').empty();
+
+		var data = index.split(",");
+		data
+		obj = {};
+		obj.planId = data[0];
+		obj.batchId = data[1];
+		$
+				.ajax({
+					type : "POST",
+					url : "view-production-details-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : JSON.stringify(obj),
+					success : function(response) {
+						console.log(response)
+						if (response.message == "success") {
+							console.log(response.body);
+							span = '<tr><td>Plan Id :</td>'
+									+ '<td align="left">'
+									+ response.body[0].planId
+									+ '</td>' 
+									+ '</tr><tr><td>Store Name :</td><td align="left">'
+									+ response.body[0].storeId
+									+ '</tr><tr><td> Start Date :</td><td align="left">'
+									+ response.body[0].mixStartDate
+									 
+									+ '</tr><tr><td>Scrap Weight :</td><td align="left">'
+									+ response.body[0].srcapWt + '</td></tr>';
+							$('#myModal1').modal('show');
+							$('#table1').append(span);
+							table = '<tr><th><b>Raw Item Name</b></th><th><b>Raw Item Quantity</b></th>';
+
+							$('#myModal1').modal('show');
+							$('#table1').append(table);
+							for (var i = 0; i < response.body.length; i++) {
+								table = '<tr><td>'
+										+ response.body[i].prodItemName
+										+ '</td><td>'
+										+ response.body[i].prodQty
+										+ '</td></tr>';
+								$('#myModal1').modal('show');
+								$('#table1').append(table);
+							}
+
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="add-production">Add Production</a></li> 
+				</ol>
+			</div>
+
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-production">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-lg-2">
+								<label>Store Id</label><select class="form-control" id="param1">
+									<option th:value="NULL">--Select--</option>
+									<option th:each="c:${storeList}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+								</select>
+
+
+							</div>
+
+							<!-- <div class="col-lg-2">
+								<label>Production Item Id</label><select class="form-control"
+									id="param2">
+									<option th:value="NULL">--Select--</option>
+									<option th:each="c:${itemList}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+								</select>
+
+							</div> -->
+							<div class="col-lg-2">
+								<div class="form-group">
+									<label>Start Date</label> <input type="text"
+										class="form-control" id="param3" readonly>
+								</div>
+							</div> 
+							<div class="col-lg-2" style="margin-top: 26px;">
+								<div class="form-group">
+									<button class="btn btn-primary" onclick="searchData()">Search</button>
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table class="table table-bordered" id="tblTheme">
+							<thead>
+								<tr>
+									<th>Plan Id</th> 
+									<th>Store Name</th>
+									<th>Date</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Production Details</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+							<tbody id="tModelBody"></tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /# row -->
+	</div>
+</div>
+</html>

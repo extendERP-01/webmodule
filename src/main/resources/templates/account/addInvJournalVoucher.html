@@ -1,0 +1,801 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style type="text/css">
+#autocomplete-list {
+float: left;
+list-style: none;
+margin-top: -3px;
+padding: 0;
+width: 490px;
+position: absolute;
+z-index: 999;
+}
+
+#autocomplete-list li {
+padding: 10px;
+background: #f0f0f0;
+border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+background: #ece3d2;
+cursor: pointer;
+}
+</style>
+<script>
+//Function for blank validation
+	
+ //function for auto filled of item Requisition
+function debitSubGroup(id) {
+	var l = id.split("_");
+	var counter = l[1];	
+		$.ajax({
+			type : "POST",
+			url : "add-journal-voucher-payment-getAccountSubGroup",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#"+id).val(),
+			success : function(response) {
+				console.log(response);
+				if (response.message == "success") {
+				if(response.body.length!=0)	{
+					$("#debitAccountSubGroup_0").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+					content += '<li onClick="autocompleteValue1(\''+response.body[i].journalVoucher+'\',\''+response.body[i].costCenter+'\',\''+response.body[i].description+'\',\''+response.body[i].fromAccountSubGroup+'\',\''+id+'\')">'+response.body[i].costCenter+'('+response.body[i].fromAccountSubGroup+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#suggesstion-box1_"+counter).show();
+					$("#suggesstion-box1_"+counter).html(content);
+					
+				}
+				else {
+					console.log("else: "+response);
+					$("#debitAccountSubGroup_0").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="autocompleteValue1(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box1_"+counter).show();
+					$("#suggesstion-box1_"+counter).html(content);
+				}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+function autocompleteValue1(sGroupId,sGroupName,groupId,groupName,id) {
+	var l = id.split("_");
+	var counter = l[1];
+
+	if (sGroupId) {
+		$("#debitAccountSubGroup_"+counter).val(sGroupName + '( '+groupName+' )');
+		$("#debitAccountGroupId_"+counter).val(sGroupId);
+		$("#debitAccountSubGroup_"+counter).attr('data-procat', sGroupName);
+		$("#suggesstion-box1_"+counter).hide();
+		
+		
+	}else {
+		$("#debitAccountSubGroup_"+counter).val("");
+		$("#debitAccountGroupId_"+counter).val("");
+		$("#debitAccountSubGroup_"+counter).attr('data-procat', "");
+		$("#suggesstion-box1_"+counter).hide();
+	}
+	}
+
+//function for auto filled of item Requisition
+function creditSubGroup(id) {
+	
+	var l = id.split("_");
+	var counter = l[1];
+	
+		$.ajax({
+			type : "POST",
+			url : "add-journal-voucher-payment-getAccountSubGroup",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#"+id).val(),
+			success : function(response) {
+				console.log(response);
+				if (response.message == "success") {
+				if(response.body.length!=0)	{
+					$("#creditAccountSubGroup_0").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="autocompleteValue2(\''+response.body[i].journalVoucher+'\',\''+response.body[i].costCenter+'\',\''+response.body[i].description+'\',\''+response.body[i].fromAccountSubGroup+'\',\''+id+'\')">'+response.body[i].costCenter+'('+ response.body[i].fromAccountSubGroup+')'+'</li>';
+							} 
+					content += '</ul>';
+					$("#suggesstion-box2_"+counter).show();
+					$("#suggesstion-box2_"+counter).html(content);
+					
+				}
+				else {
+					console.log("else: "+response);
+					$("#creditAccountSubGroup_0").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="autocompleteValue2(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box2_"+counter).show();
+					$("#suggesstion-box2_"+counter).html(content);
+				}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+function autocompleteValue2(sGroupId,sGroupName,groupId,groupName,id) {
+	var l = id.split("_");
+	var counter = l[1];
+
+	if (sGroupId) {
+		$("#creditAccountSubGroup_"+counter).val(sGroupName + '( '+groupName+' )');
+		$("#creditAccountSubGroupId_"+counter).val(sGroupId);
+		$("#creditAccountSubGroup_"+counter).attr('data-procat', sGroupName);
+		$("#suggesstion-box2_"+counter).hide();
+		
+	}else {
+		$("#creditAccountSubGroup_"+counter).val("");
+		$("#creditAccountSubGroupId_"+counter).val("");
+		$("#creditAccountSubGroup_"+counter).attr('data-procat', "");
+		$("#suggesstion-box2_"+counter).hide();
+	}
+	}
+		    	
+function debitCheckEmpty(){
+	var debitAccountGroup =true;
+	$('.debitAccountSubGroupCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Account SubGroup")){			
+			debitAccountGroup =false;
+	        return false;
+		}
+			
+	});
+	 
+	var debitName =true;
+	if(debitAccountGroup){
+	$('.debitNameCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Name")){
+			
+			debitName =false;
+	        return false;
+		}
+			
+	});
+}
+	var debitAmount =true;
+	if(debitAccountGroup && debitName){
+	$('.debitAmountCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Amount ")){
+			
+			debitAmount =false;
+	        return false;
+		}
+			
+	});
+}
+
+	if(debitAccountGroup && debitName && debitAmount){
+		
+		debitAddMore();
+	}
+}
+function creditCheckEmpty(){
+	 var creditAccountGroup =true;
+	$('.creditAccountSubGroupCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Account SubGroup")){
+			
+			creditAccountGroup =false;
+	        return false;
+		}
+			
+	});
+	var creditName =true;
+	 if(creditAccountGroup ){
+	$('.creditNameCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Name")){
+			
+			creditName =false;
+	        return false;
+		}
+			
+	});
+}
+	var creditAmount =true;
+	 if(creditAccountGroup && creditName){
+	$('.creditAmountCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Amount ")){
+			
+			creditAmount =false;
+	        return false;
+		}
+			
+	});
+}
+	 if(creditAccountGroup && creditName && creditAmount){
+	
+	creditAddMore();
+}
+}
+//Function for adding more Table row
+
+	function debitAddMore(){
+		var lengthOfTableRow = $("#debitTbodyData").children('tr').length;
+		var cloneHtml = $("#debitMyTable tbody tr:first").clone();
+		$("#debitMyTable tbody tr:last").find('td:last').html('');
+		$("#debitMyTable tbody").append($("#debitMyTable tbody tr:first").clone());
+		$("#debitMyTable tbody tr td:last").html("");
+		var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="debitCheckEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		
+		
+		$("#debitMyTable tbody tr:last").find('td:last').append(addMore);
+		$("#debitMyTable tbody tr:last").find('td:last').append(removeMore);
+		$("#debitMyTable tbody tr:last").find('.debitAccountSubGroupCls').val("");
+		$("#debitMyTable tbody tr:last").find('.debitNameCls').val("");
+		$("#debitMyTable tbody tr:last").find('.debitAmountCls').val("");
+		var editTr = 0;
+	
+		if(lengthOfTableRow>editTr){
+			$("#debitMyTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+			
+		}
+			
+		// BLANK FIELD START
+		//$("#debitMyTable tbody tr:last").find(".tableNameCls").val("");
+		
+		$("#debitMyTable > tbody > tr").each(function(i){
+			var selectInput 	= $(this).find('select');
+			var textInput 		= $(this).find('input') ;
+			var divInput 		= $(this).find('div') ;
+			var hiddenInput 	= $(this).find('hidden') ;
+			var tr 				= $(this).find('tr') ;
+			textInput.eq(0).attr('id',"debitAccountSubGroup_"+i);
+			textInput.eq(2).attr('id',"debitName_"+i);
+			textInput.eq(3).attr('id',"debitAmount_"+i);
+			divInput.eq(0).attr('id',"suggesstion-box1_"+i);
+			textInput.eq(1).attr('id',"debitAccountGroupId_"+i);
+			tr.eq(0).attr('id',"debit_"+i);
+			
+		})
+	}
+	//Function for adding more Table row
+
+	function creditAddMore(){
+		var lengthOfTableRow = $("#creditTbodyData").children('tr').length;
+		var cloneHtml = $("#creditMyTable tbody tr:first").clone();
+		$("#creditMyTable tbody tr:last").find('td:last').html('');
+		$("#creditMyTable tbody").append($("#creditMyTable tbody tr:first").clone());
+		$("#creditMyTable tbody tr td:last").html("");
+		var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="creditCheckEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		
+		
+		$("#creditMyTable tbody tr:last").find('td:last').append(addMore);
+		$("#creditMyTable tbody tr:last").find('td:last').append(removeMore);
+		$("#creditMyTable tbody tr:last").find('.creditAccountSubGroupCls').val("");
+		$("#creditMyTable tbody tr:last").find('.creditNameCls').val("");
+		$("#creditMyTable tbody tr:last").find('.creditAmountCls').val("");
+		var editTr = 0;
+	
+		if(lengthOfTableRow>editTr){
+			$("#creditMyTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+			
+		}
+			
+		// BLANK FIELD START
+		//$("#creditMyTable tbody tr:last").find(".tableNameCls").val("");
+		
+		$("#creditMyTable > tbody > tr").each(function(i){
+			var selectInput = $(this).find('select');
+			var textInput 	= $(this).find('input') ;
+			var divInput 	= $(this).find('div') ;
+			var hiddenInput = $(this).find('hidden') ;
+			var tr			=  $(this).find('tr') ;
+			textInput.eq(0).attr('id',"creditAccountSubGroup_"+i);
+			textInput.eq(2).attr('id',"creditName_"+i);
+			textInput.eq(3).attr('id',"creditAmount_"+i);
+			divInput.eq(0).attr('id',"suggesstion-box2_"+i);	
+			textInput.eq(1).attr('id',"creditAccountGroupId_"+i);
+			tr.eq(0).attr('id',"credit_"+i);
+			
+		})
+	}
+	//add More at edit time
+	$(document).ready(function(){
+		var lengthOfTableRow = $("#debitTbodyData").children('tr').length;
+		$('.tbll').on('click', '.rmv', function () {
+			$(this).closest('tr').remove();
+			
+			$("#debitMyTable tbody tr:last").find('td:last').html('');
+			var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="debitCheckEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+			var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		
+			if($("#debitMyTable").children('tr').length > 1){
+				$("#debitMyTable tbody tr:last").find('td:last').append(add);
+				$("#debitMyTable tbody tr:last").find('td:last').append(remove);
+			}
+			else{
+				$("#debitMyTable tbody tr:last").find('td:last').append(add);
+			}
+	});
+		var lengthOfTableRow = $("#creditTbodyData").children('tr').length;
+		$('.tbll').on('click', '.rmv', function () {
+			$(this).closest('tr').remove();
+			
+			$("#creditMyTable tbody tr:last").find('td:last').html('');
+			var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="creditCheckEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+			var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		
+			if($("#creditMyTable").children('tr').length > 1){
+				$("#creditMyTable tbody tr:last").find('td:last').append(add);
+				$("#creditMyTable tbody tr:last").find('td:last').append(remove);
+			}
+			else{
+				$("#creditMyTable tbody tr:last").find('td:last').append(add);
+			}
+	});
+
+
+	
+	//Function for saving data
+	
+ 		$("#submitItems").click(function(){
+		var dataset = [];
+		item = {};
+		
+		$("#debitTbodyData > tr").each(function(){
+			item = {};
+			item['costCenter']	  	  				=	$("#costCenter").val();
+			item['totalAmount']	  	  				=	$("#fromTotalAmount").text();
+			item['description']	  	  				=	$("#description").val();
+			item['fromAccountSubGroup']		 	    =	$(this).find(".debitAccountGroupIdCls").val();
+			item['fromName']  	          			=	$(this).find(".debitNameCls").val();
+			item['fromAmount']  					=	$(this).find(".debitAmountCls").val();
+			dataset.push(item);
+		});//table tbody tr loop ends
+		$("#creditTbodyData > tr").each(function(){
+			item = {};
+			item['costCenter']	  	  				=	$("#costCenter").val();
+			item['totalAmount']	  	  				=	$("#toTotalAmount").text();
+			item['description']	  	  				=	$("#description").val();
+			item['toAccountSubGroup']		 	    =	$(this).find(".creditAccountGroupIdCls").val();
+			item['toName']  	          			=	$(this).find(".creditNameCls").val();
+			item['toAmount']  					    =	$(this).find(".creditAmountCls").val();
+			dataset.push(item);
+		});//table tbody tr loop ends
+		
+		console.log(item);
+		console.log(dataset);
+		submitAddSpaTableStaffAssign(dataset);
+		
+		//Blank Validations
+		
+		if (!blankValidation("costCenter","SelectBox" ,"Please Select Cost Center Name"))
+	        return false;
+		
+		if (!blankValidation("description","TextField", "Please Enter Description"))
+	        return false;
+		 var debitAccountGroup =true;
+			$('.debitAccountSubGroupCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Account SubGroup")){
+					
+					debitAccountGroup =false;
+			        return false;
+				}
+					
+			});
+			 
+			var debitName =true;
+			if(debitAccountGroup){
+			$('.debitNameCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Name")){
+					
+					debitName =false;
+			        return false;
+				}
+					
+			});
+		}
+			var debitAmount =true;
+			if(debitAccountGroup && debitName){
+			$('.debitAmountCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Amount ")){
+					
+					debitAmount =false;
+			        return false;
+				}
+					
+			});
+		}
+		 var creditAccountGroup =true;
+		 if(debitAccountGroup && debitName && debitAmount){
+		$('.creditAccountSubGroupCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Account SubGroup")){
+				
+				creditAccountGroup =false;
+		        return false;
+			}
+				
+		});
+		 } 
+		var creditName =true;
+		 if(debitAccountGroup && debitName && debitAmount && creditAccountGroup){
+		$('.creditNameCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Name")){
+				
+				creditName =false;
+		        return false;
+			}
+				
+		});
+	}
+		var creditAmount =true;
+		 if(debitAccountGroup && debitName && debitAmount && creditAccountGroup && creditName){
+		$('.creditAmountCls').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Amount ")){
+				
+				creditAmount =false;
+		        return false;
+			}
+				
+		});
+	}
+	
+		 if(debitAccountGroup && debitName && debitAmount && creditAccountGroup && creditName && creditAmount){
+		  	var credit=0;
+		  	var debit=0;
+			$(".debitAmountCls").each(function(i){
+				debit = debit + parseFloat($(this).val());
+		  	});
+		
+			$(".creditAmountCls").each(function(i){
+				credit = credit + parseFloat($(this).val());
+		  	});
+			
+			if(credit == debit){			
+			submitAddSpaTableStaffAssign(dataset);
+		}
+			else{
+				swal("Debit Amount not same with credit Amount");	
+				return false;
+				}
+			}
+		
+	});
+ 	//Function for getting Table Name on change of spa Name
+});
+	//function to validate Discount field
+	
+	function extractNumber(obj, decimalPlaces, allowNegative){
+		var temp = obj.value;
+		// avoid changing things if already formatted correctly
+		var reg0Str = '[0-9]*';
+		if (decimalPlaces > 0) {
+			reg0Str += '\\.?[0-9]{0,' + decimalPlaces + '}';
+		} else if (decimalPlaces < 0) {
+			reg0Str += '\\.?[0-9]*';
+		}
+		reg0Str = allowNegative ? '^-?' + reg0Str : '^' + reg0Str;
+		reg0Str = reg0Str + '$';
+		var reg0 = new RegExp(reg0Str);
+		if (reg0.test(temp)) return true;
+
+		// first replace all non numbers
+		var reg1Str = '[^0-9' + (decimalPlaces != 0 ? '.' : '') + (allowNegative ? '-' : '') + ']';
+		var reg1 = new RegExp(reg1Str, 'g');
+		temp = temp.replace(reg1, '');
+
+		if (allowNegative) {
+			// replace extra negative
+			var hasNegative = temp.length > 0 && temp.charAt(0) == '-';
+			var reg2 = /-/g;
+			temp = temp.replace(reg2, '');
+			if (hasNegative) temp = '-' + temp;
+		}
+		
+		if (decimalPlaces != 0) {
+			var reg3 = /\./g;
+			var reg3Array = reg3.exec(temp);
+			if (reg3Array != null) {
+				// keep only first occurrence of .
+				//  and the number of places specified by decimalPlaces or the entire string if decimalPlaces < 0
+				var reg3Right = temp.substring(reg3Array.index + reg3Array[0].length);
+				reg3Right = reg3Right.replace(reg3, '');
+				reg3Right = decimalPlaces > 0 ? reg3Right.substring(0, decimalPlaces) : reg3Right;
+				temp = temp.substring(0,reg3Array.index) + '.' + reg3Right;
+			}
+		}
+		
+		obj.value = temp;
+	}
+	function submitAddSpaTableStaffAssign(dataset){
+					swal.fire({
+						title					: "Are you sure want to Submit?",
+						text					: "Once Submited,Can't revert back !",
+						type 					: "warning",
+						showCancelButton		: true,
+						confirmButtonColor		: "#DD6BB5",
+						confirmButtonText		:"Submit",
+						showLoaderOnConfirm		: true,
+						reverseButtons 			: true,
+						confirmButtonAriaLabel 	: 'Thumbs up, great!',
+						cancelButtonText 		: 'Cancel',
+						cancelButtonAriaLabel 	: 'Thumbs down',
+						preConfirm				: () => {
+							return new Promise((resolve) => {
+								setTimeout(() => {
+									console.log("Doing async operation");
+									resolve()
+								}, 3000)
+							})
+						}
+					}).then((result) => {
+						if(result.value){
+							$.ajax({
+							type		: "POST",
+							url 		: "add-journal-voucher",
+							dataType	: "json",
+							contentType	: "application/json",
+							data		: JSON.stringify(dataset),
+							success		: function(response){
+								if(response.message=="Success"){
+									swal({
+											title:"Data Saved Successfully.",
+											type: "success",
+									}).then(function(){
+											window.location.href = "/account/view-journal-voucher" ;
+									})
+								}else{
+									swal({
+										title:response.code,
+										text: response.message,
+										type:"warning"
+									})
+								}
+					},error		: function(response){
+						swal(response.code);	
+				}
+			}) //ajax ends
+		}
+	})//swal function block ends
+}//submit function ends
+		
+		 
+	//Function for cancel button
+	function funcLoad(){
+		location.reload();
+	} 
+	
+		
+	function getFromSubtotal(){
+		var sum=0;
+		$(".debitAmountCls").each(function(i){
+	  		sum = sum + parseFloat($(this).val());
+	  	})
+	
+	  		$("#fromTotalAmount").html(sum);
+	}	
+	function getToSubtotal(){
+		var sum=0;
+		$(".creditAmountCls").each(function(i){
+	  		sum = sum + parseFloat($(this).val());
+	  	})
+	  	
+	  		$("#toTotalAmount").html(sum);
+	}	
+
+	function gotoview() {
+		window.location.href="/account/view-journal-voucher";
+	}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add  Journal Voucher</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+			<h4>Add  Journal Voucher</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							 <form th:object="${spaTableStaff}" autocomplete="off"> 
+
+								<input type="hidden" id="journalVoucher" th:value="${id}" /> 
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">								
+											<div class="form-group"  >
+											<label>CostCenter</label> 
+											<select
+												class="form-control" id="costCenter" >
+												<option th:value="null">select</option>
+												<option  th:if="${id}" th:each="c:${costCenterList}" th:value='${c.key}'
+													th:text="${c.name}" th:selected="${c.key==spaTableStaff[0].property}"></option>
+												<option th:unless="${id}" th:each="c:${costCenterList}" th:value='${c.key}'th:text="${c.name}"></option>
+
+											</select>
+										</div>
+										</div>	
+										<div class="col-lg-6">								
+											<div class="form-group">
+												<label> Paid Description</label>
+												<textarea name="" cols="" rows=""
+													class="form-control textarea" th:id="description"></textarea>
+											</div>
+											
+										</div>
+										</div>
+								
+									<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+										<div class="subheading">Debited To</div>
+										<table class="tbll" id="debitMyTable" width="100%" border="0"
+											cellspacing="2" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Account SubGroup</th>
+													<th>Name</th>
+													<th>Amount</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+												<tbody id="debitTbodyData">
+												<tr class="tr_clone" th:if="${id}"
+													th:each="a,iter:${spaTableStaff}">
+													<td><input type="text" id="debitAccountSubGroup_0"
+														class="form-control debitAccountSubGroupCls" onkeyup="debitSubGroup(this.id);">
+															<div id="suggesstion-box1_0"></div>
+															<input type="hidden" id="debitAccountGroupId_0" class="form-control debitAccountGroupIdCls"/>
+													</td>
+													<td><input type="text" id="debitName_"
+														class="form-control debitNameCls"  >
+															</td>
+													<td><input type="text" id="debitAmount_"
+														class="form-control debitAmountCls" onkeyup="getFromSubtotal();"  >
+													</td>
+												 	<td>
+												 		<button th:if="${iter.size == iter.index+1}" type="button" class="btn btn-primary tr_clone_add" name="add" onclick="debitCheckEmpty();"><span class="ti-plus"></span></button>&nbsp;
+														<button th:if="${iter.size != 1}" type="button" class="btn btn-warning rmv"
+													name="Remove"><span class="ti-minus"></span></button>
+													</td>
+												</tr> 
+												<tr class="tr_clone" th:unless="${id}"  id="debit_0">
+												<td><input type="text" id="debitAccountSubGroup_0"
+														class="form-control debitAccountSubGroupCls" onkeyup="debitSubGroup(this.id);">
+														<div id="suggesstion-box1_0"></div>
+														<input type="hidden" id="debitAccountGroupId_0" class="form-control debitAccountGroupIdCls"/>
+														
+													</td>
+													<td><input type="text" id="debitName_"
+														class="form-control debitNameCls"  >
+															</td>
+													<td><input type="text" id="debitAmount_"
+														class="form-control debitAmountCls" onkeyup="return extractNumber(this,2),getFromSubtotal() ;" >
+													</td>
+												 	<td>
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="debitCheckEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+										</table>
+										
+										<div class="form-group subheading"  width="60%" align="center"  >
+											<label>Sub Total :</label>  
+											<label   id="fromTotalAmount"></label>
+										</div>
+										
+										</div>
+										<div class="col-lg-12">
+										<!-- id="table-data" -->
+										<div class="subheading">Credited To</div>
+										<table class="tbll" id="creditMyTable" width="100%" border="0"
+											cellspacing="2" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Account SubGroup</th>
+													<th>Name</th>
+													<th>Amount</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+												<tbody id="creditTbodyData">
+												<tr class="tr_clone" th:if="${id}"
+													th:each="a,iter:${spaTableStaff}">
+													<td><input type="text" id="creditAccountSubGroup_0"
+														class="form-control creditAccountSubGroupCls" onkeyup="creditSubGroup(this.id);">
+														<div id="suggesstion-box2_0"></div>
+														<input type="hidden" id="creditAccountSubGroupId_0" class="form-control creditAccountGroupIdCls"/>
+													</td>
+													<td><input type="text" id="creditName_"
+														class="form-control creditNameCls"  >
+															</td>
+													<td><input type="text" id="creditAmount_"
+														class="form-control creditAmountCls"  onkeyup="getToSubtotal();" >
+													</td>
+												 	<td>
+												 		<button th:if="${iter.size == iter.index+1}" type="button" class="btn btn-primary tr_clone_add" name="add" onclick="creditCheckEmpty();"><span class="ti-plus"></span></button>&nbsp;
+														<button th:if="${iter.size != 1}" type="button" class="btn btn-warning rmv"
+													name="Remove"><span class="ti-minus"></span></button>
+													</td>
+												</tr> 
+												<tr class="tr_clone" th:unless="${id}"   id="credit_0">
+												<td><input type="text" id="creditAccountSubGroup_0"
+														class="form-control creditAccountSubGroupCls" onkeyup="creditSubGroup(this.id);">
+														<div id="suggesstion-box2_0"></div>
+														<input type="hidden" id="creditAccountSubGroupId_0"  class="form-control creditAccountGroupIdCls"/>
+													</td>
+													<td><input type="text" id="creditName_"
+														class="form-control creditNameCls"  >
+															</td>
+													<td><input type="text" id="creditAmount_"
+														class="form-control creditAmountCls"  onkeyup="return extractNumber(this,2),getToSubtotal() ;"  >
+													</td>
+												 	<td>
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="creditCheckEmpty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+										</table>
+											
+										<div class="form-group subheading"  width="60%" align="center"  >
+											<label>Sub Total :</label>  
+											<label   id="toTotalAmount"></label>
+										</div>
+										</div>
+										</div>
+									<div class="row">
+									<div class="form-group">
+									<button type="button" id="submitItems" class="btn btn-success" >Submit</button>
+									<button type="button" class="btn btn-warning"
+										onclick="gotoview();">Cancel</button>
+										</div>
+									</div>
+										</form>	
+									</div>
+								</div>
+						</div>
+						
+					</div>
+               </div>
+			</div>
+		</div>
+		<div style="clear: both;"></div>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#table').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-shift-scheduling-through-ajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+					d.param3 = $('#param3').val();
+
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [
+
+			{
+				'data' : 'tEmp'
+			}, {
+				'data' : 'tDepartment'
+			}, {
+				'data' : 'tSection'
+			}, {
+				'data' : 'tSchedule'
+			}, {
+				'data' : 'fromDate'
+			}, {
+				'data' : 'toDate'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+
+	function viewInModel(index) {
+		var id = window.atob(index);
+		$('#table1').empty();
+		$('#table2').empty();
+		$
+				.ajax({
+					type : "POST",
+					url : "view-shift-schedule-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success")
+
+						{
+							span = '<tr><td><b>Department Name :</td></b>'
+									+ '<td align="left">'
+									+ response.body[0].tDepartment
+									+ '</td>'
+									+ '</tr><tr><td><b>Section Name :</td></b><td align="left">'
+									+ response.body[0].tSection
+									+ '</td></tr><tr><b><td>Schedule Name:</td></b>'
+									+ '<td align="left">'
+									+ response.body[0].tSchedule 
+									+ '</td></tr><tr><b><td>Section Name:</td></b>'
+									+ '<td align="left">'
+									+ response.body[0].fromDate + '</td><b>'
+									+ '<tr><td>To Date:</td></b>'
+									+ '<td align="left">'
+									+ response.body[0].toDate + '</td><b>'
+									+ '</tr></b>';
+							$('#myModal1').modal('show');
+							$('#table1').append(span);
+
+							table2 = '<tr><th><b>Employee Name</b></th><th><b>Shift Name</b></th><th><b>Remark</b></th></tr>';
+							$('#myModal1').modal('show');
+							$('#table2').append(table2);
+
+							for (var i = 0; i < response.body.length; i++) {
+								table = '<tr><td>' + response.body[i].tEmpId
+										+ '</td><td>' + response.body[i].tShift
+										+ '</td><td>'
+										+ response.body[i].tRemark
+										+ '</td></tr>';
+								$('#myModal1').modal('show');
+								$('#table2').append(table);
+							}
+
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+
+	function searchData() {
+		$('#table').DataTable().draw();
+
+	}
+</script>
+</head>
+
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="add-shift-scheduling">Home</a></li>
+					<li><a th:href="@{/recruitment/add-shift-scheduling}">Add
+							Shift Schedule</a></li>
+					<li class="active"><span>View Shift Schedule</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Manage Schedule</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+
+
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-shift-scheduling">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+
+							<div class="col-md-2">
+								<label>Department</label> <input type="text" id="param1"
+									class="form-control" onkeyup="searchData()">
+							</div>
+							<div class="col-md-2">
+
+								<label>Section</label> <input type="text" id="param2"
+									class="form-control" onkeyup="searchData()">
+							</div>
+							<div class="col-md-2">
+
+								<label>Schedule</label> <input type="text" id="param3"
+									class="form-control" onkeyup="searchData()">
+							</div>
+
+
+						</div>
+					</div>
+
+
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table table-bordered">
+							<thead>
+								<tr>
+
+									<th>Employee</th>
+									<th>Department</th>
+									<th>Section</th>
+									<th>Schedule</th>
+									<th>From Date</th>
+									<th>To Date</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal Start-->
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Shift</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+						</table>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table2">
+
+						</table>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+
+
+	</div>
+</div>
+</html>

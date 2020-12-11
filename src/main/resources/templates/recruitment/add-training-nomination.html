@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+
+.autocomplete {
+  position: relative;
+  display: inline-block;
+}
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  /*position the autocomplete items to be the same width as the container:*/
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff; 
+  border-bottom: 1px solid #d4d4d4; 
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+  background-color: #e9e9e9; 
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+  background-color: DodgerBlue !important; 
+  color: #ffffff; 
+}
+
+
+.brd-btm{
+border-bottom: 1px solid #ccc;
+    padding: 4px 2px;
+}
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width:96%;
+	position: absolute;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.amount_align_right {
+	width: 40%;
+	text-align: right;
+}
+
+.noBorder {
+	border: none !important;
+}
+</style>
+
+       	 
+<script>
+
+function addMore(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	//$("#myTable tbody tr:last").find(".qualifCls").append(new Option("--Select--","")); 
+	$("#myTable tbody tr:last").find(".reimTypeCls").val("");
+	$("#myTable tbody tr:last").find(".policyCls").val("");
+	$("#myTable tbody tr:last").find(".startCls").val("");
+	$("#myTable tbody tr:last").find(".endCls").val("");
+	$("#myTable tbody tr:last").find(".statusCls").val("");
+	
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+	
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		var fileInput = $(this).find('file');
+		var divInput = $(this).find('div');
+		textInput.eq(0).attr('id', "selectReimType_" + i);
+		textInput.eq(1).attr('id', "selectPolicy_" + i);
+		textInput.eq(2).attr('id',"selectStart_"+i);
+		textInput.eq(3).attr('id',"selectEnd_"+i);
+		selectInput.eq(0).attr('id',"status_"+i);
+	
+		
+		
+	})
+	
+}
+$(document).ready(function() {
+//autocomplete start
+	
+//autocomplete end
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		
+		displayTable();
+		});
+	
+	
+
+/* 	var fullDate = new Date();
+	var twoDigitMonth = ((fullDate.getMonth() + 1) >= 10) ? (fullDate.getMonth() + 1) : '0' + (fullDate.getMonth() + 1);
+	var twoDigitDate = ((fullDate.getDate()) >= 10) ? (fullDate.getDate()) : '0' + (fullDate.getDate());
+	var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+	$("#invDate").val(currentDate); */
+	
+	$("#submit").click(function(){
+
+		window.location.href = "/recruitment/view-training-nomination" ;
+		/* if (!blankValidation("invNo","TextField" ,"Please Enter Invoice Number"))
+		      return false;
+		if (!blankValidation("payDueDate","TextField" ,"Please Enter Payment Due Date"))
+		      return false;
+		
+		obj = {};
+		//obj['vendorId']		=	$("#vendorId").val();
+		//obj['pOrder']		=	$("#pOrder").val();
+		obj['invNo']		=	$("#invNo").val();
+		obj['invDate']		=	$("#invDate").val();
+		obj['payDueDate']	=	$("#payDueDate").val();
+		obj['storeId']	    =	$("#storeId").val();
+		/* obj['amount']		=	$("#subTotal").text();
+		obj['totalCGST']	=	$("#sCGST").text();
+		obj['grandTotal']	=	$("#grandTotal").text();
+		
+		console.log(obj)
+		submitMultipleInvoice(obj); */
+	})
+})
+
+function submitMultipleInvoice(obj){
+	
+	swal.fire({
+		title				: "Are you sure want to Submit?",
+		text				: "Once Submited,Can't revert back !",
+		type 				: "warning",
+				
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Submit",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		confirmButtonAriaLabel : 'Thumbs up, great!',
+		cancelButtonText : 'Cancel',
+		cancelButtonAriaLabel : 'Thumbs down',
+			
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		swal({
+			title	: "Data Saved Successfully.",
+			type	: "success",
+		}).then(function(){
+			window.location.href = "/inventory/view-physical-varification-warehouse" ;
+		})
+/* 		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "add-multiple-grn-invoice-submit",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(obj),
+				success		: function(response){
+					
+					//if(response.message=="Success"){
+						console.log(response.body);
+						swal({
+							title	: "Data Saved Successfully.",
+							type	: "success",
+						}).then(function(){
+							window.location.href = "/inventory/view-physical-varification-warehouse" ;
+						})
+						/* } else {
+						swal({
+							title	: response.code,
+							text	: response.message,
+							type	: "warning"
+						})
+					} 
+				}, error		: function(response){
+					swal(response.code);	
+				}
+			}) //ajax ends
+		} */
+	})//swal function block ends
+}
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".qualifCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".qualifCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+function datepicker(event){
+	var item = event.currentTarget.value;
+	var itemId=event.currentTarget.id;
+	var l = itemId.split("_");
+	var counter = l[1];
+	$("#selectStart_"+counter).datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	$("#selectEnd_"+counter).datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})	
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Training  Nomination</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Training Nomination</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+		
+							
+							<div class="row">
+								<div class="col-md-12" style="padding-top:10px;">
+									<table class="tbll table table-bordered" id="myTable"
+										width="100%" border="0" cellspacing="1" cellpadding="5" >
+										<thead>
+											<tr class="trCls">
+												<th colspan="6" style="font-size:18px;"><b>Training Nomination</b></th>
+											</tr>
+										</thead>
+										<thead class="theadCls">
+											<tr>
+												<th>Training Name</th>
+												<th>Training Type</th>
+												<th>Start Date</th>
+												<th>End Date</th>
+												<th>Status</th>
+												<th>Action</th>
+												
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<tr class="tr_clone">
+													<td><input type="text" class="form-control reimTypeCls"
+														id="selectReimType_0" 
+														 /></td>
+													<td><input type="text" class="form-control policyCls"
+														id="selectPolicy_0" 
+														 /></td>
+													<td><input type="text" class="form-control startCls"
+														id="selectStart_0" onclick="datepicker(event)"
+														readonly /></td>
+													<td><input type="text" class="form-control endCls" 
+														id="selectEnd_0"  onclick="datepicker(event)"
+														readonly/></td>
+													<td><select id="status_"
+														class="form-control statusCls" >
+															<option th:value="null">--select--</option>
+															<option th:value="1">N</option>
+															<option th:value="2">E</option>
+															<option th:value="3">C</option>
+															
+													</select></td>
+
+													
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+									
+										</tbody>
+									</table>
+								</div>
+							</div>
+							
+							<div class="col-md-12">
+								<div class="form-group">
+									<button type="button" id="submit" class="btn btn-success" >Submit</button>
+									<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</div>
+</html>

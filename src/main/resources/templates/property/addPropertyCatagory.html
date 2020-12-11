@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script type="text/javascript">
+       
+     function validateForm(){
+    	 
+	  if (!blankValidation("categoryName","TextField", "Name can not be left blank"))
+          return false;
+	  
+	  //hello
+      
+      if (!checkSpecialCharacter("categoryName","Special character is not allowed!!!"))
+          return false;
+      if (!blankValidation("categoryDescription","TextField", "Description can not be left blank"))
+          return false;
+      if (!blankValidation("categoryActive","TextField", "Status can not be left blank"))
+          return false;
+      
+     }  
+ 
+    </script>
+</head>
+<div layout:fragment="content">
+
+        <div class="main mrt_20">
+            <!--Alert Box-->
+                <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+             <span th:text="${message}"></span>
+          </div>
+              <!--Alert Box-->
+      <div class="col-md-12">
+       <ol class="breadcrumb breadcrumb-arrow">
+             <li><a href="index.html">Home</a></li>
+             <li class="active"><span>Add Property Category</span></li>
+           
+        </ol>
+        </div>
+        <div class="card-title">
+             <h4>Add Property Category </h4>
+         </div>  
+         <div class="container">
+                <div class="card"> 
+                    <div class="card-body">
+                        <div class="basic-elements">
+                            <form th:action="@{/property/add-property-category}"th:object="${category}" method="post" autocomplete="off" class="PropertyCategory" onsubmit="return validateForm();">
+                               <input type="hidden" th:field="*{propertyCatId}" />
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Category Name</label>
+                                             <input type="text" disabled="disabled" class="form-control" th:id="categoryName" th:field="*{categoryName}" th:name="categoryName">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Description.</label>
+                                            <textarea class="form-control textarea" th:id="categoryDescription" th:field="*{categoryDescription}" th:name="categoryDescription"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Status</label>
+                                               <select class="form-control"  th:id="categoryActive" th:field="*{categoryActive}" th:name="categoryActive">
+                                                <option th:value=null>select</option>
+                                                <option th:value=1>Active</option>
+                                                <option th:value=0>Inactive</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-success">submit</button>
+                           				<button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+                                    </div>
+                                  </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+     </div>
+    </div>
+
+</html>

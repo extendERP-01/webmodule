@@ -1,0 +1,473 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.checkListContainer {
+	/* border: 0.5px solid; */
+	padding: 3px;
+	display: flex;
+	align-items: center;
+}
+
+.borderedtxt {
+	color: #0095c6;
+	font-size: 16px;
+	border: 1px dotted #e7b63a;
+	padding: 6px;
+}
+
+.checkClass {
+	height: 100px;
+	overflow-y: scroll;
+	border: 1px solid #ccc;
+}
+
+input[type="checkbox"] {
+	margin-right: 10px;
+}
+</style>
+<script type="text/javascript">
+//Function for cancel button
+function funcLoad(){
+	window.location.href = "/inventory/view-rack-master";
+}
+function showCheckboxes(event) {
+	var cId = event.currentTarget.id;
+	var l = cId.split("_");
+	var counter = l[1];		
+	$("#checkboxes_"+counter).toggle('1000','linear');
+}
+$(document).ready(function(){
+	 
+	
+	
+	//for minus
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add m-t-12" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv m-t-12" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+	
+	
+	});
+	
+	$("#store").change(function(){
+		var storeVal = $(this).val();
+		$("#subInventory").empty();
+		$("#warehouse").empty();
+		if(storeVal) {
+
+			$.ajax({
+                type: 'POST',
+                url: 'assign-item-to-rack-get-sub-inventory',
+                contentType: false,
+                data: storeVal,
+                success: function(response) {
+                    if (response.message == "success") {
+                    	$("#warehouse").append("<option value=''>Select</option>");
+                    	$("#subInventory").append("<option value=''>Select</option>");
+                    	for(var i = 0; i < response.body.length; i++) {
+                    		$("#subInventory").append("<option value='"+response.body[i].key+"'>"+response.body[i].name+"</option>");
+                    	}
+                    } else {
+                    	$("#warehouse").append("<option value=''>Select</option>");
+                    	$("#subInventory").append("<option value=''>Select</option>");
+                    }
+				},
+				error: function(data) {
+					console.log(data)
+					$("#warehouse").append("<option value=''>Select</option>");
+					$("#subInventory").append("<option value=''>Select</option>");
+				}
+			});
+		} else {
+			$("#warehouse").append("<option value=''>Select</option>");
+			$("#subInventory").append("<option value=''>Select</option>");
+		}
+	});
+	
+	$("#subInventory").change(function(){
+		var subInventory = $(this).val();
+		$("#warehouse").empty();
+		if(subInventory) {
+			$.ajax({
+                type: 'POST',
+                url: 'assign-item-to-rack-get-warehouse',
+                contentType: false,
+                data: subInventory,
+                success: function(response) {
+                    if (response.message == "success") {
+                    	$("#warehouse").append("<option value=''>Select</option>");
+                    	for(var i = 0; i < response.body.length; i++) {
+                    		$("#warehouse").append("<option value='"+response.body[i].key+"'>"+response.body[i].name+"</option>");
+                    	}
+                    } else {
+                    	$("#warehouse").append("<option value=''>Select</option>");
+                    }
+				},
+				error: function(data) {
+					console.log(data)
+					$("#warehouse").append("<option value=''>Select</option>");
+				}
+			});
+		} else {
+			$("#warehouse").append("<option value=''>Select</option>");
+		}
+	});
+	
+	$("#submit").click(function(){
+		var dataset = [];
+		
+		$("#tbodyData > tr").each(function(i){ 
+				
+				item = {};
+				
+				var cnt = $(this).val();
+				
+				item.rackId = $("#rackId").val();
+				item.store = $("#store").val();
+				item.subInventory = $("#subInventory").val();
+				item.warehouse = $("#warehouse").val();
+				item.rackName = $("#rackName").val();
+				//item.shelvesCapacity = $("#shelvesCapacity").val();
+				item.shelf = $(this).find(".shelvesCls").val();
+				dataset.push(item);
+		 
+			
+		})
+		
+		console.log(dataset)
+		submitShelveswiseItem(dataset);
+	})
+})
+
+function submitShelveswiseItem(dataset) {
+	swal.fire({
+        title: "Are you sure want to Submit?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "add-rack-master-save",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+
+                    if (response.message == "success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            window.location.href = "/inventory/view-rack-master";
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(data) {
+                    console.log(data)
+                }
+            }) //ajax ends
+        }
+    })
+}
+
+function setShelfCapacity(i,key) {
+	if(key) {
+		$("#tdCapacity_"+i).empty();
+		var div = "";
+		var content = "<div style='height:135px; overflow-y:scroll;'>";
+		var cnt = 0;
+		$("input:checkbox[id=itemId_"+i+"]:checked").each(function(j){
+			cnt = cnt + 1;
+			var itemval = $(this).val();
+			var dataval = $(this).attr("data-val");
+			
+			div = div + "<input type='text' class='form-control' style='height:24px; margin-bottom:3px;' name='"+j+"' id='cp_"+itemval+'_'+i+"' placeholder='"+dataval+"'>";
+		});
+		content = content + div + "</div>";
+		
+		if(cnt > 0) {
+			$("#tdCapacity_"+i).append(content);
+		} else {
+			var divItem = "<div class='borderedtxt'>Please Choose Item</div>";
+			$("#tdCapacity_"+i).append(divItem);
+		}
+	}
+}
+
+function saveShelvesDetails() {
+	var value = $("#shelvesCapacity").val();
+	$("#tbodyData").empty();
+	if(value!=null && value!="") {
+		if(value=="0") {
+			swal({
+				title: "Capacity Can't Be Zero..!!!",
+				type: "warning",
+			})
+			$("#shelvesCapacity").val("");
+		} else {
+			
+			var c = 0;
+			for (var i = 0; i < value; i++) {
+				var tbl = '<tr>'+
+						  '<td valign="top"><input type="text" class="form-control shelvesCls" id="inputShelves_'+i+'"></td>'+
+						  '</tr>';
+				$("#tbodyData").append(tbl);
+				
+			} 
+			
+		}
+	} else {
+		var tbl = '<tr class="nodatacls"><td colspan="1" style="text-align:center; color: red; font-weight:bold;">Enter Rack Capacity</td></tr>';
+		$("#tbodyData").append(tbl);
+	}
+}
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add m-t-12" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv m-t-12" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	//$("#myTable tbody tr:last").find(".NameCls").append(new Option("--Select--","")); 
+	$("#myTable tbody tr:last").find(".shelvesCls").val("");
+	$("#myTable tbody tr:last").find(".shelvesCls").val("");
+	 
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	
+	 
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput 	= $(this).find('input') ;
+		var labelInput 	= $(this).find('label') ;
+		var divInput = $(this).find('div');
+		
+		textInput.eq(0).attr('id',"item_"+i);
+		 
+		
+	})
+	
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<div class="alert alert-danger alert-dismissible"
+					th:if="${message != null}">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<span th:text="${message}"></span>
+				</div>
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+					<li><a href="">Add Rack</a></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<!-- <form th:action="@{add-warehouse-master}" method="post" th:object="${wareHouse}"
+								autocomplete="off"> -->
+							<input type="hidden" id="rackId" th:value="${rackId}">
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Store</label> <select class="form-control" id="store"
+											th:unless="${rackId}">
+											<option value="">Select</option>
+											<option th:each="c,iter:${storeList}" th:value="${c.key}"
+												th:text="${c.name}"></option>
+										</select> <select class="form-control" id="store" th:if="${rackId}"
+											disabled>
+											<option value="">Select</option>
+											<option th:each="c,iter:${storeList}" th:value="${c.key}"
+												th:text="${c.name}"
+												th:selected="${rackDtls[0].store==c.key}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Sub-Inventory</label> <select class="form-control"
+											th:unless="${rackId}" id="subInventory">
+											<option value="">Select</option>
+										</select> <select class="form-control" th:if="${rackId}"
+											id="subInventory" disabled>
+											<option value="">Select</option>
+											<option th:selected="${rackDtls[0].subInventory==c.key}"
+												th:each="c,iter:${subInvList}" th:value="${c.key}"
+												th:text="${c.name}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Warehouse</label> <select class="form-control"
+											th:unless="${rackId}" id="warehouse">
+											<option value="">Select</option>
+										</select> <select class="form-control" id="warehouse" th:if="${rackId}"
+											disabled>
+											<option value="">Select</option>
+											<option th:selected="${rackDtls[0].warehouse==c.key}"
+												th:each="c,iter:${warehouseList}" th:value="${c.key}"
+												th:text="${c.name}"></option>
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Rack Name</label> <input type="text" th:if="${rackId}"
+											th:value="${rackDtls[0].rackName}" class="form-control"
+											id="rackName"> <input type="text"
+											th:unless="${rackId}" class="form-control" id="rackName">
+									</div>
+								</div>
+								<!-- <div class="col-lg-6">
+									<div class="form-group">
+										<label>Capacity (Shelves)</label>
+										<div>
+											<input type="text" readonly th:if="${rackId}"
+												th:value="${shelvesCapacity}" class="form-control"
+												id="shelvesCapacity"
+												onkeyup="checkNum('shelvesCapacity');saveShelvesDetails();"
+												style="float: left; width: 83%; margin-right: 4px;">
+											<button type="button" th:if="${rackId}"
+												class="btn btn-primary tr_clone_add" name="+"
+												onclick="addMore();">+</button>
+											<button type="button" th:if="${rackId}"
+												class="btn btn-primary tr_clone_add" name="-"
+												onclick="remove();">-</button>
+										</div>
+										<input type="text" th:unless="${rackId}" class="form-control"
+											id="shelvesCapacity"
+											onkeyup="checkNum('shelvesCapacity');saveShelvesDetails();">
+									</div>
+								</div> -->
+								<div class="col-lg-12">
+									<label style="font-size: 20px; font-weight: bold;">Assign
+										Shelves To Rack</label>
+									<table class="tbll" id="myTable" width="50%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Shelf</th>
+											</tr>
+										</thead>
+
+
+										<!-- 	<tbody id="tbodyData">
+											<tr class="nodatacls" th:unless="${rackId}">
+												<td colspan="4"
+													style="text-align: center; color: red; font-weight: bold;">Enter
+													Rack Capacity</td>
+											</tr>
+											<tr th:if="${rackId}" th:each="a,iter:${rackDtls}">
+												<td valign="top"><input type="text"
+													th:value="${a.shelf}" class="form-control shelvesCls"
+													th:id="${'inputShelves_'+iter.index}"></td>
+											</tr>
+										</tbody> -->
+
+
+										<tbody id="tbodyData">
+											<tr class="tr_clone" th:if="${rackId}"
+												th:each="a,iter:${rackDtls}">
+												<td valign="top"><input type="text"
+													th:value="${a.shelf}" class="form-control shelvesCls"
+													th:id="${'inputShelves_'+iter.index}"></td>
+												<td><button th:if="${iter.size == iter.index+1}"
+														type="button" class="btn btn-primary tr_clone_add m-t-12"
+														name="add" onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>
+													<button th:if="${iter.size != 1}" type="button"
+														class="btn btn-warning rmv m-t-12" name="Remove">
+														<span class="ti-minus"></span>
+													</button></td>
+											</tr>
+
+											<tr id="tr_" class="tr_clone" th:unless="${rackId}">
+												<td><input type="text" 
+													class="form-control shelvesCls" th:id="inputShelves_"></td>
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add m-t-12" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+
+										</tbody>
+
+
+
+									</table>
+								</div>
+								<div class="col-lg-12">
+									<div class="form-group">
+										<button class="btn btn-success" id="submit">Submit</button>
+										<button class="btn btn-warning" type="reset"
+											onclick="funcLoad();">Cancel</button>
+									</div>
+								</div>
+							</div>
+							<!-- </form> -->
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

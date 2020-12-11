@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.autocomplete {
+	position: relative;
+	display: inline-block;
+}
+
+.autocomplete-items {
+	position: absolute;
+	border: 1px solid #d4d4d4;
+	border-bottom: none;
+	border-top: none;
+	z-index: 99;
+	/*position the autocomplete items to be the same width as the container:*/
+	top: 100%;
+	left: 0;
+	right: 0;
+}
+
+.autocomplete-items div {
+	padding: 10px;
+	cursor: pointer;
+	background-color: #fff;
+	border-bottom: 1px solid #d4d4d4;
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+	background-color: #e9e9e9;
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+	background-color: DodgerBlue !important;
+	color: #ffffff;
+}
+
+.brd-btm {
+	border-bottom: 1px solid #ccc;
+	padding: 4px 2px;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 96%;
+	position: absolute;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.amount_align_right {
+	width: 40%;
+	text-align: right;
+}
+
+.noBorder {
+	border: none !important;
+}
+</style>
+
+
+<script>
+
+function checkempty(){
+	
+	var shiftVal = true;
+	$(".shiftTypeCls").each(function(){
+	var current_id = $(this).attr("id"); 
+	if (!blankValidation(current_id,"SelectBox" ,"Please  Select Shift")){
+		shiftVal = false;
+	return false;
+	}
+
+	});
+	
+
+	var empVal = true;
+	if(shiftVal){
+		$(".empCls").each(function(){
+			var current_id = $(this).attr("id");
+			 
+console.log(current_id)
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select Employee")){
+				empVal = false;
+			return false;
+			}
+
+			});
+	}
+	
+	
+	var remarkVal = true;
+	if(shiftVal && empVal){
+		$(".remarkCls").each(function(){
+			var current_id = $(this).attr("id"); 
+
+			if (!blankValidation(current_id,"TextField" ,"Please Select Remark")){
+				remarkVal = false;
+			   return false;
+			}
+			});
+	}
+	
+
+
+if(shiftVal && empVal && remarkVal){
+	addMore();
+}
+}
+
+function addMore(){
+
+var lengthOfTableRow = $("#tbodyData").children('tr').length;
+var cloneHtml = $("#myTable tbody tr:first").clone();
+$("#myTable tbody tr:last").find('td:last').html('');
+$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+$("#myTable tbody tr td:last").html("");
+var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkempty();"><span class="ti-plus"></span></button>&nbsp;'
+var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+$("#myTable tbody tr:last").find('td:last').append(addMore);
+$("#myTable tbody tr:last").find('td:last').append(removeMore);
+$("#myTable tbody tr:last").find(".shiftTypeCls").val("");
+$("#myTable tbody tr:last").find(".empCls").val("");
+$("#myTable tbody tr:last").find(".remarkCls").val("");
+
+
+var editTr = 0;
+
+if(lengthOfTableRow>editTr){
+
+$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+}
+$("#myTable > tbody > tr").each(function(i){
+	
+var selectInput = $(this).find('select');
+var textInput = $(this).find('input');
+var fileInput = $(this).find('file');
+var divInput = $(this).find('div');
+selectInput.eq(0).attr('id', "selectShiftType_" + i);
+selectInput.eq(1).attr('id', "selectEmp_" + i);
+textInput.eq(0).attr('id',"selectRemark_"+i);
+
+})
+
+}
+$(document).ready(function() {
+	
+ 
+//autocomplete end
+var lengthOfTableRow = $("#tbodyData").children('tr').length;
+$('.tbll').on('click', '.rmv', function () {
+$(this).closest('tr').remove();
+$("#myTable tbody tr:last").find('td:last').html('');
+var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkempty();"><span class="ti-plus"></span></button>&nbsp;'
+var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+if($("#tbodyData").children('tr').length > 1){
+$("#myTable tbody tr:last").find('td:last').append(add);
+$("#myTable tbody tr:last").find('td:last').append(remove);
+}else{
+$("#myTable tbody tr:last").find('td:last').append(add);
+}
+
+displayTable();
+});
+
+  
+
+
+
+
+$("#submit").click(function(){
+	var dataset = [];
+	$("#tbodyData > tr").each(function(){
+		item = {};
+		item['editId']            =	            $("#id").val();
+		item['fromDate']	      =	    $("#fromDateId").val();
+		item['tSchedule']	      =	    $("#tScheduleId").val();
+		item['tSection']          =	    $("#tSectionId").val();
+		item['toDate']	          =	    $("#toDateId").val();
+		item['tDepartment']       =	    $("#tDepartmentId").val();
+		item['tShift']            =	    $(this).find(".shiftTypeCls").val();
+		item['tEmp']		      =	    $(this).find(".empCls").val();
+		item['tRemark']		      =     $(this).find(".remarkCls").val();
+		item['sShiftId']	          =	    $("#sShiftId").val();
+		dataset.push(item);
+	});
+	
+	//Blank Validation
+	
+	if (!blankValidation("fromDateId","TextField" ,"Please Select From Date"))
+        return false;
+
+	if (!blankValidation("toDateId","TextField" ,"Please Select To Date"))
+        return false;
+	if (!blankValidation("tScheduleId","SelectBox" ,"Please Select Schedule"))
+        return false;
+	if (!blankValidation("tSectionId","SelectBox" ,"Please Seletct Section"))
+        return false;
+	
+	if (!blankValidation("tDepartmentId","SelectBox", "Please Seletct Department"))
+        return false;
+	
+	
+	var shiftValid =true;
+	$('.shiftTypeCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Shift ")){
+			shiftValid =false;
+	        return false;
+		}
+			
+	});
+
+	var empValid =true;
+	if(shiftValid){
+	$('.empCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Employee")){
+			empValid =false;
+	        return false;
+		}
+			
+	});
+	}
+	var remarkValid =true;
+	if(shiftValid && empValid ){
+	$('.remarkCls').each(function(){
+		if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Remark")){
+			remarkValid =false;
+	        return false;
+		}
+			
+	});
+	
+	}
+
+	if(shiftValid && empValid && remarkValid){
+		console.log(dataset);
+		submitItem(dataset);
+	}
+	
+});
+	
+
+});
+
+
+
+
+function submitItem(dataset){
+	
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "add-shift-scheduling-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					//console.log(response);
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/recruitment/view-shift-scheduling" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+	
+	
+	
+function funcLoad(){
+	location.reload();
+}
+    
+	
+    
+		function dateChange(event){
+	
+			
+			
+			$( "#fromDateId").datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				//minDate: new Date() ,
+				timepicker : false,
+			})
+			$( "#toDateId").datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				//minDate: new Date() ,
+				timepicker : false,
+			})
+			
+			
+		}
+		
+		function dateValidation() {
+			var fromDate = $("#fromDateId").val();
+			var toDate = $("#toDateId").val();
+			
+			var date1 = fromDate.split("-");
+			var date2 = toDate.split("-");
+			var newFromDate = date1[2]+date1[1]+date1[0];
+			var newToDate = date2[2]+date2[1]+date2[0];
+			
+			if(newToDate < newFromDate) {
+				swal({
+					title	:	fromDate +" can't be greater than "+toDate +" !!!" ,
+					type	:	"warning",
+				})
+				$("#"+toDateId).val("");
+			}
+		}
+		
+ </script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Shift Scheduling</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Shift Scheduling</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+
+
+							<form th:object="${itemRequisitionModel}" autocomplete="off">
+
+								<div class="row">
+									 <input type="hidden" id="sShiftId" th:value="${sShiftId}"> 
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+
+									<div class="col-md-6">
+										<input type="hidden" th:if="${itemReq}" id="id"
+											th:value="${itemRequisitionModel[0].editId}" />
+
+
+
+										<div class="form-group">
+											<label>From Date</label> <input type="text"
+												th:if="${itemReq}" class="form-control" id="fromDateId"
+												placeholder="From Date" onclick="dateChange(event);"
+												th:value="${itemRequisitionModel[0].fromDate}" readonly>
+											<input type="text" th:unless="${itemReq}"
+												class="form-control" placeholder="From Date" id="fromDateId"
+												onclick="dateChange(event);" readonly>
+										</div>
+
+										<div class="form-group">
+											<label>Schedule</label> <select class="form-control"
+												id="tScheduleId">
+												<option th:value="null">--Select--</option>
+												<option th:if="${itemReq}" th:each="c:${scheduleList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==itemRequisitionModel[0].tScheduleId}"></option>
+												<option th:unless="${itemReq}" th:each="c:${scheduleList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+
+
+										<div class="form-group">
+											<label>Section</label> <select class="form-control"
+												id="tSectionId">
+												<option th:value="null">--Select--</option>
+												<option th:if="${itemReq}" th:each="c:${sectionList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==itemRequisitionModel[0].tSectionId}"></option>
+												<option th:unless="${itemReq}" th:each="c:${sectionList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+
+									</div>
+
+
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>To Date</label> <input type="text" th:if="${itemReq}"
+												class="form-control" id="toDateId" placeholder="To Date"
+												onchange="dateValidation()"
+												th:value="${itemRequisitionModel[0].toDate}" readonly>
+											<input type="text" th:unless="${itemReq}"
+												class="form-control" placeholder="To Date" id="toDateId"
+												onchange="dateValidation()" readonly>
+										</div>
+
+										<div class="form-group">
+											<label>Department</label> <select class="form-control"
+												id="tDepartmentId">
+												<option th:value="null">--Select--</option>
+												<option th:if="${itemReq}" th:each="c:${departmentList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==itemRequisitionModel[0].tDepartmentId}"></option>
+												<option th:unless="${itemReq}" th:each="c:${departmentList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+
+									</div>
+								</div>
+
+
+								<div class="row">
+									<div class="col-md-12" style="padding-top: 10px;">
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr class="trCls">
+													<th colspan="5" style="font-size: 18px;"><b>Details</b></th>
+												</tr>
+											</thead>
+											<thead class="theadCls">
+												<tr>
+													<th>Shift</th>
+													<th>Employee Name</th>
+													<th>Remark</th>
+													<th>Action</th>
+
+												</tr>
+											</thead>
+											<tbody id="tbodyData">
+												<tr class="tr_clone" th:if="${itemReq}"
+													th:each="a,iter:${itemRequisitionModel}">
+
+													<td><select id="selectShiftType_"
+														class="form-control shiftTypeCls"
+														th:id="${'selectShiftType_'+iter.index}">
+															<option value="">--Select--</option>
+															<option th:each="c:${shiftList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.tShiftId}'></option>
+													</select></td>
+
+													<td><select id="selectEmp_"
+														class="form-control empCls"
+														th:id="${'selectEmp_'+iter.index}">
+															<option value="">--Select--</option>
+															<option th:each="c:${empList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.tEmp}'></option>
+													</select></td>
+
+													<td><input type="text" id="selectRemark_"
+														class="form-control remarkCls" th:value="${a.tRemark}" /></td>
+
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkempty();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+
+													</td>
+												</tr>
+												<tr class="tr_clone" th:unless="${itemReq}">
+													<td><select id="selectShiftType_0"
+														class="form-control shiftTypeCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${shiftList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+
+													<td><select id="selectEmp_0"
+														class="form-control empCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${empList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+
+													<td><input type="text" id="selectRemark_0"
+														class="form-control remarkCls" />
+													</td>
+
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="checkempty();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+
+
+										</table>
+									</div>
+								</div>
+
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success"
+											onclick="submitItem();">Submit</button>
+										<button type="button" class="btn btn-warning" onclick="funcLoad();">Cancel</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</html>

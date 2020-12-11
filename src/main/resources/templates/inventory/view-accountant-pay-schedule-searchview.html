@@ -1,0 +1,466 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 490px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script>
+function viewInModel(index){
+	//var id = window.atob(index);
+	
+	var data = index.split(",");
+	obj = {};
+	obj.assignId= data[0];
+	
+	$('#table1').empty();
+		$.ajax({
+			type 		:	"POST",
+			url 		:	"view-assign-locker-modal",
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data : JSON.stringify(obj),
+			success 	: 	function(response) {
+				if(response.message=="success"){
+					
+					var tblStatus = "";
+					if(response.body.status){
+						tblStatus = "Active";	
+					}else{
+						tblStatus = "Inactive";	
+					}
+				    table = '<tr><td>Gym Name :</td>'+'<td align="left">'
+				    +response.body.gymname+'</td>'+'</tr><tr><td>Locker Name:</td><td align="left">'
+					+response.body.lockername+'</td></tr><tr><td>User Registration No :</td>'+'<td align="left">'
+					+response.body.regno+'</td>'+'</tr><tr><td>User Name:</td><td align="left">'
+					+response.body.name+'</td>'+'</tr><tr><td>Status:</td><td align="left">'
+					+tblStatus+'</td></tr>';
+					$('#myModal').modal('show');
+					$('#table1').append(table);
+				}				
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+
+function viewReturnDetails(index){
+	//var id = window.atob(index);
+	window.open("/inventory/view-payment-voucher-view-modal?id="
+			+ index, );
+	}
+	
+	$(document).ready(function() {
+
+		getQuotationList();
+		  });
+	
+
+</script>
+<script>
+function getQuotationList() {
+var p1 = $("#p1").val();
+var p2 = $("#p2").val();
+var p3 =$("#p3").val();
+var p4 = $("#p4").val();
+var poNo = $("#purchaseOrderName").val();
+var vendorName = $("#vendorName").val();
+var fromDate = $("#fromDate").val();
+var toDate = $("#toDate").val();
+if(p1!=null || p2!=null || p3!=null || p4!=null)
+	{
+		poNo = p1;
+		vendorName = p2;
+		fromDate  = p3;
+		toDate = p4;
+	}
+	
+	obj = {};
+	obj.vendorName= poNo ;
+	obj.poNumber = vendorName;
+	obj.fromDate = fromDate;
+	obj.toDate = toDate;
+	$('#tBodyTD').hide();
+	$('#tblBody').empty();
+	if(poNo || vendorName || fromDate || toDate) {
+		$.ajax({
+			type : 'POST',
+			url : 'add-payment-voucher-get-gsn-list',
+			dataType : 'json',
+			contentType : 'application/json',
+			data : JSON.stringify(obj),
+			success : function(response) {
+				if(response.message=="success"){
+							if(response.body.length>0){
+								for(var i=0;i<response.body.length;i++){
+			   
+										table = '<tr><td>'+ response.body[i].grnNo+'</td><td>'+
+										response.body[i].invNo+'</td><td>'+
+										response.body[i].poNumber+'</td><td>'+
+										(response.body[i].subTotal-response.body[i].discount).toFixed(2)+'</td><td class="stateTaxCls">'+
+										(response.body[i].sgst).toFixed(2)+'</td><td class="stateTaxCls">'+
+										(response.body[i].cgst).toFixed(2)+'</td><td class="centerTaxCls">'+
+										(response.body[i].igst).toFixed(2)+'</td><td>'+
+										(response.body[i].total).toFixed(2)+'</td><td><button onclick="schedule(\''+response.body[i].grnNo+'\')">Schedule</button></td></tr>';
+										$('#tblBody').append(table);
+									
+								}
+				
+								if(response.body[0].taxType ==false){
+									$('.centerTaxCls').hide();
+									$('.stateTaxCls').show();
+								}else{
+									$('.stateTaxCls').hide();
+									$('.centerTaxCls').show();
+								}
+							
+							}else {
+								$('#tblBody').empty();
+								$('#tBodyTD').show();
+							}
+				
+						}
+				},
+				error : function(data) {
+					$('#tblBody').empty();
+					$('#tBodyTD').show();
+					console.log(data);
+				}
+			});
+	}
+}
+	
+
+function searchData() {
+		var param1 = $("#param1").val();
+		var param2 = $("#param2").val()
+		$.ajax({
+			type : "GET",
+			url : "view-accountant-pay-schedule-search?vi="+param1+"&po="+param2+"&fromDate="+$("#param3").val()+"&toDate="+$("#param4").val(),
+		      
+		})
+  }
+  
+  function schedule(id)
+  {
+	  alert(id);
+  }
+</script>
+<script>
+
+
+function POAutoComplete() {
+	$.ajax({
+		type : "POST",
+		url : "add-payment-voucher-getPOAutocompleteList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param2").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				
+			if(response.body.length!=0)	{
+		
+				$("#param2").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+				} 
+				
+				content += '</ul>';
+				$("#suggesstion-box").show();
+				$("#suggesstion-box").html(content);
+				
+			}
+			else {
+				
+				$("#param2").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box").show();
+				$("#suggesstion-box").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			
+		}
+	})
+    	}
+
+function selectAutocompleteValue(key,name) {
+	if (key) {
+		
+		$("#param2").val(key);
+		$("#param2").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+		getQuotationList();
+		
+	}else {
+		
+		$("#param2").val("");
+		$("#param2").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+	}
+	
+function venderAutoComplete() {
+	$.ajax({
+		type : "POST",
+		url : "add-payment-voucher-getVendorAutocompleteList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param").val(),
+		success : function(response) {
+			if (response.message == "success") {
+			
+			if(response.body.length!=0)	{
+		
+				$("#param").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="VenderAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'</li>';
+				} 
+				console.log(response.body);
+				content += '</ul>';
+				$("#suggesstion-box1").show();
+				$("#suggesstion-box1").html(content);
+				
+			}
+			else {
+				
+				$("#param").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="VenderAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box1").show();
+				$("#suggesstion-box1").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			
+		}
+	})
+    	}
+
+function VenderAutocompleteValue(key,name) {
+	if (key) {
+		$("#param1").val(key);
+ 	    $("#param").val(name);  
+		$("#param1").attr('data-procat', key);
+		$("#suggesstion-box1").hide();
+
+		
+	}else {
+		$("#param1").val(key);
+		$("#param").val("");
+		$("#param1").attr('data-procat', "");
+		$("#suggesstion-box1").hide();
+		 
+	}
+	}
+
+$(document).ready(function() {
+	//date time picker
+	$( "#param3" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+
+		timepicker : false,
+	})
+	//date time picker
+	$( "#param4" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	})
+});
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{add-payment-voucher}">Add Payment
+							Voucher </a></li>
+					<li class="active"><span>View Payment Voucher </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Listing of Payment Voucher</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+
+					<div class="row">
+						<div class="col-md-2">
+							<label>Vender Name</label>
+						</div>
+						<div class="col-md-3">
+							<input type="text" class="form-control" id="param"
+								onkeyup="venderAutoComplete();" placeholder="Vender Name" /> <input
+								type="hidden" id="param1" />
+							<div id="suggesstion-box1"></div>
+						</div>
+						<div class="col-md-2">
+							<div class="org-name">PO Number</div>
+						</div>
+						<div class="col-md-3">
+							<input type="text" class="form-control" id="param2"
+								onkeyup="POAutoComplete();" placeholder="Purchase Order" />
+							<div id="suggesstion-box"></div>
+						</div>
+
+					</div>
+					<div class="row">
+
+						<div class="col-md-2">
+							<label>From Date</label>
+						</div>
+						<div class="col-md-3">
+
+							<input type="text" class="form-control" id="param3"
+								th:name="fromDate" readonly>
+						</div>
+						<div class="col-md-2">
+							<label>To Date</label>
+						</div>
+						<div class="col-md-3">
+							<input type="text" class="form-control" id="param4"
+								th:name="toDate" readonly>
+						</div>
+					</div>
+
+
+
+					<div class="row">
+						<div class="col-md-2">
+							<div class="form-group">
+								<button class="btn btn-primary" onclick="searchData()">Search</button>
+							</div>
+						</div>
+					</div>
+
+
+				</div>
+				<a data-toggle="collapse" data-target="#demo"
+					class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+				</a>
+
+				<div class="row">
+					<div>
+						<!-- for hidden parameters -->
+						<input type="hidden" id="p1" th:value="${param2}" /> <input
+							type="hidden" id="p2" th:value="${param1}" /> <input
+							type="hidden" id="p3" th:value="${param3}" /> <input
+							type="hidden" id="p4" th:value="${param4}" />
+
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<label id="trId" style="font-size: 20px;"><b>GRN
+								DETAILS</b></label>
+						<table class="table table-bordered" id="table"
+							style="width: 100%; border: none;">
+							<thead id="tblHead">
+								<tr style="width: 100%;">
+									<th>GRN NO</th>
+									<th>INVOICE No</th>
+									<th>PO No</th>
+									<th>BASE AMOUNT</th>
+									<th class="stateTaxCls">SGST</th>
+									<th class="stateTaxCls">CGST</th>
+									<th class="centerTaxCls">IGST</th>
+									<th>TOTAL AMOUNT</th>
+									<th>DO</th>
+								</tr>
+							</thead>
+							<tbody id="tblBody">
+
+							</tbody>
+							<tbody id="tBodyTD">
+								<tr>
+									<td style="color: #e30f0f;" width="100%" valign="top"
+										align="center" colspan="10"><b>No records found</b></td>
+								</tr>
+
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-12">
+						<label id="trId" style="font-size: 20px;"><b>GOODS
+								RETURNS DETAILS</b></label>
+
+						<table class="table table-bordered" id="table1"
+							style="width: 100%; border: none;">
+							<thead id="tblHead1">
+								<tr style="width: 100%;">
+									<th>GRN No</th>
+									<th>PO No</th>
+									<th>GRN RETURN NO</th>
+									<th>DESCRIPTION</th>
+									<th>QUANTITY</th>
+									<th>AMOUNT</th>
+									<th class="stateTaxCls">CGST</th>
+									<th class="stateTaxCls">SGST</th>
+									<th class="centerTaxCls">IGST</th>
+									<th>TOTAL AMOUNT</th>
+								</tr>
+							</thead>
+							<tbody id="tblBody1">
+
+							</tbody>
+							<tbody id="tBodyTD1">
+								<tr>
+									<td style="color: #e30f0f;" width="100%" valign="top"
+										align="center" colspan="10"><b>No records found</b></td>
+								</tr>
+
+
+							</tbody>
+
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- /# row -->
+
+
+</div>
+</html>

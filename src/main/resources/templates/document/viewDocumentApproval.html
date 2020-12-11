@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.search-field{
+ float: left;
+ width: 100%;
+}
+
+.tblrw {
+   
+    color: #808080;
+    font-size: 10px;
+}
+.modal-title {
+    color: #ff0000;
+    font-size: 20px;
+}
+.modal-header .close {
+	font-size: 24px;
+}
+</style>
+<script type="text/javascript">
+		//Method for listing of all the Document Approval
+		
+		$(document).ready(function() {
+			
+			$('#listAllCountry').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-document-approval-throughAjax',
+					'data' : function(d) {
+						d.param1 = $('#param1').val();
+						d.param2 = $('#param2').val();
+						d.param3 = $('#param3').val();
+		
+					}
+				},
+				'dataSrc' : "",
+				'columns' : [ {
+					'data' : 'document'
+				}, {
+					'data' : 'category'
+				}, {
+					'data' : 'referenceNo'
+				}, {
+					'data' : 'subject'
+				}, {
+					'data' : 'companyName'
+				}, {
+					'data' : 'documentImage'
+				
+				}, {
+					'data' : 'keyword'
+				 }, 
+				{
+					'data' : 'currentStageNo'
+				},
+				{
+					'data' : 'status' 
+				
+				}, {
+					'data' : 'action'
+				}
+		
+				]
+			});
+		});
+		
+		//Method For Searching Records In The List
+
+		function searchData() {
+			$('#listAllCountry').DataTable().draw();
+		}
+		// Method For View Details In Model
+
+		function viewInModelData(index) {
+		$('#documentModel').empty();
+		var id = window.atob(index);
+		$.ajax({
+			type : "POST",
+			url : "view-document-model",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					if(response.body.updatedOn== null || response.body.updatedOn== "--" ){
+						 response.body.updatedOn="Not Updated"
+					}
+					table = '<tr><td>Document  :</td>' + '<td align="left">'
+							+ response.body.document + '</td>'
+							+ '</tr><tr><td>Category Name :</td><td>' + response.body.categoryName
+							+ '</td></tr><tr><td>Reference Number :</td><td>' + response.body.referenceNo
+							+ '</td></tr><tr><td>Subject :</td><td>' + response.body.subject
+							+ '</td></tr><tr><td>Company Name :</td><td>' + response.body.companyName
+							+ '</td></tr><tr><td>Keyword :</td><td>' + response.body.keyword
+							+ '</td></tr><tr><td>Created On :</td><td>' + response.body.createdOn
+							+ '</td></tr><tr><td>Document Name :</td><td>' 
+							+"<a href='javascript:void(0)'  role='tab' onclick='viewDocument(\"" +  response.body.documentImage+ "\");' value='"+response.body.documentImage+"'>"+response.body.documentImage+"</a>"
+							+ '</td></tr><tr><td>Updated On :</td><td>' + response.body.updatedOn
+							+ '</td></tr>';
+					$('#myModal').modal('show');
+					$('#documentModel').append(table);
+				}
+			},
+			error : function(data) {
+			}
+		})
+
+	}
+		//method to view document	
+		function viewDocument(id) {
+			var l = id.split(".");
+			var counter = l[1];
+			if(counter== "xls" || counter== "docx"){
+			window.open("/document/excel/"+id,'_blank');
+			}
+			else{
+				window.open("/document/image/"+id,'_blank');
+				}
+			}
+	 // Method For View Details In Model
+
+		function viewHistory(index) {
+			$('#history').empty();
+			var id = window.atob(index);
+			$.ajax({
+				type : "POST",
+				url : "view-document-history",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : id,
+				success : function(response) {
+					if(response.body.length==0){
+						var data='<h>No Approval History</h>';
+						$('#myModalhistory').modal('show');
+						$('#history').append(data);
+					}
+					else{
+					table2 = '<tr class="tblrw"><th><b>Document Id</b></th><th><b>From Stage</b></th><th><b>To Stage </b></th>'
+					+'<th><b> Comment </b></th><th><b> From Status</b></th><th><b>  To Status</b></th>'
+					+'<th><b>Approval Action </b></th><th><b>Approval On  </b></th><th><b>Approval By</b></th>';
+					$('#myModalhistory').modal('show');
+					$('#history').append(table2);
+					for( var i=0; i<response.body.length; i++){
+					if (response.message == "success") {
+						
+							if(response.body[i].approvalFromStage==1 ){
+								response.body[i].approvalFromStage="View By supervisor";
+							}
+							if(response.body[i].approvalFromStage==2 ){
+								response.body[i].approvalFromStage="View By Manager";
+							}
+							if(response.body[i].approvalFromStage==3 ){
+								response.body[i].approvalFromStage="View By Super Admin";
+							}
+							if( response.body[i].approvalToStage==1){
+								response.body[i].approvalToStage="View By supervisor";
+							}
+							if( response.body[i].approvalToStage==2){
+								response.body[i].approvalToStage="View By Manager";
+							}
+							if( response.body[i].approvalToStage==2){
+								response.body[i].approvalToStage="View By Super Admin";
+							}
+						 table = '<tr><td>' + response.body[i].processItem
+								+ '</td><td>' + response.body[i].approvalFromStage
+								+ '</td><td>' + response.body[i].approvalToStage
+								+ '</td><td>' + response.body[i].approvalComment
+								+ '</td><td>' + response.body[i].approvalFromStatus
+								+ '</td><td>' + response.body[i].approvalToStatus
+								+ '</td><td>' + response.body[i].approvalAction
+								+ '</td><td>' + response.body[i].approvalCreatedOn
+								+ '</td><td>' + response.body[i].approvalBy
+								+ '</td></tr>';
+						$('#myModalhistory').modal('show');
+						$('#history').append(table); 
+					}
+				}
+			}
+		},
+				error : function(data) {
+				}
+			})
+
+		}
+
+	//Forward the Document 
+	function forwardDocument(id){
+		swal.fire({
+			  title: "Are you sure want to forward?",
+			  text: "Once forward,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#006600',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'forward',
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/document/save-document-approval-action?id="+ id,
+					    success: function(response) {
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Document forwarded successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+		
+	}
+	//Start Reject Document
+	function rejectDocument(id,rejectaction){
+		$("#rejectDocumentId").val(id);
+		$("#rejectActionId").val(rejectaction);
+		if($("#rejectActionId").val() == '1'){
+			$("#modal-title-id").html("Reject Document");
+		}else if($("#rejectActionId").val() == '2'){
+			$("#modal-title-id").html("Re-check Document");
+		}else{
+			$("#modal-title-id").html("Resubmit Document");
+		}
+		$('#approvalActionModal').modal('show');
+		
+	}
+	//Save rejected Document comment
+	function saveDocumentRejectComment(){
+		if($("#rejectActionId").val() == '1'){
+			var titleval = "Are you sure want to reject?";
+			var textval = "Once reject,Can't revert back !";
+			var confirmButtonTextval = 'reject';
+			var confirmButtonColor= '#d33';
+		}else if($("#rejectActionId").val() == '2'){
+			var titleval = "Are you sure want to Re-check?";
+			var textval = "Once reject,Can't revert back !";
+			var confirmButtonTextval = ' Re-check';
+			var confirmButtonColor='#006600';
+		}else{
+			var titleval = "Are you sure want to resubmit?";
+			var textval = "Once resubmit,Can't revert back !";
+			var confirmButtonTextval = 'resubmit';
+			var confirmButtonColor='#006600';
+		}
+		$('#approvalActionModal').modal('hide');
+		swal.fire({
+			  title: titleval,
+			  text: textval,
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: confirmButtonColor,
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: confirmButtonTextval,
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 var documentId = $("#rejectDocumentId").val();
+				 var documentComment = $("#rejectionCommentId").val();
+				 var rejectAction = $("#rejectActionId").val();
+				 $.ajax({
+					    type : "POST",
+						url : "save-document-reject-action",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : JSON.stringify({'document':documentId,'category':documentComment,'referenceNo':rejectAction}),
+					    success: function(response) {
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Document status saved  successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+	}
+	//End of save
+	
+	//Show modal
+	
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="add-document">Add Document</a></li>
+					<li class="active"><span>View Document</span></li>
+				</ol>
+			</div>
+			<!-- <div class="card-title">
+				<h4>Listing of Item (1.5.2.3.2)</h4>
+			</div> -->
+			<div class="container-fluid">
+				<!-- <ul class="nav nav-tabs" id="myTab" role="tablist">
+					<li class="nav-item"><a class="nav-link active"
+						href="view-item-category" role="tab">View ItemCategory</a></li>
+					<li class="nav-item"><a class="nav-link "
+						href="add-item-category" role="tab">Add ItemCategory</a></li>
+				</ul> -->
+				<div class="card">
+					<div id="demo" class="collapse">
+						<div class="search-field">
+							<div class="row">
+								<div class="col-md-2">
+									<div class="org-name">Category Name</div>
+								</div>
+								<div class="col-md-3">
+								<select class="form-control" id="param1">
+									<option th:value="null">---Select---</option>
+									<option th:each="c:${catList}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+								</select>
+							</div>
+								<div class="col-md-2">
+									<div class="org-name">KeyWords</div>
+								</div>
+								<div class="col-md-3">
+									<input class="form-control" type="text" placeholder="" name=""
+										id="param2">
+								</div>
+								</div>
+								<div class="row">
+								<div class="col-md-2">
+									<div class="org-name">Ref No.</div>
+								</div>
+								<div class="col-md-3">
+									<input class="form-control" type="text" placeholder="" name=""
+										id="param3">
+										
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<button class="btn btn-primary" onclick="searchData()">Search</button>
+									</div>
+								</div>
+								
+								
+							</div>
+						</div>
+					</div>
+					<a data-toggle="collapse" data-target="#demo"
+						class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+					</a>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table class="table table-bordered" id="listAllCountry">
+								<thead>
+									<tr>
+										<th>Document Id</th>
+										<th>Category Name</th>
+										<th>Reference No.</th>
+										<th>Subject</th>
+										<th>Company Name</th>
+										<th>Files</th>
+										<th>Keyword</th>
+										<th>Stage No</th>
+										<th>Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+						</div>
+						</div>
+						</div>
+						</div>
+						<!-- Modal Start-->
+						<div id="myModal" class="modal fade" role="dialog">
+							<div class="modal-dialog">
+								<!-- Modal content-->
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">View Details Of Document</h4>
+											<button type="button" class="close" data-dismiss="modal">
+												<i class="fa fa-close fa-2x"></i>
+											</button>
+									</div>
+									<div class="modal-body">
+									<table width="100%" border="0" id="documentModel">
+										<tbody>
+										
+										</tbody>
+									</table>
+									</div>
+									<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+								</div>
+								</div>
+							</div>
+						</div>
+							<div id="myModalhistory" class="modal fade" role="dialog">
+							<div class="modal-dialog modal-lg">
+								<!-- Modal content-->
+								<div class="modal-content">
+									<div class="modal-header">
+										<h4 class="modal-title">View Approval History</h4>
+										<button type="button" class="close" data-dismiss="modal">
+										<i class="fa fa-close fa-2x"></i>
+										</button>
+									</div>
+									<div class="modal-body">
+									<table width="100%" border="0" id="history">
+										<tbody>
+										
+										</tbody>
+									</table>
+									</div>
+									<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+								</div>
+								</div>
+							</div>
+						</div>
+						<!-- Modal End-->
+						<!-- Modal Start -->
+		<div id="approvalActionModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="modal-title-id">Reject Document</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="rejectDocumentId" value="0">
+						<input type="hidden" id="rejectActionId" value="1">
+						<div class="form-group">
+							<label>Comment :</label> 
+							<textarea class="form-control" id="rejectionCommentId" rows="4"></textarea>
+						</div>
+					</div>
+					
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" onclick="saveDocumentRejectComment()">Save</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End -->
+						<!-- /# row -->
+		</div>
+	</div>
+</html>

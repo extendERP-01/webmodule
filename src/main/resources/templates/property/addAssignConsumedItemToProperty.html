@@ -1,0 +1,355 @@
+			<!DOCTYPE html>
+			<html xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:th="http://www.thymeleaf.org"
+				xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+				layout:decorate="~{layout/master}">
+			<head>
+			<script type="text/javascript">
+			
+			function validateForm()
+			{
+				if (!blankValidation("propertyCategory","SelectBox", "Please Select PropertyCategory"))
+			        return false;
+				if (!blankValidation("itemCategory","SelectBox", "Please Select ItemCategory"))
+			        return false;
+				if (!blankValidation("assignQuantity","TextField" ,"AssignQuantity can not be left blank"))
+			        return false;
+				if (!blankValidation("assignActive","SelectBox", "Please Select Status"))
+			        return false;
+				if (!checkSpecialCharacterFirstCustom("assignQuantity","Special character is not allowed in AssignQuantity!!!",/[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/)) 
+			        return false;
+				
+			}
+			$(document).ready(function() {
+				
+				$("#propertyCategory").on('change', function() {
+					var propertyCategory = $(this).val();
+					console.log(propertyCategory);
+					if (propertyCategory) {
+						
+						$.ajax({
+							type : 'POST',
+							url : 'add-assign-consumed-get-propertyName-through-ajax',
+							contentType : false,
+							data : propertyCategory,
+							success : function(response) {
+								console.log(response);
+								$("#propertyNameId").empty();
+								/* var option = $("<option></option>");
+								$(option).val(null);
+								$(option).html("select");
+								$("#propertyNameId").append(option); */
+								$("#propertyNameId").append("<option value='NULL'>Select</option>");
+								 for (var i = 0; i < response.body.length; i++) {
+									var option = $("<option></option>");
+									$(option).val(response.body[i].key);
+									$(option).html(response.body[i].name);
+									$("#propertyNameId").append(option);
+								} 
+							},
+							error : function(e) {
+								alert("error");
+							}
+						});
+					}
+					else {
+						$("#propertyNameId").empty();
+						$("#propertyNameId").append("<option value='NULL'>Select</option>");
+					}
+				});
+					
+					$("#propertyNameId").on('change', function() {
+						var propertyNameId = $(this).val();
+						console.log(propertyNameId);
+						if (propertyNameId) {
+							
+							$.ajax({
+								type : 'POST',
+								url : 'add-assign-consumed-get-amenityName-through-ajax',
+								contentType : false,
+								data : propertyNameId,
+								success : function(response) {
+									console.log(response);
+									$("#amenity").empty();
+									/* var option = $("<option></option>");
+									$(option).val(null);
+									$(option).html("select");
+									$("#propertyNameId").append(option); */
+									$("#amenity").append("<option value='NULL'>Select</option>");
+									 for (var i = 0; i < response.body.length; i++) {
+										var option = $("<option></option>");
+										$(option).val(response.body[i].key);
+										$(option).html(response.body[i].name);
+										$("#amenity").append(option);
+									} 
+								},
+								error : function(e) {
+									alert("error");
+								}
+							});
+						}
+						else {
+							$("#amenity").empty();
+							$("#amenity").append("<option value='NULL'>Select</option>");
+						}
+					});
+					
+						$("#amenity").on('change', function() {
+							var amenity = $(this).val();
+							console.log(amenity);
+							if (amenity) {
+								
+								$.ajax({
+									type : 'POST',
+									url : 'add-assign-consumed-get-itemCategoryName-through-ajax',
+									contentType : false,
+									data : amenity,
+									success : function(response) {
+										console.log(response);
+										$("#itemCategory").empty();
+										/* var option = $("<option></option>");
+										$(option).val(null);
+										$(option).html("select");
+										$("#propertyNameId").append(option); */
+										$("#itemCategory").append("<option value='NULL'>Select</option>");
+										 for (var i = 0; i < response.body.length; i++) {
+											var option = $("<option></option>");
+											$(option).val(response.body[i].key);
+											$(option).html(response.body[i].name);
+											$("#itemCategory").append(option);
+										} 
+									},
+									error : function(e) {
+										alert("error");
+									}
+								});
+							}
+							else {
+								$("#itemCategory").empty();
+								$("#itemCategory").append("<option value='NULL'>Select</option>");
+							}
+						});
+					
+					$("#itemCategory").on('change', function() {
+						var itemCategory = $(this).val();
+						/* alert(itmCategory); */
+						console.log(itemCategory);
+						if (itemCategory) {
+				
+							$.ajax({
+								type : 'POST',
+								url : 'add-assign-consumed-get-itemCategory-through-ajax',
+								contentType : false,
+								data : itemCategory,
+								success : function(response) {
+									console.log(response);
+									$("#itemSubCategory").empty();
+									$("#itemNameId").empty();
+									/* var option = $("<option></option>");
+									$(option).val(null);
+									$(option).html("select");
+									$("#itemSubCategory").append(option); */
+									$("#itemSubCategory").append("<option value='NULL'>Select</option>");
+									for (var i = 0; i < response.body.length; i++) {
+										var option = $("<option></option>");
+										$(option).val(response.body[i].key);
+										$(option).html(response.body[i].name);
+										$("#itemSubCategory").append(option);
+									}
+				
+								},
+								error : function(e) {
+									alert("error");
+								}
+							});
+						}
+						else {
+							$("#itemSubCategory").empty();
+							$("#itemSubCategory").append("<option value='NULL'>Select</option>");
+						}
+						
+					});
+
+				$("#itemSubCategory").on('change', function() {
+					var itemSubCategory = $(this).val();
+					console.log(itemSubCategory);
+					
+					if (itemSubCategory) {
+			        /* alert(itmSubCategory); */
+						$.ajax({
+							type : 'POST',
+							url : 'add-assign-consumed-get-itemName-through-ajax',
+							contentType : false,
+							data : itemSubCategory,
+							success : function(response) {
+								console.log(response);
+								$("#itemNameId").empty();
+								
+								/* var option = $("<option></option>");
+								$(option).val(null);
+								$(option).html("select");
+								$("#itemNameId").append(option); */
+								$("#itemNameId").append("<option value='NULL'>Select</option>");
+								for (var i = 0; i < response.body.length; i++) {
+									var option = $("<option></option>");
+									$(option).val(response.body[i].key);
+									$(option).html(response.body[i].name);
+									$("#itemNameId").append(option);
+								}
+			
+							},
+							error : function(e) {
+								alert("error");
+							}
+						});
+					}
+					else {
+						$("#itemNameId").empty();
+						$("#itemNameId").append("<option value='NULL'>Select</option>");
+					}
+				}); 
+			
+			});
+			
+			</script>
+			</head>
+			<div layout:fragment="content">
+				<div class="content-wrap">
+					<div class="main mrt_20">
+						<div class="col-md-12">
+						<div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<span th:text="${message}"></span>
+							</div> 
+							<!--Alert Box-->
+							<div class="alert alert-success alert-dismissible"
+								style="display: none;">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<strong>Success!</strong> Indicates a successful or positive
+								action.
+							</div>
+							<div class="alert alert-danger alert-dismissible"
+								style="display: none;">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<strong>Success!</strong> Indicates a successful or positive
+								action.
+							</div>
+							<div class="alert alert-warning alert-dismissible"
+								style="display: none;">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<strong>Success!</strong> Indicates a successful or positive
+								action.
+							</div>
+							<!--Alert Box-->
+							<ol class="breadcrumb breadcrumb-arrow">
+								<li><a href="index.html">Home</a></li>
+								<li class="active"><span>Assign Asset Property Form </span></li>
+							</ol>
+						</div>
+						<div class="card-title">
+							<h4>Assign Consumed Item to Property Form</h4>
+						</div>
+						<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:action="@{add-assign-consumed}"
+								th:object="${propertyAssignConsumedItemModel}" method="post" onsubmit="return validateForm();" >
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Property Category</label> 
+											<select class="form-control"
+												th:field="*{propertyCategory}">
+												<option value=>Select</option>
+												<option th:each="c:${propertyCategoryList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										
+										</div>
+										<div class="form-group">
+											<label>Property Name</label>
+											 <select class="form-control"
+												th:field="*{propertyNameId}">
+												<option value=>Select</option>
+												<option th:each="c:${propertyNameList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Amenities</label>
+											 <select class="form-control"
+												th:field="*{amenity}">
+												<option value=>Select</option>
+												<option th:each="c:${amenityNameList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Item Category</label> <select class="form-control"
+												th:field="*{itemCategory}">
+												<option value=>Select</option>
+												<option th:each="c:${itemCategoryList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Item Sub Category</label> <select class="form-control"
+												th:field="*{itemSubCategory}">
+												<option th:value="null">Select</option>
+												<option th:each="c:${itemSubCategoryList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Item Name</label> <select class="form-control"
+												th:field="*{itemNameId}">
+												<option th:value="null">Select</option>
+												<option th:each="c:${itemNameList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+
+									</div>
+
+									<div class="col-lg-6">
+
+										<!-- <div class="form-group">
+											<label>Available Quantity</label> <input type="text"
+												class="form-control" placeholder="Available Quantity">
+										</div> -->
+
+										<div class="form-group">
+											<label>Assign Quantity</label> <input type="text"
+												class="form-control" name="" th:field="*{assignQuantity}">
+										</div>
+
+										<div class="form-group">
+											<label>Status</label> <select class="form-control"
+												th:field="*{assignActive}">
+												<option th:value=null>Select</option>
+												<option th:value="true">Active</option>
+												<option th:value="false">Inactive</option>
+											</select>
+										</div>
+
+									</div>
+									<div class="col-md-12">
+									<div class="form-group">
+										<button class="btn btn-success">Submit</button>
+										<input type="reset" value="Cancel" class="btn btn-warning" onclick="window.location.reload();" />
+									</div>
+									</div>
+								</div>
+							</form>
+						</div>
+
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+</html>

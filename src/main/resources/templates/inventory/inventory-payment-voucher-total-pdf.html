@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Print Payment Voucher</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 11px;
+}
+
+.maintbl tr td {
+	/*border: 1px solid black;*/
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.theader-padding {
+	padding: 10px 5px;
+	background: #f5f5f5;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	padding: 13px;
+	text-align: center;
+}
+
+.wrapper {
+	margin: 0 auto;
+	width: 900px;
+	padding: 20px 40px;
+	position: relative;
+}
+
+.paid-red {
+	position: absolute;
+	right: 0px;
+	top: 0;
+	z-index: 9999;
+}
+
+.hrline {
+	border: 2px solid #cccccc;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.tableheader {
+	padding: 10px 5px;
+	color: #418AB3;
+	font-weight: 600;
+	background: #f5f5f5;
+	border-bottom: 1px solid #ccc;
+	border-top: 10px solid #FFF;
+	text-align: center;
+}
+
+.bill {
+	text-align: left-center;
+	color: #000 !important;
+	font-size: 24px;
+	padding-right: 25px;
+}
+
+.invoicedate {
+	color: #fff;
+	text-align: left;
+	padding: 5px;
+}
+
+.mailing {
+	height: 100px;
+	padding: 10px;
+	color: #fff;
+	text-align: right;
+}
+
+.strip2 {
+	width: 800px;
+	padding-left: 17px;
+	font-size: 14px;
+	color: #418ab3;
+	text-align: center;
+	margin: 19px;
+}
+
+.td-border {
+	border-bottom: 1px solid #BABABA;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.text-style {
+	color: #3B494A;
+	font-size: 12px;
+	padding: 10px;
+}
+
+.header {
+	padding: 4px;
+	font-size: 14px;
+	color: #5c2e14;
+}
+
+.pdt {
+	padding: 4px;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	margin-right: 180px;
+	color: #418AB3;
+}
+
+.text-style2 {
+	background-color: #f2f2f2;
+	padding: 10px;
+	color: #373757;
+}
+
+.btn-danger {
+	color: #fff !important;
+	background: #d9534f !important;
+	box-shadow: none !important;
+}
+
+.textarea {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	padding: 8px;
+}
+
+.content-wrap {
+	width: 700px;
+	margin: 0 auto;
+}
+
+.tableheader-color {
+	font-size: 12px;
+	color: #fff;
+	font-weight: 600;
+	padding: 10px 5px;
+	text-align: center;
+}
+
+.billCls {
+	padding-left: 20px;
+	align: left;
+	font-size: 12px;
+	width: 80px;
+}
+</style>
+
+</head>
+<!-- <body th:attr="style='background: #fff url(\''+${image}+'\') no-repeat'"> -->
+<body>
+
+
+	<table cellpadding="0" cellspacing="0" style="width: 700px;">
+		<tr>
+			<td colspan="3"><img
+				src="@{classpath:static/assets/images/paid-red.png" /></td>
+		</tr>
+		<tr>
+			<td colspan="2"><img th:src="@{classpath:static/assets/images/login_img/extend.png}" height="80" width="150" /></td>
+			<td class="bill">Payment Voucher</td>
+
+		</tr>
+		<tr>
+			<td class="invoicedate" width="230" bgcolor="#5c2e14">Voucher
+				No: <span th:text="${paymentVoucher}"></span>
+			</td>
+			<td class="invoicedate" width="230" bgcolor="#5c2e14">DATE: <span
+				th:text="${pdfCurrentDate}"></span>
+			</td>
+			<td class="invoicedate" bgcolor="#5c2e14">PO No: <span
+				th:text="${poNumber}"></span></td>
+		</tr>
+		<!-- 		<tr>
+			<td colspan="3">
+				<table width="700px" bgcolor="#F2F2F2"
+					style="padding-bottom: 30px; padding-top: 10px;"
+					th:if="${not #lists.isEmpty(PaymentVoucherModel)}">
+					<tr style="border-top: 10px solid #FFF;">
+
+						<td width="250">
+							<div class="pdt">
+								<b class="header">MAILING INFO:</b>
+							</div>
+							<div class="pdt">
+								<b class="text-style">Name:</b><span
+									th:text="${hotelList[0].hotelName}"></span>
+							</div>
+							<div class="pdt">
+								<b class="text-style">Address:</b><span
+									th:text="${hotelList[0].hotelAddr}"></span>
+							</div>
+							<div class="pdt">
+								<b class="text-style"> Phone no:</b><span
+									th:text="${hotelList[0].hotelMob}"></span>
+							</div>
+							<div class="pdt">
+								<b class="text-style"> GMail:</b><span
+									th:text="${hotelList[0].hotelEmail}"></span>
+							</div>
+							<div class="pdt">
+								<b class="text-style">GST NO:</b><span
+									th:text="${hotelList[0].gstNo}"></span>
+							</div>
+						</td>
+
+
+
+						<td width="250">
+							<div class="pdt">
+								<b class="header">BILLING TO:</b>
+							</div>
+							<div class="pdt">
+								<b class="text-style">Name:</b><span
+									th:text="${PaymentVoucherModel[0].vendorName}"></span>
+							</div>
+
+							<div class="pdt">
+								<b class="text-style">Address:</b><span
+									th:text="${vendorList[0].verndorAddrs}"></span>
+							</div>
+
+
+							<div class="pdt">
+								<b class="text-style">Phone:</b><span
+									th:text="${vendorList[0].vendorMobile}"></span>
+							</div>
+							<div class="pdt">
+								<b class="text-style">GMail:</b><span
+									th:text="${vendorList[0].vendorEmail}"></span>
+							</div>
+							<div class="pdt">
+								<b class="text-style">GST NO:</b><span
+									th:text="${vendorList[0].venderGstNo}"></span>
+							</div>
+						</td>
+
+					</tr>
+				</table>
+			</td>
+		</tr> -->
+
+		<tr>
+			<td colspan="3">
+				<table width="100%" bgcolor="#F2F2F2"
+					style="padding-bottom: 30px; padding-top: 10px;">
+
+					<tr>
+						<td colspan="2" class="pdt" width="250"><b class="tStyle">BILLING
+								TO</b><span></span></td>
+						<td colspan="2" class="pdt" width="350"><b class="tStyle">MAILING
+								INFO</b><span></span></td>
+					</tr>
+					<tr>
+
+						<td class="billCls">Name</td>
+						<td width="170" th:text="${': '+PaymentVoucherModel[0].vendorName}"></td>
+						<td class="billCls">Name</td>
+						<td width="270" th:text="${': '+hotelList[0].hotelName}"></td>
+					</tr>
+					<tr>
+
+
+						<td class="billCls">Address</td>
+						<td width="170" th:text="${': '+vendorList[0].verndorAddrs}"></td>
+						<td class="billCls">Address</td>
+						<td width="200" th:text="${': '+hotelList[0].hotelAddr}"></td>
+					</tr>
+
+					<tr>
+
+						<td class="billCls">Mobile No</td>
+						<td width="170" th:text="${': '+vendorList[0].vendorMobile}"></td>
+						<td class="billCls">Mobile No</td>
+						<td width="270" th:text="${': '+hotelList[0].hotelMob}"></td>
+					</tr>
+
+					<tr>
+
+						<td class="billCls">GST No</td>
+						<td width="170" th:text="${': '+vendorList[0].venderGstNo}"></td>
+						<td class="billCls">GST No</td>
+						<td width="270" th:text="${': '+hotelList[0].gstNo}"></td>
+					</tr>
+
+					<tr>
+
+						<td class="billCls">Email</td>
+						<td width="170" th:text="${': '+vendorList[0].vendorEmail}"></td>
+						<td class="billCls">Email</td>
+						<td width="270" th:text=" ${': '+hotelList[0].hotelEmail}"></td>
+					</tr>
+
+
+				</table>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3">&nbsp;</td>
+		</tr>
+		<tr style="border-top: 10px solid #FFF;">
+
+			<td colspan="3"><label id="trId" style="font-size: 20px;"><b>GRN
+						DETAILS</b></label>
+				<table class="maintbl" id="table" cellpadding="0" cellspacing="0"
+					style="width: 695px;">
+					<thead id="tblHead" style="background-color: #5c2e14;">
+						<tr>
+							<th class="tableheader-color">SL.NO</th>
+							<th class="tableheader-color">GRN NO</th>
+							<th class="tableheader-color">INVOICE No</th>
+							<th class="tableheader-color">PO No</th>
+							<th class="tableheader-color">BASE AMOUNT</th>
+							<th th:if="${!PaymentVoucherModel[0].taxType}"
+								class="stateTaxCls tableheader-color">SGST</th>
+							<th th:if="${!PaymentVoucherModel[0].taxType}"
+								class="stateTaxCls tableheader-color">CGST</th>
+							<th colspan="2" th:if="${PaymentVoucherModel[0].taxType}"
+								class="centerTaxCls tableheader-color">IGST</th>
+							<th class="tableheader-color">CESS</th>
+							<th class="tableheader-color">TOTAL AMOUNT</th>
+						</tr>
+					</thead>
+					<tbody th:if="${not #lists.isEmpty(PaymentVoucherModel)}">
+						<tr th:each="other,iter : ${PaymentVoucherModel}">
+							<td class="td-border td-border-right" th:text=" ${iter.index+1}"></td>
+							<td class="td-border td-border-right" th:text="${other.grnNo}"></td>
+							<td class="td-border td-border-right" th:text="${other.invNo}"></td>
+							<td class="td-border td-border-right" th:text="${other.poNumber}"></td>
+							<td class="td-border td-border-right" style="text-align: right;"
+								th:text="${#numbers.formatDecimal(other.grnSubtotal, 0, 'COMMA', 2, 'POINT')} "></td>
+							<td th:if="${!other.taxType}" class="td-border td-border-right"
+								style="text-align: right;"
+								th:text="${#numbers.formatDecimal(other.sgst, 0, 'COMMA', 2, 'POINT')} "></td>
+							<td th:if="${!other.taxType}" class="td-border td-border-right"
+								style="text-align: right;"
+								th:text="${#numbers.formatDecimal(other.cgst, 0, 'COMMA', 2, 'POINT')} "></td>
+							<td colspan="2" th:if="${other.taxType}" class="td-border td-border-right"
+								style="text-align: right;"
+								th:text="${#numbers.formatDecimal(other.igst, 0, 'COMMA', 2, 'POINT')} "></td>
+							<td class="td-border td-border-right" th:if="${other.cessAmt!=0.0}"
+								th:text="${#numbers.formatDecimal(other.cessAmt, 0, 'COMMA', 2, 'POINT')} "
+								style="border-right: 1px solid #BABABA; text-align: right;"></td>
+							<td class="td-border td-border-right" th:unless="${other.cessAmt!=0.0}"
+								style="border-right: 1px solid #BABABA; text-align: right;">0.00</td>
+							<td class="td-border td-border-right"
+								th:text="${#numbers.formatDecimal(other.grnTotal, 0, 'COMMA', 2, 'POINT')} "
+								style="border-right: 1px solid #BABABA; text-align: right;"></td>
+						</tr>
+						
+						<tr th:unless="${PaymentVoucherModel[0].goodsReturnNote !=null}">
+							<td colspan="8" align="right" style="color: #5c2e14;"><b>BASE
+									AMOUNT</b></td>
+
+							<td width="130" align="right"><span style="border: none"
+								id="subtotalamount"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].grnSubtotal, 0, 'COMMA', 2, 'POINT')} "></span></td>
+						</tr>
+						<tr id="CgstTR" th:if="${!PaymentVoucherModel[0].taxType && PaymentVoucherModel[0].goodsReturnNote ==null}">
+
+							<td colspan="8" align="right" style="color: #5c2e14;"><b>CGST</b></td>
+							<td width="130" align="right"><span style="border: none"
+								id="cgst"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].cgst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+						</tr>
+
+						<tr id="SgstTR" th:if="${!PaymentVoucherModel[0].taxType && PaymentVoucherModel[0].goodsReturnNote ==null}">
+							<td colspan="8" align="right" style="color: #5c2e14;"><b>SGST</b></td>
+
+							<td width="130" align="right"><span style="border: none"
+								id="sgst"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].cgst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+						</tr>
+
+						<tr id="IgstTR" th:if="${PaymentVoucherModel[0].taxType && PaymentVoucherModel[0].goodsReturnNote ==null}">
+							<td colspan="8" align="right" style="color: #5c2e14;"><b>IGST</b></td>
+
+							<td width="130" align="right"><span style="border: none"
+								id="igst"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].igst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+						</tr>
+						<tr th:unless="${PaymentVoucherModel[0].cessAmt!=0.0}">
+							<td colspan="8" align="right" style="color: #5c2e14;"><b>CESS</b></td>
+							<td width="130" align="right"><span style="border: none"
+								id="grandtamt">0.00</span></td>
+						</tr>
+						<tr th:if="${PaymentVoucherModel[0].cessAmt!=0.0}">
+							<td colspan="8" align="right" style="color: #5c2e14;"><b>CESS</b></td>
+							<td width="130" align="right"><span style="border: none"
+								id="grandtamt" 
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].cessAmt, 0, 'COMMA', 2, 'POINT')}"></span></td>
+						</tr>
+						<tr th:unless="${PaymentVoucherModel[0].goodsReturnNote !=null}">
+							<td colspan="8" align="right" style="color: #5c2e14;"><b>TDS
+									AMOUNT</b></td>
+							<td width="130" align="right"><span style="border: none"
+								id="grandtamt"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].total, 0, 'COMMA', 2, 'POINT')}"></span></td>
+						</tr>
+
+						<tr th:unless="${PaymentVoucherModel[0].goodsReturnNote !=null}">
+							<td colspan="8" align="right" style="color: #5c2e14;"><b>GRAND
+									TOTAL</b></td>
+							<td width="130" align="right"><span style="border: none"
+								id="grandtamt"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].grnTotal, 0, 'COMMA', 2, 'POINT')}"></span></td>
+						</tr>
+					</tbody>
+
+					<tbody th:unless="${not #lists.isEmpty(PaymentVoucherModel)}">
+						<tr>
+							<td style="color: #e30f0f;" width="100%" valign="top"
+								align="center" colspan="10"><b>No records found</b></td>
+						</tr>
+
+
+					</tbody>
+
+
+				</table></td>
+
+
+		</tr>
+		<!-- <tr>
+			<td colspan="3">&nbsp;</td>
+		</tr>
+		<tr style="border-top: 10px solid #FFF;"
+			th:if="${PaymentVoucherModel[0].goodsReturnNote !=null}">
+			<td colspan="3"><label id="trId" style="font-size: 20px;"><b>GOODS
+						RETURN DETAILS</b></label>
+				<table class="maintbl" id="table1" cellpadding="0" cellspacing="0"
+					style="width: 700px; border: none;">
+					<thead id="tblHead1" style="background-color: #5c2e14;">
+						<tr>
+							<th class="tableheader-color">SL.NO</th>
+							<th class="tableheader-color">GRN No</th>
+							<th class="tableheader-color">PO No</th>
+							<th class="tableheader-color">GRN RETURN NO</th>
+							<th th:if="${!PaymentVoucherModel[0].taxType}"
+								class="tableheader-color">SGST</th>
+							<th th:if="${!PaymentVoucherModel[0].taxType}"
+								class="tableheader-color">CGST</th>
+							<th th:if="${PaymentVoucherModel[0].taxType}"
+								class="tableheader-color">IGST</th>
+							<th class="tableheader-color">TOTAL AMOUNT</th>
+						</tr>
+					</thead>
+					<tbody th:if="${not #lists.isEmpty(PaymentVoucherModel)}">
+						<tr th:each="other,iter : ${PaymentVoucherModel}"
+							th:if="${other.goodsReturnNote !=null}">
+							<td class="td-border td-border-right" th:text=" ${iter.index+1}"></td>
+							<td class="td-border td-border-right" th:text="${other.grnNo}"></td>
+							<td class="td-border td-border-right" th:text="${other.poNumber}"></td>
+							<td class="td-border td-border-right"
+								th:text="${other.goodsReturnNote}"></td>
+							<td th:if="${!other.taxType}" class="td-border td-border-right"
+								style="text-align: right;"
+								th:text="${#numbers.formatDecimal(other.returnCgst, 0, 'COMMA', 2, 'POINT')} "></td>
+							<td th:if="${!other.taxType}" class="td-border td-border-right"
+								style="text-align: right;"
+								th:text="${#numbers.formatDecimal(other.returnSgst, 0, 'COMMA', 2, 'POINT')} "></td>
+							<td th:if="${other.taxType}" class="td-border td-border-right"
+								style="text-align: right;"
+								th:text="${#numbers.formatDecimal(other.returnIgst, 0, 'COMMA', 2, 'POINT')} "></td>
+							<td class="td-border td-border-right"
+								style="border-right: 1px solid #BABABA; text-align: right;"
+								th:text="${#numbers.formatDecimal(other.returnTotal, 0, 'COMMA', 2, 'POINT')} "></td>
+
+						</tr>
+						
+						
+						<tr th:if="${PaymentVoucherModel[0].goodsReturnNote !=null}">
+							<td colspan="7" align="right" style="color: #418AB3;"><b>BASE
+									AMOUNT</b></td>
+
+							<td width="130" align="right"><span style="border: none"
+								id="subtotalamount"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].subTotal, 0, 'COMMA', 2, 'POINT')} "></span></td>
+						</tr>
+						<tr id="CgstTR" th:if="${!PaymentVoucherModel[0].taxType && PaymentVoucherModel[0].goodsReturnNote !=null}">
+
+							<td colspan="7" align="right" style="color: #418AB3;"><b>CGST</b></td>
+							<td width="130" align="right"><span style="border: none"
+								id="cgst"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].cgst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+						</tr>
+
+						<tr id="SgstTR" th:if="${!PaymentVoucherModel[0].taxType && PaymentVoucherModel[0].goodsReturnNote !=null}">
+							<td colspan="7" align="right" style="color: #418AB3;"><b>SGST</b></td>
+
+							<td width="130" align="right"><span style="border: none"
+								id="sgst"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].cgst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+						</tr>
+
+						<tr id="IgstTR" th:if="${PaymentVoucherModel[0].taxType && PaymentVoucherModel[0].goodsReturnNote !=null}">
+							<td colspan="7" align="right" style="color: #418AB3;"><b>IGST</b></td>
+
+							<td width="130" align="right"><span style="border: none"
+								id="igst"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].igst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+						</tr>
+						<tr th:if="${PaymentVoucherModel[0].goodsReturnNote !=null}">
+							<td colspan="7" align="right" style="color: #418AB3;"><b>TDS
+									AMOUNT</b></td>
+							<td width="130" align="right"><span style="border: none"
+								id="grandtamt"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].tdsAmount, 0, 'COMMA', 2, 'POINT')}"></span></td>
+						</tr>
+
+						<tr th:if="${PaymentVoucherModel[0].goodsReturnNote !=null}">
+							<td colspan="7" align="right" style="color: #418AB3;"><b>GRAND
+									TOTAL</b></td>
+							<td width="130" align="right"><span style="border: none"
+								id="grandtamt"
+								th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].grnTotal, 0, 'COMMA', 2, 'POINT')}"></span></td>
+						</tr>
+						
+					</tbody>
+					<tbody id="tBodyTD1"
+						th:if="${not #lists.isEmpty(PaymentVoucherModel)}">
+						<tr th:unless="${PaymentVoucherModel[0].goodsReturnNote !=null}">
+							<td style="color: #e30f0f;" width="100%" valign="top"
+								align="center" colspan="10"><b>No records found</b></td>
+						</tr>
+					</tbody>
+					<tbody id="tBodyTD1"
+						th:unless="${not #lists.isEmpty(PaymentVoucherModel)}">
+						<tr>
+							<td style="color: #e30f0f;" width="100%" valign="top"
+								align="center" colspan="10"><b>No records found</b></td>
+						</tr>
+
+
+					</tbody>
+
+				</table></td>
+
+
+
+		</tr> -->
+		<!-- <tr bgcolor="#F2F2F2" style="border-top: 20px solid #FFF;">
+			<td colspan="3">
+
+				<table style="width: 700px; border: none;">
+					<tr>
+						<td width="300px;" style="padding: 10px;"></td>
+						<td align="center" width="200"></td>
+						<td width="180">
+							<table cellpadding="0" cellspacing="0" width="460"
+								th:if="${not #lists.isEmpty(PaymentVoucherModel)}">
+								<tr>
+									<td width="200" align="right" style="color: #418AB3;"><b>BASE
+											AMOUNT</b></td>
+
+									<td width="130" align="right"><span style="border: none"
+										id="subtotalamount"
+										th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].subTotal, 0, 'COMMA', 2, 'POINT')} "></span></td>
+								</tr>
+								<tr id="CgstTR" th:if="${!PaymentVoucherModel[0].taxType}">
+									<td width="200" align="right" style="color: #418AB3;"><b
+																			th:text="'CGST ('+${#numbers.formatInteger(PaymentVoucherModel[0].gstRate,2,'POINT')}/2+'%)'"></b></td>
+									<td width="200" align="right" style="color: #418AB3;"><b>CGST</b></td>
+									<td width="130" align="right"><span style="border: none"
+										id="cgst"
+										th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].cgst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+
+								<tr id="SgstTR" th:if="${!PaymentVoucherModel[0].taxType}">
+									<td width="200" align="right" style="color: #418AB3;"><b>SGST</b></td>
+
+									<td width="130" align="right"><span style="border: none"
+										id="sgst"
+										th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].cgst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+
+								<tr id="IgstTR" th:if="${PaymentVoucherModel[0].taxType}">
+									<td width="200" align="right" style="color: #418AB3;"><b>IGST</b></td>
+
+									<td width="130" align="right"><span style="border: none"
+										id="igst"
+										th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].igst, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+								<tr>
+									<td width="200" align="right" style="color: #418AB3;"><b>TDS
+											AMOUNT</b></td>
+									<td width="130" align="right"><span style="border: none"
+										id="grandtamt"
+										th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].tdsAmount, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+
+								<tr>
+									<td width="200" align="right" style="color: #418AB3;"><b>GRAND
+											TOTAL</b></td>
+									<td width="130" align="right"><span style="border: none"
+										id="grandtamt"
+										th:text="${#numbers.formatDecimal(PaymentVoucherModel[0].grnTotal, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+
+							</table>
+						</td>
+					</tr>
+
+
+				</table>
+			</td>
+		</tr> -->
+		<tr style="border-top: 10px solid #FFF;">
+
+			<td colspan="3"><label id="trId" style="font-size: 20px;"><b>PAYMENT
+						DETAILS</b></label>
+				<table class="maintbl" id="table" cellpadding="0" cellspacing="0"
+					style="width: 695px;">
+					<thead id="tblHead" style="background-color: #5c2e14;">
+						<tr>
+							<th class="tableheader-color">SL.NO</th>
+							<th class="tableheader-color">TRANSACTION DATE</th>
+							<th class="tableheader-color">PAYMENT MODE</th>
+							<th class="tableheader-color">REFERENCE NUMBER</th>
+							<th class="tableheader-color">VOUCHER NUMBER</th>
+							<th class="tableheader-color">AMOUNT</th>
+						</tr>
+					</thead>
+					<tbody th:if="${not #lists.isEmpty(inventoryGrnPaymentDetails)}">
+						<tr th:each="other,iter : ${inventoryGrnPaymentDetails}">
+							<td class="td-border td-border-right" th:text=" ${iter.index+1}"></td>
+							<td class="td-border td-border-right"
+								th:text="${other.transactionDate}"></td>
+							<td class="td-border td-border-right"
+								th:text="${other.paymentMode}"></td>
+							<td class="td-border td-border-right"
+								th:text="${other.referenceNo}"></td>
+							<td class="td-border td-border-right"
+								th:text="${other.voucherNo} "></td>
+							<td class="td-border td-border-right"
+								style="border-right: 1px solid #BABABA; text-align: right;"
+								th:text="${#numbers.formatDecimal(other.outSatandingAmount, 0, 'COMMA', 2, 'POINT')} "></td>
+						</tr>
+					</tbody>
+
+					<tbody
+						th:unless="${not #lists.isEmpty(inventoryGrnPaymentDetails)}">
+						<tr>
+							<td style="color: #e30f0f;" width="100%" valign="top"
+								align="center" colspan="10"><b>No records found</b></td>
+						</tr>
+
+
+					</tbody>
+
+
+				</table></td>
+
+
+		</tr>
+
+
+
+	</table>
+
+
+</body>
+</html>
+

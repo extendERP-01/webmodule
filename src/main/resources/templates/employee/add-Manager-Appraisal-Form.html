@@ -1,0 +1,399 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0; /
+	width: 570px; /
+	position: absolute;
+	z-index: 9999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f2f2f2;
+	border-bottom: 1px solid #373757;
+	color: #373757;
+	font-weight: 500;
+}
+
+#autocomplete-list li:hover {
+	background: #373757;
+	color: #f2f2f2;
+	cursor: pointer;
+}
+
+.overSelect {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.selectBox {
+	position: relative;
+}
+
+.selectBox select {
+	width: 100%; /
+	font-weight: bold; /
+	font-size: 14px;
+}
+
+.checkClass {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+.checkClass1 {
+	display: none;
+	border: 1px #dadada solid;
+}
+
+.checkClass label {
+	display: block;
+}
+
+.checkClass1 label {
+	display: block;
+}
+</style>
+
+<script>
+
+
+function quantityComparision(event){
+	
+	var rating = event.currentTarget.value;
+	
+	var ratingId = event.currentTarget.getAttribute('id');
+	
+	var l = ratingId.split("_");
+	var counter = l[1];
+	
+	var target = $("#target_"+counter).val();
+	
+	
+
+	if(parseFloat(rating) >parseFloat(target)){
+		swal('rating is more than defined target ');
+		$("#"+ratingId).val("");
+		return false;
+	}
+	
+	
+	  if(rating == ""){
+		swal('rating cant be null');
+		$("#"+ratingId).val("");
+		return false;
+	}  
+	
+	
+}
+
+
+	$(document).ready(function() {
+
+		
+
+		//Function for saving data
+
+		$("#submitItems").click(function(){
+			var stageNo = 2;
+	var dataset = [];
+	$("#tbodyData > tr").each(function(){
+		var goal =$(this).find(".goalCls").val();
+		var kra = 	$(this).find(".kraCls").val();
+		var target =	$(this).find(".targetCls").val();
+		var rate =	$(this).find(".ratingCls").val();
+		var fRate =	$(this).find(".firstStageRateCls").val();
+		var fCmmnt =	$(this).find(".firstCommentCls").val();
+		
+	    item = {};
+	    item['tAppraisalSetupId']	        	 =	$("#tAppraisalSetupId").val();
+		item['tEmployeeId']	        	 =	$("#empId").val();
+		item['tEmployeeDept']	        	 =	$("#tEmployeeDept").val();
+		item['tEmployeeJobTitle']             =  $("#tEmployeeJobTitle").val();
+		item['tAppraisalFromDate']	       	 =	$("#fromDate").val();
+		item['tAppraisalToDate']	        	 =	$("#toDate").val();
+		item['tAppraisalDueDate']              =  $("#dueDate").val();
+		item['tStageNo'] 		=	stageNo;
+	
+		item['tGoal'] = goal;
+		item['tKRAMeasure'] = kra;
+		item['tTarget'] = target;
+		item['tSelfRate'] = rate;
+		item['tFirstStageRating'] = fRate;
+		item['tStage1Comment'] = fCmmnt;
+		
+		
+		
+		
+		dataset.push(item);
+		
+	});//table tbody tr loop ends
+	console.log(dataset)
+	submitForm(dataset);
+
+	
+		});
+		
+		
+	});
+	
+	
+	
+	
+
+	function submitForm(dataset){
+
+		console.log(dataset)
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+		
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down',
+			showLoaderOnConfirm	: true,
+			preConfirm: () => {
+							return new Promise((resolve) => {
+								setTimeout(() => {
+									console.log("Doing async operation");
+									resolve()
+								}, 3000)
+							})
+						}
+
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "view-manager-appraisal-form-submit",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/employee/view-manager-appraisal-form" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(response){
+					swal(response.code);	
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+
+</script>
+
+
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Appraisal Form</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Appraisal Form</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+
+							<input type="hidden" id="tAppraisalSetupId"
+								th:value="${managerAppraisalForm[0].tAppraisalSetupId}" /> <input
+								type="hidden" id="tEmployeeDept"
+								th:value="${managerAppraisalForm[0].tEmployeeDept}" /> <input
+								type="hidden" id="tEmployeeJobTitle"
+								th:value="${managerAppraisalForm[0].tEmployeeJobTitle}" />
+
+
+
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-6">
+
+
+
+									<div class="form-group">
+										<label>Employee Id</label> <input type="text"
+											th:value="${managerAppraisalForm[0].tEmployeeId}"
+											class="form-control" id="empId" readonly>
+
+									</div>
+
+
+									<div class="form-group">
+										<label>Department Name</label> <input type="text"
+											th:value="${managerAppraisalForm[0].deptName}"
+											class="form-control" id="deptName" readonly>
+									</div>
+									<div class="form-group">
+										<label>Appraisal From Date</label> <input type="text"
+											th:value="${managerAppraisalForm[0].tAppraisalFromDate}"
+											class="form-control" id="fromDate" readonly>
+									</div>
+
+									<div class="form-group">
+										<label>Appraisal Due Days</label> <input type="text"
+											th:value="${managerAppraisalForm[0].tAppraisalDueDate}"
+											class="form-control" id="dueDate" readonly>
+									</div>
+
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Name</label> <input type="text"
+											th:value="${managerAppraisalForm[0].tEmployeeName}"
+											class="form-control" id="empName" readonly>
+
+									</div>
+									<div class="form-group">
+										<label>Job Title</label> <input type="text"
+											th:value="${managerAppraisalForm[0].jobTitleName}"
+											class="form-control" id="jobTitleName" readonly>
+									</div>
+
+									<div class="form-group">
+										<label>Appraisal To Date</label> <input type="text"
+											th:value="${managerAppraisalForm[0].tAppraisalToDate}"
+											class="form-control" id="toDate" readonly>
+									</div>
+
+
+
+
+								</div>
+							</div>
+						</div>
+						<div class="card-title">
+							<u><h4 style="color: green;">Reviewer Details</u>
+							</h4>
+						</div>
+						<div class="row">
+							<div class="col-lg-12">
+								<!-- id="table-data" -->
+								<table class="tbll" id="myTable" width="100%" border="0"
+									cellspacing="2" cellpadding="5">
+									<thead>
+										<tr>
+											<th>Goal</th>
+											<th>KRA Measure</th>
+											<th>Target</th>
+											<th>Self Rated</th>
+											<th>Rating</th>
+											<th>Comment</th>
+										</tr>
+									</thead>
+
+									<tbody id="tbodyData">
+
+
+
+										<!-- 	for edit -->
+
+
+
+
+										<tr class="tr_clone" th:each="a,iter:${managerAppraisalForm}">
+
+											<input type="hidden" id="goal" class="form-control goalCls"
+												th:value="${a.tGoal}" readonly />
+
+											<td><input type="text" id="goalName"
+												class="form-control goalNameCls" th:value="${a.goalName}"
+												readonly /></td>
+
+
+											<td><input type="text" id="kra"
+												class="form-control kraCls" th:value="${a.tKRAMeasure}"
+												readonly /></td>
+
+											<td><input type="text" id="target" th:id="'target_'+${iter.index}"
+												class="form-control targetCls" th:value="${a.tTarget}"
+												readonly /></td>
+
+											<td><input type="text" id="rating"
+												class="form-control ratingCls" th:value="${a.tSelfRate}"
+												readonly /></td>
+
+											<td><input type="text"
+												th:id="'firstStageRate_'+${iter.index}"
+												class="form-control firstStageRateCls" onblur="quantityComparision(event);"
+												th:value="${a.tFirstStageRating}"
+												onkeyup="checkNum(this.id)" /></td>
+
+											<td><input type="text" id="firstComment"
+												class="form-control firstCommentCls"
+												th:value="${a.tStage1Comment}" /></td>
+
+										</tr>
+
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						</form>
+					</div>
+
+				</div>
+				<div class="row">
+					<div class="form-group">
+						<button type="button" id="submitItems" class="btn btn-success">Submit</button>
+						<button type="button" class="btn btn-warning"
+							onclick="returnToAddPage();">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<div style="clear: both;"></div>
+</html>

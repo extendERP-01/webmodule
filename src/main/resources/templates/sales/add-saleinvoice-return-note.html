@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 490px;
+	position: absolute;
+	z-index: 999;
+	height: 100px; 
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.money {
+	text-align: right;
+}
+</style>
+<script>
+
+//Add More Function 'Add Sale Invoice'
+function addMore(){
+	if (!blankValidation("salesOrder","TextField" ,"Please Enter Sales Order"))
+	      return false;
+	if (!blankValidation("saleInv","TextField" ,"Please Enter Sale Invoice"))
+	      return false;
+	var itemCodeValid = true;
+	$(".sRItemCode").each(function(){
+		var current_id = $(this).attr("id");
+		if (!blankValidation(current_id,"SelectBox" ,"Please Select Item Code")){
+			itemCodeValid = false;
+			return false;
+		}
+		
+	});
+	
+	var quantityValid = true;
+	if(itemCodeValid){
+		$('.sRItemQty').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+				quantityValid = false;
+				return false;
+			}
+				  	
+		});
+	}
+	
+	if(itemCodeValid && quantityValid) {
+	
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+		
+		$("#myTable tbody tr td:last").html("");
+		var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+		
+		var editTr = 0;
+		
+		if(lengthOfTableRow>editTr){
+			$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+		}
+		
+		$("#myTable tbody tr:last").find(".sRItemCode").val("");
+		$("#myTable tbody tr:last").find(".sRItemName").html("");
+		$("#myTable tbody tr:last").find(".sRItemPrice").html("");
+		$("#myTable tbody tr:last").find(".sRItemQty").val("");
+		$("#myTable tbody tr:last").find(".sRDiscount").html("0.00");
+		$("#myTable tbody tr:last").find(".srDisc").val("");
+		$("#myTable tbody tr:last").find(".sRdiscount").val("");
+		$("#myTable tbody tr:last").find(".sRServeTypeId").val("");
+		$("#myTable tbody tr:last").find(".sRServeType").html("");
+		$("#myTable tbody tr:last").find(".sRAmount").html("0.00");
+		
+		$("#myTable > tbody > tr").each(function(i){
+			
+			var textInput 	= $(this).find('input') ;
+			var labelInput = $(this).find('label');
+			var selectInput = $(this).find('select');
+			
+			selectInput.eq(0).attr('id',"selectSRItemCode_"+i);
+			labelInput.eq(0).attr('id',"labelSRItemName_"+i) ;
+			labelInput.eq(1).attr('id',"labelSRPrice_"+i) ;
+			labelInput.eq(2).attr('id',"labelSRDiscount_"+i) ;
+			labelInput.eq(3).attr('id',"labelSRServetype_"+i) ;
+			labelInput.eq(4).attr('id',"labelSRAmount_"+i) ;
+			textInput.eq(0).attr('id',"inputSRQuantity_"+i);
+			textInput.eq(1).attr('id',"inputSRDiscount_"+i);
+			textInput.eq(2).attr('id',"inputSRDisc_"+i);
+			textInput.eq(3).attr('id',"inputSRServetype_"+i);
+		})
+	}
+}
+
+
+//$(document).ready() Starts
+$(document).ready(function (){
+	$(".hideThTd").hide();
+	var id = $("#saleInvReturn").val();
+	if(id) {
+		$('#tbodyTR').hide();
+		var gstType = $("#gstType").val();
+		if(gstType=="true") {
+			$('#IgstTR').show();
+			$('#CgstTR').hide();
+			$('#SgstTR').hide();
+			var sRIGST = $('#sRIGST').html();
+			$('#sRIGST').html((parseFloat(sRIGST)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+			
+		} else {
+			$('#IgstTR').hide();
+			$('#CgstTR').show();
+			$('#SgstTR').show();
+			var sRCGST = $('#sRCGST').html();
+			var sRSGST = $('#sRSGST').html();
+			$('#sRCGST').html((parseFloat(sRCGST)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+			$('#sRSGST').html((parseFloat(sRSGST)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+		}
+		
+		var totalDiscount = 0.0;
+		$("#tbodyData > tr").each(function(){
+			totalDiscount = totalDiscount + parseFloat($(this).find(".sRDiscount").val());
+		});
+		
+		if(totalDiscount != null && totalDiscount != 0.0) {
+			$(".hideThTd").show();
+			$("#totalDiscount").html(totalDiscount.toFixed(2));
+		} else {
+			$(".hideThTd").hide();
+		}
+		
+		$("#myTable > tbody > tr").each(function(i){
+			var price = $("#labelSRPrice_"+i).html();
+			var discount = $("#labelSRDiscount_"+i).html();
+			var linetotal = $("#labelSRAmount_"+i).html();
+			$("#labelSRPrice_"+i).html((parseFloat(price)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+			$("#labelSRDiscount_"+i).html((parseFloat(discount)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+			$("#labelSRAmount_"+i).html((parseFloat(linetotal)).toFixed(2)); //Fixed Double Digit After Point At Edit Time
+		})
+		
+		var subTotal = $('#subTotal').html();
+		var grandTotal = $('#grandTotal').html();
+		$('#subTotal').html((parseFloat(subTotal)).toFixed(2));
+		$('#grandTotal').html((parseFloat(grandTotal)).toFixed(2));
+		// --> View Quotation Master Page On Click --> 'Cancel' Button At Edit Time
+		$("#btnCancel").click(function(){
+		   window.location.href = "/sales/view-saleinvoice-return-note";
+		}); 
+	} else {
+		$('#IgstTR').hide();
+		// --> Page Reload On Click --> 'Cancel' Button At Add Time
+		$("#btnCancel").click(function(){
+		  location.reload();
+		}); 
+	}
+	
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		calculateSubTotal();
+		displayItem();
+	});
+	
+	$("#submit").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			item = {};
+			item['saleInvReturn']		=	$("#saleInvReturn").val();
+			item['salesOrderId']		=	$("#salesOrderId").val();
+			item['saleInvId']			=	$("#saleInvId").val();
+			item['saleInvReturnDesc']	=	$("#saleInvReturnDesc").val();
+			item['gstType']				=	$("#gstType").val();
+			item['subTotal']			=	parseFloat($("#subTotal").text());
+			item['sRIGST']				=	parseFloat($("#sRIGST").text());
+			item['sRCGST']				=	parseFloat($("#sRCGST").text());
+			item['sRSGST']				=	parseFloat($("#sRSGST").text());
+			item['grandTotal']			=	parseFloat($("#grandTotal").text());
+			item['totalCess']			=	parseFloat($("#totalCess").text());
+			
+			item['sRItemName']			=	$(this).find(".sRItemName").val();
+			item['sRItemCode']			=	$(this).find(".sRItemCode").val();
+			item['sRItemPrice']			=	parseFloat($(this).find(".sRItemPrice").val());
+			item['sRItemQty']			=	parseFloat($(this).find(".sRItemQty").val());
+			item['sRDiscount']			=	parseFloat($(this).find(".sRDiscount").val());
+			item['sRServeTypeId']		=	$(this).find(".sRServeTypeId").val();
+			item['sRAmount']			=	parseFloat($(this).find(".sRAmount").val());
+			item['gstRate']				=	parseFloat($(this).find(".gstRateCls").val());
+			item['itemCess']			=	parseFloat($(this).find(".cessAmountCls").val());
+			dataset.push(item);
+		})
+		if (!blankValidation("salesOrder","TextField" ,"Please Enter Sales Order"))
+		      return false;
+		if (!blankValidation("saleInv","TextField" ,"Please Enter Sale Invoice"))
+		      return false;
+		if (!blankValidation("saleInvReturnDesc","TextArea" ,"Description Can't Be Left Blank"))
+		      return false;
+		var itemCodeValid = true;
+		$(".sRItemCode").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select Item Code")){
+				itemCodeValid = false;
+				return false;
+			}
+			
+		});
+		
+		var quantityValid = true;
+		if(itemCodeValid){
+			$('.sRItemQty').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+					quantityValid = false;
+					return false;
+				}
+				 	
+			});
+		}
+		
+		if(itemCodeValid && quantityValid) {
+			submitSaleInvoiceReturn(dataset);
+		}
+		
+	});
+})
+//$(document).ready() Ends
+
+//Submit Sale Invoice Function
+function submitSaleInvoiceReturn(dataset){
+	
+	console.log(dataset);
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+				
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down',
+				
+			preConfirm: () => {
+				return new Promise((resolve) => {
+					setTimeout(() => {
+						console.log("Doing async operation");
+						resolve()
+					}, 3000)
+				})
+			}
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "add-saleinvoice-return-note-save-data",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+						
+					if(response.message=="Success"){
+						console.log(response.body);
+						swal({
+								title	: "Data Saved Successfully.",
+								type	: "success",
+						}).then(function(){
+								window.location.href = "/sales/view-saleinvoice-return-note";
+						})
+					}else{
+						swal({
+							title	: response.code,
+							text	: response.message,
+							type	: "warning"
+						})
+					}
+				},error		: function(response){
+					swal(response.code);	
+				}
+			}) //ajax ends
+		}
+	})//swal function block ends
+}
+
+//Sales Order Auto Search Function
+function salesOrderAutoComplete() {
+	$("#saleInv").val("");
+	$("#saleInvId").val("");
+	$('#tbodyTR').show();
+	$('#tblBody').empty();
+	$(".sRItemCode").empty();
+	$(".sRItemCode").append(new Option("--Select--",""));
+	$("#myTable tbody tr").find(".sRItemName").html("");
+	$("#myTable tbody tr").find(".sRItemPrice").html("");
+	$("#myTable tbody tr").find(".sRItemQty").val("");
+	$("#myTable tbody tr").find(".sRServeTypeId").val("");
+	$("#myTable tbody tr").find(".sRServeType").html("");
+	$("#myTable tbody tr").find(".sRDiscount").html("0.00");
+	$("#myTable tbody tr").find(".srDisc").val("");
+	$("#myTable tbody tr").find(".sRdiscount").val("");
+	$("#myTable tbody tr").find(".sRAmount").html("0.00");
+	/* $("#myTable tbody tr:not(:first)").remove();
+	$("#myTable tbody tr:last").find('td:last').remove();
+	var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	$("#myTable tbody tr:last").append('<td>'+ add+'</td>'); */
+	$('#subTotal').html("0.00");
+	$('#grandTotal').html("0.00");
+	$('#sRCGST').html("0.00");
+	$('#sRSGST').html("0.00");
+	$('#sRIGST').html("0.00");
+	getSaleInvoiceList();
+		$.ajax({
+				type : "POST",
+				url : "add-saleinvoice-return-note-salesOrderAutoCompleteList",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#salesOrder").val(),
+				success : function(response) {
+					if (response.message == "success") {
+
+						if (response.body.length != 0) {
+							$("#salesOrder").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							for (var i = 0; i < response.body.length; i++) {  //For Loop Starts
+								content += '<li onClick="selectAutocompleteValue(\''
+										+ response.body[i].key
+										+ '\',\''
+										+ response.body[i].name
+										+ '\')">'
+										+ response.body[i].key + '</li>';
+							}  //For Loop Ends
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+
+						} else {
+							$("#salesOrder").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							content += '<li onClick="selectAutocompleteValue(\''
+									+ ''
+									+ '\',\''
+									+ ''
+									+ '\')">'
+									+ "No Data Found" + '</li>';
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+					$("#salesOrder").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''
+							+ ''
+							+ '\',\''
+							+ ''
+							+ '\')">'
+							+ "Try Again" + '</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+			})
+}
+function selectAutocompleteValue(key, name) {
+	if (key) {
+		$("#salesOrderId").val(key);
+		$("#salesOrder").val(key);
+		$("#salesOrder").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+		getSaleInvoiceList();
+	} else {
+		$("#salesOrderId").val("");
+		$("#salesOrder").val("");
+		$("#salesOrder").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+		$('#tbodyTR').show();
+		$('#tblBody').empty();
+		$(".sRItemCode").empty();
+		$(".sRItemCode").append(new Option("--Select--",""));
+		$("#myTable tbody tr").find(".sRDiscount").html("0.00");
+		$("#myTable tbody tr").find(".srDisc").val("");
+		$("#myTable tbody tr").find(".sRdiscount").val("");
+		$("#myTable tbody tr").find(".sRItemName").html("");
+		$("#myTable tbody tr").find(".sRItemPrice").html("");
+		$("#myTable tbody tr").find(".sRItemQty").val("");
+		$("#myTable tbody tr").find(".sRServeTypeId").val("");
+		$("#myTable tbody tr").find(".sRServeType").html("");
+		$("#myTable tbody tr").find(".sRAmount").html("0.00");
+		/* $("#myTable tbody tr:not(:first)").remove();
+		$("#myTable tbody tr:last").find('td:last').remove();
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		$("#myTable tbody tr:last").append('<td>'+ add+'</td>'); */
+		$('#subTotal').html("0.00");
+		$('#grandTotal').html("0.00");
+		$('#sRCGST').html("0.00");
+		$('#sRSGST').html("0.00");
+		$('#sRIGST').html("0.00");
+		getSaleInvoiceList();
+	}
+}
+
+//Sales Invoice Auto Search Function
+function saleInvoiceAutoComplete() {
+	var salesOrder = $("#salesOrderId").val();
+	var searchValue = $("#saleInv").val();
+		$.ajax({
+				type : "GET",
+				url : "/sales/add-saleinvoice-return-note-saleInvoiceAutoComplete?id="+salesOrder+"&searchValue="+searchValue,
+				dataType : 'json',
+				success : function(response) {
+					if (response.message == "success") {
+
+						if (response.body.length != 0) {
+							$("#saleInv").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							for (var i = 0; i < response.body.length; i++) {  //For Loop Starts
+								content += '<li onClick="selectInvoiceAutocompleteValue(\''
+										+ response.body[i].key
+										+ '\',\''
+										+ response.body[i].name
+										+ '\')">'
+										+ response.body[i].key + '</li>';
+							}  //For Loop Ends
+							content += '</ul>';
+							$("#suggesstion-box1").show();
+							$("#suggesstion-box1").html(content);
+
+						} else {
+							$("#saleInv").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							content += '<li onClick="selectInvoiceAutocompleteValue(\''
+									+ ''
+									+ '\',\''
+									+ ''
+									+ '\')">'
+									+ "No Data Found" + '</li>';
+							content += '</ul>';
+							$("#suggesstion-box1").show();
+							$("#suggesstion-box1").html(content);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+					$("#saleInv").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectInvoiceAutocompleteValue(\''
+							+ ''
+							+ '\',\''
+							+ ''
+							+ '\')">'
+							+ "Try Again" + '</li>';
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+				}
+			})
+}
+function selectInvoiceAutocompleteValue(key, name) {
+	if (key) {
+		$("#saleInvId").val(key);
+		$("#saleInv").val(key);
+		$("#saleInv").attr('data-procat', key);
+		$("#suggesstion-box1").hide();
+		checkSaleInvReturn();
+	} else {
+		$("#saleInvId").val("");
+		$("#saleInv").val("");
+		$("#saleInv").attr('data-procat', "");
+		$("#suggesstion-box1").hide();
+		$('#tbodyTR').show();
+		$('#tblBody').empty();
+		$(".sRItemCode").empty();
+		$(".sRItemCode").append(new Option("--Select--",""));
+		$("#myTable tbody tr").find(".sRDiscount").html("0.00");
+		$("#myTable tbody tr").find(".srDisc").val("");
+		$("#myTable tbody tr").find(".sRdiscount").val("");
+		$("#myTable tbody tr").find(".sRItemName").html("");
+		$("#myTable tbody tr").find(".sRItemPrice").html("");
+		$("#myTable tbody tr").find(".sRItemQty").val("");
+		$("#myTable tbody tr").find(".sRServeTypeId").val("");
+		$("#myTable tbody tr").find(".sRServeType").html("");
+		$("#myTable tbody tr").find(".sRAmount").html("0.00");
+		/* $("#myTable tbody tr:not(:first)").remove();
+		$("#myTable tbody tr:last").find('td:last').remove();
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		$("#myTable tbody tr:last").append('<td>'+ add+'</td>'); */
+		$('#subTotal').html("0.00");
+		$('#grandTotal').html("0.00");
+		$('#sRCGST').html("0.00");
+		$('#sRSGST').html("0.00");
+		$('#sRIGST').html("0.00");
+		getSaleInvoiceList();
+	}
+}
+
+//Get Sale Invoice Details Function
+function getSaleInvoiceList() {
+	var saleInvId = $("#saleInvId").val();
+	$("#tbodyData").empty();
+	if(saleInvId) {
+		$('#tbodyTR').hide();
+		$('#tblBody').empty();
+		$(".sRItemCode").empty();
+		$(".sRItemCode").append(new Option("--Select--",""));
+		$.ajax({
+			type : 'POST',
+			url : 'add-saleinvoice-return-note-get-saleinvoice-list',
+			dataType : 'json',
+			contentType : 'application/json',
+			data : saleInvId,
+			success : function(response) {
+				if(response.message=="success"){
+					
+					console.log(response)
+					var totalDiscount = 0;
+					if(response.body.length>0){
+						for(var i=0;i<response.body.length;i++){ //For Loop Starts
+							
+							//$("#gstRate").val(response.body[i].gstRate);
+							$("#gstType").val(response.body[i].gstType);
+							
+							//Sales Invoice Details Table
+							/* table = '<tr><td>'+ response.body[i].saleItemCode+'</td><td>'+
+								   response.body[i].saleItem+'</td><td class="money">'+
+								   (response.body[i].salePrice).toFixed(2)+'</td><td class="quantityA" id="RQ_'+response.body[i].saleItemCode+'">'+
+								   response.body[i].saleQuantity+'</td><td class="money">'+
+								   (response.body[i].saleDiscount).toFixed(2)+'</td><td>'+
+								   response.body[i].sServeType+'</td><td class="money">'+
+								   (response.body[i].saleAmount).toFixed(2)+'</td></tr>';
+						   	$('#tblBody').append(table); */
+						   	
+						   	totalDiscount = totalDiscount + parseFloat(response.body[i].saleDiscount);
+						   	var cessAmt = response.body[i].itemCess;
+						   	tbl = 	'<tr>'+
+						   			'<td><input type="text" id="selectSRItemCode_'+i+'" class="form-control sRItemCode" value="'+ response.body[i].saleItemCode+'" readonly></td>'+
+						   			'<td><input type="text" id="labelSRItemName_'+i+'" class="form-control sRItemName" value="'+response.body[i].saleItem+'" readonly></td>'+
+						   			'<td><input type="text" id="labelSRPrice_'+i+'" class="form-control sRItemPrice money" value="'+(response.body[i].salePrice).toFixed(2)+'" readonly></td>'+
+						   			'<td><input type="text" id="invQty_'+i+'" class="form-control invQTYCls" value="'+response.body[i].saleQuantity+'" readonly></td>'+
+						   			'<td><input type="text" id="inputSRQuantity_'+i+'" class="form-control sRItemQty" value="" onkeyup="checkReturnQty(event);calculateAmount(event);"></td>'+
+						   			'<td class="hideThTd"><input type="text" id="labelSRDiscount_'+i+'" class="form-control sRDiscount money" value="0.00" readonly><input type="hidden" id="saleInvDiscount_'+i+'" value="'+(response.body[i].saleDiscount).toFixed(2)+'"></td>'+
+						   			'<td><input type="text" id="gstRate_'+i+'" class="form-control gstRateCls" value="'+response.body[i].gstRate+'" readonly></td>'+
+						   			'<td><input type="text" id="cessAmount_'+i+'" class="form-control cessAmountCls" value="'+cessAmt+'" readonly></td>'+
+						   			'<td><input type="hidden" id="inputSRServetype_'+i+'" class="form-control sRServeTypeId" value="'+response.body[0].storeId+'" readonly>'+
+						   			'<input type="text" id="labelSRServetype_'+i+'" class="form-control sRServeType" value="'+response.body[i].sServeType+'" readonly></td>'+
+						   			'<td><input type="text" id="labelSRAmount_'+i+'" class="form-control sRAmount money" value="0.00" readonly></td>'+
+						   			'</tr>';
+						   	$("#tbodyData").append(tbl);
+						   	
+						  //Set Item Code In Drop down 
+						   	var option = $("<option></option>");
+							$(option).val(response.body[i].saleItemCode);
+							$(option).html(response.body[i].saleItem+"("+response.body[i].saleItemCode+")");
+							$(".sRItemCode").append(option);
+							
+							//Show & Hide CGST, SGST & IGST According To GST Type
+							var gstType = $("#gstType").val();
+							if(gstType=="true") {
+								$('#IgstTR').show();
+								$('#CgstTR').hide();
+								$('#SgstTR').hide();
+								$('#labelIgst').html("IGST");
+							} else {
+								$('#IgstTR').hide();
+								$('#CgstTR').show();
+								$('#SgstTR').show();
+								$('#labelCgst').html("CGST");
+								$('#labelSgst').html("SGST");
+							}
+						}
+						if(totalDiscount != 0.0) {
+							$('.hideThTd').show();
+						} else {
+							$('.hideThTd').hide();
+						}
+					} else {
+						console.log(response);
+						$('#tblBody').empty();
+						$('#tbodyTR').show();
+						tbl = 	'<tr>'+
+			   			'<td><input type="text" id="selectSRItemCode_" class="form-control sRItemCode" value="" readonly></td>'+
+			   			'<td><input type="text" id="labelSRItemName_" class="form-control sRItemName" value="" readonly></td>'+
+			   			'<td><input type="text" id="labelSRPrice_" class="form-control sRItemPrice money" value="" readonly></td>'+
+			   			'<td><input type="text" id="invQty_" class="form-control invQTYCls" value="" readonly></td>'+
+			   			'<td><input type="text" id="inputSRQuantity_" class="form-control sRItemQty" value=""></td>'+
+			   			'<td class="hideThTd"><input type="text" id="labelSRDiscount_" class="form-control sRDiscount money" value="" readonly></td>'+
+			   			'<td><input type="text" id="gstRate_" class="form-control gstRateCls" value="" readonly></td>'+
+			   			'<td><input type="text" id="cessAmount_" class="form-control cessAmountCls" value="" readonly></td>'+
+			   			'<td><input type="hidden" id="inputSRServetype_" class="form-control sRServeTypeId" value="" readonly>'+
+			   			'<input type="text" id="labelSRServetype_" class="form-control sRServeType" value="" readonly></td>'+
+			   			'<td><input type="text" id="labelSRAmount_" class="form-control sRAmount money" value="" readonly></td>'+
+			   			'</tr>';
+			   	$("#tbodyData").append(tbl);
+			   	$('.hideThTd').hide();
+					}
+				}
+            },
+			error : function(data) {
+				console.log(data)
+				tbl = 	'<tr>'+
+	   			'<td><input type="text" id="selectSRItemCode_" class="form-control sRItemCode" value="" readonly></td>'+
+	   			'<td><input type="text" id="labelSRItemName_" class="form-control sRItemName" value="" readonly></td>'+
+	   			'<td><input type="text" id="labelSRPrice_" class="form-control sRItemPrice money" value="" readonly></td>'+
+	   			'<td><input type="text" id="invQty_" class="form-control invQTYCls" value="" readonly></td>'+
+	   			'<td><input type="text" id="inputSRQuantity_" class="form-control sRItemQty" value=""></td>'+
+	   			'<td class="hideThTd"><input type="text" id="labelSRDiscount_" class="form-control sRDiscount money" value="" readonly></td>'+
+	   			'<td><input type="text" id="gstRate_" class="form-control gstRateCls" value="" readonly></td>'+
+	   			'<td><input type="text" id="cessAmount_" class="form-control cessAmountCls" value="" readonly></td>'+
+	   			'<td><input type="hidden" id="inputSRServetype_" class="form-control sRServeTypeId" value="" readonly>'+
+	   			'<input type="text" id="labelSRServetype_" class="form-control sRServeType" value="" readonly></td>'+
+	   			'<td><input type="text" id="labelSRAmount_" class="form-control sRAmount money" value="" readonly></td>'+
+	   			'</tr>';
+	   	$("#tbodyData").append(tbl);
+	   	$('.hideThTd').hide();
+			}
+		});
+	} else {
+		$('#tblBody').empty();
+		$('#tbodyTR').show();
+		
+		tbl = 	'<tr>'+
+			'<td><input type="text" id="selectSRItemCode_" class="form-control sRItemCode" value="" readonly></td>'+
+			'<td><input type="text" id="labelSRItemName_" class="form-control sRItemName" value="" readonly></td>'+
+			'<td><input type="text" id="labelSRPrice_" class="form-control sRItemPrice money" value="" readonly></td>'+
+			'<td><input type="text" id="invQty_" class="form-control invQTYCls" value="" readonly></td>'+
+			'<td><input type="text" id="inputSRQuantity_" class="form-control sRItemQty" value=""></td>'+
+			'<td class="hideThTd"><input type="text" id="labelSRDiscount_" class="form-control sRDiscount money" value="" readonly></td>'+
+			'<td><input type="text" id="gstRate_" class="form-control gstRateCls" value="" readonly></td>'+
+			'<td><input type="text" id="cessAmount_" class="form-control cessAmountCls" value="" readonly></td>'+
+			'<td><input type="hidden" id="inputSRServetype_" class="form-control sRServeTypeId" value="" readonly>'+
+			'<input type="text" id="labelSRServetype_" class="form-control sRServeType" value="" readonly></td>'+
+			'<td><input type="text" id="labelSRAmount_" class="form-control sRAmount money" value="" readonly></td>'+
+			'</tr>';
+	$("#tbodyData").append(tbl);
+	$('.hideThTd').hide();
+	}
+}
+
+/*
+function calculateAmount(event) {
+	alert("s")
+    var currentId = event.currentTarget.id;
+    var currentValue = event.currentTarget.value;
+    var l = currentId.split("_");
+    var counter = l[1];
+    var price = $("#labelSRPrice_" + counter).val();
+    var quantity = $("#inputSRQuantity_" + counter).val();
+    alert(price)
+    alert(quantity)
+    if (price && quantity) {
+        var mul = price * quantity;
+        $("#labelSRAmount_" + counter).val((mul).toFixed(2));
+
+    } else {
+        var mul = 0;
+        $("#labelSRAmount_" + counter).val((mul).toFixed(2));
+
+    }
+    calculateSubTotal();
+
+}
+*/
+//method to calculate subtotal
+function calculateSubTotal() {
+    var sum = 0;
+    var discount = 0;
+    var grandTotal = 0;
+    $(".sRAmount").each(function(i) {
+        sum = sum + parseFloat($(this).val());
+    })
+    $(".sRDiscount").each(function(i) {
+    	discount = discount + parseFloat($(this).val());
+    })
+    $('#subTotal').html((sum).toFixed(2));
+    $('#totalDiscount').html((discount).toFixed(2));
+    calculategstRate();
+}
+
+function calculategstRate() {
+    var sum = 0;
+    var j = 0;
+    var gstRate = 0;
+    var sum = 0;
+    $(".sRAmount").each(function(i) {
+        sum = sum + parseFloat($(this).val());
+    })
+    var gstRate = 0.0;
+    var itemCGST = 0.0;
+    var itemIGST = 0.0;
+    var itemCess = 0.0;
+    var totalItemCess = 0.0;
+    $("#tbodyData > tr").each(function(i) {
+        var gstval = parseFloat($(this).find(".gstRateCls").val());
+        var amt = parseFloat($(this).find(".sRAmount").val());
+        var cessVal = parseFloat($(this).find(".cessAmountCls").val());
+        var gstvalhalf = parseFloat(gstval) / 2;
+        var cgstval = ((amt * parseFloat(gstvalhalf)) / 100).toFixed(2);
+        var igstval = ((amt * parseFloat(gstval)) / 100).toFixed(2);
+        itemCess = (igstval * cessVal) / 100;
+        itemCGST = parseFloat(itemCGST) + parseFloat(cgstval);
+        itemIGST = parseFloat(itemIGST) + parseFloat(igstval);
+        totalItemCess = parseFloat(totalItemCess) + parseFloat(itemCess);
+    });
+    $('#subTotal').html((sum).toFixed(2));
+    $('#totalCess').html((totalItemCess).toFixed(2));
+    var subTotal = $('#subTotal').html();
+    var totalDiscount = $('#totalDiscount').html();
+    totalDiscount = parseFloat(totalDiscount);
+    var gstType = $("#gstType").val();
+    /* 	var gstType = $("#gstType").val(); */
+    if (gstType == "true") {
+        $('#sRIGST').html((itemIGST).toFixed(2));
+        $('#sRCGST').html("0.00");
+        $('#sRSGST').html("0.00");
+        var total = parseFloat(subTotal) + itemIGST;
+        var grandTotal = Math.round(total);
+        var grandTotal = Math.round((parseFloat(subTotal) + itemIGST + totalItemCess - totalDiscount));
+        $('#grandTotal').html((grandTotal).toFixed(2));
+    } else {
+        $('#sRIGST').html("0.00");
+        $('#sRCGST').html((itemCGST).toFixed(2));
+        $('#sRSGST').html((itemCGST).toFixed(2));
+        var total = parseFloat(subTotal) + itemCGST + itemCGST + totalItemCess - totalDiscount;
+        var grandTotal = Math.round(total);
+        $('#grandTotal').html((grandTotal).toFixed(2));
+    }
+}
+
+function checkReturnQty(event) {
+	var id = event.currentTarget.id;
+	var value = event.currentTarget.value;
+	
+	var l = id.split("_");
+	var i = l[1];
+	
+	var saleQty = $("#invQty_"+i).val();
+	var rQty = $("#inputSRQuantity_"+i).val();
+	
+	if(parseFloat(rQty) > parseFloat(saleQty)) {
+		swal({
+			title:"Return qty can't be greater than Sale qty",
+			type:"warning",
+		})
+		$("#inputSRQuantity_"+i).val("");
+	}
+}
+
+//Check Sale Invoice Return
+function checkSaleInvReturn() {
+	var saleInvId = $("#saleInvId").val();
+	var salesOrder = $("#salesOrderId").val();
+	if(salesOrder && saleInvId) {
+		$.ajax({
+			type : 'GET',
+			url : "/sales/add-saleinvoice-return-note-checkSaleInvReturn?id="+salesOrder+"&saleInvId="+saleInvId,
+			dataType : 'json',
+			success : function(response) {
+				if(response.message=="success"){
+					
+					if(response.body.length>0){
+						swal({
+							title	: "This Sale Invoice Has Already Returned Value",
+							type	: "warning",
+						})
+						$("#saleInv").val("");
+						$("#saleInvId").val("");
+						$("#saleInv").attr('data-procat', "");
+						$('#tbodyTR').show();
+						$('#tblBody').empty();
+						$(".sRItemCode").empty();
+						$(".sRItemCode").append(new Option("--Select--",""));
+					} else {
+						getSaleInvoiceList();
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data)
+			}
+		});
+	}
+}
+
+//Get Item Details By Item Code Function
+function getItemList(event){
+	var saleItemCode = event.currentTarget.value;
+	var currentId = event.currentTarget.id;
+	var l = currentId.split("_");
+	var counter = l[1];
+	var salesInvoice = $("#saleInvId").val();
+	var dataset={
+			"saleItemCode"		: saleItemCode,
+			"salesInvoice" 		: salesInvoice,
+	};
+	if(saleItemCode && salesInvoice){
+		$("#labelSRItemName_"+counter).html("");
+		$("#labelSRPrice_"+counter).html("");
+		$("#inputSRQuantity_"+counter).val("");
+		$("#labelSRServetype_"+counter).html("");
+		$("#inputSRServetype_"+counter).val("");
+		$("#inputSRDiscount_"+counter).val("");
+		$("#inputSRDisc_"+counter).val("");
+		$("#labelSRAmount_"+counter).html("");
+		$("#labelSRDiscount_"+counter).html("");
+
+		$.ajax({
+			type : 'POST',
+			url : 'add-saleinvoice-return-note-get-item-list',
+			dataType:  'json',
+		 	contentType:'application/json',
+			data : JSON.stringify(dataset),
+			success : function(response) {
+				console.log(response.body);
+				 for (var i = 0; i < response.body.length; i++) {
+					 $("#labelSRItemName_"+counter).html(response.body[i].saleItem);
+					 $("#labelSRPrice_"+counter).html((response.body[i].salePrice).toFixed(2));
+					 $("#labelSRServetype_"+counter).html(response.body[i].sServeType);
+					 $("#inputSRServetype_"+counter).val(response.body[i].createdBy);
+					 $("#inputSRDiscount_"+counter).val(response.body[i].saleDiscount);
+					 $("#inputSRDisc_"+counter).val(response.body[i].saleQuantity);
+					 $("#labelSRAmount_"+counter).html("0.00");
+					 $("#labelSRDiscount_"+counter).html("0.00");
+				} 
+			},
+			error : function(e) {
+				alert("error");
+			}
+		});
+	} else {
+		$("#labelSRItemName_"+counter).html("");
+		$("#labelSRPrice_"+counter).html("");
+		$("#inputSRQuantity_"+counter).val("");
+		$("#labelSRServetype_"+counter).html("");
+		$("#inputSRServetype_"+counter).val("");
+		$("#inputSRDiscount_"+counter).val("");
+		$("#inputSRDisc_"+counter).val("");
+		$("#labelSRAmount_"+counter).html("");
+		$("#labelSRDiscount_"+counter).html("");
+	}
+}
+
+//Disable Item Option Value After Once Selected
+function disableItemOption(){
+
+	 $("#myTable > tbody > tr").each(function(i){
+	   $(".sRItemCode option").prop("disabled", false); //enable everything
+	
+	   var arr = $.map(
+	       $(".sRItemCode option:selected"), function (n) {
+	             return n.value;
+	   });
+	   
+	   $(".sRItemCode option").filter(function () {
+	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+	   }).hide();
+	
+	   $(".sRItemCode option").filter(function () {
+	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+	   }).show();
+	 })
+}
+
+//Enable Item Option Value After Remove 'myTable > tbody > tr'
+function displayItem(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".sRItemCode option:selected"), function (n) {
+			             return n.value;
+		 });
+		 $(".sRItemCode option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		  }).show();
+	})
+}
+
+//Check Quantity Value Is Not Alphabet Or Special Character
+function checkNumber(event) {
+	var currentId = event.currentTarget.id;
+	checkNum(currentId);
+}
+
+//Calculate Amount(Price * Quantity) Function
+function calculateAmount(event) {
+	var currentId = event.currentTarget.id;
+	var currentValue = event.currentTarget.value;
+	var l = currentId.split("_");
+	
+	var counter = l[1];
+	var price = $("#labelSRPrice_"+counter).val();
+	var quantity = $("#inputSRQuantity_"+counter).val();
+	var discount = $("#saleInvDiscount_"+counter).val();
+	var fullQty = $("#invQty_"+counter).val();
+	var total = (parseFloat(discount)/fullQty) * quantity;
+	if(price && quantity) {
+		 var mul = price * quantity;
+		 var newTotal = mul - total;
+		 $("#labelSRDiscount_"+counter).val((total).toFixed(2));
+		 $("#labelSRAmount_"+counter).val((newTotal).toFixed(2));
+		 calculateSubTotal();
+	} else {
+		 var mul = 0;
+		 var total = 0;
+		 var newTotal = mul - total;
+		 $("#labelSRAmount_"+counter).val((newTotal).toFixed(2));
+		 $("#labelSRDiscount_"+counter).val((total).toFixed(2));
+		 calculateSubTotal();
+	}
+} 
+
+//Calculate Sub Total Function
+/* function calculateSubTotal(){
+	var sum = 0;
+	$(".sRAmount").each(function(i){
+		sum = sum + parseFloat($(this).html());
+	})
+	$('#subTotal').html((sum).toFixed(2));
+	var gstRate = $("#gstRate").val();
+	var subTotal = $('#subTotal').html();
+	var igst = (subTotal * gstRate) / 100;
+	var gst = igst/2;
+	
+	var gstType = $("#gstType").val();
+	if(gstType=="true") {
+		$('#sRIGST').html((igst).toFixed(2));
+		$('#sRCGST').html("0.00");
+		$('#sRSGST').html("0.00");
+		var grandTotal = parseFloat(subTotal) + igst ;
+		$('#grandTotal').html((grandTotal).toFixed(2));
+	} else {
+		$('#sRIGST').html("0.00");
+		$('#sRCGST').html((gst).toFixed(2));
+		$('#sRSGST').html((gst).toFixed(2));
+		var grandTotal = parseFloat(subTotal) + gst + gst ;
+		$('#grandTotal').html((grandTotal).toFixed(2));
+	}
+} */
+
+//Compare All Quantity Function
+function quantityComparision(event){
+	var qty = event.currentTarget.value;
+	var currentId = event.currentTarget.getAttribute('id');
+	var l = currentId.split("_");
+	var counter = l[1];
+	var item = $("#"+currentId).closest('tr').find('select').eq(0).val();
+	var RQItemQty = $("#RQ_"+item).text();
+	var discount = $("#PQ_"+item).text();
+	discount = discount.replace(/\,/g,'');
+	var saleInvReturn = $('#saleInvReturn').val();
+		if(parseFloat(qty) >parseFloat(RQItemQty)){
+			swal({
+				title	: "Please..!!! Check Again..!",
+				text	: "Return Quantity Can't Be More Than Invoice Quantity.",
+				type	: "warning",
+			})
+			$("#"+currentId).val("");
+			$("#labelSRAmount_"+counter).html("0.00");
+			$("#labelSRDiscount_"+counter).html("0.00");
+			calculateSubTotal();
+			return false;
+		}
+		if(saleInvReturn) {
+			$("#inputSRDiscount_"+counter).val(discount);
+			$("#inputSRDisc_"+counter).val(RQItemQty);
+		}
+}
+
+//Check Duplicate Item Code At Edit Time
+function checkForDuplicate(event) {
+	var sRItemCode = event.currentTarget.value;
+	var count=0;
+	var sRItemCodeId=event.currentTarget.id;
+	var l = sRItemCodeId.split("_");
+	var counter = l[1];
+	$(".sRItemCode ").each(function(){
+		if(sRItemCode == $(this).val()){
+			count++;
+		}			
+	})
+	if(count>=2){
+		swal({
+				title	: "This Item Is Already Selected.",
+				text	: "So You Can't Select It Again...!!!",
+				type	: "warning",
+		})
+		$("#"+sRItemCodeId).val("");
+		
+	 }
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Sales Invoice Return Note</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Sales Invoice Return Note</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+								<input type="hidden" id="saleInvReturn" th:value="${saleInvReturn}">
+								<input type="hidden" id="gstRate" th:unless="${saleInvReturn}"> <input type="hidden" th:unless="${saleInvReturn}"
+								id="gstType">
+								<input type="hidden" id="gstRate" th:if="${saleInvReturn}" th:value="${salesInvoiceReturn[0].gstRate}"> <input type="hidden"
+								id="gstType" th:if="${saleInvReturn}" th:value="${salesInvoiceReturn[0].gstType}">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Sales Order</label> <input type="hidden" th:if="${saleInvReturn}" th:value="${salesInvoiceReturn[0].salesOrderId}"
+											id="salesOrderId" /> <input type="text" class="form-control" th:if="${saleInvReturn}" th:value="${salesInvoiceReturn[0].salesOrder}" th:disabled='${saleInvReturn}'
+											id="salesOrder" onkeyup="salesOrderAutoComplete();" autocomplete="off"/>
+											<input type="hidden" th:unless="${saleInvReturn}"
+											id="salesOrderId" /> <input type="text" class="form-control" th:unless="${saleInvReturn}"
+											id="salesOrder" onkeyup="salesOrderAutoComplete();" autocomplete="off"/>
+										<div id="suggesstion-box"></div>
+									</div>
+									<div class="form-group">
+										<label>Sales Invoice</label> <input type="hidden" th:if="${saleInvReturn}" th:value="${salesInvoiceReturn[0].saleInvId}"
+											id="saleInvId" /> <input type="text" class="form-control" th:if="${saleInvReturn}" th:value="${salesInvoiceReturn[0].saleInv}" th:disabled='${saleInvReturn}'
+											id="saleInv" onkeyup="saleInvoiceAutoComplete();" />
+											<input type="hidden" th:unless="${saleInvReturn}"
+											id="saleInvId" /> <input type="text" class="form-control" th:unless="${saleInvReturn}"
+											id="saleInv" onkeyup="saleInvoiceAutoComplete();" />
+										<div id="suggesstion-box1"></div>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Description</label>
+										<textarea name="" cols="" rows="" th:if="${saleInvReturn}" th:text="${salesInvoiceReturn[0].saleInvReturnDesc}"
+											class="form-control textarea" id="saleInvReturnDesc"></textarea>
+										<textarea name="" cols="" rows="" th:unless="${saleInvReturn}"
+											class="form-control textarea" id="saleInvReturnDesc"></textarea>
+									</div>
+								</div>
+							</div>
+							<!-- <div class="row">
+								<div class="col-lg-12">
+									<label id="trId" style="font-size: 20px;"><b>Sales
+											Invoice Details</b></label>
+									<table class="table table-bordered" id="table"
+										style="width: 100%;">
+										<thead id="tblHead">
+											<tr style="width: 100%;">
+												<th>Item Code</th>
+												<th>Item</th>
+												<th>Price</th>
+												<th>Quantity</th>
+												<th>Discount</th>
+												<th>Serve Type</th>
+												<th>Amount</th>
+											</tr>
+										</thead>
+										<tbody id="tblBody" th:if="${saleInvReturn}">
+											<tr th:each="a,iter:${saleInvoiceList}">
+												<td th:text="${a.saleItemCode}"></td>
+												<td th:text="${a.saleItem}"></td>
+												<td class="money" th:text="${#numbers.formatDecimal(a.salePrice, 0, 'COMMA', 2, 'POINT')}"></td>
+												<td th:text="${#numbers.formatInteger(a.saleQuantity,2,'POINT')}" class="quantityA" th:id="'RQ_'+${a.saleItemCode}"></td>
+												<td class="money" th:text="${#numbers.formatDecimal(a.saleDiscount, 0, 'COMMA', 2, 'POINT')}" th:id="'PQ_'+${a.saleItemCode}"></td>
+												<td th:text="${a.sServeType}"></td>
+												<td class="money" th:text="${#numbers.formatDecimal(a.saleAmount, 0, 'COMMA', 2, 'POINT')}"></td>
+											</tr>
+										</tbody>
+										<tbody id="tblBody" th:unless="${saleInvReturn}">
+											
+										</tbody>
+										<tbody id="tbodyTR">
+											<tr>
+												<td style="color: #e30f0f;" valign="top" align="center"
+													colspan="7"><b>No records found</b></td>
+											</tr>
+										</tbody>
+									</table>
+									<div style="clear: both;"></div>
+								</div>
+							</div> -->
+							<div class="row">
+								<div class="col-lg-12">
+									<label style="font-size: 20px;"><b>Sales Invoice
+											Return Details</b></label>
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Item Code</th>
+												<th>Item Name</th>
+												<th>Price</th>
+												<th>Sale Qty</th>
+												<th>Quantity</th>
+												<th class="hideThTd">Discount</th>
+												<th>GST</th>
+												<th>Cess</th>
+												<th>Serve Type</th>
+												<th>Amount</th>
+												<!-- <th>Action</th> -->
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<tr class="tr_clone" th:if="${saleInvReturn}" th:each="a,iter:${salesInvoiceReturn}">
+												<td><input th:id="selectSRItemCode_+${iter.index}" type="text"
+													class="form-control sRItemCode" th:value="${a.sRItemCode}" readonly></td>
+												<td><input type="text" class="form-control sRItemName" th:value="${a.sRItemName}"
+													th:id="labelSRItemName_+${iter.index}" readonly></td>
+												<td><input type="text" class="form-control sRItemPrice money" th:value="${a.sRItemPrice}"
+													th:id="labelSRPrice_+${iter.index}" readonly></td>
+												<td><input type="text" th:id="invQty_+${iter.index}" th:value="${a.saleQty}"
+													class="form-control  invQTYCls" value='' readonly></td>
+												<td><input type="text" th:id="inputSRQuantity_+${iter.index}" th:value="${a.sRItemQty}"
+													class="form-control  sRItemQty" onkeyup="checkReturnQty(event);calculateAmount(event);" value=''></td>
+												<td class="hideThTd"><input type="text" class="form-control sRDiscount money" th:value="${a.sRDiscount}"
+													th:id="labelSRDiscount_+${iter.index}" readonly><input type="hidden"
+													th:id="inputSRDisc_+${iter.index}" class="form-control srDisc" th:value="${a.saleQty}"><input type="hidden" th:id="${'saleInvDiscount_'+iter.index}" th:value="${a.saleDiscount}"></td>
+												<td><input type="text" th:id="gstRate_+${iter.index}" th:value="${a.gstRate}"
+													class="form-control  gstRateCls" value='' readonly></td>
+												<td><input type="text" th:id="cessAmount_+${iter.index}" th:value="${a.itemCess}"
+													class="form-control  cessAmountCls" value='' readonly></td>
+												<td><input type="text" class="form-control sRServeType" readonly th:value="${a.sRServeType}"
+													th:id="labelSRServetype_+${iter.index}"><input type="hidden" th:value="${a.sRServeTypeId}"
+													th:id="inputSRServetype_+${iter.index}" class="form-control sRServeTypeId"></td>
+												<td><input type="text" class="form-control sRAmount money" readonly th:value="${a.sRAmount}"
+													th:id="labelSRAmount_+${iter.index}"></td>
+											</tr>
+											
+											<tr class="tr_clone" th:unless="${saleInvReturn}">
+												<td><input id="selectSRItemCode_" type="text"
+													class="form-control sRItemCode" readonly></td>
+												<td><input type="text" class="form-control sRItemName"
+													id="labelSRItemName_" readonly></td>
+												<td><input type="text" class="form-control sRItemPrice money"
+													id="labelSRPrice_" readonly></td>
+												<td><input type="text" id="invQty_"
+													class="form-control  invQTYCls" value='' readonly></td>
+												<td><input type="text" id="inputSRQuantity_"
+													class="form-control  sRItemQty" value=''></td>
+												<td class="hideThTd"><input type="text" class="form-control sRDiscount money"
+													id="labelSRDiscount_" readonly><input type="hidden"
+													id="inputSRDiscount_" class="form-control sRdiscount"><input type="hidden"
+													id="inputSRDisc_" class="form-control srDisc"></td>
+												<td><input type="text" id="gstRate_"
+													class="form-control  gstRateCls" value='' readonly></td>
+												<td><input type="text" id="cessAmount_"
+													class="form-control  cessAmountCls" value='' readonly></td>
+												<td><input type="text" class="form-control sRServeType" readonly
+													id="labelSRServetype_"><input type="hidden"
+													id="inputSRServetype_" class="form-control sRServeTypeId"></td>
+												<td><input type="text" class="form-control sRAmount money" readonly
+													id="labelSRAmount_"></td>
+												<!-- <td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td> -->
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-6"></div>
+								<div class="col-lg-6" align="right">
+									<table width="450px">
+										<tbody>
+											<tr th:if="${saleInvReturn}">
+												
+												<td width="50%" align="center"><label>Sub Total</label></td>
+												<td width="40%"><label id="subTotal"
+													class="form-control subTotal money" th:text="${salesInvoiceReturn[0].subTotal}">0.00</label></td>
+												
+											</tr>
+											<tr th:unless="${saleInvReturn}">
+												
+												<td width="50%" align="center"><label>Sub Total</label></td>
+												<td width="40%"><label id="subTotal"
+													class="form-control subTotal money">0.00</label></td>
+											</tr>
+											<tr th:if="${saleInvReturn}" class="hideThTd">
+												<td width="50%" align="center"><label>Discount</label></td>
+												<td width="40%"><label id="totalDiscount"
+													class="form-control totalDiscount money" th:text="${salesInvoiceReturn[0].subTotal}">0.00</label></td>
+											</tr>
+											<tr th:unless="${saleInvReturn}" class="hideThTd">
+												<td width="50%" align="center"><label>Discount</label></td>
+												<td width="40%"><label id="totalDiscount"
+													class="form-control totalDiscount money">0.00</label></td>
+											</tr>
+											<tr id="IgstTR" th:if="${saleInvReturn} and ${salesInvoiceReturn[0].gstType}">
+												<td width="50%" align="center"><label id="labelIgst" >IGST</label></td>
+												<td width="40%"><label id="sRIGST"
+													class="form-control igst money" th:text="${salesInvoiceReturn[0].sRIGST}">0.00</label></td>
+											</tr>
+											<tr id="IgstTR" th:if="${saleInvReturn} and ${!salesInvoiceReturn[0].gstType}">
+												<td width="50%" align="center"><label id="labelIgst" >IGST</label></td>
+												<td width="40%"><label id="sRIGST"
+													class="form-control igst money" th:text="${salesInvoiceReturn[0].sRIGST}">0.00</label></td>
+											</tr>
+											<tr id="IgstTR" th:unless="${saleInvReturn}">
+												<td width="50%" align="center"><label id="labelIgst">IGST</label></td>
+												<td width="40%"><label id="sRIGST"
+													class="form-control igst money">0.00</label></td>
+											</tr>
+											<tr id="CgstTR" th:if="${saleInvReturn} and ${salesInvoiceReturn[0].gstType}">
+												<td width="50%" align="center"><label id="labelCgst">CGST</label></td>
+												<td width="40%"><label id="sRCGST"
+													class="form-control cgst money" th:text="${salesInvoiceReturn[0].sRCGST}">0.00</label></td>
+											</tr>
+											<tr id="CgstTR" th:if="${saleInvReturn} and ${!salesInvoiceReturn[0].gstType}">
+												<td width="50%" align="center"><label id="labelCgst" >CGST</label></td>
+												<td width="40%"><label id="sRCGST"
+													class="form-control cgst money" th:text="${salesInvoiceReturn[0].sRCGST}">0.00</label></td>
+											</tr>
+											<tr id="CgstTR" th:unless="${saleInvReturn}">
+												<td width="50%" align="center"><label id="labelCgst">CGST</label></td>
+												<td width="40%"><label id="sRCGST"
+													class="form-control cgst money" >0.00</label></td>
+											</tr>
+											<tr id="SgstTR" th:if="${saleInvReturn} and ${salesInvoiceReturn[0].gstType}">
+												<td width="50%" align="center"><label id="labelSgst" >SGST</label></td>
+												<td width="40%"><label id="sRSGST"
+													class="form-control sgst money" th:text="${salesInvoiceReturn[0].sRSGST}">0.00</label></td>
+											</tr>
+											<tr id="SgstTR" th:if="${saleInvReturn} and ${!salesInvoiceReturn[0].gstType}">
+												<td width="50%" align="center"><label id="labelSgst" >SGST</label></td>
+												<td width="40%"><label id="sRSGST"
+													class="form-control sgst money" th:text="${salesInvoiceReturn[0].sRSGST}">0.00</label></td>
+											</tr>
+											<tr id="SgstTR" th:unless="${saleInvReturn}">
+												<td width="50%" align="center"><label id="labelSgst">SGST</label></td>
+												<td width="40%"><label id="sRSGST"
+													class="form-control sgst money">0.00</label></td>
+											</tr>
+											<tr th:if="${saleInvReturn}">
+												<td width="50%" align="center"><label>Cess</label></td>
+												<td width="40%"><label id="totalCess"
+													class="form-control totalCess money" th:text="${salesInvoiceReturn[0].totalCess}">0.00</label></td>
+											</tr>
+											<tr th:unless="${saleInvReturn}">
+												<td width="50%" align="center"><label>Cess</label></td>
+												<td width="40%"><label id="totalCess"
+													class="form-control totalCess money">0.00</label></td>
+											</tr>
+											<tr th:if="${saleInvReturn}">
+												<td width="50%" align="center"><label>Grand Total</label></td>
+												<td width="40%"><label id="grandTotal"
+													class="form-control grandTotal money" th:text="${salesInvoiceReturn[0].grandTotal}">0.00</label></td>
+											</tr>
+											<tr th:unless="${saleInvReturn}">
+												<td width="50%" align="center"><label>Grand Total</label></td>
+												<td width="40%"><label id="grandTotal"
+													class="form-control grandTotal money">0.00</label></td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+	</div>
+</div>
+</html>

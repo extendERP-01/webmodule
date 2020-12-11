@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+
+/*
+*excel download
+*/
+
+
+function downloadExcel(){
+	var param1 =$("#param1").val() ;
+	var param2 = $("#param2").val();
+	var param3 = $("#param3").val();
+	var param4 = $("#param4").val();
+	
+	window.open("view-ledger-report-download-excel?param1="+param1+"&param2="+param2+"&param3="+param3+"&param4="+param4, '_blank');
+}
+
+
+//PDF Print Function
+function pdfCreation(){
+	var param1 =$("#param1").val() ;
+	var param2 = $("#param2").val();
+	var param3 = $("#param3").val();
+	var param4 = $("#param4").val();
+	
+	window.open("download-ledger-report?param1="+param1+"&param2="+param2+"&param3="+param3+"&param4="+param4, '_blank');
+}
+
+
+
+
+
+	$(document).ready(function() {
+	
+		$('#tblLedger').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'preview-ledger-report-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+					d.param3 = $('#param3').val();
+					d.param4 = $('#param4').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [
+
+			{
+				'data' : 'costCenter'
+			}, {
+				'data' : 'invoice'
+			}, {
+				'data' : 'accountHead'
+			}, {
+				'data' : 'regestrationId'
+			}, {
+				'data' : 'registrationType'
+			}, {
+				'data' : 'group'
+			}, {
+				'data' : 'ledgerType'
+			}, {
+				'data' : 'notes'
+			}, {
+				'data' : 'totalAmount'
+			}, {
+				'data' : 'voucherNumber'
+			}, {
+				'data' : 'bank'
+			}, {
+				'data' : 'paymentMode'
+			}, {
+				'data' : 'referenceNumber'
+			}, {
+				'data' : 'transactionId'
+			}, {
+				'data' : 'transactionDate'
+			}, {
+				'data' : 'paymentStatus'
+			}, {
+				'data' : 'createdBy'
+			}, {
+				'data' : 'createdOn'
+			} 
+			]
+		});
+	});
+	function searchData() {
+		$('#tblLedger').DataTable().draw();
+	} 
+	
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>Ledger Report Preview</span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>Report Preview Details</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+			
+			
+				<div align="right">
+				<a href="javascript:void(0)" target='_blank'
+						data-toggle='tooltip' title='Download Pdf'
+						data-placement='bootom' data-orginal-title='Downlaod' onclick="pdfCreation()"> <i
+						class='fa fa-download' style='font-size: 50px' ></i></a>
+					 <a
+						href="javascript:void(0)" data-toggle="tooltip"
+						title="Download Excel" target="_blank" data-placement="bottom"
+						onclick="downloadExcel()"> <i class="fa fa-file-pdf-o"
+						style='font-size: 50px'></i></a>
+
+				</div>
+				<input type="hidden" id="param1" th:value="${param1}">
+				<input type="hidden" id="param2" th:value="${param2}">
+				<input type="hidden" id="param3" th:value="${param3}">
+				<input type="hidden" id="param4" th:value="${param4}">
+				
+				<div class="row">
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblLedger" class="table  table-bordered">
+							<thead>
+								
+							<tr>
+								
+								<th>Cost Center</th>
+								<th>Invoice</th>
+								<th>AccountHead Id</th>
+								<th>Registration No.</th>
+								<th>Registration Type</th>
+								<th>Group</th>
+								<th>Ledger Type</th>
+								<th>Notes</th>
+								<th>Total Amt</th>
+								<th>Voucher No.</th>
+								<th>Bank</th>
+								<th>Pay Mode</th>
+								<th>Ref No.</th>
+								<th>Transc Id</th>
+								<th>Transac date</th>
+								<th>Payment Status</th>
+								<th>Created By</th>
+								<th>Created On</th>
+
+
+							</tr>
+							</thead>
+
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		
+		<!-- Modal End-->
+
+
+	</div>
+</div>
+</html>

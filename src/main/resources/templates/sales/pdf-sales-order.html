@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Sales Order</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 11px;
+}
+
+.maintbl tr td {
+	/*border: 1px solid black;*/
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.theader-padding {
+	padding: 10px 5px;
+	background: #f5f5f5;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	padding: 13px;
+	text-align: center;
+}
+
+.wrapper {
+	margin: 0 auto;
+	width: 900px;
+	padding: 20px 40px;
+	position: relative;
+}
+
+.paid-red {
+	position: absolute;
+	right: 0px;
+	top: 0;
+	z-index: 9999;
+}
+/* .header{
+height: 130px;
+} */
+/* .logo{
+float: left;
+} */
+.hrline {
+	border: 2px solid #cccccc;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.tableheader {
+	padding: 10px 5px;
+	color: #418AB3;
+	font-weight: 600;
+	background: #f5f5f5;
+	border-bottom: 1px solid #ccc;
+	border-top: 10px solid #FFF;
+	text-align: center;
+}
+
+.bill {
+	text-align: left;
+	color: #000 !important;
+	font-size: 24px;
+	padding-left: 25px;
+}
+
+.invoicedate {
+	color: #fff;
+	text-align: left;
+	padding: 5px;
+}
+
+.mailing {
+	height: 100px;
+	padding: 10px;
+	color: #fff;
+	text-align: right;
+}
+
+.strip2 {
+	width: 800px;
+	padding-left: 17px;
+	font-size: 14px;
+	color: #418ab3;
+	text-align: center;
+	margin: 19px;
+}
+
+.td-border {
+	border-bottom: 1px solid #BABABA;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.text-style {
+	color: #3B494A;
+	font-size: 12px;
+	padding: 10px;
+}
+
+.tStyle {
+	color: #418AB3;
+	font-size: 15px;
+	padding: 15px 10px;
+}
+
+.pdt {
+	padding: 4px;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	margin-right: 180px;
+	color: #418AB3;
+}
+
+.text-style2 {
+	background-color: #f2f2f2;
+	padding: 10px;
+	color: #373757;
+}
+
+.btn-danger {
+	color: #fff !important;
+	background: #d9534f !important;
+	box-shadow: none !important;
+}
+
+.textarea {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	padding: 8px;
+}
+
+.end-column {
+	height: 1px;
+	border-right: 1px solid #BABABA;
+	text-align: right;
+	width: 126px;
+	font-size: 12px;
+}
+
+.tableheader-color {
+	font-size: 12px;
+	color: #fff;
+	font-weight: 600;
+	padding: 10px 5px;
+	text-align: center;
+}
+.billCls {
+	padding-left: 20px;
+	align: left;
+	font-size: 12px;
+	width: 80px;
+}
+</style>
+
+
+</head>
+<body>
+	<table cellpadding="0" cellspacing="0" style="width: 700px;">
+		<tr>
+			<td colspan="3"><img
+				src="@{classpath:static/assets/images/paid-red.png" /></td>
+		</tr>
+		<tr>
+			<td colspan="2"><img
+				th:src="@{classpath:static/assets/images/login_img/extend.png}" height="80" width="150" /></td>
+			<td class="bill" bgcolor="">Sales Order</td>
+
+		</tr>
+		<tr>
+			<td class="invoicedate" width="230" bgcolor="#5c2e14">SALES ORDER : #<span
+				th:text="${quotation[0].salesOrder}"></span>
+			</td>
+			<td class="invoicedate" width="180" bgcolor="#5c2e14"></td>
+			<td class="invoicedate" width="180" bgcolor="#5c2e14"></td>
+			<!-- <td class="invoicedate" bgcolor="88BBD7">PO : #<span th:text="${quotation[0].purchaseOrder}"></span> </td>-->
+
+		</tr>
+		 <tr>
+			<td colspan="3">
+				<table width="100%" bgcolor="#F2F2F2"
+					style="padding-bottom: 30px; padding-top: 10px;">
+
+					<tr>
+						<td colspan="2" class="pdt" width="250"><b class="tStyle">TO</b><span></span>
+
+						</td>
+						<td colspan="2" class="pdt" width="350"><b class="tStyle">FROM</b><span></span>
+
+						</td>
+					</tr>
+					<tr>
+
+						<td class="billCls"><strong>Name</strong></td>
+						<td width="170" th:text="${custList[0].custName}"></td>
+						<td class="billCls"><strong>Name</strong></td>
+						<td width="270" th:text="${hotelList[0].hotelName}"></td>
+					</tr>
+					<tr>
+
+
+						<td class="billCls"><strong>State</strong></td>
+						<td width="170" th:text="${custList[0].custAddress}"></td>
+						<td class="billCls"><strong>Street</strong></td>
+						<td width="200" th:text="${hotelList[0].hotelAddress}"></td>
+					</tr>
+
+					<tr>
+
+						<td class="billCls"><strong>Country</strong></td>
+						<td width="170" th:text="${custList[0].custCountry}"></td>
+						<td class="billCls"><strong>City</strong></td>
+						<td width="270" th:text="${hotelList[0].hotelCity}"></td>
+					</tr>
+
+					<tr>
+
+
+
+						<td class="billCls"><strong>Mobile No</strong></td>
+						<td width="170" th:text="${custList[0].custPhn}"></td>
+						<td class="billCls"><strong>Phone No</strong></td>
+						<td width="270" th:text="${hotelList[0].hotelPhn}"></td>
+					</tr>
+
+					<tr>
+						<td class="billCls"><strong>GST No</strong></td>
+						<td width="170" th:text="${custList[0].custGSTIn}"></td>
+						<td class="billCls"><strong>GST No</strong></td>
+						<td width="270" th:text="${hotelList[0].hotelGSTIn}"></td>
+					</tr>
+					<tr>
+						<td class="billCls"><strong>Gmail</strong></td>
+						<td width="170" th:text="${custList[0].custGmail}"></td>
+						<td class="billCls"></td>
+						<td width="270"></td>
+					</tr>
+
+
+				</table>
+			</td>
+		</tr>
+
+		<tr>
+
+			<td colspan="3">
+
+				<table id="id_td" class="maintbl" cellpadding="0" cellspacing="0"
+					style="width: 704px;">
+					<thead style="background-color: #5c2e14;">
+						<tr>
+							<th class="tableheader-color" width="50" align="left">SL NO.</th>
+							<th class="tableheader-color" width="100" align="left">ITEM
+								NAME</th>
+							<th class="tableheader-color" width="100" align="left">ITEM
+								CODE</th>
+							<th class="tableheader-color" width="100" align="left">PRICE</th>
+							<th class="tableheader-color" width="100" align="left">QUANTITY</th>
+							<th class="tableheader-color" width="100" align="left">DISCOUNT</th>
+							<th class="tableheader-color" width="100" align="left">GST</th>
+							<th class="tableheader-color" width="100" align="left">SERVE
+								TYPE</th>
+							<th class="tableheader-color" width="100" align="left">AMOUNT</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="other,iter : ${quotation}">
+							<td class="td-border td-border-right" th:text=" ${iter.index+1}"></td>
+
+							<td class="td-border td-border-right" th:text="${other.itemName}"></td>
+							<td class="td-border td-border-right" th:text="${other.itemCode}"></td>
+							<td class="td-border td-border-right"
+								th:text="${#numbers.formatDecimal(other.unitPrice, 0, 'COMMA', 2, 'POINT')} "></td>
+							<td class="td-border td-border-right" th:text="${other.quantity}"></td>
+							<td th:if="${other.discount!=0.0}"
+								class="td-border td-border-right"
+								th:text="${#numbers.formatDecimal(other.discount, 0, 'COMMA', 2, 'POINT')}"></td>
+							<td th:unless="${other.discount!=0.0}"
+								class="td-border td-border-right">0.00</td>
+							<td th:if="${other.itemGST!=0.0}"
+								class="td-border td-border-right" th:text="${other.itemGST}"></td>
+							<td th:unless="${other.itemGST!=0.0}"
+								class="td-border td-border-right">0</td>
+							<td class="td-border td-border-right"
+								th:text="${other.qServeType}"></td>
+							<td class="td-border td-border-right end-column"
+								th:text="${#numbers.formatDecimal(other.lineTotal, 0, 'COMMA', 2, 'POINT')}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+
+
+		</tr>
+		<tr bgcolor="#F2F2F2">
+			<td colspan="3">
+
+				<table style="width: 700px;">
+					<tr>
+						<td width="300" style="padding: 10px 0px;">
+							<div style="color: #418AB3; padding: 8px 0px;">
+								<strong>NOTE</strong>
+							</div>
+							<div>
+								<textarea class="form-control textarea"
+									th:text="${quotation[0].qNote}" readonly="readonly"></textarea>
+							</div>
+						</td>
+						<td align="center" width="230"></td>
+						<td width="270" align="right">
+							<table cellpadding="0" cellspacing="0" width="270">
+								<tr>
+									<td width="115" style="color: #418AB3;"><b>SUB TOTAL</b></td>
+
+									<td width="130" align="right"><span style="border: none"
+										id="subtotalamount"
+										th:text="${#numbers.formatDecimal(quotation[0].subTotal, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+								<tr id="CgstTR" th:if="${!quotation[0].taxType}">
+									<td width="115" style="color: #418AB3;"><b>CGST</b></td>
+
+									<td width="130" align="right"><span style="border: none"
+										id="cgst"
+										th:text="${#numbers.formatDecimal(quotation[0].qCGST, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+
+								<tr id="SgstTR" th:if="${!quotation[0].taxType}">
+									<td width="115" style="color: #418AB3;"><b>SGST</b></td>
+
+									<td width="130" align="right"><span style="border: none"
+										id="sgst"
+										th:text="${#numbers.formatDecimal(quotation[0].qSGST, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+
+								<tr id="IgstTR" th:if="${quotation[0].taxType}">
+									<td width="115" style="color: #418AB3;"><b>IGST</b></td>
+
+									<td width="130" align="right"><span style="border: none"
+										id="igst"
+										th:text="${#numbers.formatDecimal(quotation[0].qIGST, 0, 'COMMA', 2, 'POINT')}"></span></td>
+								</tr>
+
+								<tr>
+									<td width="115" style="color: #418AB3;"><b>GRAND TOTAL</b></td>
+
+									<td width="130" align="right"><span style="border: none"
+										id="grandtamt"
+										th:text="${#numbers.formatDecimal(quotation[0].grandTotal, 0, 'COMMA', 2, 'POINT')}"></span></td>
+
+								</tr>
+
+							</table>
+						</td>
+					</tr>
+
+
+				</table>
+			</td>
+		</tr>
+
+		<tr>
+			<td colspan="3">
+				<table id="" class="maintbl" cellpadding="1" cellspacing="1"
+					style="width: 700px;">
+					<thead style="background-color: #5c2e14;">
+						<tr>
+							<th class="tableheader-color">TRANSACTION DATE</th>
+							<th class="tableheader-color">PAYMENT MODE</th>
+							<th class="tableheader-color">REFERENCE NO</th>
+							<th class="tableheader-color">AMOUNT</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="other,iter : ${saleOrderAdvancePaymentModelList}">
+							<td><span th:text="${other.transactionDate}"></span></td>
+							<td><span th:text="${other.paymentModel}"></span></td>
+							<td><span th:text="${other.refNo}"></span></td>
+							<td align="right"><span><b
+									th:text="${#numbers.formatDecimal(other.amount, 0, 'COMMA', 2, 'POINT')}"></b></span></td>
+						</tr>
+					</tbody>
+				</table>
+			</td>
+		</tr>
+
+	</table>
+
+</body>
+</html>

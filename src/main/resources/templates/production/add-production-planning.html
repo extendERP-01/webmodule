@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 325px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 170px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.modal-heading {
+	font-size: 20px;
+	font-weight: 600 !important;
+	color: #28a745;
+}
+
+.money {
+	text-align: right;
+}
+
+.first-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 100px;
+}
+
+.second-section {
+	background-color: #fff;
+	box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+	margin: 10px 0px;
+	padding: 0px;
+	height: 130px;
+}
+
+.text-heading {
+	background-color: #d1e3f5;
+	padding: 1px;
+	text-align: center;
+	margin-bottom: 14px;
+}
+
+.text-heading h4 {
+	font-size: 16px;
+	font-weight: 600;
+	color: #2c61e0;
+	padding-top: 7px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	border: 1px solid #FFF;
+	text-align: center;
+	font-weight: bold;
+}
+
+/* td input {
+	width: 70px;
+} */
+</style>
+
+<script>
+$(document).ready(function() {
+	$("#fromDate").datetimepicker({
+		format: 'd-m-Y',
+		closeOnDateSelect: true,
+		timepicker: false,
+	});
+	$("#toDate").datetimepicker({
+		format: 'd-m-Y',
+		closeOnDateSelect: true,
+		timepicker: false,
+	});
+	//submit button function through ajax 
+	$("#submit").click(function() {
+		var dataset = [];
+		$("#tblid > tr").each(function() {
+			assign = {};
+			assign['fromDate'] = $("#fromDate").val();
+			assign['storeId'] = $("#storeId").val();
+			assign['toDate'] = $("#toDate").val();
+			assign['ppId'] = $("#ppId").val(); 
+			assign['itemId'] = $(this).find(".itemIdCls").val();
+			assign['prodQuantity'] = $(this).find(".prodQuantityCls").val();
+			assign['batchCode'] = $(this).find(".batchCodeCls").val();
+			assign['batchQty'] = $(this).find(".batchQuantityCls").val();
+			 
+			dataset.push(assign);
+			console.log("data set " + assign)
+		}); //table tbody tr loop ends  
+		submitAddPlanning(dataset);
+	})
+	
+	
+		//submit button function through ajax 
+	$("#save").click(function() {
+		var dataset = [];
+		$("#tblid1 > tr").each(function() {
+			assign = {};
+		 
+			assign['rawMaterialId'] = $(this).find(".rawItemIdCls").val();
+			assign['rawMaterialQty'] = $(this).find(".rawProdQuantityCls").val();
+			assign['batchCode'] = $(this).find(".rawProdQuantityCls").val();
+			assign['storeId'] = $("#storeId").val();
+			 
+			dataset.push(assign);
+			console.log("data set " + assign)
+		}); //table tbody tr loop ends  
+		submitRawData(dataset);
+	})
+})
+
+function submitAddPlanning(dataset) { 
+	swal.fire({
+			title: "Are you sure want to Submit?",
+			text: "Once Submited,Can't revert back !",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#DD6BB5",
+			confirmButtonText: "Submit",
+			reverseButtons: true,
+			confirmButtonAriaLabel: 'Thumbs up, great!',
+			cancelButtonText: 'Cancel',
+			cancelButtonAriaLabel: 'Thumbs down',
+		}).then((result) => {
+			if(result.value) {
+				$.ajax({
+						type: "POST",
+						url: "add-production-planning-ajax",
+						dataType: "json",
+						contentType: "application/json",
+						data: JSON.stringify(dataset),
+						success: function(response) {
+							console.log(response)
+							if(response.message == "Success") {
+								swal({
+									title: "Data Saved Successfully.",
+									type: "success",
+								}).then(function() {
+									window.location.href = "/production/view-production-planning";
+								})
+							} else {
+								swal({
+									title: response.code,
+									text: response.message,
+									type: "warning"
+								})
+							}
+						},
+						error: function(data) {
+							console.log(data);
+						}
+					}) //ajax ends
+			}
+		}) //swal function block ends
+} //submit function ends
+
+
+function submitRawData(dataset) { 
+	swal.fire({
+			title: "Are you sure want to Submit?",
+			text: "Once Submited,Can't revert back !",
+			type: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#DD6BB5",
+			confirmButtonText: "Submit",
+			reverseButtons: true,
+			confirmButtonAriaLabel: 'Thumbs up, great!',
+			cancelButtonText: 'Cancel',
+			cancelButtonAriaLabel: 'Thumbs down',
+		}).then((result) => {
+			if(result.value) {
+				$.ajax({
+						type: "POST",
+						url: "add-production-planning-save-raw-data",
+						dataType: "json",
+						contentType: "application/json",
+						data: JSON.stringify(dataset),
+						success: function(response) {
+							console.log(response)
+							if(response.message == "Success") {
+								swal({
+									title: "Data Saved Successfully.",
+									type: "success",
+								}).then(function() {
+									location.reload();
+									//window.location.href = "/production/view-production-planning";
+								})
+							} else {
+								swal({
+									title: response.code,
+									text: response.message,
+									type: "warning"
+								})
+							}
+						},
+						error: function(data) {
+							console.log(data);
+						}
+					}) //ajax ends
+			}
+		}) //swal function block ends
+}
+
+
+//For Getting The purchase OrderList in table
+function getProductionDetails() {
+	$('#tblid').empty();
+	$('#tbdy').empty();
+	var fromDate = $("#fromDate").val();
+	var storeId = $("#storeId").val(); 
+	if(fromDate != null ) {
+		$.ajax({
+			type: 'GET',
+			url: 'add-production-planning-getProduction-details?fromDate=' + fromDate + '&plantId=' + storeId,
+			contentType: 'application/json',
+			success: function(response) {
+				if(response.message == "Success") {
+					if(response.body != null) {
+						for(var i = 0; i < response.body.length; i++) {
+							var table = '  <tr><td><input type="text" class="itemNameCls form-control" value="' + response.body[i].itemName + '" id="itemName_'+i+'"  readonly> ' 
+							+ '<input type="hidden" class="itemIdCls form-control" value=' + response.body[i].itemId + ' id="itemId_'+i+'" ></td> ' 
+							+ ' <td ><input type="text"  class="reqQuantity form-control" value=' + response.body[i].reqQuantity + ' id="reqQuantity_'+i+'"  readonly></td> ' 
+							+ ' <td><input type="text" onKeyup = "getBatchQty(event)" class="prodQuantityCls form-control"  id="prodQuantity_'+i+'"  value=""></td>'
+							+ ' <td><input type="text"  class="batchQuantityCls form-control"  id="batchQuantity_'+i+'" onchange="saveTempData('+i+')"  value="">'
+							+' <input type="hidden"  class="batchCodeCls form-control"  id="batchCode_'+i+'"  value="' + response.body[i].batchCode + '" > </td>'
+							/* + ' <td align="center"><input type="button"  class="btn btn-success"  id="pbatchQuantity_'+i+'"  onclick="getDetails(event)" value="Add Details" > </td>' */
+							+ '</tr> ';
+							$('#tblid').append(table);
+						}
+					} else {
+						var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+						$('#tblid').append(noData);
+					}
+				} else {
+					var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+					$('#tblid').append(noData);
+				}
+			},
+			error: function(e) {
+				console.log("error");
+			}
+		});
+	} else {
+		var noData = '<tr> <td colspan="5"><div class="norecord">No Record Found</div></td> </tr>';
+		$('#tblid').append(noData);
+	}
+}
+
+function getDetails() { 
+	 
+	var index = $("#storeId").val();
+
+	$('#table1').empty();
+	if(index){
+		$.ajax({
+			type : "POST",
+			url : "add-production-planning-get-raw-details",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : index,
+			success : function(response) {
+				if (response.message == "Success") {
+					console.log(response.body)
+					 		table = '<tr><th><b>Raw Item Name</b></th> <th><b>Quantity</b></th><th><b>Serve Type</b></th>' ;
+							
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+							
+							
+							for(var i = 0; i < response.body.length; i++) {
+								var table = '<tbody id="tblid1"> <tr>  <td  ><input type="text" class="rawItemNameCls form-control" value="' + response.body[i].rawMaterialName + '" id="itemName_'+i+'" readonly> ' 
+								+ '<input type="hidden" class="rawItemIdCls form-control" value="' + response.body[i].rawMaterialId + '" id="itemId_'+i+'">'
+								+'<input type="hidden" class="rawBatchCodeCls" value="' + response.body[i].batchCode + '" id="batchCode_'+i+'"></td> ' 
+								 + ' <td><input type="text"  class="rawProdQuantityCls form-control"  id="prodQuantity_'+i+'" value="' + response.body[i].rawMaterialQty + '" ></td>'
+								 + ' <td><input type="text"  class="pservetypeCls form-control"  id="serveType_'+i+'" value="' + response.body[i].serveType + '" readonly></td>'
+								  + '</tr> <tbody>';
+								$('#myModal').modal('show');
+								$('#table1').append(table);
+							}
+					
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+
+}
+
+function saveTempData(counter){
+	    
+	    var batchCode = $("#batchCode_"+counter).val();
+	    var batchQuantity = $("#batchQuantity_"+counter).val();
+	    var storeId = $("#storeId").val();
+	    var fromDate = $("#fromDate").val();
+ 
+		if(batchCode && batchQuantity){
+			$.ajax({
+				type : "POST",
+				url : "add-production-planning-add-raw-details?batchCode="+batchCode +"&batchQuantity="+batchQuantity +"&storeId="+storeId +"&fromDate="+fromDate,
+				dataType : 'json',
+				contentType : 'application/json', 
+				success : function(response) {
+					if (response.message == "Success") {
+						 
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+		}
+}
+
+function getBatchQty(event) { 
+	var currentQtyFldId = event.currentTarget.getAttribute('id');
+    var l = currentQtyFldId.split("_");
+    var counter = l[1];
+    var prodQty = $("#prodQuantity_"+counter).val();
+    var batchQty = $("#batchCode_"+counter).val();
+
+	$('#table1').empty();
+	if(prodQty){
+		$.ajax({
+			type : "GET",
+			url : "add-production-planning-get-batch?batchQty="+batchQty +"&prodQty="+prodQty,
+			dataType : 'json',
+			contentType : 'application/json', 
+			success : function(response) {
+				if (response.message == "Success") { 
+					$("#batchQuantity_"+counter).val(response.body.name);
+					saveTempData(counter);
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+
+}
+
+</script>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Production Planning</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Production Planning</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form>
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Store Name</label> <select class="form-control"
+												id="storeId">
+												<option th:value="NULL">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${MCoilBatchLists}"
+													th:value='${c.name}' th:text="${c.name}"
+													th:selected="${c.name==mCoilList[0].planId}"></option>
+												<option th:unless="${Edit}" th:each="c:${storeList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+
+											</select>
+
+										</div>
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+
+
+											<input type="hidden" th:if="${Edit}" id="ppId"
+												th:value="${planningList[0].ppId}" /> <label> Date</label>
+											<input type="text" readonly th:if="${Edit}" id="fromDate"
+												class="form-control" th:value="${planningList[0].fromDate}">
+											<input type="text" readonly th:unless="${Edit}" id="fromDate"
+												class="form-control" onchange="getProductionDetails()">
+
+										</div>
+									</div>
+									<!-- <div class="col-lg-4">
+										<div class="form-group">
+											<label>To Date</label> <input type="text" readonly
+												th:if="${Edit}" id="toDate" class="form-control"
+												th:value="${planningList[0].toDate}"> <input
+												type="text" readonly th:unless="${Edit}" id="toDate"
+												class="form-control" onchange="getProductionDetails()">
+										</div>
+									</div> -->
+
+
+								</div>
+
+								<div class="row">
+									<div class="col-md-12">
+
+										<Strong>Requisition Details</Strong>
+										<div style="width: 100%;">
+											<table id="myTable1" width="100%" border="0" cellspacing="1"
+												cellpadding="0">
+
+												<tr>
+													<th class="tableheader" align="center">Item Name</th>
+													<th class="tableheader" align="center">Requisition
+														Quantity</th>
+													<th class="tableheader" align="center">Production
+														Quantity</th>
+													<th class="tableheader" align="center">Batch Quantity</th>
+													<!-- <th class="tableheader" align="center">Action</th> -->
+
+												</tr>
+												<tbody id="tblid">
+													<tr>
+														<td colspan="5"><div class="norecord">No Record
+																Found</div></td>
+													</tr>
+												</tbody>
+
+												<tbody id="tblid" th:if="${planningList !=null}">
+													<!-- <tr class="tr_clone" th:if="${Edit}"
+													th:each="a,iter:${planningList}">
+													<td bgcolor="#F5F5F5"><input type="text" class="size"
+														th:value="${a.size}"> <input type="hidden"
+														class="sizeId" th:value="${a.sizeId}"></td>
+													<td bgcolor="#F5F5F5"><input type="text"
+														th:value="${a.slitGrade09}" class="slitGrade09"></td>
+													<td bgcolor="#F5F5F5"><input type="text"
+														th:value="${a.mcoilGrade09}" class="mcoilGrade09"></td>
+
+
+												</tr> -->
+
+												</tbody>
+
+
+
+											</table>
+										</div>
+									</div>
+
+								</div>
+
+								<div class="row" style="margin-top: 10px;">
+									<div class="col-md-12">
+										<div class="form-group">
+											<button type="button" id="edit" onclick="getDetails()"
+												class="btn btn-success">Edit Raw Material</button>
+											<button type="button" id="submit" class="btn btn-success">Submit</button>
+											<input type="reset" value="Cancel" class="btn btn-warning"
+												onclick="window.location.reload();" />
+										</div>
+									</div>
+								</div>
+
+
+							</form>
+							<!-- Modal Start-->
+							<div id="myModal" class="modal fade" role="dialog">
+								<div class="modal-dialog" style="margin: 30px 300px;">
+									<!-- Modal content-->
+									<div class="modal-content" style="width: 750px;">
+										<div class="modal-header">
+											<h4 class="modal-title modal-heading">View Raw Material
+												Details</h4>
+											<button type="button" class="close" data-dismiss="modal">&times;</button>
+										</div>
+										<div class="modal-body">
+											<table style="width: 100%; border: 0;" id="table1">
+											</table>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-success"
+												data-dismiss="modal" id="save">Save</button>
+											<button type="button" class="btn btn-default"
+												data-dismiss="modal">Close</button>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- Modal End-->
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

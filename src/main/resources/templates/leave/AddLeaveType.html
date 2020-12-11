@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head> 
+<script> 
+function validateForm(){ 
+	
+	 if (!blankValidation("lTypeName","TextField", "Leave Type Name can not be left blank"))
+        return false;
+	 
+	 if (!blankValidation("lTypePeriod","TextField", "Leave Period can not be left blank"))
+	        return false;
+	 
+	 if (!blankValidation("isadminAssign","SelectBox", "Please Select Is Admin can Assign."))
+	        return false;
+	 
+	 if (!blankValidation("isEmpApply","SelectBox", "Please Select Is Employee Apply."))
+	        return false;
+	 
+	 if (!blankValidation("isEmpAlyMoreThanALeave","SelectBox", "Please Select  Is Employee Apply More than Leave Avail."))
+	        return false;
+	 
+	 if (!blankValidation("lAccrueEnb","SelectBox", "Please Select Leave Accrue Enable."))
+	        return false;
+	 
+	 if (!blankValidation("lCarriedFwd","SelectBox", "Please Select Leave carried Forward."))
+	        return false;
+	 
+	 if (!blankValidation("lCarriedFwdPercnt","TextField", "Carried Forward Percent can not be left blank"))
+	        return false;
+	     
+ 	 if (!blankValidation("maxCaryFwdAmt","TextField", "Max Carried Forward Amount can not be left blank"))
+         return false;
+	  
+	 if (!blankValidation("carryFwdPeriod","SelectBox", "Please Select Carried Forward period."))
+	        return false;
+	       
+	 if (!blankValidation("properLeaveJDate","SelectBox", "Please Select Proportionate date Joining."))
+	        return false;
+	 
+	 if (!blankValidation("sentEmailNotify","SelectBox", "Please Select Sent Email Notification."))
+	       return false;
+        
+     if (!blankValidation("lTypeStatus","SelectBox", "Please Select Status."))
+        return false;
+}
+</script>
+</head>
+<div layout:fragment="content">
+	 <div class="content-wrap">
+        <div class="main mrt_20">
+          <div class="col-md-12">
+            <ol class="breadcrumb breadcrumb-arrow">
+              <li><a th:href="@{/index}">Home</a></li> 
+              <li class="active"><a th:href="@{/leave/add-leave-type-mstr}">Add Leave Type</a></li>
+            </ol>
+          </div>
+          <div class="card-title">
+            <h4>Add Leave Type</h4>
+            
+            <div class="topbtnright" align="right">
+					<div class="form-group">
+                          <input type="submit" value="Submit" class="btn btn-success" />
+						  <input type="reset" value="Cancel" class="btn btn-warning"
+												onclick="window.location.reload();" />
+                      </div> 
+				</div>
+            
+          </div>
+          <div class="container-fluid">
+              
+            <div class="card">
+              
+              <div class="card-body">
+                <div class="basic-elements"> 
+                   <form th:action="@{add-leave-type-mstr}" th:object="${leavetype}" onsubmit="return validateForm();" method="post" autocomplete="off">
+                   		<div class="row">
+							<div th:if="${message != null}">
+								<span th:text="${message}" style="color: red;"></span>
+							</div>
+						</div>
+						
+                    <div class="row">
+	                      <div class="col-lg-6">
+	                          <input type="hidden" th:field="*{lTypeId}" />   
+	                       	  <div class="form-group">
+	                          	<label>Leave Type Name</label>
+	                          	<input type="text" class="form-control" name=""  value="" th:field="*{lTypeName}"  />
+	                          </div>
+	                      </div>
+                        
+                        <div class="col-lg-6">
+	                        <div class="form-group">
+	                          <label>No Of Days Allowed</label>
+	                          <input type="text" class="form-control" name=""  value="" th:field="*{lTypePeriod}">  
+	                        </div>
+                        </div>
+                          
+                        <div class="col-lg-6">
+	                        <div class="form-group">
+	                          	<label>Admin can assign leave to employee</label>
+	                          	<select class="form-control" th:field="*{isadminAssign}"  > 
+		                            <option th:value="NULL">--Select--</option>
+		                            <option th:value="true"> Yes</option>
+		                            <option th:value="false"> No</option>
+	                          	</select>
+	                        </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                          <div class="form-group">
+                           <label>Employee can apply for this leave type</label>
+                           <select class="form-control"  th:field="*{isEmpApply}" > 
+	                           <option th:value="NULL">--Select--</option>
+	                           <option th:value="true"> Yes</option>
+	                           <option th:value="false"> No</option>
+                           </select>
+                          </div>
+                        </div>
+                        
+                         <div class="col-lg-6">
+                           <div class="form-group">
+                            <label>Employee can apply beyond the current leave balance</label>
+                            <select class="form-control"   th:field="*{isEmpAlyMoreThanALeave}"> 
+	                            <option th:value="NULL">--Select--</option>
+	                            <option th:value="true"> Yes</option>
+	                            <option th:value="false"> No</option>
+                           </select>
+                          </div>
+                        </div>
+                        
+                        
+                         <div class="col-lg-6">
+                            <div class="form-group">
+                              <label>Leave Accrue Enable</label>
+                              <select class="form-control" th:field="*{lAccrueEnb}"  > 
+	                              <option th:value="NULL">--Select--</option>
+	                              <option th:value="true"> Yes</option>
+	                              <option th:value="false"> No</option>
+                              </select>
+                          </div>
+                        </div>
+                        
+                        <div class="col-lg-6">
+                           <div class="form-group">
+                           <label>Leave Carried Forward</label>
+                            <select class="form-control"   th:field="*{lCarriedFwd}"> 
+	                            <option th:value="NULL">--Select--</option>
+	                            <option th:value="true"> Yes</option>
+	                            <option th:value="false"> No</option>
+                            </select> 
+                          </div>
+                        </div>
+                        
+                        
+                        <div class="col-lg-6">
+                          <div class="form-group">
+	                           <label>Percentage of Leave Carried Forward</label>
+	                           <input type="text" class="form-control" name=""  value="" th:field="*{lCarriedFwdPercnt}"> 
+                          </div>
+                        </div>
+                        
+                         <div class="col-lg-6">
+                            <div class="form-group">
+                              <label>Maximum Carried Forward Amount</label>
+                              <input type="text" class="form-control" name=""  value="" th:field="*{maxCaryFwdAmt}"> 
+                           </div>
+                        </div>
+                        
+                        
+                         <div class="col-lg-6">
+                            <div class="form-group">
+                              <label>Carried Forward Leave Availability Period</label> 
+                              <select class="org-name form-control" th:field="*{carryFwdPeriod}"  >
+	                              <option th:value="NULL">--Select--</option>
+							      <option th:each="c:${AvailPeriod}" th:value='${c.key}' th:text="${c.name}"></option>   
+                              </select> 
+                            </div>
+                        </div>
+                        
+                         <div class="col-lg-6">
+                           <div class="form-group">
+                              <label>Proportionate Leave on joining date</label> 
+                              <select class="form-control"   th:field="*{properLeaveJDate}"> 
+	                              <option th:value="NULL">--Select--</option>
+	                              <option th:value="true"> Yes</option>
+	                              <option th:value="false"> No</option>
+                              </select> 
+                          </div>
+                        </div>
+                        
+                         <div class="col-lg-6">
+                           <div class="form-group">
+                             <label>Send Email Notification</label>
+                             <select class="form-control" th:field="*{sentEmailNotify}"  > 
+	                             <option th:value="NULL">--Select--</option>
+	                             <option th:value="true">Yes</option>
+	                             <option th:value="false">No</option>
+                             </select>
+                          </div>
+                        </div>
+                        
+                        
+                        
+                        <div class="col-lg-6">
+                          <div class="form-group">
+                            <label>Status</label> 
+                            <select class="form-control"  th:field="*{lTypeStatus}" > 
+	                            <option th:value="NULL">--Select--</option>
+	                            <option th:value="true"> Active</option>
+	                            <option th:value="false">Inactive</option>
+                            </select>
+                          </div>
+                        </div>
+                   
+                      
+                    </div> 
+                  </form>
+                </div>
+              </div>
+              <div style="clear:both;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+</html>
+  

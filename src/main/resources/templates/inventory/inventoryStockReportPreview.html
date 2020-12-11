@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	
+
+	$(document).ready(function() {
+
+		$('#tblStockReport').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'preview-inventory-stock-report-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+					d.param3 = $('#param3').val();
+					
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ 
+				{
+					'data' : 'costCenter'
+				}, {
+					'data' : 'item'
+				}, {
+					'data' : 'itemSubCat'
+				}, {
+					'data' : 'reqQuantity'
+				}, {
+					'data' : 'recvQuantity'
+				}, {
+					'data' : 'issueQuantity'
+				} ]
+		});
+	});
+	function searchData() {
+		$('#tblStockReport').DataTable().draw();
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>Inventory Stock Report Preview</span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>Report Preview Details</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+
+
+				<input type="hidden" id="param1" th:value="${param1}"> <input
+					type="hidden" id="param2" th:value="${param2}"> <input
+					type="hidden" id="param3" th:value="${param3}">
+
+				<div class="row">
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblStockReport" class="table  table-bordered">
+							<thead>
+
+								<tr>
+									<th>Cost Center</th>
+									<th>Item Name</th>
+									<th>ItemSubCat Name</th>
+									<th>ReqQuantity</th>
+									<th>RecvQuantity</th>
+									<th>Issued Quantity</th>
+									
+									
+								</tr>
+							</thead>
+
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+			
+		</div>
+		<!-- Modal Start-->
+
+		<!-- Modal End-->
+
+
+	</div>
+</div>
+</html>

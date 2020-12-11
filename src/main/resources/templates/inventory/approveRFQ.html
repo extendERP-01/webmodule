@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+ function sendMail(id) {
+	 swal({
+		 title: "Mail Sent Successfully.",
+		 type: "success",
+	 })
+ }
+ 
+  function viewInModel(index){
+		$('#table1').empty();
+			$.ajax({
+				type 		:	"POST",
+				url 		:	"view-rfq-model",
+				dataType 	:	'json',
+				contentType :	'application/json',
+				data 		:	index,
+				success 	: 	function(response) {
+					
+					   if(response.message=="success"){ 
+				     	var VStatus = "";
+						if(response.body.approvedStatus){
+							VStatus = "Approved";	
+						}else{
+							VStatus = "Pending for Approval";	
+						}
+						
+						var assignVendor="";
+						if(response.body.rfqVendor == null){
+							assignVendor = "Not Assigned Yet";	
+						}else{
+							
+							assignVendor = response.body.rfqVendor;
+						}
+					 
+					 
+						 table = '<tr><td>RFQ Name:</td>'+'<td align="left">'
+						    +response.body.rfqName+'</td>'+'</tr><tr><td>Validity Date:</td><td align="left">'
+							+response.body.rfqValidDate+'</td>'+'</tr><tr><td> Vendor Status:</td><td align="left">'
+							+VStatus+'</td>'+'</tr><tr><td>Vendors:</td><td align="left">'
+							+assignVendor+'</td>'+'</tr><tr><td>Background:</td><td align="left">'
+							+response.body.rfqDetails+'</td></tr>';
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+					}				
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+		}  
+
+  
+  
+  function viewInModelApprove(index){ 
+	//  alert(index);
+	  $('#ChangeStatusModel').modal('show');
+	  $('#reqQuotId').val(index);
+  }
+ 	$(document).ready(function() {	
+ 		
+ 		
+ 		$('#table').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'approve-rfq-through-ajax',
+					'data' : function(d) { 
+						d.param1 = $('#param1').val();
+						//d.param2 = $('#param2').val();
+					}
+				},
+				'dataSrc' : "",
+			'columns' : [
+				{'data' : 'rfqName'},
+				{'data' : 'rfqCreatedOn'},
+				{'data' : 'rfqValidDate'},
+				
+				{'data' : 'rfqBackground'},
+			/* 	{'data' : 'rfqDetails'},  */
+			/* 	{'data' : 'ifApproved'},  */
+				{'data' : 'action'}
+					]	
+			});
+ 		
+ 		
+ 		$("#submitItems").click(function(){
+ 			
+ 	         var y="";
+ 	  		var checkboxlist = [];
+ 	           $.each($("input[name='checkbox']:checked"), function(){            
+ 	          	 checkboxlist.push($(this).val());
+ 	          	 y=y+$(this).val();
+ 	          	 y=y+",";
+ 	           });
+ 	           
+ 	           var lastChar = y.slice(-1);
+ 	           if (lastChar == ',') {
+ 	          	 y = y.slice(0, -1);
+ 	           }
+ 	           
+ 	         console.log('value of  y: ',y);  
+ 	         var allcheckboxlist = [];
+ 	         $.each(checkboxlist, function(index, value ) {
+ 	        	 allchecked={};
+ 	        	 allchecked['checkedRFQId']=value;
+ 	        	 allcheckboxlist.push(allchecked);
+ 	        	});
+ 	         
+ 	         
+ 			 console.log('list for checked  :',allcheckboxlist);
+ 			 var dataset = [];
+ 	/* 		$("#tbodyData > tr").each(function(){
+ 				item = {}; 
+ 				item['checkedPoStatus']	   =    y;
+ 				dataset.push(item);
+ 			});
+ 			
+ 			 */
+ 			if(y.length <1){
+ 				swal('Please Select At Least One CheckBox to Approve');
+ 				return false;
+ 			}
+ 			
+ 			approveSubmitRFQ(y);
+ 			  
+ 		});
+	 });
+	
+	function searchData() {
+		$('#table').DataTable().draw();
+	}	
+	 
+	  
+	  function approveSubmitRFQ(y){ 
+		  //alert('in sbmt function'+y);
+		  //console.log('in function sbmt y',y);
+		  //return false;
+			 
+ 
+			swal({
+		
+			title	: "Are you sure to Approve these Quotation?",
+			text	: "Make sure that Before Approve.",
+			type : "warning",
+			//title	: "Delivery Status Not Completed",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Complete",
+			showLoaderOnConfirm	: false,
+			reverseButtons : true,
+		
+		
+			}).then((result) => {
+			 	if(result.value){
+			 	 $.ajax({
+			    	type :	"GET",
+			    	url :	"/inventory/approve-rfq-ids?checkedRFQId="+y+"&createdBy="+'U0010',    
+			    	success : function(response) {
+		
+			    	if(response.message=="success"){
+		
+			     	 swal({
+				  		title	: "Approved Successfully.",
+				  		type: "success",
+				  		}).then(function(){		
+				    		location.reload(); 
+				 			})
+					}else{
+				 		swal({
+							title:response.code,
+							text    : response.message,
+							type    : "warning",
+							text	: " Not Approved Successfully.",
+						})
+					}	
+				},
+				error : function(data) {
+					console.log(data);
+					}
+		  		 }) 
+		 	   }
+		 	}) 
+		 } 
+
+	  
+
+</script>
+</head>
+<div layout:fragment="content">
+ <div class="content-wrap">
+         <div class="main mrt_20">
+            <div class="col-md-12">
+               <ol class="breadcrumb breadcrumb-arrow">
+                  <li><a th:href="@{/index}">Home</a></li> 
+                   <li class="active"><a th:href="@{/inventory/add-rfq}">Add Request Quotation</a></li>
+                  <li class="inactive"><a th:href="@{/inventory/view-rfq}">View Request Quotation</a></li>
+             
+               </ol>
+            </div>
+            <div class="card-title">
+               <h4>List of Request Quotation</h4>
+            </div>
+            <div class="container-fluid">
+               
+                
+               <div class="card">
+                     <div class="search-field">
+                        <div class="row">
+                           <div class="col-md-2">
+                              <label>RFQ Name</label>
+                           
+                            <!-- <input type="text" class="form-control" id="param1" /> -->
+                            <select class="org-name form-control" id="param1"  >
+                              <option th:value="NULL">Select</option>
+						     <option th:each="c:${lRFQData}" th:value='${c.key}'
+							 th:text="${c.name}"></option>   
+                            </select>
+                           </div>
+    
+    					 
+    
+                           <div class="col-md-2 mrt_10">
+                              <div class="form-group filtersearch">
+                                 <button class="btn btn-info" onclick="searchData()">Search</button>
+                              </div>
+                           </div></div>
+                        </div>
+                  
+                     
+                     <div class="table-responsive" style="width:100%;">
+                        <table id="table" class="table table-bordered">
+                           <thead>
+                              <tr>
+                                 <th>RFQ Name </th>
+                                 <th>RFQ Created On</th>
+                                 <th>RFQ Validity</th>
+                                 <th>Background</th>
+                               <!--   <th>Details</th> -->
+                              <!--    <th>Approve Status</th> -->
+                                 <th>Action</th>
+                              </tr>
+                           </thead>
+                           
+                        </table>
+                         <div class="form-group">
+                          <input type="submit" id="submitItems" value="Approve" class="btn btn-success" />
+						<!--   <input type="reset" value="Reject" class="btn btn-warning"
+												onclick="window.location.reload();" /> -->
+                      </div> 
+                        
+                     </div>
+                    
+                     <div style="clear:both;"></div>
+                       
+                
+                  
+         <!-- Modal Start-->
+         <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+               
+               <!-- Modal content-->
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <h4 class="modal-title">View Details of Request Quotation </h4>
+                     <button type="button" class="close" data-dismiss="modal"><i class="fa fa-close fa-2x"></i></button>
+                  </div>
+                  <div class="modal-body">
+                     <table width="100%" border="0" id="table1">
+                        
+                     </table>
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+               </div>
+               
+            </div>
+         </div>
+         <!-- Modal End-->
+         
+              <div id="ChangeStatusModel" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+               
+               <!-- Modal content-->
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <h4 class="modal-title">Add Vendors For Request Quotation</h4>
+                     <button type="button" class="close" data-dismiss="modal"><i class="fa fa-close fa-2x"></i></button>
+                  </div>
+                  <div class="modal-body"> 
+                   <form th:action="@{view-rfq-vendor-approve}"  th:object="${changeApprove}" onsubmit="return validateForm();" method="post" autocomplete="off">
+	                  		
+	                  		<div class="col-md-12"> 
+		                  		<label>RFQ ID</label>
+		                  		 
+		                          <input type="text"  readonly class="form-control" th:field="*{reqQuotId}" />   
+	                        </div>
+                           
+                          
+                         
+                          <div class="col-md-12"> 
+                            <label>Vendors</label>   
+							 <select class="multiselect" th:field="*{rfqVendors}" multiple="multiple">
+								<option th:value="NULL">Select</option>
+								<option th:each="c:${VendorList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==userRoles}"></option>
+							</select>
+                        </div>  
+                        
+                        <!-- <div class="col-md-12">
+                           <div class="org-name"> Add Vendors Note</div>
+                           <textarea class="form-control textarea"    ></textarea>
+                         </div> --> 	 
+                         
+                          <div class="col-md-12">  
+                          <input type="submit" value="Submit" class="btn btn-success" /> 
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                          </div>   
+	               </form>
+                      
+                  </div>
+                 <!--  <div class="modal-footer">
+                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div> -->
+               </div>
+               
+            </div>
+         </div>
+         <!-- /# row -->
+               </div>
+            </div>
+         </div>
+         </div>
+         </div>
+       
+</html>

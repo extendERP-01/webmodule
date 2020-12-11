@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.autocomplete {
+	position: relative;
+	display: inline-block;
+}
+
+.autocomplete-items {
+	position: absolute;
+	border: 1px solid #d4d4d4;
+	border-bottom: none;
+	border-top: none;
+	z-index: 99;
+	/*position the autocomplete items to be the same width as the container:*/
+	top: 100%;
+	left: 0;
+	right: 0;
+}
+
+.autocomplete-items div {
+	padding: 10px;
+	cursor: pointer;
+	background-color: #fff;
+	border-bottom: 1px solid #d4d4d4;
+}
+
+/*when hovering an item:*/
+.autocomplete-items div:hover {
+	background-color: #e9e9e9;
+}
+
+/*when navigating through the items using the arrow keys:*/
+.autocomplete-active {
+	background-color: DodgerBlue !important;
+	color: #ffffff;
+}
+
+.brd-btm {
+	border-bottom: 1px solid #ccc;
+	padding: 4px 2px;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 96%;
+	position: absolute;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.amount_align_right {
+	width: 40%;
+	text-align: right;
+}
+
+.noBorder {
+	border: none !important;
+}
+</style>
+
+<script>
+function addMore() {
+
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+
+	$("#myTable tbody tr td:last").html("");
+	var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button> '
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	$("#myTable tbody tr:last").find(".trainningNameCls").val("");
+	$("#myTable tbody tr:last").find(".trainningtypeCls").val("");
+	$("#myTable tbody tr:last").find(".startdateCls").val("");
+	$("#myTable tbody tr:last").find(".enddateCls").val("");
+	$("#myTable tbody tr:last").find(".statuscls").val("");
+
+	var editTr = 0;
+
+	if (lengthOfTableRow > editTr) {
+		$("#myTable tbody tr").eq(lengthOfTableRow - 1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function (i) {
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+
+		textInput.eq(0).attr('id', "trainningNam_0" + i);
+
+		textInput.eq(1).attr('id', "startdateC_0" + i);
+		textInput.eq(2).attr('id', "enddateC_0" + i);
+
+		selectInput.eq(0).attr('id', "trainningtyp_0" + i);
+		selectInput.eq(1).attr('id', "status_0" + i);
+
+	})
+    $(".startdateCls").datetimepicker({
+		format: 'd-m-Y',
+		closeOnDateSelect: true,
+		timepicker: false,
+	})
+	$(".enddateCls").datetimepicker({
+		format: 'd-m-Y',
+		closeOnDateSelect: true,
+		timepicker: false,
+	})
+
+}
+$(document).ready(function () {
+
+	 $(".startdateCls").datetimepicker({
+			format: 'd-m-Y',
+			closeOnDateSelect: true,
+			timepicker: false,
+		})
+		$(".enddateCls").datetimepicker({
+			format: 'd-m-Y',
+			closeOnDateSelect: true,
+			timepicker: false,
+		})
+		
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button> '
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if ($("#tbodyData").children('tr').length > 1) {
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		} else {
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+
+		displayTable();
+	});
+
+	$("#submit").click(function () {
+
+		var dataset = [];
+		$("#tbodyData > tr").each(function () {
+			item = {};
+
+
+			item['trainningId'] = $("#id").val();
+			item['editId'] = $("#id").val();
+
+			item['tranningName'] = $(this).find(".trainningNameCls").val();
+			item['tranningType'] = $(this).find(".trainningtypeCls").val();
+			item['startDate'] = $(this).find(".startdateCls").val();
+			item['endDate'] = $(this).find(".enddateCls").val();
+			item['status'] = $(this).find(".statuscls").val();
+			dataset.push(item);
+		});
+
+		//Blank Validation
+
+
+		var tranningName = true;
+		$('.trainningNameCls').each(function () {
+			if (!blankValidation($(this).attr('id'), "TextField", "Please Select Tranning Name")) {
+				tranningName = false;
+				return false;
+			}
+
+		});
+
+		var tranningType = true;
+		if (tranningName) {
+			$('.trainningtypeCls').each(function () {
+				if (!blankValidation($(this).attr('id'), "SelectBox", "Please Select tranningType")) {
+					tranningType = false;
+					return false;
+				}
+
+			});
+		}
+
+
+		var startDate = true;
+		if (tranningName && tranningType) {
+			$('.startdateCls').each(function () {
+				if (!blankValidation($(this).attr('id'), "TextField", "Please Enter startDate")) {
+					startDate = false;
+					return false;
+				}
+
+			});
+
+		}
+		var endDate = true;
+		if (tranningName && tranningType && startDate) {
+			$('.enddateCls').each(function () {
+				if (!blankValidation($(this).attr('id'), "TextField", "Please Enter endDate")) {
+					enddateCls = false;
+					return false;
+				}
+
+			});
+
+		}
+		var Status = true;
+		if (tranningName && tranningType && startDate && endDate) {
+			$('.status_').each(function () {
+				if (!blankValidation($(this).attr('id'), "SelectBox", "Please Select Status")) {
+					empValid = false;
+					return false;
+				}
+
+			});
+		}
+
+
+		if (tranningName && tranningType && startDate && endDate && Status) {
+
+			submitItem(dataset);
+		}
+
+	});
+});
+
+
+function submitItem(dataset) {
+	console.log(dataset)
+	swal.fire({
+		title: "Are you sure want to Submit?",
+		text: "Once Submited,Can't revert back !",
+		type: "warning",
+
+		showCancelButton: true,
+		confirmButtonColor: "#DD6BB5",
+		confirmButtonText: "Submit",
+		reverseButtons: true,
+		confirmButtonAriaLabel: 'Thumbs up, great!',
+		cancelButtonText: 'Cancel',
+		cancelButtonAriaLabel: 'Thumbs down',
+	}).then((result) => {
+		if (result.value) {
+			$.ajax({
+				type: "POST",
+				url: "add-training-planning-ajax",
+				dataType: "json",
+				contentType: "application/json",
+				data: JSON.stringify(dataset),
+				success: function (response) {
+					//console.log(response);
+					if (response.message == "Success") {
+						swal({
+							title: "Data Saved Successfully.",
+							type: "success",
+						}).then(function () {
+							window.location.href = "/recruitment/view-training-planning";
+						})
+					} else {
+						swal({
+							title: response.code,
+							text: response.message,
+							type: "warning"
+						})
+					}
+				},
+				error: function (data) {
+					console.log(data);
+				}
+			}) //ajax ends
+		}
+	}) //swal function block ends
+} //submit function ends
+
+
+/* function datepicker(event) {
+
+	var item = event.currentTarget.value;
+	var itemId = event.currentTarget.id;
+	var l = itemId.split("_");
+	var counter = l[1];
+	$("#startdateC_" + counter).datetimepicker({
+		format: 'd-m-Y',
+		closeOnDateSelect: true,
+		timepicker: false,
+	})
+	$("#enddateC_" + counter).datetimepicker({
+		format: 'd-m-Y',
+		closeOnDateSelect: true,
+		timepicker: false,
+	})
+} */
+
+function funcLoad() {
+	location.reload();
+}
+
+</script>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<!--Alert Box-->
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		<!--Alert Box-->
+
+		<ol class="breadcrumb breadcrumb-arrow">
+			<li><a href="index.html">Home</a></li>
+			<li class="active"><span>Add Planning Details</span></li>
+
+		</ol>
+		<div class="card-title">
+			<h4>Add Planning Details</h4>
+			<div class="topbtnright" align="right"></div>
+		</div>
+		<div class="card">
+			<div class="card-body">
+				<div class="basic-elements">
+					<form th:action="@{/recruitment/add-training-planning}"
+						th:object="${planning}" method="post" autocomplete="off"
+						onsubmit="return validateForm();">
+
+						<input type="hidden" th:if="${Edit}" id="id"
+							th:value="${planning[0].editId}" />
+						<div class="row">
+							<div class="col-md-12" style="padding-top: 10px;">
+								<table class="tbll table table-bordered" id="myTable"
+									width="100%" border="0" cellspacing="1" cellpadding="5">
+									<thead>
+										<tr class="trCls">
+											<th colspan="6" style="font-size: 18px;"><b>Training
+													Plan</b></th>
+										</tr>
+									</thead>
+									<thead class="theadCls">
+										<tr>
+											<th>Training Name</th>
+											<th>Training Type</th>
+											<th>Start Date</th>
+											<th>End Date</th>
+											<th>Status</th>
+											<th>Action</th>
+
+										</tr>
+									</thead>
+
+									<tbody id="tbodyData">
+
+										<tr class="tr_clone" th:if="${Edit}"
+											th:each="a,iter:${planning}">
+											<td><input type="text"
+												class="form-control trainningNameCls"
+												th:id="${'trainningNam_'+iter.index}"
+												th:value="${a.tranningName}" /></td>
+
+
+											<td><select th:id="${'trainningtyp_'+iter.index}"
+												class="form-control trainningtypeCls">
+													<option value="">--Select--</option>
+													<option th:each="c:${tranningTypeList}" th:value='${c.key}'
+														th:text="${c.name}"
+														th:selected="${c.key ==a.tranningType}"></option>
+											</select></td>
+
+
+
+
+											<td><input type="text" class="form-control startdateCls"
+												th:id="${'startdateC_'+iter.index}"
+												th:value="${a.startDate}" readonly /></td>
+											<td><input type="text" class="form-control enddateCls"
+												th:id="${'enddateC_'+iter.index}" th:value="${a.endDate}"
+												readonly /></td>
+											<td><select th:id="${'status_'+iter.index}"
+												class="form-control statuscls">
+													<option th:value="null">--select--</option>
+													<option th:value="true" th:selected="${a.status==true}">Active</option>
+													<option th:value="false" th:selected="${a.status==false}">In
+														Active</option>
+
+
+											</select></td>
+											<td th:if="${planning}">
+												<button th:if="${iter.size == iter.index+1}" type="button"
+													class="btn btn-primary tr_clone_add" name="add"
+													onclick="addMore();">
+													<span class="ti-plus"></span>
+												</button>
+												<button th:if="${iter.size != 1}" type="button"
+													class="btn btn-warning rmv" name="Remove">
+													<span class="ti-minus"></span>
+												</button>
+
+											</td>
+											<td th:unless="${planning}"><button type="button"
+													class="btn btn-primary tr_clone_add" name="add"
+													onclick="addMore();">
+													<span class="ti-plus"></span>
+												</button>&nbsp;</td>
+										</tr>
+
+										<tr class="tr_clone" id="tbodyData" th:unless="${Edit}">
+											<td><input type="text"
+												class="form-control trainningNameCls" id="trainningNam_0" /></td>
+
+
+											<td><select id="trainningtyp_0"
+												class="form-control trainningtypeCls">
+
+													<option value="">--Select--</option>
+													<option th:each="c:${tranningTypeList}" th:value='${c.key}'
+														th:text="${c.name}"></option>
+											</select></td>
+
+
+											<td><input type="text" class="form-control startdateCls"
+												id="startdateC_0" readonly /></td>
+											<td><input type="text" class="form-control enddateCls"
+												id="enddateC_0" readonly /></td>
+											<td><select id="status_0" class="form-control statuscls">
+													<option th:value="null">--select--</option>
+													<option th:value="true">Active</option>
+													<option th:value="false">In Active</option>
+
+											</select></td>
+
+
+											<td><button type="button"
+													class="btn btn-primary tr_clone_add" name="add"
+													onclick="addMore();">
+													<span class="ti-plus"></span>
+												</button>&nbsp;</td>
+										</tr>
+
+									</tbody>
+
+								</table>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="form-group col-md-12">
+								<button type="button" id="submit" class="btn btn-success"
+									onclick="submitItem();">Submit</button>
+								<button type="button" class="btn btn-warning"
+									onclick="funcLoad();">Cancel</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div style="clear: both;"></div>
+</div>
+
+</div>
+
+</html>

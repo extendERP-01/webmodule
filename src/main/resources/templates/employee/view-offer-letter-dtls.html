@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	//Deleting the department
+	
+	const ipAPI = 'https://api.ipify.org?format=json'
+	function deleteDetails(id){
+	 //var data = id.split(",");
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			preConfirm: () => {
+				return fetch(ipAPI)
+				.then(response => response.json())
+				.then(data => Swal.insertQueueStep(data.ip))
+				.catch(() => {
+				Swal.insertQueueStep({
+					type: 'error',
+					title: 'Unable to get your public IP'
+			, })
+			})
+		  } 
+		}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/employee/View-offer-letter-dtls-delete?id=" +id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(data){
+				console.log(data);	
+			}
+		}) //ajax ends
+	  }
+	 })//swal function block ends
+	}
+	
+	function viewInModel(index) {
+
+		$('#table1').empty();
+		$('#table2').empty();
+		
+		$.ajax({
+					type : "POST",
+					url : "View-offer-letter-dtls-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							console.log(response.body);
+							
+							span = '<tr><td>Employee Name:</td>'
+									+ '<td align="left">'
+									+ response.body[0].tEmpFName
+									+ '</td>'
+									+ '</tr><tr><td>Date of Birth:</td>'
+									+ '<td align="left">'
+									+ response.body[0].tEmpDOB
+									+ '</tr><tr><td>Mobile No. :</td>'
+									+ '<td align="left">'
+									+ response.body[0].tMobileNo
+									+ '</td></tr>'
+								    + '</tr><tr><td>Pay Grade :</td>'
+									+ '<td align="left">'
+									+ response.body[0].tPayGrade
+									+ '</td></tr>'
+									+ '</tr><tr><td>Job Title:</td>'
+									+ '<td align="left">'
+									+ response.body[0].tJobTitle
+									+ '</td></tr>'
+									+ '</tr><tr><td>Date Of Joining:</td>'
+									+ '<td align="left">'
+									+ response.body[0].tEmpDOJ
+									+ '</td></tr>'
+									+ '</tr><tr><td>Annual CTC :</td>'
+									+ '<td align="left">'
+									+ response.body[0].tAnnualCTC
+									+ '</td></tr>'
+									
+									
+									
+									
+									+ '<th><b>Details Of Salary Components</b></th></tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(span);
+
+							table2 = '<tr><th><b>Salary Components</b></th><th><b>Calculation type</b></th><th><b>Monthly Amount</b></th>'
+									+ '<th><b>Annual Amount</b></th>';
+							$('#myModal').modal('show');
+							$('#table2').append(table2);
+
+							for (var i = 0; i < response.body.length; i++) {
+								
+								table = '<tr><td>' + response.body[i].salaryComponent
+										+ '</td><td>' + response.body[i].calculationType
+										+ '</td><td>' + response.body[i].monthlyAmnt
+										+ '</td><td>' + response.body[i].tAnnualAmount
+										+ '</td></tr>';
+								$('#myModal').modal('show');
+								$('#table2').append(table);
+							}
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		/* $('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'View-offer-letter-dtls-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [{
+				'data' : 'tOfferLetterId'
+			}, {
+				'data' : 'tEmpFName'
+			}, {
+				'data' : 'tEmpGender'
+			}, {
+				'data' : 'tMobileNo'
+			}, {
+				'data' : 'tPayGrade'
+			
+			}, {
+				'data' : 'tJobTitle'
+			}, {
+				'data' : 'action'
+			} ]
+		}); */
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+	
+	 function pdfCreate(id) {
+		 	window.open("/employee/View-offer-letter-dtls-genetate-offer-letter-pdf?id="+id,'_blank');
+		 	}
+function goToFeedback() {
+	window.location.href="/recruitment/view-employee-feedback-add";
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/employee/add-offer-letter-dtls}">Add
+							Offer Letter Details</a></li>
+					<li class="active"><span>View Offer Letter Details </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Offer Letter Details</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<!-- <div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-offer-letter-dtls">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div> -->
+							<div class="row">
+								<div class="col-md-2">
+									<label>Offer Letter</label>
+								
+									
+									<input type="text" id="param1" class="form-control" onkeyup="searchData()"/>
+								</div> 
+								<!-- <div class="col-md-2">
+									<div class="form-group">
+										<button type="search" class="btn btn-primary" value="Search" onclick="searchData()" >Search</button>
+										<input type="button" class="btn btn-info" value="Search"
+											onclick="searchData()" />
+									</div>
+								</div> -->
+							</div>
+						</div>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+									<th>Job Code</th>
+									<th>Job Title</th>
+									<th>Department</th>
+									<th>Candidate Name</th>
+									<th>Date Of Birth</th>
+									<th>Resume</th> 
+									<th>Feedback</th>
+									<th>Action</th>
+								</tr>
+								</thead>
+								<tbody>
+									<tr>
+									<th>JOB001</th>
+									<th>Software Developer</th>
+									<th>Development</th>
+									<th>Samsundar Ray</th>
+									<th>14-04-1996</th> 
+									<th><a href="../assets/pdf/sampleresume.pdf" target="_blank"><img src="../assets/images/pdf_demo.png" height="50" width="35"></a></th>
+									<th><button class="btn btn-info" onclick="goToFeedback();">View</button></th>
+									<th><a href="add-offer-letter-dtls"><i class='fa fa-files-o' title='Generate Appointment Letter' style="font-size:20px"></i></a>
+										&nbsp;<a href=""><i class='fa fa-download' title='Download' style="font-size:20px"></i></a></th>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Goal</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+							<table style="width: 100%; border: 0;" id="table2">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

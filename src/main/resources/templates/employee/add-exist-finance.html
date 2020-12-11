@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#regDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+		$("#relDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+	/* 	$("#submit").click(function() {
+
+			window.location.href = "/employee/view-exist-management";
+		});
+		$("#btnCancel").click(function() {
+
+			window.location.href = "/employee/view-exist-management";
+		}); */
+		$("#empId").on('change', function() {
+			var empId = $(this).val();
+			console.log(empId);
+			if (empId) {
+				$("#empDesignation").empty();
+			/* 	var option = $("<option></option>");
+				$(option).val(null);
+				$(option).html("Select");
+				$("#empDesignation").append(option); */
+				$.ajax({
+					type : 'POST',
+					url : 'add-exist-management-emp-degination-ajax',
+					contentType : false,
+					data : empId,
+					success : function(response) {
+						if (response.message == "success") {
+							/* $("#empDesignation").empty();
+
+							var option = $("<option></option>");
+							$(option).val(null);
+							//$(option).html("Select");
+							$("#empDesignation").append(option); */
+							for (var i = 0; i < response.body.length; i++) {
+								var option = $("<option></option>");
+								$(option).val(response.body[i].key);
+								$(option).html(response.body[i].name);
+								$("#empDesignation").append(option);
+							}
+						}
+					},
+					error : function(e) {
+						alert("error");
+					}
+				});
+			} else {
+				$("#empDesignation").empty();
+				var option = $("<option></option>");
+				$(option).val(null);
+				$(option).html("Select");
+				$("#empDesignation").append(option);
+				
+			}
+		});
+	});
+	function validateForm() {
+
+		if (!blankValidation("employeeId", "TextField",
+				"employeeId Name can not be left blank"))
+			return false;
+		if (!blankValidation("empName", "TextField",
+				"Employee can not be left blank"))
+			return false;
+		if (!blankValidation("deptName", "TextField",
+				"Department Name can not be left blank"))
+			return false;
+		if (!blankValidation("manager", "TextField",
+				"Manager can not be left blank"))
+			return false;
+		if (!blankValidation("noticePeriod", "TextField",
+				"Notice Period can not be left blank"))
+			return false;
+		if (!blankValidation("salary", "TextField",
+				"Salary can not be left blank"))
+			return false;
+	}
+</script>
+<style type="text/css">
+.mt-10{
+margin-top:10px;}
+</style>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<!--Alert Box-->
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		<!--Alert Box-->
+		<div class="col-md-12">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>Add Exit Finance</span></li>
+
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>Add Exit Finance</h4>
+		</div>
+		<div class="container-fluid">
+			<div class="card">
+
+				<div class="card-body">
+					<div class="basic-elements">
+						 <form th:action="@{/employee/add-exist-finance-settlement}" th:object="${exitFinancialSettelmentModel}" method="post" onsubmit="return validateForm();" autocomplete="off">
+                               <input type="hidden" th:field="*{financeId}" />
+							<div class="col-lg-12">
+								<div class="row">
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Employee Id</label>
+											<input type="text"
+												class="form-control" id="empId"  th:field="*{employeeId}" readOnly />
+										</div>
+									<div class="form-group">
+											<label>Employee Name</label> <input type="text"
+												class="form-control" id="employeeName"  th:field="*{empName}" readOnly />
+											
+										</div>
+										<div class="form-group">
+											<label>Department</label>
+										 <input type="hidden"
+												class="form-control" id="deptId"  th:field="*{empDepartment}" readOnly />
+										<input type="text"
+												class="form-control" id="deptName"  th:field="*{empDepartmentName}" readOnly />
+										<!-- <select class="form-control" th:field="*{empDepartment}" disabled>
+												<option value="">--Select--</option>
+												<option th:each="c:${DepartmentList}" th:value='${c.key}' 
+													th:text="${c.name}"></option> -->
+
+											</select>
+										</div>
+								<div class="form-group">
+											<label>Manager</label><select class="form-control" th:field="*{manager}" >
+												<option value="">--Select--</option>
+												<option th:each="c:${EmployeeList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+
+											</select>
+											
+										</div>
+								
+
+										
+										<div class="form-group">
+											<label>Notice Period</label> <input type="text" class="form-control"
+												id="no" th:field="*{noticePeriod}"/>
+										</div>
+										
+										<button type="submit" class="btn btn-success  mt-10">submit</button>
+                           				<button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+									</div>
+									<div class="col-lg-6">
+										
+										<div class="form-group">
+											<label>Salary</label> <input type="text" class="form-control"
+												id="salary" th:field="*{salary}" onkeyup="checkNum('salary')"/>
+										</div>
+										<div class="form-group">
+											<label>Bonus</label> <input type="text" class="form-control"
+												id="bonus" th:field="*{bonus}" onkeyup="checkNum('bonus')" />
+										</div>
+										<div class="form-group">
+											<label>Other</label> <input type="text" class="form-control"
+												id="other" th:field="*{other}" onkeyup="checkNum('other')" />
+										</div>
+										<div class="form-group">
+											<label>Recovery</label> <input type="text"
+												class="form-control" th:field="*{recovery}" onkeyup="checkNum('recovery')"  />
+										</div>
+										
+										<div class="form-group">
+											<label>Comment</label> <Textarea
+												class="form-control" th:field="*{comment}" ></Textarea>
+										</div>
+										<!-- <div class="form-group">
+										<label>Status</label> <select class="form-control"
+											th:field="*{status}">
+											<option th:value=null>--select--</option>
+											<option th:value=true>Active</option>
+											<option th:value=false>Inactive</option>
+										</select>
+									</div> -->
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+	</div>
+</html>

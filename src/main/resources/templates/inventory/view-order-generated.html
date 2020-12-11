@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+function sendMail(index) {
+	swal({
+		title: "Mail Sent Successfully",
+		type: "success",
+	})
+}
+$(document).ready(function(){
+	$('#vendorList').DataTable({
+        'processing': true,
+        'serverSide': true,
+        'searching': false,
+        'ordering': false,
+        "ajax": {
+            'url': 'view-order-generated-through-ajax',
+            'data': function(d) {
+                d.param1 = $('#param1').val();
+                d.param2 = $('#param2').val(); 
+            }
+        },
+        'dataSrc': "",
+        'columns': [
+			{
+                'data': 'vendorName'
+            }, {
+                'data': 'po'
+            }, {
+                'data': 'date'
+            }, {
+                'data': 'itemName'
+            }, {
+                'data': 'minQty'
+            }, {
+                'data': 'action'
+            }
+        ]
+    });
+});
+
+function searchData() {
+    $('#vendorList').DataTable().draw();
+}
+</script> 
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+						<li class="active"><span>View Order Generated</span></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+				
+			<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-2">
+								<label>Vendor</label>
+								<input class="form-control" type="text" placeholder="" name="" id="param1" >
+							</div>
+							<div class="col-md-2">
+								<label>Order</label>
+								<input class="form-control" type="text" placeholder="" name="" id="param2" >
+							</div>
+							<div class="col-md-2 mrt_10">
+								   <div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table  class="table table-bordered" id="vendorList">
+							<thead>
+								<tr>
+									<th>Vendor</th>
+									<th>Order</th>
+									<th>Date</th>
+									<th>Item</th>
+									<th>Quantity</th>
+									<th>Action</th>
+							    </tr>
+							</thead>
+							<tbody>
+								<!-- <tr>
+									<td>Vendor 1</td>
+									<td>Order 1</td>
+									<td>20-10-2020</td>
+									<td>3</td>
+									<td><a data-toggle='modal' title='View' href='javascript:void'><i class='fa fa-envelope'></i></a></td>
+								</tr>
+								<tr>
+									<td>Vendor 2</td>
+									<td>Order 2</td>
+									<td>20-10-2020</td>
+									<td>3</td>
+									<td><a data-toggle='modal' title='View' href='javascript:void'><i class='fa fa-envelope'></i></a></td>
+								</tr>
+								<tr>
+									<td>Vendor 3</td>
+									<td>Order 3</td>
+									<td>20-10-2020</td>
+									<td>3</td>
+									<td><a data-toggle='modal' title='View' href='javascript:void'><i class='fa fa-envelope'></i></a></td>
+								</tr>
+								<tr>
+									<td>Vendor 4</td>
+									<td>Order 4</td>
+									<td>20-10-2020</td>
+									<td>3</td>
+									<td><a data-toggle='modal' title='View' href='javascript:void'><i class='fa fa-envelope'></i></a></td>
+								</tr>
+								<tr>
+									<td>Vendor 5</td>
+									<td>Order 5</td>
+									<td>20-10-2020</td>
+									<td>3</td>
+									<td><a data-toggle='modal' title='View' href='javascript:void' ><i class='fa fa-envelope'></i></a></td>
+								</tr> -->
+								
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				
+			</div>
+   		</div>
+   	</div>
+	<!-- Modal Start-->
+	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+				 <div class="modal-header">
+					 <h4 class="modal-title">View Details of Sub Inventory Master</h4>
+					 <button type="button" class="close" data-dismiss="modal">
+						<i class="fa fa-close fa-2x"></i>
+					</button>
+				</div>
+				<div class="modal-body">
+					<table width="100%" border="0" id="table1" >
+							<tbody>
+							      <tr class="subInventoryName"><td><b>Sub Inventory Name :</b></td><td align="left">Sub Inventory 1</td></tr>
+							      <tr class="storeName"><td><b>Store Name :</b></td><td align="left">Store 1</td></tr>
+							      <tr class="subActive"><td><b>Status :</b></td><td align="left">Active</td></tr>
+							</tbody>
+						
+			        </table> 
+				</div>
+				 <div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				 </div>
+			</div>
+		</div>
+	</div>
+	<!-- Modal End-->
+	<!-- /# row -->
+	</div>
+ </div>
+</html>

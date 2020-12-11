@@ -1,0 +1,483 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+
+.content-wrap .card {
+    background: #ffffff;
+    margin: 0px;
+    padding: 10px;
+    border: 1px solid #e7e7e7;
+    border-radius: 3px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    min-height: 0vh;
+}
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 490px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script>
+	function addPaymentVoucher(index) {
+		//var id = window.atob(index);
+		window.window.location.href = "/inventory/add-payment-voucher";
+	}
+	$(document).ready(function() {
+
+		$('#table').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-reimbursement-payment-voucher-ajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+					d.param3 = $('#param3').val();
+					d.param4 = $('#param4').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'employeeId'
+			}, {
+				'data' : 'reimbNo'
+			}, {
+				'data' : 'reqNo'
+			}, {
+				'data' : 'placeName'
+			}, {
+				'data' : 'totalAmonut'
+			}, {
+				'data' : 'advanceTaken'
+			}, {
+				'data' : 'amountTobePaid'
+			}, {
+				'data' : 'referenceNo'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+
+	function searchData() {
+		$('#table').DataTable().draw();
+	}
+
+	function confirmPrint(id) {
+
+		window.open("/download/inventory-view-payment-voucher-view-pdf?id="
+				+ id, '_blank');
+	}
+
+	$(document).ready(function() {
+		//date time picker
+		$("#param3").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+
+			timepicker : false,
+		})
+		//date time picker
+		$("#param4").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+	});
+
+	/*
+	 * For ViewDetails of CostCenter
+	 */
+	function viewModalOfPartialPaymentDetailsPfd(id) {
+		window.open("/download/reimbursement-view-payment-pdf?id=" + id,
+				'_blank');
+	}
+
+	function viewModalOfPaymentDetails(index) {
+		$('#table1').empty();
+		$('#table2').empty();
+		$
+				.ajax({
+					type : "POST",
+					url : "view-reimbursement-payment-voucher-modal",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+
+						if (response.message == "success") {
+							var mode = response.body.paymentMode;
+
+							if (response.body.chequeNo != null
+									&& response.body.chequeNo != '') {
+								table = '<tr><th><b>Transaction Date</b></th><th><b>Payment Mode</b></th><th><b>Cheque Number</b></th><th><b>Voucher Number</b></th><th><b>Amount</b></th>';
+								$('#myModal').modal('show');
+								$('#table1').append(table);
+
+								table = '<tr><td>'
+										+ response.body.transactionDate
+										+ '</td><td>'
+										+ response.body.paymentMode
+										+ '</td><td>'
+										+ response.body.chequeNo
+										+ '</td><td>'
+										+ response.body.referenceNo
+										+ '</td><td>'
+										+ (response.body.amountTobePaid)
+												.toFixed(2) + '</td></tr>';
+								$('#table1').append(table);
+								$('#myModal').modal('show');
+							} else if (response.body.transactionNo != null
+									&& response.body.transactionNo != '') {
+								table = '<tr><th><b>Transaction Date</b></th><th><b>Payment Mode</b></th><th><b>Transaction Number</b></th><th><b>Voucher Number</b></th><th><b>Amount</b></th>';
+								$('#myModal').modal('show');
+								$('#table1').append(table);
+
+								table = '<tr><td>'
+										+ response.body.transactionDate
+										+ '</td><td>'
+										+ response.body.paymentMode
+										+ '</td><td>'
+										+ response.body.transactionNo
+										+ '</td><td>'
+										+ response.body.referenceNo
+										+ '</td><td>'
+										+ (response.body.amountTobePaid)
+												.toFixed(2) + '</td></tr>';
+								$('#table1').append(table);
+								$('#myModal').modal('show');
+							} else {
+								table = '<tr><th><b>Transaction Date</b></th><th><b>Payment Mode</b></th><th><b>Voucher Number</b></th><th><b>Amount</b></th>';
+								$('#myModal').modal('show');
+								$('#table1').append(table);
+
+								table = '<tr><td>'
+										+ response.body.transactionDate
+										+ '</td><td>'
+										+ response.body.paymentMode
+										+ '</td><td>'
+										+ response.body.referenceNo
+										+ '</td><td>'
+										+ response.body.referenceNo
+										+ '</td><td>'
+										+ (response.body.amountTobePaid)
+												.toFixed(2) + '</td></tr>';
+								$('#table1').append(table);
+								$('#myModal').modal('show');
+							}
+
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+
+	function viewModal(index) {
+		$('#table1').empty();
+		$('#table2').empty();
+		$
+				.ajax({
+					type : "POST",
+					url : "view-reimbursement-payment-voucher-modal",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							table = '<tr><td>Reimbursement Number :</td>'
+									+ '<td align="left">'
+									+ response.body.reimbNo
+									+ '</td>'
+									+ '</tr><tr><td>Requisition Number:</td><td align="left">'
+									+ response.body.reqNo
+									+ '</td></tr><tr><td>Place Namer:</td>'
+									+ '<td align="left">'
+									+ response.body.placeName
+									+ '</td></tr><tr><td>Reimbursement Amount :</td>'
+									+ '<td >'
+									+ (response.body.totalAmonut).toFixed(2)
+									+ '</td>'
+									+ '</tr><tr><td>Advance Taken:</td><td >'
+									+ (response.body.advanceTaken).toFixed(2)
+									+ '</td>'
+									+ '</tr><tr><td>Amount To be Paid:</td><td >'
+									+ (response.body.amountTobePaid).toFixed(2)
+									+ '</td>'
+									+ '</tr><tr><td >Payment Mode:</td><td >'
+									+ response.body.paymentMode + '</td></tr>';
+							$('#myModalPayments').modal('show');
+							$('#table2').append(table);
+							if (response.body.chequeNo != null
+									&& response.body.chequeNo != '') {
+								table = '<tr><th><b>Transaction Date</b></th><th><b>Cheque Number</b></th><th><b>Voucher Number</b></th><th><b>Amount</b></th>';
+								$('#myModalPayments').modal('show');
+								$('#table2').append(table);
+
+								table = '<tr><td>'
+										+ response.body.transactionDate
+										+ '</td><td>'
+										+ response.body.chequeNo
+										+ '</td><td>'
+										+ response.body.referenceNo
+										+ '</td><td>'
+										+ (response.body.amountTobePaid)
+												.toFixed(2) + '</td></tr>';
+								$('#table2').append(table);
+								$('#myModalPayments').modal('show');
+							} else if (response.body.transactionNo != null
+									&& response.body.transactionNo != '') {
+								table = '<tr><th><b>Transaction Date</b></th><th><b>Transaction Number</b></th><th><b>Voucher Number</b></th><th><b>Amount</b></th>';
+								$('#myModalPayments').modal('show');
+								$('#table2').append(table);
+
+								table = '<tr><td>'
+										+ response.body.transactionDate
+										+ '</td><td>'
+										+ response.body.transactionNo
+										+ '</td><td>'
+										+ response.body.referenceNo
+										+ '</td><td>'
+										+ (response.body.amountTobePaid)
+												.toFixed(2) + '</td></tr>';
+								$('#table2').append(table);
+								$('#myModalPayments').modal('show');
+							} else {
+								table = '<tr><th><b>Transaction Date</b></th><th><b>Voucher Number</b></th><th><b>Amount</b></th>';
+								$('#myModalPayments').modal('show');
+								$('#table2').append(table);
+
+								table = '<tr><td>'
+										+ response.body.transactionDate
+
+										+ '</td><td>'
+										+ response.body.referenceNo
+										+ '</td><td>'
+										+ (response.body.amountTobePaid)
+												.toFixed(2) + '</td></tr>';
+								$('#table2').append(table);
+								$('#myModalPayments').modal('show');
+							}
+
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{add-reimbursement-payment-voucher}">Add
+							Reimbursement Payment Voucher </a></li>
+					<li class="active"><span>View Reimbursement Payment
+							Voucher </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Listing of Reimbursement Payment Voucher</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div id="demo" class="collapse">
+						<div class="search-field">
+							<div class="row">
+								<div class="col-md-2">
+									<label>Employee Name</label>
+								</div>
+								<div class="col-md-3">
+									<select class="form-control" id="param1">
+										<option value="">--Select--</option>
+										<option th:each="c:${employeeList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+
+									</select>
+								</div>
+								<div class="col-md-2">
+									<div class="org-name">Requisition Number</div>
+								</div>
+								<div class="col-md-3">
+									<select class="form-control" id="param2">
+										<option value="">--Select--</option>
+										<option th:each="c:${travelReqList}" th:value='${c.key}'
+											th:text="${c.key}"></option>
+
+									</select>
+								</div>
+
+							</div>
+							<div class="row">
+
+								<div class="col-md-2">
+									<label>From Date</label>
+								</div>
+								<div class="col-md-3">
+
+									<input type="text" class="form-control" id="param3"
+										th:name="fromDate" readonly>
+								</div>
+								<div class="col-md-2">
+									<label>To Date</label>
+								</div>
+								<div class="col-md-3">
+									<input type="text" class="form-control" id="param4"
+										th:name="toDate" readonly>
+								</div>
+							</div>
+
+
+
+							<div class="row">
+								<div class="col-md-2">
+									<div class="form-group">
+										<button class="btn btn-primary" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div> 
+							
+							<div class="row">
+								<div class="col-md-1">
+									<div class="form-group">
+										<a class="btn btn-secondary"
+											href="add-reimbursement-payment-voucher">Create</a>
+									</div>
+								</div>
+								<div class="col-md-1">
+									<div class="form-group">
+										<button class="btn btn-info">Import</button>
+									</div>
+								</div>
+								<div class="col-md-1">
+									<div class="form-group">
+										<button class="btn btn-warning">
+											<i class="fa fa-download"> </i>
+										</button>
+									</div>
+								</div>
+								<div class="col-md-1"></div>
+							</div>
+							
+							
+
+						</div>
+					</div>
+				</div>
+				<a data-toggle="collapse" data-target="#demo"
+					class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+				</a>
+
+				<div class="row">
+
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Employee Name</th>
+									<th>Reimbursement Number</th>
+									<th>Requisition Number</th>
+									<th>Place Name</th>
+									<th>Reimbursement Amount</th>
+									<th>Advance Amount</th>
+									<th>Total Paid</th>
+									<th>Payment Details</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+
+						</table>
+
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- Modal Start-->
+	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Payment Details</h4>
+					<button type="button" class="close" data-dismiss="modal">
+						<i class="fa fa-close fa-2x"></i>
+					</button>
+				</div>
+				<div class="modal-body">
+					<table width="100%" border="0" id="table1">
+
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- Modal End-->
+	<!-- /# row -->
+
+	<!-- Modal Start-->
+	<div id="myModalPayments" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">Reimbursement Payment Details</h4>
+					<button type="button" class="close" data-dismiss="modal">
+						<i class="fa fa-close fa-2x"></i>
+					</button>
+				</div>
+				<div class="modal-body">
+					<table width="100%" border="0" id="table2">
+
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- Modal End-->
+
+
+</div>
+</html>

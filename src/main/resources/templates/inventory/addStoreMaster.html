@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+//Function For Blank Validation
+function validateForm() {
+    if (!blankValidation("storeName", "TextField", " Store Name can not be left blank"))
+        return false;
+    if (!checkSpecialCharacter("storeName", "Special character is not allowed!!!"))
+        return false;
+    if (!blankValidation("storeDescription", "TextArea", "Description can not be left blank"))
+        return false;
+    if (!blankValidation("storeActive", "SelectBox", "select status"))
+        return false;
+}
+
+//method to reload the page
+function funcLoad() {
+    location.reload();
+}
+
+//method to return view page if not edit
+function returnToAddPage() {
+        window.location.href = "/inventory/view-store-master";
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class="active"><span>Add Store</span></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:action="@{add-store-master}"
+								th:object="${inventoryStoreMasterModel}" method="post" class=""
+								onsubmit="return validateForm();" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<input type="hidden" th:field="*{store}" id="store" />
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Store Name</label> <input type="text"
+												class="form-control" value="" th:field="*{storeName}">
+										</div>
+										<div class="form-group">
+											<label>Description</label>
+											<textarea name="storeDescription"
+												th:field="*{storeDescription}" cols="" rows=""
+												class="form-control textarea"></textarea>
+										</div>
+										<div class="form-group">
+											<label>Status</label> <select class="form-control"
+												th:field="*{storeActive}">
+												<option th:value="NULL">Select</option>
+												<option th:value="true">Active</option>
+												<option th:value="false">InActive</option>
+											</select>
+										</div>
+										<div class="form-group">&nbsp;</div>
+										<div class="form-group">
+											<input type="submit" value="Submit" class="btn btn-success" />
+											<input type="reset" value="Cancel" class="btn btn-warning"
+												onclick="returnToAddPage();" />
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

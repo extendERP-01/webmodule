@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:th="http://www.thymeleaf.org"
+   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+   layout:decorate="~{layout/master}">
+   <head>
+      <script type="text/javascript">
+      $(document).ready(function () {
+    		$('#table').DataTable({
+    			'processing': true,
+    			'serverSide': true,
+    			'searching': false,
+    			'ordering': false,
+    			"ajax": {
+    				'url': 'view-requistion-through-ajax',
+    				'data': function (d) {
+    					d.param1 = $('#param1').val();
+    					d.param2 = $('#param2').val();
+    				}
+    			},
+    			'dataSrc': "",
+    			'columns': [{
+    					'data': 'jobCode'
+    				},
+    				{
+    					'data': 'jobTitle'
+    				},
+    				{
+    					'data': 'department'
+    				},
+    				{
+    					'data': 'hiringManager'
+    				},
+    				{
+    					'data': 'onboardBy'
+    				},
+    				{
+    					'data': 'budget'
+    				},
+    				{
+    					'data': 'action'
+    				}
+    			]
+    		});
+    	});
+
+    	function searchData() {
+    		$('#table').DataTable().draw();
+    	}
+
+    	function deleterequistion(id) {
+
+    		swal.fire({
+    			title: "Are you sure want to Delete?",
+    			text: "Once Deleted,Can't revert back !",
+    			type: "warning",
+
+    			showCancelButton: true,
+    			confirmButtonColor: "#DD6BB5",
+    			confirmButtonText: "Delete",
+    			showLoaderOnConfirm: true,
+    			reverseButtons: true,
+    			preConfirm: () => {
+    				return new Promise((resolve) => {
+    					setTimeout(() => {
+    						console.log("Doing async operation");
+    						resolve()
+    					}, 3000)
+    				})
+    			}
+    		}).then((result) => {
+    			if (result.value) {
+    				$.ajax({
+    					type: "GET",
+    					url: "/recruitment/view-requistion-delete?id=" + id,
+    					dataType: "json",
+    					contentType: "application/json",
+    					data: id,
+    					success: function (response) {
+    						console.log(response);
+    						if (response.message == "success") {
+
+    							swal({
+    								title: "Data Deleted Successfully.",
+    								type: "success",
+    							}).then(function () {
+    								location.reload();
+    							})
+    						} else {
+    							swal({
+    								title: response.code,
+    								text: response.message,
+    								type: "warning"
+    							})
+    						}
+    					},
+    					error: function (data) {
+    						console.log(data)
+    					}
+    				}) //ajax ends
+    			}
+    		}) //swal function block ends
+    	}
+
+
+    	function viewModal(id) {
+    		$('#table5').empty();
+    		$.ajax({
+    			type: "POST",
+    			url: "view-requistion-modalView",
+    			dataType: 'json',
+    			contentType: 'application/json',
+    			data: id,
+    			success: function (response) {
+    				if (response.message == "success") {
+    					table = '<tr><td><b>jobTitle:</b></td>' +
+    						'<td align="left">' +
+    						response.body[0].jobTitle +
+    						'</td>' +
+    						'</tr><tr></tr>';
+    					$('#myModal1').modal('show');
+    					$('#table5').append(table);
+    					table = '<tr><th><b>Department</b></th><th><b>hiringManager</b></th><th><b>onboardBy</b></th><th><b>Budget</b></th>';
+
+    					$('#myModal').modal('show');
+    					$('#table5').append(table); {
+    						table = '<tr><td>' +
+    							response.body[0].department +
+    							'</td><td>' +
+    							response.body[0].hiringManager +
+    							'</td><td>' +
+    							response.body[0].onboardBy +
+    							'</td><td>' +
+    							response.body[0].budget +
+    							'</td></tr>';
+    						$('#myModal').modal('show');
+    						$('#table5').append(table);
+    					}
+
+    				}
+    			},
+    			error: function (data) { 
+    			}
+    		})
+
+    	}
+      </script>
+   </head>
+   <div layout:fragment="content">
+      <div class="content-wrap">
+         <div class="main mrt_20">
+            <div class="col-md-12">
+               <ol class="breadcrumb breadcrumb-arrow">
+                  <li><a href="index.html">Home</a></li>
+                  <li><a th:href="@{/recruitment/add-requistion-details}">Add Job
+                     Requisition</a>
+                  </li>
+                  <li class="active"><span>View Job Requisition</span></li>
+               </ol>
+            </div>
+            <div class="card-title">
+               <h4>View Job Requisition</h4>
+            </div>
+            <div class="container-fluid">
+               <div class="card">
+                  <div class="search-field">
+                     <div class="row">
+                        <div class="col-md-1">
+                           <div class="form-group">
+                              <a class="btn btn-secondary" href="add-requistion">Create</a>
+                           </div>
+                        </div>
+                        <div class="col-md-1">
+                           <div class="form-group">
+                              <button class="btn btn-info">Import</button>
+                           </div>
+                        </div>
+                        <div class="col-md-1">
+                           <div class="form-group">
+                              <button class="btn btn-warning">
+                              <i class="fa fa-download"> </i>
+                              </button>
+                           </div>
+                        </div>
+                        <div class="col-md-1"></div>
+                     </div>
+                     <div class="row">
+                        <div class="col-md-2">
+                           <label>Job Code</label> 
+                           <select class="form-control" id="param1">
+                              <option value="">--Select--</option>
+                              <option th:each="c,iter:${jobCodeList}" th:value="${c.key}"
+                                 th:text="${c.key}"></option>
+                           </select>
+                        </div>
+                        <div class="col-md-2">
+                           <label>Department</label> 
+                           <select class=" form-control "
+                              id="param2">
+                              <option value="">--Select--</option>
+                              <option th:each="c,iter:${DepartmentList}" th:value="${c.key}"
+                                 th:text="${c.name}"></option>
+                           </select>
+                        </div>
+                        <div class="col-md-2" style="margin-top: 27px;">
+                           <div class="form-group">
+                              <input type="button" class="btn btn-info" value="Search"
+                                 onclick="searchData()" />
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="table-responsive" style="width: 100%;">
+                        <table id="table" class="table table-bordered">
+                           <thead>
+                              <tr>
+                                 <th>Job Code</th>
+                                 <th>Job Title</th>
+                                 <th>Department</th>
+                                 <th>Hiring Manager</th>
+                                 <th>OnBoardBy</th>
+                                 <th>Budget</th>
+                                 <th align="center">Action</th>
+                              </tr>
+                           </thead>
+                        </table>
+                     </div>
+                     <div style="clear: both;"></div>
+                  </div>
+               </div>
+            </div>
+            <!-- Modal Start-->
+            <div id="myModal1" class="modal fade" role="dialog">
+               <div class="modal-dialog modal-lg">
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                     <div class="modal-header">
+                        <h4 class="modal-title" style="color: #007bff;">Job Requisition
+                           Details
+                        </h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                     </div>
+                     <div class="modal-body">
+                        <table style="width: 100%; border: 0;" id="table5">
+                        </table>
+                     </div>
+                     <div class="modal-footer">
+                        <button type="button" class="btn btn-default"
+                           data-dismiss="modal">Close</button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <!-- Modal End-->
+         </div>
+      </div>
+   </div>
+</html>

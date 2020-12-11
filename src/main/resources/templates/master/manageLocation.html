@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<link rel="stylesheet" href="../assets/css/extend/style-extend.css">
+<!-- <script src="../assets/js/extend/treed.js"></script> -->
+
+
+<script>
+	function openNav() {
+		document.getElementById("mySidenav").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
+		document.getElementById("main").style.width = "420px";
+	}
+
+	function closeNav() {
+		document.getElementById("mySidenav").style.width = "0";
+		document.getElementById("main").style.width = "480px";
+	}
+</script>
+<script type="text/javascript">
+	$(document)
+			.ready(
+					function() {
+						$.fn
+								.extend({
+									treed : function(o) {
+
+										/*var openedClass = 'fa-minus-circle';
+										var closedClass = 'fa-plus-circle';*/
+										var openedClass = 'fa fa-angle-down';
+										var closedClass = 'fa fa-angle-right ';
+
+										if (typeof o != 'undefined') {
+											if (typeof o.openedClass != 'undefined') {
+												openedClass = o.openedClass;
+											}
+											if (typeof o.closedClass != 'undefined') {
+												closedClass = o.closedClass;
+											}
+										}
+										;
+
+										//initialize each of the top levels
+										var tree = $(this);
+										tree.addClass("tree");
+										tree
+												.find('li')
+												.has("ul")
+												.each(
+														function() {
+															var branch = $(this); //li with children ul
+															branch
+																	.prepend("<i class='indicator fa " + closedClass + "'></i>");
+															branch
+																	.addClass('branch');
+															branch
+																	.on(
+																			'click',
+																			function(
+																					e) {
+																				if (this == e.target) {
+																					var icon = $(
+																							this)
+																							.children(
+																									'i:first');
+																					icon
+																							.toggleClass(openedClass
+																									+ " "
+																									+ closedClass);
+																					$(
+																							this)
+																							.children()
+																							.children()
+																							.toggle();
+																				}
+																			})
+															branch.children()
+																	.children()
+																	.toggle();
+														});
+										//fire event from the dynamically added icon
+										tree
+												.find('.branch .indicator')
+												.each(
+														function() {
+															$(this)
+																	.on(
+																			'click',
+																			function() {
+																				$(
+																						this)
+																						.closest(
+																								'li')
+																						.click();
+																			});
+														});
+										//fire event to open branch if the li contains an anchor instead of text
+										tree.find('.branch>a').each(function() {
+											$(this).on('click', function(e) {
+												$(this).closest('li').click();
+												e.preventDefault();
+											});
+										});
+										//fire event to open branch if the li contains a button instead of text
+										tree
+												.find('.branch>button')
+												.each(
+														function() {
+															$(this)
+																	.on(
+																			'click',
+																			function(
+																					e) {
+																				$(
+																						this)
+																						.closest(
+																								'li')
+																						.click();
+																				e
+																						.preventDefault();
+																			});
+														});
+									}
+								});
+
+						$('#tree1').treed();
+
+						$('#tree2').treed({
+							openedClass : 'glyphicon-folder-open',
+							closedClass : 'glyphicon-folder-close'
+						});
+
+						$('#tree3').treed({
+							openedClass : 'glyphicon-chevron-right',
+							closedClass : 'glyphicon-chevron-down'
+						});
+					})
+</script>
+<script type="text/javascript">
+$(document).ready(function() {
+
+	$("#locCountry").change(function(){
+		var country = $(this).val();
+		if(country) {
+			$.ajax({
+				type : "POST",
+				url : "manage-location-get-state-list",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : country,
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						$("#locState").empty();
+						$("#locState").append("<option value=''>Select</option>");
+						$("#locCity").empty();
+						$("#locCity").append("<option value=''>Select</option>");
+						
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#locState").append(option);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+					$("#locState").empty();
+					$("#locState").append("<option value=''>Select</option>");
+					$("#locCity").empty();
+					$("#locCity").append("<option value=''>Select</option>");
+				}
+			})
+		} else {
+			$("#locState").empty();
+			$("#locState").append("<option value=''>Select</option>");
+			$("#locCity").empty();
+			$("#locCity").append("<option value=''>Select</option>");
+		}
+	})
+	
+	$("#locState").change(function(){
+		var state = $(this).val();
+		if(state) {
+			$.ajax({
+				type : "POST",
+				url : "manage-location-get-city-list",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : state,
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						$("#locCity").empty();
+						$("#locCity").append("<option value=''>Select</option>");
+						
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#locCity").append(option);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+					$("#locCity").empty();
+					$("#locCity").append("<option value=''>Select</option>");
+				}
+			})
+		} else {
+			$("#locCity").empty();
+			$("#locCity").append("<option value=''>Select</option>");
+		}
+	})
+
+	$("#newBtn").click(function() {
+		$("#myTbl").hide();
+		$(".btn-hs").hide();
+		$("#demo").show();
+	})
+
+	$("#cancelBtn").click(function() {
+		$("#myTbl").show();
+		$(".btn-hs").show();
+		$("#demo").hide();
+	});
+	$("#quarter").click(function() {
+		$("#myTbl").hide();
+		$(".btn-hs").hide();
+		$("#demo").show();
+	})
+
+	$("#cancelBtn").click(function() {
+		$("#myTbl").show();
+		$(".btn-hs").show();
+		$("#demo").hide();
+	});
+	
+	$("input[class='myCheckbox']").click(function() {
+		if ($("#formID input:checkbox:checked").length > 0) {
+
+			$(".checkSubmit").addClass('active');
+		} else {
+			$(".checkSubmit").removeClass('active');
+		}
+	});
+	
+	$("#saveLocation").click(function(){
+		
+		data = {};
+		
+		data.locationId = $("#locationId").val();
+		data.locationName = $("#locationName").val();
+		data.locationCode = $("#locationCode").val();
+		data.locationType = $("#locationType").val();
+		data.locCountry = $("#locCountry").val();
+		data.locState = $("#locState").val();
+		data.locCity = $("#locCity").val();
+		data.locStreet = $("#locStreet").val();
+		data.locVirtual = $("input[name='isVirtual']:checked").val();
+		data.locStatus = $("input[name='isActive']:checked").val();
+		
+		submitLocation(data);
+		
+	})
+	
+});
+
+function submitLocation(dataset) {
+    console.log(dataset)
+    $.ajax({
+        type: "POST",
+        url: "manage-location-save",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(dataset),
+        success: function(response) {
+            if (response.message == "Success") {
+                location.reload();
+                /* swal({
+                    title: "Data Saved Successfully.",
+                    type: "success",
+                }).then(function() {
+                	window.location.href = "/inventory/view-items" ;
+                }) */
+
+            } else {
+                swal({
+                    title: response.code,
+                    text: response.message,
+                    type: "warning"
+                })
+            }
+        },
+        error: function(response) {
+            console.log(response);
+        }
+    })
+}
+
+function saveFile() {
+	var uFile = $('#fileUpload')[0].files[0]; 
+	var fileName = $('#fileUpload').val();
+	
+	var lastIndex = fileName.lastIndexOf("\\");
+	if(lastIndex >= 0) {
+		fileName = fileName.substring(lastIndex + 1);
+	}
+	var iURL = URL.createObjectURL(uFile);
+	
+	$('#imgLoc').attr('src', '');
+	$('#imgLoc').attr('src', iURL);
+	
+	var fileData = new FormData();
+	fileData.append('file',uFile);
+	fileData.append('path','none');
+	
+	$.ajax({
+		type        : "POST",
+		url         : "manage-location-upload-file",
+		enctype     : "multipart/form-data",
+		contentType : false,
+		data        : fileData,
+		processData : false,
+		cache       : false,
+		success     : function(response){
+						
+					},			  
+		error       : function(e) {
+			
+			  		}
+	});
+}
+
+function deleteFile() {
+	
+	$('#imgLoc').attr('src', '');
+	$('#imgLoc').attr('src', '../assets/images/noimage.jpg');
+	
+	var fileData = new FormData();
+	
+	fileData.append('file','none');
+	fileData.append('path','none');
+	
+	$.ajax({
+		type        : "POST",
+		url         : "manage-location-delete-file",
+		enctype     : "multipart/form-data",
+		contentType : false,
+		/* data        : fileData, */
+		processData : false,
+		cache       : false,
+		success     : function(response){
+						
+					},			  
+		error       : function(e) {
+			
+			  		}
+	});
+}
+
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+
+			<div class="maincontentsec">
+				<div class="content_padding">
+					<div class="row margin_topbot btn-hs">
+						<div class="col-md-8 padding-7">
+							<div class="input-style row">
+								<div class="autocomplete">
+									<input id="myInput" type="text" name="myCountry"
+										class="searchboxinput" placeholder="Software..">
+								</div>
+								<div class="searchicon">
+									<a href="#"><span class="close_i">X</span></a> <a href="#"><i
+										class="fa fa-search"></i></a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--  <form enctype="multipart/form-data"> -->
+					<div class="row">
+
+						<div class="col-md-8 padding-7 btn-hs">
+							<div class="font-design">
+								Location LIST <span th:text="${'('+count+')'}"></span>
+							</div>
+						</div>
+						<div class="col-md-2 btn-hs">
+							<div class="row">
+								<button class="btn1" id="newBtn">NEW</button>
+								<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+								<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+								<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+							</div>
+						</div>
+						<div class="col-md-2 btn-hs padding-7" align="right">
+							<button class="btn4">Upload</button>
+							<button class="btn4">Download</button>
+						</div>
+
+					</div>
+
+					<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1" style="background: #fff;">
+						<thead>
+							<tr>
+								<th align="center" width="20"><input type="checkbox"
+									class="allChkBox"></th>
+								<th align="center">ID</th>
+								<th align="center">Code</th>
+								<th align="center">Name</th>
+								<th align="center">Type</th>
+								<th align="center">Virtual</th>
+								<th align="center">Address</th>
+								<th align="center">City</th>
+								<th align="center">State</th>
+								<th align="center">Country</th>
+								<th align="center">Status</th>
+								<th align="center">Create Date</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="c,iter:${locationList}">
+								<td align="center"><input type="checkbox"
+									class="chkbox" name=""></td>
+								<td align="left">
+									<div class="txt-blue" th:text="${c.locationId}"></div>
+								</td>
+								<td>
+									<div class="txt-blue" data-toggle="collapse"
+										data-target="#demo" id="quarter" th:text="${c.locationCode}"></div>
+								</td>
+								<td align="left" th:text="${c.locationName}"></td>
+								<td th:text="${c.locationType}"></td>
+								<td th:text="${c.locVirtual}"></td>
+								<td th:text="${c.locStreet}"></td>
+								<td align="left" th:text="${c.locCity}"></td>
+								<td align="left" th:text="${c.locState}"></td>
+								<td align="left" th:text="${c.locCountry}"></td>
+								<td align="center" th:text="${c.locStatus}"></td>
+								<td align="center" th:text="${c.createdDate}"></td>
+							</tr>
+							<!-- <tr>
+								<td align="center" bgcolor="#FFF"><input type="checkbox"
+									class="chkbox" name=""></td>
+								<td align="center" bgcolor="#FFF">
+									<div class="txt-blue">1004</div>
+								</td>
+								<td bgcolor="#FFF">
+									<div class="txt-blue" data-toggle="collapse"
+										data-target="#demo">BLR-I</div>
+								</td>
+								<td align="left" bgcolor="#FFF">Bangalore Office</td>
+								<td bgcolor="#FFF">Office</td>
+								<td bgcolor="#FFF"></td>
+								<td bgcolor="#FFF">1 Main Street</td>
+								<td bgcolor="#FFF" align="left">Chicago</td>
+								<td bgcolor="#FFF" align="left">Illinois</td>
+								<td bgcolor="#FFF" align="center">USA</td>
+								<td bgcolor="#FFF" align="center">Active</td>
+								<td bgcolor="#FFF" align="center">9-Oct-2020</td>
+							</tr>
+							<tr>
+								<td align="center" bgcolor="#FFF"><input type="checkbox"
+									class="chkbox" name=""></td>
+								<td align="center" bgcolor="#FFF">
+									<div class="txt-blue">972</div>
+								</td>
+								<td bgcolor="#FFF">
+									<div class="txt-blue" data-toggle="collapse"
+										data-target="#demo">WH-B-I</div>
+								</td>
+								<td align="left" bgcolor="#FFF">B-1 Warehouse</td>
+								<td bgcolor="#FFF">Warehouse</td>
+								<td bgcolor="#FFF"></td>
+								<td bgcolor="#FFF">1 Main Street</td>
+								<td bgcolor="#FFF" align="left">Chicago</td>
+								<td bgcolor="#FFF" align="left">Illinois</td>
+								<td bgcolor="#FFF" align="center">USA</td>
+								<td bgcolor="#FFF" align="center">Active</td>
+								<td bgcolor="#FFF" align="center">9-Oct-2020</td>
+							</tr>
+							<tr>
+								<td align="center" bgcolor="#FFF"><input type="checkbox"
+									class="chkbox" name=""></td>
+								<td align="center" bgcolor="#FFF">
+									<div class="txt-blue">471</div>
+								</td>
+								<td bgcolor="#FFF">
+									<div class="txt-blue" data-toggle="collapse"
+										data-target="#demo">Store-123</div>
+								</td>
+								<td align="left" bgcolor="#FFF">Store 123</td>
+								<td bgcolor="#FFF">Store</td>
+								<td bgcolor="#FFF"></td>
+								<td bgcolor="#FFF">1 Main Street</td>
+								<td bgcolor="#FFF" align="left">Chicago</td>
+								<td bgcolor="#FFF" align="left">Illinois</td>
+								<td bgcolor="#FFF" align="center">USA</td>
+								<td bgcolor="#FFF" align="center">Active</td>
+								<td bgcolor="#FFF" align="center">9-Oct-2020</td>
+							</tr> -->
+						</tbody>
+					</table>
+					<!--  </div> -->
+					<div class="collapse" id="demo">
+						<div class="row">
+							<div class="col-md-4">Location ID: </div>
+							<div class="col-md-8" align="right">
+								<button class="btn3" id="cancelBtn">Cancel</button>
+								<button class="btn1" id="saveLocation">Save</button>
+							</div>
+							<div class="col-md-3">
+								<input type="hidden" id="locationId">
+								<div class="hvrbox">
+									<img src="../assets/images/noimage.jpg" id="imgLoc" alt="Location"
+										class="hvrbox-layer_bottom img-fluid" style="height: 203px; width: 241px;">
+									<!-- <img src="../assets/images/noimage.jpg" alt="Location"
+										class="hvrbox-layer_bottom img-fluid"> -->
+									<div class="hvrbox-layer_top">
+										<div class="hvrbox-text">
+											<!-- <span><i class="fa fa-pencil-square-o"></i></span> -->
+											<input type="file" id="fileUpload" hidden  onchange="saveFile();"/> <span><label
+												for="fileUpload"><i class="ti-files" style="cursor:pointer;"></i>
+												<!-- <i class="fa fa-pencil-square-o"></i> --></label></span> <span><i
+												class="fa fa-trash red" onclick="deleteFile();"></i></span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-9">
+								<div class="row">
+									<div class="col-md-12">
+										<!-- <div class="name-bar">Head Quarter</div> -->
+										<input type="text" name="code" value=""
+											placeholder="Location Name" class="form-control_big" id="locationName">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>Code</label> <input type="text" name="code" value=""
+												placeholder="Location Code" class="form-control" id="locationCode">
+										</div>
+									</div>
+
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>Type</label> <select class="form-control"
+												id="locationType">
+												<option th:each="c,iter:${locationTypeList}" th:value="${c.key}" th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-md-2">
+										<div class="form-group mrt_25">
+											<input type="checkbox" name="isVirtual" id="locVirtual" value="1"> <label>Virtual</label>
+										</div>
+									</div>
+									<div class="col-md-2">
+										<div class="form-group mrt_25">
+											<input type="checkbox" name="isActive" id="locStatus" value="1"> <label>Active</label>
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>Country</label> <select class="form-control"
+												id="locCountry">
+												<option value="">Select</option>
+												<option th:each="c,iter:${countryList}" th:value="${c.key}" th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>State</label> <select class="form-control"
+												id="locState">
+												<option value="">Select</option>
+											</select>
+										</div>
+									</div>
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>City</label> <select class="form-control"
+												id="locCity">
+												<option value="">Select</option>
+											</select>
+										</div>
+									</div>
+									<div class="col-md-8">
+										<div class="form-group">
+											<label>Street Address</label> <input type="text" id="locStreet"
+												name="Street" value="" placeholder="Street Name" autocomplete="off"
+												class="form-control">
+
+										</div>
+									</div>
+
+									
+								</div>
+							</div>
+
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="headingbar">
+									<a href="#" data-toggle="collapse" data-target="#demo_11"
+										style="color: #333; text-decoration: none;">Layout</a> <a
+										href="#" data-toggle="collapse" data-target="#demo_11"
+										style="float: right; color: #333; text-decoration: none;"><i
+										class="ti-angle-down"></i></a>
+								</div>
+							</div>
+						</div>
+						<div id="demo_11" class="collapse "> <!-- show -->
+							<div class="row">
+								<div class="col-md-4">
+									<div class="flowsection">
+										<div>Location -> Floor -> Section -> Room</div>
+										<ul id="tree1">
+											<li style="padding-left: 70px;">HQ - Headquater (45) <a
+												href="#"><i class="ti-plus"></i></a>
+												<ul>
+													<li>
+														<div class="mainclass">
+															<input type="checkbox" id="check1"> 1 - Floor 1
+															(0) <label for="check1"><a href="#"><i
+																	class="ti-plus"></i></a> <a href="#"><i
+																	class="ti-pencil"></i></a> <a href="#"><i
+																	class="ti-close"></i></a></label>
+														</div>
+														<ul class="secondstep">
+															<li>
+																<div class="subclass">
+																	<input type="checkbox" id="check2"> NW -
+																	Nortwest Section (4) <label for="check2"><a
+																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																			class="ti-pencil"></i></a> <a href="#"><i
+																			class="ti-close"></i></a></label>
+																</div>
+															</li>
+															<li>
+																<div class="subclass">
+																	<input type="checkbox" id="check3"> SW -
+																	Southwest Section (4) <label for="check3"><a
+																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																			class="ti-pencil"></i></a> <a href="#"><i
+																			class="ti-close"></i></a></label>
+																</div>
+															</li>
+															<li>
+																<div class="subclass">
+																	<input type="checkbox" id="check4"> N - North
+																	Section (5) <label for="check4"><a href="#"><i
+																			class="ti-plus"></i></a> <a href="#"><i
+																			class="ti-pencil"></i></a> <a href="#"><i
+																			class="ti-close"></i></a></label>
+																</div>
+															</li>
+															<li>
+																<div class="subclass">
+																	<input type="checkbox" id="check5"> S - South
+																	Section <label for="check5"><a href="#"><i
+																			class="ti-plus"></i></a> <a href="#"><i
+																			class="ti-pencil"></i></a> <a href="#"><i
+																			class="ti-close"></i></a></label>
+																</div>
+															</li>
+															<li>
+																<div class="subclass">
+																	<input type="checkbox" id="check6"> E - East
+																	Section <label for="check6"><a href="#"><i
+																			class="ti-plus"></i></a> <a href="#"><i
+																			class="ti-pencil"></i></a> <a href="#"><i
+																			class="ti-close"></i></a></label>
+																</div>
+															</li>
+														</ul>
+													</li>
+													<li>
+														<div class="mainclass">
+															<input type="checkbox" id="check7"> 2 - Floor 2
+															(45) <label for="check7"><a href="#"><i
+																	class="ti-plus"></i></a> <a href="#"><i
+																	class="ti-pencil"></i></a> <a href="#"><i
+																	class="ti-close"></i></a></label>
+														</div>
+														<ul class="secondstep">
+															<li>
+																<div class="subclass">
+																	<input type="checkbox" id="check8"> NW -
+																	Nortwest Section (4) <label for="check8"><a
+																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																			class="ti-pencil"></i></a> <a href="#"><i
+																			class="ti-close"></i></a></label>
+																</div>
+															</li>
+															<li>
+																<div class="subclass">
+																	<input type="checkbox" id="check9"> SW -
+																	Southwest Section (4) <label for="check9"><a
+																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																			class="ti-pencil"></i></a> <a href="#"><i
+																			class="ti-close"></i></a></label>
+																</div>
+															</li>
+															<li>
+																<div class="subclass">
+																	<input type="checkbox" id="check10"> N - North
+																	Section (5) <label for="check10"><a href="#"><i
+																			class="ti-plus"></i></a> <a href="#"><i
+																			class="ti-pencil"></i></a> <a href="#"><i
+																			class="ti-close"></i></a></label>
+																</div>
+															</li>
+															<li>
+																<div class="subclass">
+																	<input type="checkbox" id="check11"> S - South
+																	Section <label for="check11"><a href="#"><i
+																			class="ti-plus"></i></a> <a href="#"><i
+																			class="ti-pencil"></i></a> <a href="#"><i
+																			class="ti-close"></i></a></label>
+																</div>
+															</li>
+															<li>
+																<div class="subclass">
+																	<input type="checkbox" id="check12"> E - East
+																	Section <label for="check12"><a href="#"><i
+																			class="ti-plus"></i></a> <a href="#"><i
+																			class="ti-pencil"></i></a> <a href="#"><i
+																			class="ti-close"></i></a></label>
+																</div>
+															</li>
+														</ul>
+													</li>
+													<li>
+														<div class="mainclass">
+															<input type="checkbox"> 3 - Floor 3 (0) <a
+																href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																class="ti-pencil"></i></a> <a href="#"><i
+																class="ti-close"></i></a>
+														</div>
+														<ul class="secondstep">
+															<li>
+																<div class="subclass">Sales</div>
+																<ul class="secondstep">
+																	<li>
+																		<div class="subclass">Report1</div>
+																	</li>
+																	<li>
+																		<div class="subclass">Report2</div>
+																	</li>
+																	<li>
+																		<div class="subclass">Report3</div>
+																	</li>
+																</ul>
+															</li>
+															<li>
+																<div class="subclass">Marketing</div>
+															</li>
+														</ul>
+													</li>
+												</ul>
+											</li>
+											<!--   <li>
+                        <div>HRM</div>
+                        <ul>
+                           <li><div>Company Maintenance</div></li>
+                           <li>
+                            <div> Employees</div>
+                              <ul>
+                                 <li>
+                                    <div>Reports</div>
+                                    <ul>
+                                       <li><div>Report1</div></li>
+                                       <li><div>Report2</div></li>
+                                       <li><div>Report3</div></li>
+                                    </ul>
+                                 </li>
+                                 <li><div>Employee Maint.</div></li>
+                              </ul>
+                           </li>
+                           <li><div>Human Resources</div></li>
+                        </ul>
+                     </li> -->
+										</ul>
+									</div>
+								</div>
+
+								<div class="col-md-8">
+									<div class="roomdetails" id="main">
+										<h3>HQ-2-NW: Floor 2 - NorthWest Section (4)</h3>
+										<div class="row">
+											<div class="col-md-2">
+												<div class="plusbtn">+</div>
+											</div>
+
+											<div class="col-md-10 roomsection">
+												<div class="roombtn roombtnactive">Room 201</div>
+												<div class="roombtn">Room 202</div>
+												<div class="roombtn">Room 203</div>
+												<div class="roombtn">Room 204</div>
+											</div>
+										</div>
+										<h3>HQ-2-SW: Floor 2 - SouthWest Section (3)</h3>
+										<div class="row">
+											<div class="col-md-2">
+												<div class="plusbtn">+</div>
+											</div>
+
+											<div class="col-md-10 roomsection">
+												<div class="roombtn">Cube 1</div>
+												<div class="roombtn">Cube 2</div>
+												<div class="roombtn">Cube 3</div>
+											</div>
+										</div>
+										<h3>HQ-2-E: Floor 2 - East Section (3)</h3>
+										<div class="row">
+											<div class="col-md-2">
+												<div class="plusbtn">+</div>
+											</div>
+
+											<div class="col-md-10 roomsection">
+												<div class="roombtn">201</div>
+												<div class="roombtn">202</div>
+												<div class="roombtn">203</div>
+											</div>
+										</div>
+									</div>
+									<!-- </div>
+ <div class="col-md-3">  -->
+									<div class="slidearrow" onclick="openNav()">
+										<i class="ti-arrow-left"></i>
+									</div>
+									<div id="mySidenav" class="sidenav">
+										<div class="slidebox">
+											<div class="row">
+												<div class="col-md-10">
+													<div class="edit">HQ - 2 - NW - 201</div>
+												</div>
+												<div class="col-md-2">
+													<div class="arrow">
+														<a href="javascript:void(0)" class="closebtn"
+															onclick="closeNav()"><i class="ti-arrow-right"></i></a>
+													</div>
+												</div>
+
+												<div class="chartbtnsec">
+													<div class="row">
+														<button class="btn4">CANCEL</button>
+														<button class="btn3">DELETE</button>
+														<button class="btn1">SAVE</button>
+													</div>
+												</div>
+												<div class="col-md-12 mt-15">
+													<div class="form-group">
+														<label>ID</label> <input type="text"
+															class="form-control transparenttxtbox"
+															placeholder="Marketing">
+													</div>
+												</div>
+
+												<div class="col-md-12 mt-15">
+													<div class="form-group">
+														<label>Name</label> <input type="text"
+															class="form-control transparenttxtbox"
+															placeholder="Marketing">
+													</div>
+												</div>
+
+												<div class="col-md-12 mt-15">
+													<div class="form-group">
+														<label>Room Type</label> <select
+															class="form-control transparenttxtbox">
+
+															<option>Cubicle</option>
+															<option>Individual Room</option>
+															<option>Meeting Room</option>
+															<option>Conference Room</option>
+															<option>Executive Room</option>
+															<option>Kitchen</option>
+															<option>Storage</option>
+															<option>Restroom</option>
+															<option>Server Room</option>
+															<option>War Room</option>
+															<option>Hallway</option>
+															<option>Front Desk</option>
+														</select>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							</div>
+
+						</div>
+
+
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+</body>
+</html>

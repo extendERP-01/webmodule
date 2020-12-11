@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<style type="text/css">
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 440px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list1 li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.red {
+	background-color: #b3ccff;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 720px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+
+<script>
+function getBatchDetails() {
+	$("#tbodyData").empty();
+	if ($("#planId").val() != '') {
+		$.ajax({
+			type: "GET",
+			url: "add-production-goodsreturns-get-raw-details?planId=" + $("#planId").val() + "&storeId=" + $("#storeId").val(),
+			dataType: 'json',
+			contentType: 'application/json',
+			success: function (response) {
+				if (response.message == "Success") {
+					console.log(response)
+					for (var i = 0; i < response.body.length; i++) {
+						var table = '<tr>' +
+							'<td><input type="hidden" id="item_' + i + '" class="form-control itemCls" value="' + response.body[i].rawMaterialItem + '">' +
+							 '<input type="text" id="itemName_' + i + '" class="form-control itemCls1" onkeyup="itemAutoComplete(event);" name="item_" value="' + response.body[i].rawMaterialItemName + '" readonly /></td>' +
+							'<td><input type="text" id="issueQuantity_' + i + '" class="form-control  issueQuantityCls" value=""></td>' +
+							'<td><input type="text" id="serveType_' + i + '" class="form-control  serveTypeCls" readonly value="' + response.body[i].serveType + '"></td>' +
+							'</tr>';
+						$("#tbodyData").append(table);
+					}
+
+
+				}
+			},
+			error: function (data) {
+				console.log(data);
+			}
+		})
+	} else {
+		$("#batchId").empty();
+		var option = $("<option></option>");
+		$(option).val(null);
+		$(option).html("--Select--");
+		$("#batchId").append(option);
+	}
+}
+
+//method to check each row is not empty
+
+//method to add more row
+
+$(document).ready(function () {
+  
+	$("#returnDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+
+	})
+	
+	 $("#submit").click(function() {
+
+        var dataset = [];
+        $("#tbodyData > tr").each(function() { 
+            assign = {};
+            assign['storeID'] = $("#storeId").val();
+            assign['planId'] = $("#planId").val(); 
+            assign['description'] = $("#description").val();  
+            assign['returnDate'] = $("#returnDate").val();  
+            assign['rawItemId'] = $(this).find(".itemCls").val(); 
+            assign['retQty'] = $(this).find(".issueQuantityCls").val();
+            dataset.push(assign);
+            console.log(dataset);
+        }); //table tbody tr loop ends
+
+        
+        if (!blankValidation("storeId", "TextField", "Please Select Store"))
+            return false;
+        if (!blankValidation("planId", "TextField", "Please Select Plan Id"))
+            return false;
+        if (!blankValidation("prodItemId", "TextField", "Please Select Production Item"))
+            return false;
+       
+        if (!blankValidation("mixStartDate", "TextField", "Please Select Production Date"))
+            return false; 
+        var item = true;
+        $(".itemCls").each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Select Some Raw Item")) {
+                item = false;
+                return false;
+            }
+
+        });
+
+        var quantity = true;
+        if (item) {
+            $(".issueQuantityCls").each(function() {
+                if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Quantity")) {
+                    quantity = false;
+                    return false;
+                }
+
+            });
+        }
+
+        console.log(dataset)
+        if (item && quantity) {
+        	submitGoodsReturnsNote(dataset);
+        }
+
+
+
+    })
+
+	//method to show submit pop up
+
+	function submitGoodsReturnsNote(dataset) {
+		swal.fire({
+			title: "Are you sure want to Submit?",
+			text: "Once Submited,Can't revert back !",
+			type: "warning",
+
+			showCancelButton: true,
+			confirmButtonColor: "#DD6BB5",
+			confirmButtonText: "Submit",
+			showLoaderOnConfirm: true,
+			reverseButtons: true,
+			confirmButtonAriaLabel: 'Thumbs up, great!',
+			cancelButtonText: 'Cancel',
+			cancelButtonAriaLabel: 'Thumbs down',
+			preConfirm: () => {
+				return new Promise((resolve) => {
+					setTimeout(() => {
+						console.log("Doing async operation");
+						resolve()
+					}, 3000)
+				})
+			}
+		}).then((result) => {
+			if (result.value) {
+				$.ajax({
+					type: "POST",
+					url: "add-production-goodsreturns",
+					dataType: "json",
+					contentType: "application/json",
+					data: JSON.stringify(dataset),
+					success: function (response) {
+						if (response.message == "Success") {
+							swal({
+								title: "Data Saved Successfully.",
+								type: "success",
+							}).then(function () {
+								window.location.href = "/inventory/view-inventory-goodsreturns";
+							})
+						} else {
+							swal({
+								title: response.code,
+								text: response.message,
+								type: "warning"
+							})
+						}
+					},
+					error: function (xhr, status, error) {
+						var err = eval("(" + xhr.responseText + ")");
+						console.log(err)
+						console.log(err.message)
+					}
+				}) //ajax ends
+			}
+		}) //swal function block ends
+	}
+}) //submit function ends 
+
+function getPlannings() {
+	var storeId = $("#storeId").val();
+	$("#planId").val("");
+	$("#planId").empty();
+	if (storeId) {
+		$.ajax({
+			type: 'GET',
+			url: 'add-production-goodsreturns-get-plannings?storeId=' + storeId,
+			contentType: false,
+			success: function (response) {
+				if (response.message == "Success") {
+					console.log(response)
+					var option = $("<option></option>");
+					$(option).val(null);
+					$(option).html("--Select--");
+					$("#planId").append(option);
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].key);
+						$("#planId").append(option);
+					}
+				}
+			},
+			error: function (e) {
+				alert("error");
+			}
+		});
+	} else {
+		var option = $("<option></option>");
+		$(option).val(null);
+		$(option).html("--Select--");
+		$("#planId").append(option);
+	}
+}
+</script>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+
+					<li class="active"><span>Add Production Return</span></li>
+
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Production Return Item</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form autocomplete="off">
+
+								<input type="hidden" id="pruchaseReturnNote"
+									th:value="${pruchaseReturnNote}" />
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Store Name</label> <select class="form-control"
+												id="storeId" onchange="getPlannings()">
+												<option th:value="NULL">--Select--</option>
+												<option th:if="${edit}" th:each="c:${MCoilBatchLists}"
+													th:value='${c.name}' th:text="${c.name}"
+													th:selected="${c.name==mCoilList[0].planId}"></option>
+												<option th:unless="${edit}" th:each="c:${storeList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+
+											</select>
+
+										</div>
+									</div>
+
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Planning Id</label> <select class="form-control"
+												id="planId" onchange="getBatchDetails()">
+												<option th:value="NULL">--Select--</option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group" >
+											<label id="porder">Description</label>
+											<textarea th:if="${inventoryGoodsReturnNote}"
+												style="height: 70px;" cols="50" rows="4"
+												id="description" class="form-control textarea"
+												th:text="${inventoryGoodsReturnNoteModel[0].gRtNDescription}"></textarea>
+											<textarea th:unless="${inventoryGoodsReturnNote}"
+												style="height: 70px;" cols="50" rows="4"
+												id="description" class="form-control textarea"></textarea>
+										</div>
+
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Return Date</label> <input type="text" id="returnDate"
+												class="form-control" readonly>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="subheading">Item Return Details</div>
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="2" cellpadding="5"
+											style="border-color: #BABABA;">
+											<thead>
+												<tr>
+													<th>Item Name</th>
+													<th>Quantity</th>
+													<th>Serve Type</th>
+												</tr>
+											</thead>
+											<tbody id="tbodyData">
+												<tr>
+													<td colspan="3"><div class="norecord">No Record
+															Found</div></td>
+												</tr>
+
+											</tbody>
+
+										</table>
+									</div>
+								</div>
+
+							</form>
+
+						</div>
+						<div class="row">
+
+							<div class="col-md-12">
+								<div class="form-group">
+									<button type="button" id="submit" class="btn btn-success">Submit</button>
+									<button type="button" class="btn btn-warning"
+										onclick="funcLoad();">Cancel</button>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<div style="clear: both;"></div>
+</html>
+

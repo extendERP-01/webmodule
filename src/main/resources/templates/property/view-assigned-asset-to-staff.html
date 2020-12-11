@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script type="text/javascript">
+/* function viewInModel(id){
+	$('#table1').empty();
+	var data = id.split(",");
+	obj = {};
+	obj.survey= data[0];
+	obj.language= data[1];
+	obj.costCenter= data[2];
+	obj.slNo= data[3];
+	
+		$.ajax({
+			type 		:	"POST",
+			url 		:	"modal-view-survey-ques",
+			dataType 	:	'json',
+			contentType :	'application/json',
+			data 		: 	 JSON.stringify(obj),
+			success 	: 	function(response) {
+				if(response.message=="success"){
+					var logoActive = "";
+					if(response.body.sQuesActive){
+						sQuesActive = "Active";	
+					}else{
+						sQuesActive = "Inactive";	
+					}
+				    table = '<tr><td>Logo Name :</td>'+'<td align="left">'
+				    +response.body.survey+'</td>'+'</tr><tr><td>Height :</td><td align="left">'
+					+response.body.language+'</tr><tr><td>Width :</td><td align="left">'
+					+response.body.costCenter+'</tr><tr><td>Sl No. :</td><td align="left">'
+					+response.body.slNo+'</tr><tr><td>Questions :</td><td align="left">'
+					+response.body.questions+'</tr><tr><td>Status :</td><td align="left">'
+					+sQuesActive+'</td></tr>';
+					$('#myModal').modal('show');
+					$('#table1').append(table);
+				}				
+			},
+			error : function(data) {
+				swal(data);
+			}
+		})
+	}  */
+$(document).ready(function(){
+	
+	$('#table').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'view-assigned-asset-to-staff-throughAjax',
+			'data' : function(d) {
+				d.param1 = $('#param1').val();
+				d.param2 = $('#param2').val();
+				d.param3 = $('#param3').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [
+			
+			{'data' : 'costCenter'},
+			{'data' : 'staff'},
+			{'data' : 'category'},
+			{'data' : 'subcategory'},
+			{'data' : 'item'},
+			{'data' : 'asset'},
+			{'data' : 'assignDate'},
+			{'data' : 'status'},
+			{'data' : 'action'}
+		],
+		
+	});
+	
+	 $('#param2').datepicker({
+		format:'dd-mm-yyyy',
+		autoclose:true
+	});
+
+});
+
+function searchData() {
+	$('#table').DataTable().draw();
+}	
+
+const ipAPI = 'https://api.ipify.org?format=json'
+function changeStatus(id){
+	
+	var data = id.split(",");
+	if(data[7] == "true"){
+		data[7] = false;
+	}else{
+		data[7] = true;
+	}
+	if(data[7] == true){
+		swal({
+			title				: "Are you sure want to Active?",
+			//text				: "Once Deleted,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Active",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			preConfirm: () => {
+			    return fetch(ipAPI)
+			      .then(response => response.json())
+			      .then(data => Swal.insertQueueStep(data.ip))
+			      .catch(() => {
+			        Swal.insertQueueStep({
+			          type: 'error',
+			          title: 'Unable to get your public IP'
+			        })
+			      })
+			  } 
+		}).then((result) => {
+			if(result.value){
+			$.ajax({
+				type 		:	"GET",
+				url 		:	"/property/view-assigned-asset-to-staff-change-status?id="+data[0]+"&staff="+data[1]+"&cat="+data[2]+"&subcat="+data[3]+"&item="+data[4]
+									+"&asset="+data[5]+"&date="+data[6]+"&status="+data[7],
+				success 	: 	function(response) {
+					
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Status Activated Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}			
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			 }) 
+			}
+		}) 
+	} else {
+		swal({
+			title				: "Are you sure want to Inactive?",
+			//text				: "Once Deleted,Can't revert back !",
+			type 				: "warning",
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Inactive",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+			preConfirm: () => {
+			    return fetch(ipAPI)
+			      .then(response => response.json())
+			      .then(data => Swal.insertQueueStep(data.ip))
+			      .catch(() => {
+			        Swal.insertQueueStep({
+			          type: 'error',
+			          title: 'Unable to get your public IP'
+			        })
+			      })
+			  } 
+		}).then((result) => {
+			if(result.value){
+			$.ajax({
+				type 		:	"GET",
+				url 		:	"/property/view-assigned-asset-to-staff-change-status?id="+data[0]+"&staff="+data[1]+"&cat="+data[2]+"&subcat="+data[3]+"&item="+data[4]
+								+"&asset="+data[5]+"&date="+data[6]+"&status="+data[7],
+				success 	: 	function(response) {
+					
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Status Inactivated Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}			
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			 }) 
+			}
+		}) 		
+	}
+} 
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li><a th:href="@{/property/add-assign-asset-to-staff}">Assign
+							Asset To Staff</a></li>
+					<li class="active"><span>View Assigned Asset To Staff</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Assigned Asset To Staff</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+						<div class="search-field">
+						
+							<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-assign-asset-to-staff">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+										<div class="col-md-2">
+											<label>Cost Center</label>
+										
+											<select class="form-control" id="param1">
+												<option th:value="null">Select</option>
+												<option th:each="c:${costCenter}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="col-md-2">
+											<label>Assigned Date</label>
+										
+											<input class="form-control" name="" id="param2">
+										</div>
+										<div class="col-md-2">
+											<label>Staff</label>
+										
+											<select class="form-control" id="param3">
+												<option th:value="null">Select</option>
+												<option th:each="c:${staffList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="col-md-2 mrt_10">
+											<div class="form-group filtersearch">
+												<button class="btn btn-info" onclick="searchData()">Search</button>
+											</div>
+										</div>
+						            </div>
+						            </div>
+				
+			
+			<div class="row">
+				<span style="color: red;" id="errorMsg"></span>
+			</div>
+			
+				<div class="table-responsive" style="width: 100%;">
+					<table class="table table-bordered" id="table" style="width: 100%;">
+						<thead>
+							<tr>
+								<th>Cost Center</th>
+								<th>Staff</th>
+								<th>Category</th>
+								<th>Sub Category</th>
+								<th>Item</th>
+								<th>Asset</th>
+								<th>Assigned Date</th>
+								<th>Status</th>
+								<th align="center">Action</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div style="clear: both;"></div>
+			
+		
+	</div>
+</div>
+<!-- Modal Start-->
+<div id="myModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">View Details of Assigned Asset To Staff</h4>
+				<button type="button" class="close" data-dismiss="modal">
+					<i class="fa fa-close fa-2x"></i>
+				</button>
+			</div>
+			<div class="modal-body">
+				<table width="100%" border="0" id="table1">
+
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+
+	</div>
+</div>
+<!-- Modal End-->
+<!-- /# row -->
+</div>
+</div>
+
+</html>

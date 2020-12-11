@@ -1,0 +1,195 @@
+<!DOCTYPE HTML>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+<title>Purchase Order</title>
+
+
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+.td-border {
+	border-bottom: 1px solid #BABABA;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.tableheader {
+	padding: 10px 5px;
+	color: #418AB3;
+	font-weight: 600;
+	background: #f5f5f5;
+	border-bottom: 1px solid #ccc;
+	border-top: 10px solid #FFF;
+	text-align: center;
+}
+
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+}
+
+.mainheading {
+	font-size: 16px; 	
+	color:#5c2e14;
+	/* padding: 20px; */
+	font-weight:600;
+/* 	padding-left:30px; */
+text-align:center
+}
+.tableheader-color{
+    font-size: 12px; 	
+	color:#fff;
+	font-weight:600;
+	padding:10px 5px;
+	text-align:center;
+}
+.subheading {
+	font-size: 14px;
+	padding: 10px 0px;
+}
+
+.maintable tr td {
+	padding: 10px 5px;
+}
+
+.bill {
+	font-size: 10px;
+	line-height:12px !important;
+}
+</style>
+
+</head>
+<body>
+	<div class="containersec">
+		<table class="maintable" width="680">
+		<tr>
+		
+		</tr>
+			<tr>
+				<td width="150">
+				<img
+					th:src="@{classpath:static/assets/images/login_img/extend.png}" height="65" width="150" /></td>
+			  	  <td class="bill"><div th:text="${hotelList[0].storeName}"></div>
+					<div>
+						Address - <span th:text="${hotelList[0].storeAddrs}"></span>
+					</div>
+					<div>
+						City - <span th:text="${hotelList[0].storeCity}"></span>
+					</div>
+					<div>
+						Phone - <span th:text="${hotelList[0].storeMob}"></span>
+					</div>
+					<div>
+						GST NO - <span th:text="${hotelList[0].storeGst}"></span>
+					</div></td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<hr></hr>
+				</td>
+			</tr>
+             			<tr>
+				<td colspan="2">
+					<table width="680">
+
+						<tr>
+							<td colspan="4" class="mainheading" align="center">Purchase
+								Order Details</td>
+						</tr>
+						
+
+
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<table width="500">
+
+						<!-- <tr>
+							<td colspan="4" class="mainheading">Purchase
+								Order Details</td>
+						</tr> -->
+						<tr>
+							<td width="20">Purchase Order :</td>
+							<td width="20" th:text="${purchaseOrder}"></td>
+							<!-- <td>Store :</td>
+						<td th:text="${gatePass[0].store}"></td> -->
+						</tr>
+						<tr>
+							<td width="20">Purchase Order Date:</td>
+							<td width="20" th:text="${porderDate}"></td>
+							<td width="20">Delivery Period:</td>
+							<td width="20" th:text="${delivery}"></td>
+						</tr>
+
+						<tr>
+							<td width="20">Vendor Name :</td>
+							<td width="20" th:text="${vendor}"></td>
+							<td width="20">Status:</td>
+							<td width="20" th:text="${status}"></td>
+						</tr>
+
+
+
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<table width="680" class="maintbl">
+						<thead style="background-color:#5c2e14;">
+							<tr>
+								<th width="10%" class="tableheader-color">Sl. No.</th>
+								<th width="15%" class="tableheader-color">Item Category</th>
+								<th width="20%" class="tableheader-color">Item Sub Category</th>
+								<th width="15%" class="tableheader-color">Item Name</th>
+								<th width="13%" class="tableheader-color">Quantity</th>
+								<th width="13%" class="tableheader-color" align="right" >Price</th>
+								<th width="15%" class="tableheader-color" align="right" >Amount</th>
+							</tr>
+						</thead>
+						<tbody th:if="${not #lists.isEmpty(OnePorder)}">
+							<tr th:each="items,iter : ${OnePorder}">
+								<td bgcolor="#F5F5F5" th:text="${iter.index+1}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.itemCategory}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.itemSubCategory}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.itemName}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.pOQty}"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.price}" align="right"></td>
+								<td bgcolor="#F5F5F5" th:text="${items.total}" align="right"></td>
+
+							</tr>
+
+
+
+						</tbody>
+						<tbody th:unless="${not #lists.isEmpty(OnePorder)}">
+							<tr>
+								<td colspan="18" align="center" bgcolor="#F5F5F5">No Record
+									Found</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</table>
+
+	</div>
+</body>
+</html>

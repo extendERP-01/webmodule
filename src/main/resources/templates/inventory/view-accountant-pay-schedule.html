@@ -1,0 +1,606 @@
+
+<!DOCTYPE html>
+<html lang='en' xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 270px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.demo {
+	background: white;
+}
+
+.checkboxClass {
+	zoom: 1.5;
+}
+</style>
+<script>
+function viewReturnDetails(index){
+	window.open("/inventory/view-payment-voucher-view-modal?id="
+			+ index, );
+	}
+$(document).click(function() {
+	$("#suggesstion-box").hide();
+	$("#suggesstion-box1").hide();
+});
+ 	$(document).ready(function() {
+
+ 		$('#table').DataTable({
+				'processing' : true,
+				'serverSide' : true,
+				'searching' : false,
+				'ordering' : false,
+				"ajax" : {
+					'url' : 'view-accountant-pay-schedule-ajax',
+					'data' : function(d) {         
+						
+					}
+				},
+				'dataSrc' : "",
+			    'columns' : [
+				{'data' : 'grnNo'},
+				{'data' : 'invNo'},
+				{'data' : 'poNumber'},	
+				{'data' : 'discount'},
+				{'data' : 'tdsAmount'},
+				{'data' : 'total'},
+				{'data' : 'scheduleDate'},
+				{'data' : 'action'}
+					]	
+			});
+ 		
+		 });
+$(document).ready(function(){
+	
+//submit button function through ajax 
+	
+	$("#submit").click(function(){
+		
+		var dataset = [];
+		$("input:checkbox[name=checkBoxName]:checked").each(function(){
+			assign = {};
+			assign['grnNo']	    =	$(this).val();
+			assign['dueDate']   =	$("#schDate").val();
+			
+			dataset.push(assign);
+		});//table tbody tr loop ends
+		
+		if (!blankValidation("schDate","TextField" ,"Schedule Date can not be left blank"))
+	        return false;
+		
+			var tableChecKValid = true;
+			var checkedCount = $('input:checkbox[name=checkBoxName]:checked').length;
+			if (checkedCount == 0) {
+				swal({
+					title	: "Please Choose GRN To Schedule Date",
+				})
+				tableChecKValid = false; 
+			}
+		if(tableChecKValid)
+			{
+			 submitScheduleDate(dataset);
+			}
+	})
+	
+})
+
+	
+	function submitScheduleDate(dataset){
+	
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "view-accountant-pay-schedule-add-schedule-date-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					
+					if(response.message=="Success"){
+						swal({
+								title:"GRN Schedule Successfully.",
+								type: "success",
+						}).then(function(){
+							$("#schDate").val('');
+							getQuotationList();
+							/* var m = $('#table').DataTable();
+							m.ajax.reload(); */
+							$('#table').DataTable().draw();
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(response){
+					swal(response.code);	
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+function searchData() {
+	       getQuotationList();
+		   var param1 = $("#param1").val();
+		 }
+ 
+
+
+function getQuotationList() {
+var poNo = $("#param1").val();
+var vendorName = $("#param2").val();
+var fromDate = $("#param3").val();
+var toDate = $("#param4").val();	
+	obj = {};
+	obj.vendorName= vendorName ;
+	obj.poNumber = poNo;
+	obj.fromDate = fromDate;
+	obj.toDate = toDate;
+	$('#tBodyTD').hide();
+	$('#tblBody').empty();
+	if(poNo || vendorName || fromDate || toDate) {
+		$.ajax({
+			type : 'POST',
+			url : 'view-accountant-pay-schedule-get-gsn-list',
+			dataType : 'json',
+			contentType : 'application/json',
+			data : JSON.stringify(obj),
+			success : function(response) {
+				if(response.message=="success"){
+							if(response.body.length>0){
+								for(var i=0;i<response.body.length;i++){
+			                   var sch = response.body[i].scheduleDate;
+			                         if(sch=='--')
+			                        	 {
+										table = '<tr><td><input type="checkbox" id="grnCheck" value="'+response.body[i].grnNo+'" name="checkBoxName" class="checkboxClass" /></td><td>'+ response.body[i].action1+'</td><td>'+
+										response.body[i].invNo+'</td><td>'+
+										response.body[i].poNumber+'</td><td>'+
+										(response.body[i].discount).toFixed(2)+'</td><td class="stateTaxCls">'+
+										(response.body[i].sgst).toFixed(2)+'</td><td class="stateTaxCls">'+
+										(response.body[i].cgst).toFixed(2)+'</td><td class="centerTaxCls">'+
+										(response.body[i].igst).toFixed(2)+'</td><td>'+
+										(response.body[i].total).toFixed(2)+'</td><td >'+response.body[i].scheduleDate+'</td></tr>';
+										$('#tblBody').append(table);
+			                        	 }else{
+			                        		 table = '<tr><td>  </td><td>'+ response.body[i].action1+'</td><td>'+
+												response.body[i].invNo+'</td><td>'+
+												response.body[i].poNumber+'</td><td>'+
+												(response.body[i].discount).toFixed(2)+'</td><td class="stateTaxCls">'+
+												(response.body[i].sgst).toFixed(2)+'</td><td class="stateTaxCls">'+
+												(response.body[i].cgst).toFixed(2)+'</td><td class="centerTaxCls">'+
+												(response.body[i].igst).toFixed(2)+'</td><td>'+
+												(response.body[i].total).toFixed(2)+'</td><td >'+response.body[i].scheduleDate+'</td></tr>';
+												$('#tblBody').append(table);
+			                        	 }
+								}
+				
+								if(response.body[0].taxType ==false){
+									$('.centerTaxCls').hide();
+									$('.stateTaxCls').show();
+								}else{
+									$('.stateTaxCls').hide();
+									$('.centerTaxCls').show();
+								}
+							
+							}else {
+								$('#tblBody').empty();
+								$('#tBodyTD').show();
+							}
+				
+						}
+				},
+				error : function(data) {
+					$('#tblBody').empty();
+					$('#tBodyTD').show();
+				}
+			});
+	}
+}
+
+
+function POAutoComplete() {
+	$.ajax({
+		type : "POST",
+		url : "view-accountant-pay-schedule-getPOAutocompleteList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param2").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				
+			if(response.body.length!=0)	{
+		
+				$("#param2").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+				} 
+				
+				content += '</ul>';
+				$("#suggesstion-box").show();
+				$("#suggesstion-box").html(content);
+				
+			}
+			else {
+				
+				$("#param2").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box").show();
+				$("#suggesstion-box").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			
+		}
+	})
+    	}
+
+function selectAutocompleteValue(key,name) {
+	if (key) {
+		
+		$("#param2").val(key);
+		$("#param2").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+		getQuotationList();
+		
+	}else {
+		
+		$("#param2").val("");
+		$("#param2").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+	}
+	
+function venderAutoComplete() {
+	$.ajax({
+		type : "POST",
+		url : "view-accountant-pay-schedule-getVendorAutocompleteList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param").val(),
+		success : function(response) {
+			if (response.message == "success") {
+			
+			if(response.body.length!=0)	{
+		
+				$("#param").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="VenderAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'</li>';
+				} 
+				content += '</ul>';
+				$("#suggesstion-box1").show();
+				$("#suggesstion-box1").html(content);
+				
+			}
+			else {
+				
+				$("#param").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="VenderAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box1").show();
+				$("#suggesstion-box1").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			
+		}
+	})
+    	}
+
+function VenderAutocompleteValue(key,name) {
+	if (key) {
+		$("#param1").val(key);
+ 	    $("#param").val(name);  
+		$("#param1").attr('data-procat', key);
+		$("#suggesstion-box1").hide();
+
+		
+	}else {
+		$("#param1").val(key);
+		$("#param").val("");
+		$("#param1").attr('data-procat', "");
+		$("#suggesstion-box1").hide();
+		 
+	}
+	}
+
+$(document).ready(function() {
+	//date time picker
+	$( "#param3" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+
+		timepicker : false,
+	})
+	//date time picker 
+	$( "#param4" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	})
+	$( "#schDate" ).datetimepicker({
+		format:'d-m-Y',
+		closeOnDateSelect: true,
+		timepicker : false,
+	})
+});
+
+//for view in modal 
+function viewInModel(index){
+	$('#table1').empty();
+	$.ajax({
+			type 		:	"POST",
+			url 		:	"view-accountant-pay-schedule-modal?id="+index,
+			dataType 	:	'json',
+			contentType :	'application/json',
+			success 	: 	function(response) {
+				if(response.message=="success"){
+					 var taxType = "" ;
+					if(response.body.taxType)
+						{
+						taxType = "Central Tax" ;
+						}else{
+							taxType  = "State Tax" ;
+						}
+					
+				    table = '<tr><td>Perchase Order :</td>'+'<td align="left">'
+				    +response.body.poNumber+'</td>'+'</tr><tr><td>Invoice Number:</td><td align="left">'
+					+response.body.invNo+'</td></tr><tr><td>GRN Order:</td>'+'<td align="left">'
+					+response.body.grnNo+'</td></tr><tr><td>Discount :</td>'+'<td align="left">'
+					+response.body.discount+'</td>'+'</tr><tr><td>Total Tax:</td><td align="left">'
+					+response.body.cgst+'</td>'+'</tr><tr><td>Tax Type:</td><td align="left">'
+					+taxType+'</td>'+'</tr><tr><td>TDS Rate:</td><td align="left">'
+					+response.body.tdsRate+'</td>'+'</tr><tr><td>TDS Amount:</td><td align="left">'
+					+response.body.tdsAmount+'</td>'+'</tr><tr><td>Total Amount:</td><td align="left">'
+					+response.body.total+'</td></tr>'; 
+					$('#myModal').modal('show');
+					$('#table1').append(table);
+					if(response.body.goodsReturnNote!=null)
+						{
+						table = '<tr><td style="font-size:20px"><b> Return Details</b> </td></tr>'+'<tr><td>Goods Return Note :</td>'+'<td align="left">'
+						  +response.body.goodsReturnNote+'</td>'+'</tr><tr><td>Return Description:</td><td align="left">'
+						  +response.body.resturnDesc+'</td>'+'</tr><tr><td>Return Tax:</td><td align="left">'
+						  +response.body.returnIgst+'</td>'+'</tr><tr><td>Return Discount:</td><td align="left">'
+						  +response.body.returnDiscount+'</td>'+'</tr><tr><td>Return Total:</td><td align="left">'
+						  +response.body.returnTotal+'</td></tr>'; 
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+						} 
+				}				
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+	
+	function cancel(){
+		location.reload();
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a th:href="@{add-payment-voucher}">Add Payment
+							Voucher </a></li> -->
+					<li class="active"><span>View Accountant Pay Schedule </span></li>
+				</ol>
+			</div>
+
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-2">
+								<label>Vender Name</label>
+							
+								<input type="text" class="form-control" id="param"
+									onkeyup="venderAutoComplete();" placeholder="Vender Name" style="height:30px;"/> <input
+									type="hidden" id="param1" />
+								<div id="suggesstion-box1"></div>
+							</div>
+							<div class="col-md-2">
+								<label>PO Number</label>
+							
+								<input type="text" class="form-control" id="param2"
+									onkeyup="POAutoComplete();" placeholder="Purchase Order" style="height:30px;"/>
+								<div id="suggesstion-box"></div>
+							</div>
+
+						
+
+							<div class="col-md-2">
+								<label>From Date</label>
+							
+
+								<input type="text" class="form-control" id="param3"
+									th:name="fromDate" readonly style="height: 32px;">
+							</div>
+							<div class="col-md-2">
+								<label>To Date</label>
+							
+								<input type="text" class="form-control" id="param4"
+									th:name="toDate" readonly style="height:30px;">
+							</div>
+						
+							<div class="col-md-2" style="margin-top:6px;">
+								<div class="form-group filtersearch">
+									<button class="btn btn-primary" onclick="searchData()" style="padding:6px 37px !important">Search</button>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				
+					<div class="col-md-12">
+						<label id="trId" style="font-size: 20px; color: #0f03c0;"><b>List
+								of All Unpaid Voucher After Due Date</b></label>
+					</div>
+				
+					<div class="col-md-12 collapse" id="ss">
+						<div class="demo">
+							<div class="table-responsive" style="width: 100%;">
+								<table id="table" class="table table-bordered"
+									style="width: 100%;">
+									<thead>
+										<tr>
+
+											<th>GRN Number</th>
+											<th>Invoice Number</th>
+											<th>PO Number</th>
+											<th>Discount</th>
+											<th>Total TDS</th>
+											<th>Total</th>
+											<th>Due Date</th>
+											<th>Action</th>
+										</tr>
+									</thead>
+
+								</table>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-12">
+						<a data-toggle="collapse" data-target="#ss"
+							class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+						</a>
+					</div>
+					<div class="col-md-12" style="background: #d3e1f7;">
+						<div class="table-responsive" style="width: 100%;" id="grn">
+							<label id="trId" style="font-size: 20px;"><b>GRN
+									Details</b></label>
+							<table class="table table-bordered" id="table"
+								style="width: 100%;">
+								<thead id="tblHead">
+									<tr style="width: 100%;">
+										<th>Select</th>
+										<th>GRN NO</th>
+										<th>INVOICE No</th>
+										<th>PO No</th>
+										<th>DISCOUNT</th>
+										<th class="stateTaxCls">SGST</th>
+										<th class="stateTaxCls">CGST</th>
+										<th class="centerTaxCls">IGST</th>
+										<th>TOTAL AMOUNT</th>
+										<th>Schedule Date</th>
+									</tr>
+								</thead>
+								<tbody id="tblBody">
+
+								</tbody>
+								<tbody id="tBodyTD">
+									<tr>
+										<td style="color: #e30f0f;" width="100%" valign="top"
+											align="center" colspan="10"><b>No records found</b></td>
+									</tr>
+
+
+								</tbody>
+							</table>
+							<div class="row"> 
+									<div class="col-md-4">
+										<div class="form-group">
+											<label style="font-size: 16px;">Schedule Date</label> <input
+												type="text" id="schDate" class="form-control" name="schDate"
+												readonly />
+										</div>
+									 
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Schedule</button>
+										<button type="button" class="btn btn-warning"
+											onclick="cancel();">Cancel</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of GRN</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+
+<!-- /# row -->
+
+
+</html>

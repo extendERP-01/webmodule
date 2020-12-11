@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Atithya</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="" name="keywords">
+  <meta content="" name="description">
+
+  <!-- Favicons -->
+  <link href="assets/home_img/apple-touch-icon.png" rel="apple-touch-icon">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i|Montserrat:300,400,500,700" rel="stylesheet">
+  <!-- Bootstrap CSS File -->
+  <link href="assets/home_lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Libraries CSS Files -->
+  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <!--<link href="assets/home_lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">-->
+  <link href="assets/home_lib/animate/animate.min.css" rel="stylesheet">
+  <link href="assets/home_lib/ionicons/css/ionicons.min.css" rel="stylesheet">
+  <link href="assets/home_lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="assets/home_lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+
+  <!-- Main Stylesheet File -->
+  <link href="assets/home_css/style.css" rel="stylesheet">
+  <link href="style-responsive.css" rel="stylesheet">
+<!-- Slider css -->
+<style type="text/css">
+ 
+</style>
+<!-- Slider Css -->
+</head>
+
+<body>
+     <!-- Modal -->
+      <div class="modal fade" id="login" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+         <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">SIGN IN</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                  </button>
+               </div>
+               <div class="modal-body">
+                  <form th:action="@{/login}" method="post">
+                     <div class="form-group">
+                        <label for="username">Email</label>
+                        <input type="text" class="form-control" id="username" name="username" aria-describedby="emailHelp" placeholder="Enter email">
+                     </div>
+                     <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                     </div>
+                     <div align="center"> 
+                      <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                    
+                    <!-- <div class="social-links" style="text-align: center;margin: 20px;">
+                    <a href="#" class="twitter"><i class="fa fa-twitter"></i></a>
+                    <a href="#" class="facebook"><i class="fa fa-facebook"></i></a>
+                    <a href="#" class="linkedin"><i class="fa fa-linkedin"></i></a>
+                  </div> -->
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>
+  <!--==========================
+    Header
+  ============================-->
+  <header id="header">
+    <div class="container-fluid">
+
+      <div id="logo" class="pull-left">
+        <h1><a href="/" class="scrollto"><img src="assets/home_img/logoatithyalast.png"/></a></h1>
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <!-- <a href="#intro"><img src="img/logo.png" alt="" title="" /></a>-->
+      </div>
+
+      <nav id="nav-menu-container">
+        <ul class="nav-menu">
+          <li class="menu-active"><a href="/">Home</a></li>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#modules">Modules</a></li>
+         <!--  <li><a href="#testimonials">Testimonials</a></li> -->
+          
+          <!-- <li class="menu-has-children"><a href="">Modules</a>
+            <ul>
+              <li><a href="#">Drop Down 1</a></li>
+              <li><a href="#">Drop Down 3</a></li>
+              <li><a href="#">Drop Down 4</a></li>
+              <li><a href="#">Drop Down 5</a></li>
+            </ul>
+          </li> -->
+          <li><a href="#contact">Contact</a></li>
+          <li><a data-toggle="modal" data-target="#login" href="#">Login</a></li>
+        </ul>
+      </nav><!-- #nav-menu-container -->
+    </div>
+  </header><!-- #header -->
+
+  <!--==========================
+    Intro Section
+  ============================-->
+  <section id="intro">
+    <div class="intro-container">
+      <div id="introCarousel" class="carousel  slide carousel-fade" data-ride="carousel">
+
+        <ol class="carousel-indicators"></ol>
+
+        <div class="carousel-inner" role="listbox">
+
+          <div class="carousel-item active">
+            <div class="carousel-background"><img src="assets/home_img/intro-carousel/2.jpg" alt=""></div>
+            <div class="carousel-container">
+              <div class="carousel-content">
+                <h2>Beautiful Intuitive Interfaces</h2>
+                <p>An integrated Property Management System empowered by innovation to mange all your Hotels, Motels, Resorts, Clubs operations effortlessly.</p>
+                <a href="#featured-services" class="btn-get-started scrollto">Get Started</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="carousel-background"><img src="assets/home_img/intro-carousel/3.jpg" alt=""></div>
+            <div class="carousel-container">
+              <div class="carousel-content">
+                <h2>Self-Check-In and check-out</h2>
+               <p>An integrated Property Management System empowered by innovation to mange all your Hotels, Motels, Resorts, Clubs operations effortlessly.</p>
+                <a href="#featured-services" class="btn-get-started scrollto">Get Started</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="carousel-background"><img src="assets/home_img/intro-carousel/5.jpg" alt=""></div>
+            <div class="carousel-container">
+              <div class="carousel-content">
+                <h2>Live Inventory Update</h2>
+                <p>An integrated Property Management System empowered by innovation to mange all your Hotels, Motels, Resorts, Clubs operations effortlessly.</p>
+                <a href="#featured-services" class="btn-get-started scrollto">Get Started</a>
+              </div>
+            </div>
+          </div>
+
+         
+
+          <div class="carousel-item">
+            <div class="carousel-background"><img src="assets/home_img/intro-carousel/1.jpg" alt=""></div>
+            <div class="carousel-container">
+              <div class="carousel-content">
+                <h2>Black Listed Guest Alerts</h2>
+                <p>An integrated Property Management System empowered by innovation to mange all your Hotels, Motels, Resorts, Clubs operations effortlessly.</p>
+                <a href="#featured-services" class="btn-get-started scrollto">Get Started</a>
+              </div>
+            </div>
+          </div>
+           <div class="carousel-item">
+            <div class="carousel-background"><img src="assets/home_img/intro-carousel/4.jpg" alt=""></div>
+            <div class="carousel-container">
+              <div class="carousel-content">
+                <h2>Linear/Non Linear Rate</h2>
+                <p>An integrated Property Management System empowered by innovation to mange all your Hotels, Motels, Resorts, Clubs operations effortlessly.</p>
+                <a href="#featured-services" class="btn-get-started scrollto">Get Started</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <a class="carousel-control-prev" href="#introCarousel" role="button" data-slide="prev">
+          <span class="carousel-control-prev-icon ion-chevron-left" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+
+        <a class="carousel-control-next" href="#introCarousel" role="button" data-slide="next">
+          <span class="carousel-control-next-icon ion-chevron-right" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+
+      </div>
+    </div>
+  </section><!-- #intro -->
+
+  <main id="main">
+   <!--==========================
+      Clients Section
+    ============================-->
+    <section id="clients" class="wow fadeInUp">
+      <div class="container">
+
+        <header class="section-header">
+          <h3>Modules</h3>
+        </header>
+        <div class="owl-carousel clients-carousel">
+          <img src="assets/home_img/atithya-module/web-application.jpg" alt="">
+          <img src="assets/home_img/atithya-module/sales-application.jpg" alt="">
+          <img src="assets/home_img/atithya-module/material-management-application.jpg" alt="">
+          <img src="assets/home_img/atithya-module/operation-application.jpg" alt="">
+          <img src="assets/home_img/atithya-module/human-resource-application.jpg" alt="">
+          <img src="assets/home_img/atithya-module/finance-application.jpg" alt="">
+          <img src="assets/home_img/atithya-module/dashboard-analytics.jpg" alt="">
+          <img src="assets/home_img/atithya-module/mobile-tab-application.jpg" alt="">
+        </div>
+      </div>
+    </section><!-- #clients -->
+
+    <!--==========================
+      Clients Section
+    ============================-->
+    <!--==========================
+      Featured Services Section
+    ============================-->
+    <section id="featured-services">
+      <div class="container">
+        <div class="row">
+
+        </div>
+      </div>
+    </section><!-- #featured-services -->
+
+    <!--==========================
+      About Us Section
+    ============================-->
+    <section id="about" class="anchor">
+      <div class="container">
+
+        <header class="section-header">
+          <h3>About AtithyA</h3>
+          <p> An integrated Property Management System empowered by innovation to mange all your Hotels, Motels, Resorts, Clubs operations effortlessly. Fully integrated modules to handle Front-office, Reservation, Room Services, Maintenance, Housekeeping, Guest Engagement, Event Management, Banqueting, Laundry, Gym, Spa, Restaurants, Bar, Asset Management, Material Management, Purchase, Sales, Inventory, Account Payable/Receivable, Bank Reconciliation, HRMS, Payroll, MIS, Dashboard with in-depth analysis, Mobile check in/out and with on-line booking engine. It is empowered with Mobile App for Customers/Restaurants/Staffs  to check-in/out, food/services order, Menu, Rate cards, order, kitchen notification, billing, feedback and so.</p>
+        </header>
+
+       
+
+      </div>
+</section><!-- #about -->
+
+    <!--==========================
+      Portfolio Section
+    ============================-->
+    <!-- #portfolio -->
+    <!--==========================
+      Services Section
+    ============================-->
+   
+<!--experience section end -->
+
+    <!--==========================
+      Skills Section
+    ============================-->
+    <section id="modules" class="anchor">
+      <div class="container-fluid">
+         <header class="section-header">
+         <h3>MODULES</h3>
+       </header>
+       <div class="background1">
+       <!-- <div class="backgroundright"></div> -->
+       <div class="row"> 
+           <div class="col-md-3 stylishheading">Web Application</div>
+           <div class="col-md-9">
+            <div class="stylewhitebg">
+
+              <div id="mixedSlider">
+                    <div class="MS-content">
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/webandbooking.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">Website and Booking Engine</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/subscription_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                            </div>
+                            <div align="center" class="text-position">Subscription and Membership</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/customerengagemnt_small.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">Guest Engagement</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/salespromotion.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Sales Promotion</div> 
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                            <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                <div class="timeline-date">
+                                    <img src="assets/home_img/surveyevent_small.jpg" class="img-fluid img-rounded">
+                                </div>
+                                <div class="arrow-bottom">
+                                </div>
+                            </div>
+                            </div>
+                            <div align="center" class="text-position">Survey & Events</div>
+                        </div>
+                       
+                    
+                    <div class="item">
+                     <div class="col-md-12 col-xs-12 mobile-view">
+                          <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                              <div class="timeline-date">
+                                  <img src="assets/home_img/blogforum.jpg" class="img-fluid img-rounded">
+                              </div>
+                              <div class="arrow-bottom">
+                              </div>
+                          </div>
+                      </div>
+                    <div align="center" class="text-position">Blogs/Forum</div>
+
+                  </div>
+                  <div class="item">
+                    <div class="col-md-12 col-xs-12 mobile-view">
+                          <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                              <div class="timeline-date">
+                                  <img src="assets/home_img/livechat.jpg" class="img-fluid img-rounded">
+                              </div>
+                              <div class="arrow-bottom">
+                              </div>
+                          </div>
+                      </div>
+                    <div align="center" class="text-position">Live Chart</div>
+                  </div>
+                  </div>
+                    <div class="MS-controls">
+                        <button class="MS-left"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                        <button class="MS-right"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+       </div>
+  
+
+       
+       <div class="background2">
+        <div class="backgroundright"></div>
+            <div class="row">
+            <div class="col-md-9 order-2 order-md-1">
+            <!--<div class="hidingborder"></div>-->
+            <div class="stylewhitebg1">
+                <div id="mixedSliderone">
+                    <div class="MS-content">
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/crm_small.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">CRM</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/sales_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                            </div>
+                            <div align="center" class="text-position">Sales</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/PoS_small.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">PoS</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/invoicing_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Invoicing</div> 
+                        </div>
+                      
+                    </div>
+                    <div class="MS-controls">
+                        <button class="MS-left"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                        <button class="MS-right"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+          
+       </div>
+     </div>
+      <div class="col-md-3 order-1 order-md-2 stylishheading">Sales Application</div>
+   </div>
+</div>
+
+      <div class="background3">
+        <div class="backgroundlefttop"></div>
+      <div class="row"> 
+           <div class="col-md-3 stylishheading">Material Management Application</div>
+           <div class="col-md-9">
+            <div class="stylewhitebg2">
+
+              <div id="mixedSlidertwo">
+                    <div class="MS-content">
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/purchase_small.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">Purchase</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/inventory_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                            </div>
+                            <div align="center" class="text-position">Inventory</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/multiwarehouse_small.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">Mutliple-warehouse</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/supplychain_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Supply Chain</div> 
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/assetmanagement_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Asset Management</div> 
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/real-timereports_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Real-time Reports</div> 
+                        </div>
+                    </div>
+                <div class="MS-controls">
+                        <button class="MS-left"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                        <button class="MS-right"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+            </div>
+         </div>
+    </div>
+ </div>
+     
+      <div class="background4">
+        <div class="backgroundright"></div>
+       <div class="row">
+            <div class="col-md-9 order-2 order-md-1">
+              <div class="stylewhitebg1">
+              <div id="mixedSliderthree">
+                    <div class="MS-content">
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/frontoffice_small.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">Front-office</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/reservation_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                            </div>
+                            <div align="center" class="text-position">Reservation</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/helpdesk_small.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">Help Desk</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/roomservice_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Room Services</div> 
+                        </div>
+                            <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/dms.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Document Mnagament System</div> 
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/maintenance_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Maintenance</div> 
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/housekeeping_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Housekeeping</div> 
+                        </div>
+
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/eventmanagement.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Project/Event Management</div> 
+                        </div>
+
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/Banqueting_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Banqueting</div> 
+                        </div>
+
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/resturantbar_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Restaurants and Bars</div> 
+                        </div>
+
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/laundry_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Laundry Services</div> 
+                        </div>
+
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/gym-spa-palour.gif" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Gym/Spa/Beauty Parlor</div> 
+                        </div>
+
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/parking_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Entry, Exit and Parking</div> 
+                        </div>
+                             <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/assetmanagement_small.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Asset Management System</div> 
+                        </div>
+                    </div>
+                <div class="MS-controls">
+                        <button class="MS-left"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                        <button class="MS-right"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+              </div>
+           </div>  
+           <div class="col-md-3 order-1 order-md-2 stylishheading">Operations Application</div>
+       </div>
+      </div>
+      <div class="background5">
+      <div class="backgroundlefttop"></div> 
+       <div class="row"> 
+           <div class="col-md-3 stylishheading">Human Resource Application </div>
+           <div class="col-md-9 stylewhitebg">
+
+               <div id="mixedSliderfour">
+                    <div class="MS-content">
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/employee_leave.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">Leaves</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/allocation.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                            </div>
+                            <div align="center" class="text-position">Allocations</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/timesheet.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">Timesheets</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/attendance.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Attendances</div> 
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/appraisal.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Appraisals</div> 
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/recruitment.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Recruitments</div> 
+                        </div>
+
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/expenses.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Expenses</div> 
+                        </div>
+
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/payroll1.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Payroll</div> 
+                        </div>
+
+                       
+                    </div>
+                <div class="MS-controls">
+                        <button class="MS-left"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                        <button class="MS-right"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+                    </div>
+                </div>              
+           </div>
+       </div>
+     </div>
+     <div class="background6">
+      <div class="backgroundright"></div>
+       <div class="row">
+            <div class="col-md-9 order-2 order-md-1 stylewhitebg1">
+              <div id="mixedSliderfive">
+                    <div class="MS-content">
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/account-receivable.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                            </div>
+                            <div align="center" class="text-position">Account Payable</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/accounts-payable.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">Account Receivable</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/reconciliation.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Reconciliation</div> 
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/bank-synchronization.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Bank Synchronization</div> 
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/earningreports.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Earnings reports</div> 
+                        </div>
+
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/balancesheet.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Balance sheet</div> 
+                        </div>
+
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/cash-flow.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Cash flow statements</div> 
+                        </div>                      
+                    </div>
+                <div class="MS-controls">
+                        <button class="MS-left"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                        <button class="MS-right"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+                    </div>
+                </div> 
+           </div>  
+           <div class="col-md-3 order-1 order-md-2 stylishheading">Finance Application</div>
+       </div>
+     </div>
+     <div> 
+     <div class="background7">
+      <div class="backgroundlefttop"></div>
+       <div class="row"> 
+           <div class="col-md-3 stylishheading">Dashboard and Analytics</div>
+           <div class="col-md-9 stylewhitebg">
+            <div id="mixedSlidersix">
+                    <div class="MS-content">
+                       
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/roledashboard.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                            </div>
+                            <div align="center" class="text-position">Roles Based Dashboard</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/graphicalreport.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="clearfix"></div>
+                            <div align="center" class="text-position">MIS and Graphical Reports</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/trackassetpeople.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Track Assets and People</div> 
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/analytics.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Analytics with in-depth analysis</div> 
+                        </div>
+                       
+                       
+                    </div>
+                <div class="MS-controls">
+                        <button class="MS-left"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                        <button class="MS-right"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+                    </div>
+                </div> 
+              </div>
+            
+           </div>
+       </div>
+      </div> 
+     <div class="background8">
+      <div class="backgroundright"></div>
+       <div class="row">
+           <div class="col-md-9 order-2 order-md-1 stylewhitebg1">
+               <div id="mixedSliderseven">
+                    <div class="MS-content">
+                       
+                       
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                  <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                      <div class="timeline-date">
+                                          <img src="assets/home_img/operation-app.jpg" class="img-fluid img-rounded">
+                                      </div>
+                                      <div class="arrow-bottom">
+                                      </div>
+                                  </div>
+                              </div>
+                            <div align="center" class="text-position">Operation App</div>
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/guest-app.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Guest/Customer App</div> 
+                        </div>
+                        <div class="item">
+                            <div class="col-md-12 col-xs-12 mobile-view">
+                                <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                    <div class="timeline-date">
+                                        <img src="assets/home_img/members-app.jpg" class="img-fluid img-rounded">
+                                    </div>
+                                    <div class="arrow-bottom">
+                                    </div>
+                                </div>
+                           </div>
+                           <div align="center" class="text-position">Members App</div> 
+                        </div>
+                       
+                       <div class="item">
+                        <div class="col-md-12 col-xs-12 mobile-view">
+                            <div class="timeline-marker right fl wow slideInRight animated" style="visibility: visible;">
+                                <div class="timeline-date">
+                                    <img src="assets/home_img/hrms-app.jpg" class="img-fluid img-rounded">
+                                </div>
+                                <div class="arrow-bottom">
+                                </div>
+                            </div>
+                       </div>
+                       <div align="center" class="text-position">HRMS APP</div> 
+                    </div>
+                    </div>
+                <div class="MS-controls">
+                        <button class="MS-left"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                        <button class="MS-right"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+                    </div>
+                </div> 
+               
+           </div>  
+           <div class="col-md-3 order-1 order-md-2 stylishheading">Mobile/Tab Application</div>           
+       </div>
+     </div>
+        
+
+      </div>
+    </section>
+
+    <!--==========================
+      Facts Section
+    ============================-->
+    <section id="facts"  class="wow fadeIn">
+      <div class="container">
+
+        <header class="section-header">
+         <!--  <h3>Facts</h3>
+          <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque</p> -->
+        </header>
+
+        <div class="row counters">
+
+          <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12 text-center">
+            <div class="counterbg">
+                <span data-toggle="counter-up">14</span>
+                <p>Customer</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12 text-center">
+            <div class="counterbg">
+                <span data-toggle="counter-up">20</span>
+                <p>Enquiry</p>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12 text-center">
+            <div class="counterbg">
+              <span data-toggle="counter-up">45</span>
+              <p>Pipeline</p>
+            </div>
+          </div>
+
+         
+
+        </div>
+
+        <div class="facts-img">
+          <img src="assets/home_img/viewport-screenshot.png" alt="" class="img-fluid">
+        </div>
+
+      </div>
+    </section>
+
+    
+   
+<!--     <section id="testimonials" class="wow fadeInUp">
+      <div class="container">
+
+        <header class="section-header">
+          <h3>Testimonials</h3>
+        </header>
+
+        <div class="owl-carousel testimonials-carousel">
+
+          <div class="testimonial-item">
+            <img src="assets/home_img/testimonial-1.jpg" class="testimonial-img" alt="">
+            <h3>Saul Goodman</h3>
+            <h4>Ceo &amp; Founder</h4>
+            <p>
+              <img src="assets/home_img/quote-sign-left.png" class="quote-sign-left" alt="">
+              Proin iaculis purus consequat sem cure digni ssim donec porttitora entum suscipit rhoncus. Accusantium quam, ultricies eget id, aliquam eget nibh et. Maecen aliquam, risus at semper.
+              <img src="assets/home_img/quote-sign-right.png" class="quote-sign-right" alt="">
+            </p>
+          </div>
+
+          <div class="testimonial-item">
+            <img src="assets/home_img/testimonial-2.jpg" class="testimonial-img" alt="">
+            <h3>Sara Wilsson</h3>
+            <h4>Designer</h4>
+            <p>
+              <img src="assets/home_img/quote-sign-left.png" class="quote-sign-left" alt="">
+              Export tempor illum tamen malis malis eram quae irure esse labore quem cillum quid cillum eram malis quorum velit fore eram velit sunt aliqua noster fugiat irure amet legam anim culpa.
+              <img src="assets/home_img/quote-sign-right.png" class="quote-sign-right" alt="">
+            </p>
+          </div>
+
+          <div class="testimonial-item">
+            <img src="assets/home_img/testimonial-3.jpg" class="testimonial-img" alt="">
+            <h3>Jena Karlis</h3>
+            <h4>Store Owner</h4>
+            <p>
+              <img src="assets/home_img/quote-sign-left.png" class="quote-sign-left" alt="">
+              Enim nisi quem export duis labore cillum quae magna enim sint quorum nulla quem veniam duis minim tempor labore quem eram duis noster aute amet eram fore quis sint minim.
+              <img src="assets/home_img/quote-sign-right.png" class="quote-sign-right" alt="">
+            </p>
+          </div>
+
+          <div class="testimonial-item">
+            <img src="assets/home_img/testimonial-4.jpg" class="testimonial-img" alt="">
+            <h3>Matt Brandon</h3>
+            <h4>Freelancer</h4>
+            <p>
+              <img src="assets/home_img/quote-sign-left.png" class="quote-sign-left" alt="">
+              Fugiat enim eram quae cillum dolore dolor amet nulla culpa multos export minim fugiat minim velit minim dolor enim duis veniam ipsum anim magna sunt elit fore quem dolore labore illum veniam.
+              <img src="assets/home_img/quote-sign-right.png" class="quote-sign-right" alt="">
+            </p>
+          </div>
+
+          <div class="testimonial-item">
+            <img src="assets/home_img/testimonial-5.jpg" class="testimonial-img" alt="">
+            <h3>John Larson</h3>
+            <h4>Entrepreneur</h4>
+            <p>
+              <img src="assets/home_img/quote-sign-left.png" class="quote-sign-left" alt="">
+              Quis quorum aliqua sint quem legam fore sunt eram irure aliqua veniam tempor noster veniam enim culpa labore duis sunt culpa nulla illum cillum fugiat legam esse veniam culpa fore nisi cillum quid.
+              <img src="assets/home_img/quote-sign-right.png" class="quote-sign-right" alt="">
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section> --><!-- #testimonials -->
+
+    
+
+    <!--==========================
+      Contact Section
+    ============================-->
+    <section id="contact" class="section-bg wow fadeInUp anchor">
+      <div class="container">
+
+        <div class="section-header">
+          <h3>Contact Us</h3>
+        </div>
+
+        <div class="row contact-info">
+
+          <div class="col-md-4">
+            <div class="contact-address">
+              <i class="ion-ios-location-outline"></i>
+              <h3>Address</h3>
+              <address>#81, Sai Saraswati Complex, District Center, C.S.Pur, Bhubaneswar, Odisha, INDIA-51016</address>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="contact-phone">
+              <i class="ion-ios-telephone-outline"></i>
+              <h3>Phone Number</h3>
+              <p><a href="tel:+155895548855">+91 674-2747047</a></p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="contact-email">
+              <i class="ion-ios-email-outline"></i>
+              <h3>Email</h3>
+              <p><a href="mailto:info@example.com">info@nirmalyalabs.com</a></p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form">
+          <div id="sendmessage">Your message has been sent. Thank you!</div>
+          <div id="errormessage"></div>
+          <form action="javascript:void(0)" method="post" role="form" class="contactForm">
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
+                <div class="validation"></div>
+              </div>
+              <div class="form-group col-md-6">
+                <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" data-rule="email" data-msg="Please enter a valid email" />
+                <div class="validation"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject" />
+              <div class="validation"></div>
+            </div>
+            <div class="form-group">
+              <textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder="Message"></textarea>
+              <div class="validation"></div>
+            </div>
+            <div class="text-center">
+            	<!-- <button type="submit">Send Message</button> -->
+            	<button type="submit">Send Message</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </section><!-- #contact -->
+
+  </main>
+
+  <!--==========================
+    Footer
+  ============================-->
+  <footer id="footer">
+    <div class="footer-top">
+      <div class="container">
+        <div class="row">
+
+          <div class="col-lg-4 col-md-6 footer-info">
+            <h3>AtithyA</h3>
+            <p>An integrated Property Management System empowered by innovation to mange all your Hotels, Motels, Resorts, Clubs operations effortlessly. Fully integrated modules to handle Front-office, Reservation, Room Services, Maintenance...</p>
+          </div>
+
+          <div class="col-lg-4 col-md-6 footer-links">
+            <h4>Useful Links</h4>
+            <ul>
+              <li><i class="ion-ios-arrow-right"></i> <a href="index.html">Home</a></li>
+              <li><i class="ion-ios-arrow-right"></i> <a href="#about">About us</a></li>
+              <li><i class="ion-ios-arrow-right"></i> <a href="#modules">Modules</a></li>
+            <!--   <li><i class="ion-ios-arrow-right"></i> <a href="#testimonials">Testimonials</a></li> -->
+              <li><i class="ion-ios-arrow-right"></i> <a href="#contact">Contact</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-4 col-md-6 footer-contact">
+            <h4>Contact Us</h4>
+             <p>
+              #81, Sai Saraswati Complex, District Center, C.S.Pur, <br> Bhubaneswar, Odisha, INDIA - 751016<br>
+              <strong><i class="fa fa-phone"></i>&nbsp;:&nbsp;</strong>&nbsp;+91 674-2747047<br>
+              <strong><i class="fa fa-envelope"></i>&nbsp;:&nbsp;</strong>&nbsp; info@nirmalyalabs.com<br>
+            </p>
+
+            <div class="social-links">
+              <a href="https://twitter.com/nirmalyalabs" class="twitter" target="_blank"><i class="fa fa-twitter"></i></a>
+              <a href="https://www.facebook.com/nirmalyalabs/" class="facebook" target="_blank"><i class="fa fa-facebook"></i></a>
+              <a href="https://www.linkedin.com/company/nirmalya/" class="linkedin" target="_blank"><i class="fa fa-linkedin"></i></a>
+            </div>
+
+          </div>
+
+         
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="copyright">
+        &copy; Copyright <strong>AtithyA</strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+        Powered by <a href="http://nirmalyalabs.com/">Nirmalya Labs</a>
+      </div>
+    </div>
+  </footer><!-- #footer -->
+
+  <a href="#" class="back-to-top"><i class="fa fa-chevron-up"></i></a>
+  <!-- Uncomment below i you want to use a preloader -->
+  <!-- <div id="preloader"></div> -->
+
+  <!-- JavaScript Libraries -->
+  <script src="assets/home_lib/jquery/jquery.min.js"></script>
+  <script src="assets/home_lib/jquery/jquery-migrate.min.js"></script>
+  <script src="assets/home_lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/home_lib/easing/easing.min.js"></script>
+  <script src="assets/home_lib/superfish/hoverIntent.js"></script>
+  <script src="assets/home_lib/superfish/superfish.min.js"></script>
+  <script src="assets/home_lib/wow/wow.min.js"></script>
+  <script src="assets/home_lib/waypoints/waypoints.min.js"></script>
+  <script src="assets/home_lib/counterup/counterup.min.js"></script>
+  <script src="assets/home_lib/owlcarousel/owl.carousel.min.js"></script>
+  <script src="assets/home_lib/isotope/isotope.pkgd.min.js"></script>
+  <script src="assets/home_lib/lightbox/js/lightbox.min.js"></script>
+  <script src="assets/home_lib/touchSwipe/jquery.touchSwipe.min.js"></script>
+  <!-- Contact Form JavaScript File -->
+  <script src="contactform/contactform.js"></script>
+
+  <!-- Template Main Javascript File -->
+  <script src="assets/home_js/main.js"></script>
+
+<script src="assets/home_js/multislider.js"></script> 
+<script>
+$('#basicSlider').multislider({
+      continuous: true,
+      duration: 2000
+    });
+    $('#mixedSlider').multislider({
+      duration: 750,
+      interval: 3000
+    });
+     $('#mixedSliderone').multislider({
+      duration: 750,
+      interval: 3000
+    });
+      $('#mixedSlidertwo').multislider({
+      duration: 750,
+      interval: 3000
+    });
+       $('#mixedSliderthree').multislider({
+      duration: 750,
+      interval: 3000
+    });
+     $('#mixedSliderfour').multislider({
+      duration: 750,
+      interval: 3000
+    });
+    $('#mixedSliderfive').multislider({
+      duration: 750,
+      interval: 3000
+    });
+    $('#mixedSlidersix').multislider({
+      duration: 750,
+      interval: 3000
+    });
+    $('#mixedSliderseven').multislider({
+      duration: 750,
+      interval: 3000
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.subheading {
+	text-align: center;
+}
+</style>
+<script>
+function getBatchDetails() {
+    $("#tbodyData").empty();
+    if ($("#prodItemId").val() != '') {
+        $.ajax({
+            type: "GET",
+            url: "add-production-get-batch-details?planId=" + $("#planId").val() + "&prodItemId=" + $("#prodItemId").val() + "&storeId=" + $("#storeId").val(),
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.message == "Success") {
+                    console.log(response)
+                    $("#batchId").val(response.body[0].batchId);
+                    $("#batchQty").val(response.body[0].batchQty);
+                    $("#prodQty").val(response.body[0].prodQty)
+                    for (var i = 0; i < response.body.length; i++) {
+                        var table = '<tr>' +
+                            '<td><input type="hidden" id="item_' + i + '" class="form-control itemCls" value="' + response.body[i].rawMaterialItem + '">' +
+                            '<input type="text" id="itemName_' + i + '" class="form-control itemCls1" onkeyup="itemAutoComplete(event);" name="item_" value="' + response.body[i].rawMaterialItemName + '" readonly /></td>' +
+                            '<td><input type="text" id="availQuantity_' + i + '" class="form-control  availQuantityCls" readonly value="' + response.body[i].availQty + '"></td>' +
+                            '<td><input type="text" id="issueQuantity_' + i + '" class="form-control  issueQuantityCls" value="' + response.body[i].quantity + '"></td>' +
+                            '</tr>';
+                        $("#tbodyData").append(table);
+                    }
+
+
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+        $("#batchId").empty();
+        var option = $("<option></option>");
+        $(option).val(null);
+        $(option).html("--Select--");
+        $("#batchId").append(option);
+    }
+}
+
+
+// gate details from mother coil batch
+function getProductionItem() {
+    if ($("#mcoilbatch").val() != '') {
+        $.ajax({
+            type: "GET",
+            url: "add-production-get-prod-details?planId=" + $("#planId").val(),
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.message == "Success") {
+                    $("#prodItemId").empty();
+                    var option = $("<option></option>");
+                    $(option).val(null);
+                    $(option).html("--Select--");
+                    $("#prodItemId").append(option);
+                    for (var i = 0; i < response.body.length; i++) {
+                        var option = $("<option></option>");
+                        $(option).val(response.body[i].prodItemId);
+                        $(option).html(response.body[i].prodItemName);
+                        $("#prodItemId").append(option);
+                    }
+
+                }
+            },
+            error: function(data) {
+                console.log(data);
+            }
+        })
+    } else {
+        $("#batchId").val("");
+
+
+    }
+}
+
+
+//********************************************
+$(document).ready(function() {
+
+
+
+    $("#mixStartDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false,
+        minDate: new Date(),
+
+    });
+    $("#mixEndtDate").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        timepicker: false,
+        minDate: new Date(),
+
+    });
+
+    //submit button function
+
+    $("#submit").click(function() {
+
+        var dataset = [];
+        $("#tbodyData > tr").each(function() {
+
+
+            var avail = $(this).find(".availQuantityCls").val();
+            var issue = $(this).find(".issueQuantityCls").val();
+            if (parseFloat(avail) < parseFloat(issue)) {
+                swal("Required Amount is more than Available Amount");
+                return false;
+
+            }
+            console.log(avail + " " + issue);
+            assign = {};
+            assign['storeId'] = $("#storeId").val();
+            assign['planId'] = $("#planId").val();
+            assign['batchId'] = $("#batchId").val();
+            assign['batchQty'] = $("#batchQty").val();
+            assign['prodItemId'] = $("#prodItemId").val();
+            assign['prodQty'] = $("#prodQty").val();
+            assign['mixStartDate'] = $("#mixStartDate").val();
+            assign['mixEndtDate'] = $("#mixEndtDate").val();
+            assign['srcapWt'] = $("#scrapwt").val();
+            assign['mixWt'] = $("#mixWt").val();
+            //assign['mixQty'] = $("#mixQty").val();
+            assign['rawMaterialItem'] = $(this).find(".itemCls").val();
+            assign['quantity'] = $(this).find(".issueQuantityCls").val();
+
+
+            dataset.push(assign);
+            console.log(dataset);
+        }); //table tbody tr loop ends
+
+        if (!blankValidation("batchId", "TextField", "Please Select Batch"))
+            return false;
+        if (!blankValidation("storeId", "TextField", "Please Select Store"))
+            return false;
+        if (!blankValidation("planId", "TextField", "Please Select Plan Id"))
+            return false;
+        if (!blankValidation("prodItemId", "TextField", "Please Select Production Item"))
+            return false;
+        if (!blankValidation("scrapwt", "TextField", "Please Select Scrap Weight"))
+            return false;
+        if (!blankValidation("mixStartDate", "TextField", "Please Select Mix Start Date"))
+            return false;
+        if (!blankValidation("mixEndtDate", "TextField", "Please Select Mix End Date"))
+            return false;
+
+
+        var item = true;
+        $(".itemCls").each(function() {
+            if (!blankValidation($(this).attr('id'), "TextField", "Please Select Some Raw Item")) {
+                item = false;
+                return false;
+            }
+
+        });
+
+        var quantity = true;
+        if (item) {
+            $(".issueQuantityCls").each(function() {
+                if (!blankValidation($(this).attr('id'), "TextField", "Please Enter Quantity")) {
+                    quantity = false;
+                    return false;
+                }
+
+            });
+        }
+
+        console.log(dataset)
+        if (item && quantity) {
+            submitMixData(dataset);
+        }
+
+
+
+    })
+})
+
+function submitMixData(dataset) {
+    console.log("ther data are " + dataset)
+    if (dataset.length > 0) {
+        swal.fire({
+            title: "Are you sure want to Submit?",
+            text: "Once Submited,Can't revert back !",
+            type: "warning",
+
+            showCancelButton: true,
+            confirmButtonColor: "#DD6BB5",
+            confirmButtonText: "Submit",
+            reverseButtons: true,
+            confirmButtonAriaLabel: 'Thumbs up, great!',
+            cancelButtonText: 'Cancel',
+            cancelButtonAriaLabel: 'Thumbs down',
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    type: "POST",
+                    url: "add-production-mix-ajax",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(dataset),
+                    success: function(response) {
+                        console.log(response)
+                        if (response.message == "Success") {
+                            swal({
+                                title: "Data Saved Successfully.",
+                                type: "success",
+                            }).then(function() {
+                                window.location.href = "/production/view-productions";
+                            })
+                        } else {
+                            swal({
+                                title: response.code,
+                                text: response.message,
+                                type: "warning"
+                            })
+                        }
+                    },
+                    error: function(data) {
+                        console.log(data);
+                    }
+                }) //ajax ends
+            }
+        }) //swal function block ends
+    }
+
+} //submit function ends
+
+
+function funcLoad() {
+    location.reload();
+}
+//for number check
+function checkNum1(event) {
+    var currentId = event.currentTarget.id;
+    checkNum(currentId);
+}
+
+
+function getPlannings() {
+    var storeId = $("#storeId").val();
+    $("#planId").val("");
+    $("#planId").empty();
+    if (storeId) {
+        $.ajax({
+            type: 'GET',
+            url: 'add-production-get-plannings?storeId=' + storeId,
+            contentType: false,
+            success: function(response) {
+                if (response.message == "Success") {
+                    console.log(response)
+                    var option = $("<option></option>");
+                    $(option).val(null);
+                    $(option).html("--Select--");
+                    $("#planId").append(option);
+                    for (var i = 0; i < response.body.length; i++) {
+                        var option = $("<option></option>");
+                        $(option).val(response.body[i].key);
+                        $(option).html(response.body[i].key);
+                        $("#planId").append(option);
+                    }
+                }
+            },
+            error: function(e) {
+                alert("error");
+            }
+        });
+    } else {
+        var option = $("<option></option>");
+        $(option).val(null);
+        $(option).html("--Select--");
+        $("#planId").append(option);
+    }
+}
+
+
+function dateVaidate() {
+    if ($("#mixStartDate").val() && $("#mixEndtDate").val()) {
+        dateValidation('mixStartDate', 'mixEndtDate', "Start Date ", "End Date");
+    }
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Production</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Prepare Mix</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+
+							<div class="row">
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Store Name</label> <select class="form-control"
+											id="storeId" onchange="getPlannings()">
+											<option th:value="NULL">--Select--</option>
+											<option th:if="${edit}" th:each="c:${MCoilBatchLists}"
+												th:value='${c.name}' th:text="${c.name}"
+												th:selected="${c.name==mCoilList[0].planId}"></option>
+											<option th:unless="${edit}" th:each="c:${storeList}"
+												th:value='${c.key}' th:text="${c.name}"></option>
+
+										</select>
+
+									</div>
+								</div>
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Planning Id</label> <select class="form-control"
+											id="planId" onchange="getProductionItem()">
+											<option th:value="NULL">--Select--</option>
+											<!-- <option th:if="${edit}" th:each="c:${MCoilBatchLists}"
+												th:value='${c.name}' th:text="${c.name}"
+												th:selected="${c.name==mCoilList[0].planId}"></option>
+											<option th:unless="${edit}" th:each="c:${planningList}"
+												th:value='${c.name}' th:text="${c.name}"></option> -->
+
+										</select>
+
+									</div>
+								</div>
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Production Item</label> <select class="form-control"
+											id="prodItemId" onchange="getBatchDetails()">
+											<option th:value="NULL">--Select--</option>
+										</select>
+									</div>
+
+
+								</div>
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Production Quantity</label> <input type="text"
+											th:unless="${edit}" class="form-control" id="prodQty"
+											readonly> <input type="text" th:if="${edit}"
+											class="form-control" id="batchQty"
+											th:value='${mCoilList[0].tMotherCoilThicknessName}' readonly>
+
+									</div>
+
+
+
+								</div>
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Batch Id</label> <input type="text" th:unless="${edit}"
+											class="form-control" id="batchId" readonly> <input
+											type="text" th:if="${edit}" class="form-control"
+											id="batchQty"
+											th:value='${mCoilList[0].tMotherCoilThicknessName}' readonly>
+									</div>
+
+
+								</div>
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Batch Quantity</label> <input type="text"
+											th:unless="${edit}" class="form-control" id="batchQty"
+											readonly> <input type="text" th:if="${edit}"
+											class="form-control" id="batchQty"
+											th:value='${mCoilList[0].tMotherCoilThicknessName}' readonly>
+
+									</div>
+
+
+
+								</div>
+
+								<!-- <div class="col-lg-4">
+									<div class="form-group">
+										<label>Slit Batch</label> <input type="hidden"
+											class="form-control" id="slitbatch" onchange="setData()"
+											th:unless="${edit}" /> <input type="hidden"
+											class="form-control" id="slitbatch" th:if="${edit}"
+											th:value="${mCoilList[0].tPipeSlitBatch}" />
+									</div>
+								</div> -->
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Scrap Weight</label> <input type="text"
+											class="form-control" id="scrapwt" th:unless="${edit}" /> <input
+											type="text" class="form-control" id="scrapwt" th:if="${edit}"
+											th:value="${mCoilList[0].tPipeScrapWeight}" />
+									</div>
+								</div>
+
+							<!--  	<div class="col-lg-4">
+									<div class="form-group">
+										<label>Mix Quantity</label> <input type="text"
+											class="form-control" id="mixQty" th:unless="${edit}" /> <input
+											type="text" class="form-control" id="mixQty" th:if="${edit}"
+											th:value="${mCoilList[0].tPipeScrapWeight}" />
+									</div>
+								</div>   -->
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Mix Weight</label> <input type="text"
+											class="form-control" id="mixWt" th:unless="${edit}" /> <input
+											type="text" class="form-control" id="mixWt" th:if="${edit}"
+											th:value="${mCoilList[0].tPipeScrapWeight}" />
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Mix Start Date</label> <input type="text"
+											class="form-control" id="mixStartDate" th:unless="${edit}"
+											readonly onchange="dateVaidate()" /> <input type="text"
+											class="form-control" id="mixStartDate" th:if="${edit}"
+											th:value="${mCoilList[0].tPipemixStartDateDate}" readonly
+											onchange="dateVaidate()" />
+
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Mix End Date</label> <input type="text"
+											class="form-control" id="mixEndtDate" th:unless="${edit}"
+											readonly onchange="dateVaidate()" /> <input type="text"
+											class="form-control" id="mixEndtDate" th:if="${edit}"
+											th:value="${mCoilList[0].tPipemixEndtDateDate}" readonly
+											onchange="dateVaidate()" />
+
+									</div>
+								</div>
+							</div>
+							<!-- <div class="row">
+								<div class="col-lg-12">
+									id="table-data"
+
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Slit Width</th>
+												<th>Quantity</th>
+												<th>Slit Sub Batch</th>
+												<th>Pipe Size</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+
+											Edit
+											<tr class="tr_clone" th:if="${edit}"
+												th:each="a,iter:${mCoilList}">
+												<td><select id="selectSlitWt_0"
+													class="form-control SlitWtCls"
+													onChange="callMyfunction(event)">
+														<option th:value="null">--select--</option>
+														<option th:each="c:${slitWidthList}" th:value='${c.key}'
+															th:text="${c.name}"
+															th:selected='${c.key==a.tPipeSlitWidth}'></option>
+
+												</select></td>
+
+												<td><input type="text" class="form-control QuantityCls"
+													id="selectQuantity_0" th:value="${a.tPipeSlitQty}" /></td>
+												<td><input type="text" class="form-control subBatchCls"
+													id="selectSubBatch_0" th:value="${a.slitSubGroup}" /></td>
+
+												<td><select id="selectSize_0"
+													class="form-control SizeCls">
+
+														<option th:each="c:${pipeSizeList}" th:value='${c.key}'
+															th:text="${c.name}" th:selected='${c.key==a.tPipeSize}'></option>
+												</select></td>
+
+												<td>
+													<button th:if="${iter.size == iter.index+1}" type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>
+													<button th:if="${iter.size != 1}" type="button"
+														class="btn btn-warning rmv" name="Remove">
+														<span class="ti-minus"></span>
+													</button>
+
+												</td>
+											</tr>
+
+
+											add
+											<tr class="tr_clone" th:unless="${edit}">
+
+												<td><select id="selectSlitWt_0"
+													class="form-control SlitWtCls"
+													onchange="callMyfunction(event)">
+														<option value="">--Select--</option>
+												</select></td>
+
+												<td><input type="text" id="selectQuantity_0"
+													class="form-control QuantityCls" /></td>
+
+												<td><input type="text" id="selectSubBatch_0"
+													class="form-control subBatchCls" /></td>
+												<td><select id="selectSize_0"
+													class="form-control SizeCls">
+														<option value="">--Select--</option>
+												</select></td>
+
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="checkEmpty();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+										</tbody>
+
+
+									</table>
+								</div>
+
+							</div> -->
+
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="subheading">Raw Material Details</div>
+									<!-- id="table-data" -->
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="2" cellpadding="5" style="border-color: #BABABA;">
+										<thead>
+											<tr>
+												<th>Item Name</th>
+												<th>Available Quantity</th>
+												<th>Quantity</th>
+												<!-- <th>&nbsp;</th> -->
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<tr class="tr_clone" th:if="${issue}"
+												th:each="a,iter:${issueList}">
+												<td><input type="hidden"
+													th:id="itemCategory_+${iter.index}"
+													th:value="${a.itemCategory}"
+													class="form-control itemCategoryCls" /> <input
+													th:value="${a.itemSubCategory}" type="hidden"
+													th:id="itemSubCategory_+${iter.index}"
+													class="form-control itemSubCategoryCls" /> <input
+													th:value="${a.item}" type="hidden"
+													th:id="item_+${iter.index}" class="form-control itemCls">
+													<input type="text" th:id="itemName_+${iter.index}" readonly
+													class="form-control itemCls1" th:value="${a.itemId}"
+													onkeyup="itemAutoComplete(event);" name="item_" />
+													<div th:id="suggesstion-box1_+${iter.index}"></div></td>
+												<td><input type="text" th:id="reqQty_+${iter.index}"
+													readonly class="form-control reqQtyCls"
+													th:value="${a.reqQty}"></td>
+												<td><input type="text"
+													th:id="totalIssueQty_+${iter.index}" readonly
+													class="form-control totalIssueQtyCls"
+													th:value="${a.totalIssueQty}"></td>
+												<td><input type="text"
+													th:id="avilQuantity_+${iter.index}" readonly
+													class="form-control avilQuantityCls" th:value="${a.avlQty}"></td>
+												<td><input type="text"
+													th:id="issueQuantity_+${iter.index}"
+													class="form-control  issueQuantityCls"
+													onblur="quantityComparision(event);"
+													th:value="${a.iNoteQty}" onkeyup="checkQty(event)" value=''></td>
+											</tr>
+
+										</tbody>
+										<!-- <tbody id="tbodyData" class="tr_clone">
+											<tr>
+
+												<td colspan="3" align="center"
+													style="color: red; font-size: 14px;"><b>No Data
+														Found</b></td>
+											</tr>
+										</tbody> -->
+									</table>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="form-group col-md-12">
+									<button type="button" id="submit" class="btn btn-success">Submit</button>
+									<button type="button" class="btn btn-warning"
+										onclick="funcLoad();">Cancel</button>
+								</div>
+							</div>
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+
+	</div>
+</div>
+</html>

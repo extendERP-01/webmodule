@@ -1,0 +1,228 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("#regDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+		$("#relDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+	/* 	$("#submit").click(function() {
+
+			window.location.href = "/employee/view-exist-management";
+		});
+		$("#btnCancel").click(function() {
+
+			window.location.href = "/employee/view-exist-management";
+		}); */
+		$("#empId").on('change', function() {
+			var empId = $(this).val();
+			console.log(empId);
+			if (empId) {
+				$("#empDesignation").empty();
+			/* 	var option = $("<option></option>");
+				$(option).val(null);
+				$(option).html("Select");
+				$("#empDesignation").append(option); */
+				$.ajax({
+					type : 'POST',
+					url : 'add-exist-management-emp-degination-ajax',
+					contentType : false,
+					data : empId,
+					success : function(response) {
+						if (response.message == "success") {
+							/* $("#empDesignation").empty();
+
+							var option = $("<option></option>");
+							$(option).val(null);
+							//$(option).html("Select");
+							$("#empDesignation").append(option); */
+							for (var i = 0; i < response.body.length; i++) {
+								var option = $("<option></option>");
+								$(option).val(response.body[i].key);
+								$(option).html(response.body[i].name);
+								$("#empDesignation").append(option);
+							}
+						}
+					},
+					error : function(e) {
+						alert("error");
+					}
+				});
+			} else {
+				$("#empDesignation").empty();
+				var option = $("<option></option>");
+				$(option).val(null);
+				$(option).html("Select");
+				$("#empDesignation").append(option);
+				
+			}
+		});
+	});
+	function validateForm() {
+
+		if (!blankValidation("empId", "TextField",
+				"Employee Name can not be left blank"))
+			return false;
+		if (!blankValidation("regDate", "TextField",
+				"Resignation Date can not be left blank"))
+			return false;
+		if (!blankValidation("noticeperiod", "TextField",
+				"Notice Period  can not be left blank"))
+			return false;
+		if (!blankValidation("releaseDate", "TextField",
+				"Release Date can not be left blank"))
+			return false;
+		if (!blankValidation("resignation", "TextField",
+				"Resignation can not be left blank"))
+			return false;
+		if (!blankValidation("empDesignation", "TextField",
+				"Employee Designation can not be left blank"))
+			return false;
+		if (!blankValidation("salary", "TextField",
+				"Salary can not be left blank"))
+			return false;
+		if (!blankValidation("bonus", "TextField",
+				"Salary can not be left blank"))
+			return false;
+
+		if (!blankValidation("recovery", "TextField",
+				"Recovery can not be left blank"))
+			return false;
+	}
+	function dateValidation() {
+		
+		var resignDate = $("#regDate").val();
+		var releaseDate = $("#relDate").val();
+
+		var parts = resignDate.split('-');
+		var d1 = Number(parts[2] + parts[1] + parts[0]);
+		parts = releaseDate.split('-');
+		var d2 = Number(parts[2] + parts[1] + parts[0]);
+		if (d1 <= d2) {
+			return true;
+		} else {
+			swal("Release Date Can't  be Smaller Than Resign Date.")
+			$("#relDate").val('');
+			return false;
+		}
+
+	}
+</script>
+<style type="text/css">
+.mt-10{
+margin-top:10px;}
+</style>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<!--Alert Box-->
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		<!--Alert Box-->
+		<div class="col-md-12">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>Add Exit Management</span></li>
+
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>Add Exit Management</h4>
+		</div>
+		<div class="container-fluid">
+			<div class="card">
+
+				<div class="card-body">
+					<div class="basic-elements">
+						 <form th:action="@{/employee/add-exist-management}"th:object="${exitManagement}" method="post" onsubmit="return validateForm();" autocomplete="off">
+                               <input type="hidden" th:field="*{exitManagementId}" />
+							<div class="col-lg-12">
+								<div class="row">
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Employee Name</label> <select class="form-control" th:field="*{empId}">
+												<option value="">--Select--</option>
+												<option th:each="c:${EmployeeList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+
+											</select>
+										</div>
+
+
+										
+										<div class="form-group">
+											<label>Notice Period</label> <input type="text" class="form-control"
+												id="no" th:field="*{noticeperiod}"/>
+										</div>
+										<div class="form-group">
+											<label>Resignation Date</label> <input type="text"
+												class="form-control" id="regDate" readonly th:field="*{resignationDate}" />
+										</div>
+										<div class="form-group">
+											<label>Release Date</label> <input type="text"
+												class="form-control" id="relDate"  th:field="*{releaseDate}" readonly onchange="dateValidation()"/>
+										</div>
+										
+										<div class="form-group">
+											<label>Reason Of Resignation</label>
+											<textarea class="form-control textarea" th:field="*{resignation}"></textarea>
+										</div>
+										<button type="submit" class="btn btn-success mt-10">submit</button>
+                           				<button type="reset" value="Reset" class="btn btn-warning mt-10">cancel</button>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Designation </label> <select class="form-control" th:field="*{empDesignation}">
+												<option value="">--Select--</option>
+												<option th:each="c:${designationList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Salary</label> <input type="text" class="form-control"
+												id="salary" th:field="*{salary}" onkeyup="checkNum('salary')"/>
+										</div>
+										<div class="form-group">
+											<label>Bonus</label> <input type="text" class="form-control"
+												id="bonous" th:field="*{bonus}" onkeyup="checkNum('bonus')"/>
+										</div>
+										<div class="form-group">
+											<label>Recovery</label> <input type="text"
+												class="form-control" th:field="*{recovery}"  onkeyup="checkNum('recovery')"/>
+										</div>
+
+										<!-- <div class="form-group">
+										<label>Status</label> <select class="form-control"
+											th:field="*{status}">
+											<option th:value=null>--select--</option>
+											<option th:value=true>Active</option>
+											<option th:value=false>Inactive</option>
+										</select>
+									</div> -->
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+</html>

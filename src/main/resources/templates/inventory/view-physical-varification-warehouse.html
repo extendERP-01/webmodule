@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	//modal view	
+
+//view all list
+
+  $(document).ready(function() {      	 
+ 	  $('#physicalVerification').DataTable({
+		  'processing'  : true,
+		  'serverSide'  : true,
+		  'searching'   : false,
+		  'ordering'    : false,
+		  "ajax"  : {
+		  'url': 'view-physical-varification-warehouse-throughajax',
+		  'data': function(d) {
+		   d.param1 = $('#param1').val();
+		   d.param2 = $('#param2').val();
+		   d.param3 = $('#param3').val();
+		   d.param4 = $('#param4').val();
+		   d.param5 = $('#param5').val();
+		 
+		   
+			       }
+		  },
+		  'dataSrc' :"",
+		  'columns' : [
+			  {'data' :'storeId'},
+			  {'data' :'subInventoryId'},
+			  {'data' :'wareHouse'},
+			  {'data' :'rack'},
+			  {'data' :'date'},
+			  {'data' :'itemName'},
+			  {'data' :'description'},
+			  {'data' :'totalBarCodeCount'},
+			   {'data' :'totalStatusCount'}
+			
+		  ]
+	  }); 
+ 	    //Add SubInventory Against Store
+ 	    $("#param1").on('change', function() {
+ 	        var storeId = $(this).val();
+ 	        console.log(storeId);
+ 	        if (storeId) {
+ 	            $("#param2").empty();
+
+ 	            $.ajax({
+ 	                type: 'POST',
+ 	                url: 'add-physical-varification-warehouse-store-subinventory',
+ 	                contentType: false,
+ 	                data: storeId,
+ 	                success: function(response) {
+ 	                    if (response.message == "success") {
+ 	                        $("#param2").append($("<option value>--Select--</option>"));
+ 	                        for (var i = 0; i < response.body.length; i++) {
+ 	                            var option = $("<option></option>");
+ 	                            $(option).val(response.body[i].key);
+ 	                            $(option).html(response.body[i].name);
+ 	                            $("#param2").append(option);
+ 	                        }
+ 	                    }
+ 	                },
+ 	                error: function(e) {
+ 	                    alert("error");
+ 	                }
+ 	            });
+ 	        } else {
+ 	            $("#param2").empty();
+ 	            var option = $("<option></option>");
+ 	            $(option).val(null);
+ 	            $(option).html("Select");
+ 	            $("#param2").append(option);
+
+ 	        }
+ 	    });
+ 	   //Add ware house Against sub inventory
+ 	    $("#param2").on('change', function() {
+ 	        var subInventory = $(this).val();
+ 	        console.log(subInventory);
+ 	        if (subInventory) {
+ 	            $("#param3").empty();
+
+ 	            $.ajax({
+ 	                type: 'POST',
+ 	                url: 'add-physical-varification-warehouse-subinventory-warehouse',
+ 	                contentType: false,
+ 	                data: subInventory,
+ 	                success: function(response) {
+ 	                    if (response.message == "success") {
+ 	                        $("#param3").append($("<option value>--Select--</option>"));
+ 	                        for (var i = 0; i < response.body.length; i++) {
+ 	                            var option = $("<option></option>");
+
+ 	                            $(option).val(response.body[i].key);
+ 	                            $(option).html(response.body[i].name);
+ 	                            $("#param3").append(option);
+ 	                        }
+ 	                    }
+ 	                },
+ 	                error: function(e) {
+ 	                    alert("error");
+ 	                }
+ 	            });
+ 	        } else {
+ 	            $("#param3").empty();
+ 	            var option = $("<option></option>");
+ 	            $(option).val(null);
+ 	            $(option).html("Select");
+ 	            $("#param3").append(option);
+
+ 	        }
+ 	    });
+ 	    //Add rack  Against ware house
+ 	    $("#param3").on('change', function() {
+ 	        var wareHouse = $(this).val();
+ 	        console.log(wareHouse);
+ 	        if (wareHouse) {
+ 	            $("#param4").empty();
+
+ 	            $.ajax({
+ 	                type: 'POST',
+ 	                url: 'add-physical-varification-warehouse-warehouse-rack',
+ 	                contentType: false,
+ 	                data: wareHouse,
+ 	                success: function(response) {
+ 	                    if (response.message == "success") {
+ 	                        $("#param4").append($("<option value>--Select--</option>"));
+ 	                        for (var i = 0; i < response.body.length; i++) {
+ 	                            var option = $("<option></option>");
+ 	                            $(option).val(response.body[i].key);
+ 	                            $(option).html(response.body[i].name);
+ 	                            $("#param4").append(option);
+ 	                        }
+ 	                    }
+ 	                },
+ 	                error: function(e) {
+ 	                    alert("error");
+ 	                }
+ 	            });
+ 	        } else {
+ 	            $("#param4").empty();
+ 	            var option = $("<option></option>");
+ 	            $(option).val(null);
+ 	            $(option).html("Select");
+ 	            $("#param4").append(option);
+
+ 	        }
+ 	    });
+ 
+	});
+  function searchData() {
+		$('#physicalVerification').DataTable().draw();
+	}
+	//method to create pdf
+	function createPdf() {
+		window.open("/download/inventory-goods-returns-pdf?param1="+window.btoa($('#param1').val())+"&param2="+window.btoa($('#param2').val())+"&param3="+window.btoa($('#param3').val())+"&param4="+window.btoa($('#param4').val()),'_blank');
+
+	}
+	// method to create pdf
+	function pdfCreate(id) 
+	{
+	   window.open("/download/inventory-view-goods-returns-pdf?id="+window.btoa(id),'_blank');
+	}
+	//method to create pdf
+	
+	
+//date picker
+$(document).ready(function() {
+	
+	 
+	 $("#param5").datetimepicker({
+	 format : 'd-m-yy',
+	 autoclose : true,
+	 timepicker : false,
+	 })
+
+	 });
+
+
+//Deleting the Goods Return note
+
+function deleteReturnnote(id){
+		swal.fire({
+			  title: "Are you sure want to Delete?",
+			  text: "Once Deleted,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'Delete',
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/inventory/delete-goodsreturn-note?id="+ id,
+					    success: function(response) {
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Record Deleted Successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        	
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+		}
+		
+		
+//function for search param of purchase Order
+
+function purchaseOrderNoAutoComplete() {
+	$.ajax({
+		type : "POST",
+		url : "view-inventory-goodsreturns-getPurchseNo",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param1").val(),
+		success : function(response) {
+			if (response.message == "success") {
+			if(response.body.length!=0)	{
+				$("#param1").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+					content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+				} 
+				content += '</ul>';
+				$("#suggesstion-box1").show();
+				$("#suggesstion-box1").html(content);
+				
+			}
+			else {
+				$("#param1").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box1").show();
+				$("#suggesstion-box1").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+}
+function selectAutocompleteValue(key,name) {
+	if (key) {
+		$("#param1").val(key);
+		$("#param1").attr('data-procat', key);
+		$("#suggesstion-box1").hide();
+		}
+	else {
+		$("#param1").val("");
+		$("#param1").attr('data-procat', "");
+		$("#suggesstion-box1").hide();
+	}
+}
+//function for search param of invoice Number
+function invoiceNumberAutoComplete() {
+	$.ajax({
+		type : "POST",
+		url : "view-inventory-goodsreturns-getSuggestioninvoiceNos",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param2").val(),
+		success : function(response) {
+			if (response.message == "success") {
+			if(response.body.length!=0)	{
+				$("#param2").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+					content += '<li onClick="selectAutocompleteValues(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+				} 
+				content += '</ul>';
+				$("#suggesstion-box2").show();
+				$("#suggesstion-box2").html(content);
+				
+			}
+			else {
+				$("#param2").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValues(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box2").show();
+				$("#suggesstion-box2").html(content);
+			}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+}
+function selectAutocompleteValues(key,name) {
+	if (key) {
+		$("#param2").val(key);
+		$("#param2").attr('data-procat', key);
+		$("#suggesstion-box2").hide();
+		}
+	else {
+		$("#param2").val("");
+		$("#param2").attr('data-procat', "");
+		$("#suggesstion-box2").hide();
+	}
+}
+	
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+					<li><a href="add-physical-varification-warehouse">Add
+							Physical Verification Of WareHouse</a></li>
+					<li class="active"><span>View Physical Verification Of
+							WareHouse</span></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+
+					<!-- <div align="right">  <a href="javascript:void(0)"  target='blank' data-toggle='tooltip' title='Download Pdf' data-placement='bootom' onclick="createPdf();" data-orginal-title='Download'>
+					<i class='fa fa-download' style='font-size:40px'></i></a></div> -->
+
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-physical-varification-warehouse">Create</a>
+								</div>
+							</div>
+							<!-- <div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning" onclick="createPdf();">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div> -->
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Store</label> <select class="org-name form-control "
+									id="param1">
+									<option th:value="null">--Select--</option>
+									<option th:each="c:${storeList}" th:value='${c.key}'
+										th:text="${c.name}"></option>
+
+								</select>
+
+							</div>
+							<div class="col-md-2">
+								<label>Sub Inventory</label> <select
+									class="org-name form-control " id="param2">
+									<option th:value="null">--Select--</option>
+									<!-- <option th:value="1">Sub Inventory 1</option>
+											    <option th:value="2">Sub Inventory 2</option>
+											    <option th:value="3">Sub Inventory 3</option> -->
+								</select>
+							</div>
+							<div class="col-md-2">
+								<label>Ware House</label> <select class="org-name form-control "
+									id="param3">
+									<option th:value="null">--Select--</option>
+									<!-- <option th:value="1">Sub Inventory 1</option>
+											    <option th:value="2">Sub Inventory 2</option>
+											    <option th:value="3">Sub Inventory 3</option> -->
+								</select>
+							</div>
+							<div class="col-md-2">
+								<label>Rack</label> <select class="org-name form-control "
+									id="param4">
+									<option th:value="null">--Select--</option>
+								</select>
+							</div>
+							<div class="col-md-2">
+								<label> Date</label> 
+								<input id="param5"
+									class="form-control" type="text" placeholder=" From Date"
+									name="" readonly>
+							</div> 
+							
+ 
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<input type="button" class="btn btn-info" value="Search"
+										onclick="searchData()" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="physicalVerification" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Store</th>
+									<th>Sub Inventory</th>
+									<th>Ware House</th>
+									<th>Rack</th>
+									<th>Date</th>
+									<th>Item</th>
+									<th>Description</th>
+									<th>BarCode Count</th>
+									<th>Physical Verification Count</th>
+
+								</tr>
+							</thead>
+							<!--  <tbody>
+                              <tr>
+                              	 <th>Store 1</th>
+                                 <th>Sub Inventory 1</th>                             
+                                 <th>Rack 2</th>
+                                 <th>20-10-2020</th>
+                                 <th>16B046 Small</th>
+                                 <th>4</th>
+                                 <th>4</th>
+                               
+                              </tr>
+                           </tbody>
+                            <tbody>
+                              <tr>
+                              	 <th>Store 1</th>
+                                 <th>Sub Inventory 1</th>      
+                                 <th>Rack 2</th>
+                                 <th>20-10-2020</th>
+                                 <th>16B096 Large</th>
+                                 <th>2</th>
+                                 <th>2</th>
+                             
+                              </tr>
+                           </tbody> -->
+						</table>
+
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Good Return</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+
+						</table>
+
+						<table width="100%" border="0" id="table2">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<table width="100%" border="0" id="table3">
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

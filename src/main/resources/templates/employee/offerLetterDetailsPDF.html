@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Beauty Service Invoice</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.tblgap {
+	margin: 20px 0px;
+}
+
+body {
+	font-family: 'Montserrat', sans-serif;
+	margin: 0;
+	padding: 0;
+	font-size: 12px;
+	/* background: #fff url(http://localhost:8051/assets/images/invoicebg.png) */
+}
+
+.maintbl tr td {
+	/*border: 1px solid black;*/
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.theader-padding {
+	padding: 10px;
+}
+
+.wrapper {
+	margin: 0 auto;
+	width: 900px;
+	padding: 20px 40px;
+	position: relative;
+}
+
+.paid-red {
+	position: absolute;
+	right: 0px;
+	top: 0;
+	z-index: 9999;
+}
+/* .header{
+height: 130px;
+} */
+/* .logo{
+float: left;
+} */
+.hrline {
+	border: 2px solid #cccccc;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.tableheader {
+	padding: 10px 5px;
+	color: #418AB3;
+	font-weight: 600;
+	background: #f5f5f5;
+	border-bottom: 1px solid #ccc;
+	border-top: 10px solid #FFF;
+	text-align: center;
+}
+
+.bill {
+	text-align: left;
+	color: #000 !important;
+	font-size: 24px;
+	padding-left: 10px;
+}
+
+.invoicedate {
+	color: #000;
+	text-align: left;
+	padding: 5px;
+}
+
+.detail {
+	color: #000;
+	text-align: center;
+	padding: 5px;
+}
+
+.mailing {
+	height: 50px;
+	padding: 10px;
+	color: #fff;
+	text-align: right;
+}
+
+.strip2 {
+	width: 800px;
+	padding-left: 17px;
+	font-size: 14px;
+	color: #418ab3;
+	text-align: center;
+	margin: 19px;
+}
+
+.td-border {
+	border-bottom: 1px solid #BABABA;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: center;
+	width: 126px;
+	font-size: 12px;
+}
+
+.text-style {
+	color: #3B494A;
+	font-size: 12px;
+	padding: 10px;
+}
+
+.pdt {
+	padding: 4px;
+}
+
+.transcation-text {
+	font-size: 17px;
+	font-weight: 600;
+	padding: 13px;
+	text-align: center
+}
+
+.text-style2 {
+	background-color: #f2f2f2;
+	padding: 10px;
+	color: #373757;
+}
+
+.btn-danger {
+	color: #fff !important;
+	background: #d9534f !important;
+	box-shadow: none !important;
+}
+
+.textarea {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	padding: 8px;
+}
+</style>
+
+
+</head>
+<body th:attr="style='background: #fff url(\''+${image}+'\') no-repeat'">
+	<div layout:fragment="content">
+		<div class="content-wrap ">
+			<div class="content-wrap">
+				<div class="main mrt_20">
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<div class="containersec">
+									<div class="wrapper">
+
+										<table cellpadding="0" cellspacing="0" style="width: 700px;">
+											<tr>
+												<td colspan="2"><img
+													src="@{classpath:static/assets/images/paid-red.png" /></td>
+											</tr>
+											<tr>
+												<!-- <td width="400" bgcolor="#418AB3"><img
+													th:src="${logoImage}" /></td> -->
+												<td class="bill" bgcolor="#418AB3">Offer Letter Details</td>
+											</tr>
+
+											<tr bgcolor="595959">
+												<td class="invoicedate" bgcolor="88BBD7">OFFER LETTER
+													ID :<span th:text="${offerLetterDtls[0].tOfferLetterId}"></span>
+												</td>
+												<td class="invoicedate" bgcolor="88BBD7">DATE : <span
+													th:text="${currDate}"></span></td>
+											</tr>
+
+
+
+											<tr>
+												<td colspan="2">
+													<table bgcolor="#F2F2F2"
+														style="padding-bottom: 30px; padding-top: 10px; width: 700px;">
+
+														<tr bgcolor="595959">
+															<td class="detail"><u>EMPLOYEE PERSONAL INFO</u></td>
+
+														</tr>
+														<td>
+															<div class="pdt">
+																<b class="text-style">Name: </b><span
+																	th:text="${offerLetterDtls[0].tEmpFName}"></span>
+															</div>
+															<div class="pdt">
+																<b class="text-style">Date Of Birth: </b><span
+																	th:text="${offerLetterDtls[0].tEmpDOB}"></span>
+															</div>
+															<div class="pdt">
+																<b class="text-style">Mobile No.: </b><span
+																	th:text="${offerLetterDtls[0].tMobileNo}"></span>
+															</div>
+															<div class="pdt">
+																<b class="text-style">Email Id: </b><span
+																	th:text="${offerLetterDtls[0].tEmailId}"></span>
+															</div>
+															<div class="pdt">
+																<b class="text-style"> Pay Grade: </b><span
+																	th:text="${offerLetterDtls[0].tPayGrade}"></span>
+															</div>
+															<div class="pdt">
+																<b class="text-style">Job Title: </b><span
+																	th:text="${offerLetterDtls[0].tJobTitle}"></span>
+															</div>
+															<div class="pdt">
+																<b class="text-style">Date Of Joining : </b><span
+																	th:text="${offerLetterDtls[0].tEmpDOJ}"></span>
+															</div>
+															<div class="pdt">
+																<b class="text-style">Annual CTC : </b><span
+																	th:text="${offerLetterDtls[0].tAnnualCTC}"></span>
+															</div>
+														</td>
+													</table>
+												</td>
+											</tr>
+
+
+											<tr>
+
+												<td colspan="2">
+
+													<table id="id_td" class="maintbl" cellpadding="0"
+														cellspacing="0" style="width: 680px;">
+														<thead>
+															<tr>
+																<th class="tableheader" width="500" align="left">SL
+																	No.</th>
+																<th class="tableheader" width="500" align="left">SALARY
+																	COMPONENTS</th>
+																<th class="tableheader" width="500" align="left">CALCULATION
+																	TYPE</th>
+																<th class="tableheader" width="500" align="left">MONTHLY
+																	AMOUNT</th>
+																<th class="tableheader" width="500" align="left">ANNUAL
+																	AMOUNT</th>
+
+															</tr>
+														</thead>
+														<tbody>
+															<tr th:each="items,iter : ${offerLetterDtls}">
+																<td class="td-border td-border-right"
+																	th:text=" ${iter.index+1}"></td>
+																<td class="td-border td-border-right"
+																	th:text="${items.salaryComponent}"></td>
+																<td class="td-border td-border-right"
+																	th:text="${items.calculationType}"></td>
+																<td class="td-border td-border-right"
+																	th:text="${items.monthlyAmnt}"></td>
+																<td class="td-border td-border-right"
+																	th:text="${items.tAnnualAmount}"></td>
+
+
+															</tr>
+														</tbody>
+													</table>
+												</td>
+
+
+											</tr>
+											<tr bgcolor="#F2F2F2">
+												<td colspan="2">
+
+													<table style="width: 730px;">
+														<tr>
+															<td width="300" style="padding: 10px 0px;">
+																<div style="color: #418AB3; padding: 8px 0px;">
+																	<strong>NOTE</strong>
+																</div>
+																<div>
+																	<textarea class="form-control textarea"
+																		th:text="${offerLetterDtls[0].tAddress}"
+																		readonly="readonly"></textarea>
+																</div>
+															</td>
+
+
+														</tr>
+
+
+													</table>
+												</td>
+											</tr>
+
+											<tr>
+												<td colspan="2">
+													<div class="strip2">
+														<b>THANKYOU FOR YOUR BUSINESS</b>
+													</div>
+												</td>
+											</tr>
+
+
+										</table>
+									</div>
+								</div>
+							</div>
+							<div style="clear: both;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /# row -->
+		</div>
+	</div>
+</body>
+</html>

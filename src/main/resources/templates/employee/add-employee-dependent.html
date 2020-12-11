@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	//$("#myTable tbody tr:last").find(".NameCls").append(new Option("--Select--","")); 
+	$("#myTable tbody tr:last").find(".NameCls").val("");
+	$("#myTable tbody tr:last").find(".relnCls").val("");
+	$("#myTable tbody tr:last").find(".shareCls").val("");
+	$("#myTable tbody tr:last").find(".adharCls").val("");
+	$("#myTable tbody tr:last").find(".mobCls").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		
+		selectInput.eq(0).attr('id',"selectName_"+i);
+		selectInput.eq(1).attr('id',"selectPrice_"+i);
+		selectInput.eq(2).attr('id',"selectShare_"+i);
+		selectInput.eq(3).attr('id',"selectAdhar_"+i);
+		selectInput.eq(4).attr('id',"selectMob_"+i);
+		
+	})
+	
+}
+
+function disableTableOption(){
+	
+	 $("#myTable > tbody > tr").each(function(i){
+	   $(".NameCls option").prop("disabled", false); //enable everything
+	
+	   var arr = $.map(
+	       $(".NameCls option:selected"), function (n) {
+	             return n.value;
+	   });
+	   
+	   $(".NameCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+	   }).hide();
+	
+	  
+	   $(".NameCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+	   }).show();
+	 })
+}	
+
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".NameCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".NameCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+$(document).ready(function(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+		});
+	
+	
+	
+
+	
+//submit button function
+	
+	$("#submit").click(function(){
+		
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			assign = {};
+			assign['editId']    =	$("#id").val();
+			assign['empId']		=	$("#empId").val();
+			assign['relName']	=	$(this).find(".NameCls").val();
+			assign['relationId']	    =	$(this).find(".relnCls").val();
+			assign['adharNo']  =	$(this).find(".adharCls").val();
+			assign['mobNo']	=	$(this).find(".mobCls").val();
+			dataset.push(assign);
+			console.log(assign);
+		});//table tbody tr loop ends
+		
+		if (!blankValidation("empId","SelectBox" ,"Please Select Employee Name"))
+		      return false;
+		
+		var nameValid = true;
+		$(".NameCls").each(function(){
+			if (!blankValidation( $(this).attr('id') ,"TextField","Please Enter Dependent Name")){
+				nameValid = false;
+				return false;
+			}
+			
+		});
+		
+		var relationValid = true;
+		if(nameValid){
+			$('.relnCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Relation")){
+					relationValid = false;
+					return false;
+				}
+			});
+		}
+		var adharValid = true;
+		if(relationValid && nameValid){
+			$('.adharCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Adhar Number")){
+					adharValid = false;
+					return false;
+				}
+				
+				if (!fieldLengthCheck($(this).attr('id'), 12, "Adhar Number", "Max")){
+					adharValid = false;
+					return false;
+				}
+					
+				if (!fieldLengthCheck($(this).attr('id'), 12, "Adhar Number", "Min")){
+					adharValid = false;
+					return false;
+				}
+					
+				
+			});
+		}
+		var mobNoValid = true;
+		if(relationValid && nameValid && adharValid){
+			$('.mobCls').each(function(){
+				
+				
+				if (!fieldLengthCheck($(this).attr('id'), 10, "Mobile Number", "Max")){
+					mobNoValid = false;
+					return false;
+				}
+					
+				if (!fieldLengthCheck($(this).attr('id'), 10, "Mobile Number", "Min")){
+					mobNoValid = false;
+					return false;
+				}
+					
+				
+			});
+		}
+		
+		if(nameValid && relationValid && adharValid && mobNoValid){
+			submitAssignDependent(dataset);
+		}
+											
+			
+		
+	})
+})
+
+	function submitAssignDependent(dataset){
+	//const ipAPI = 'https://api.ipify.org?format=json'
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "add-employee-dependent-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					//console.log(response);
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/employee/view-employee-dependent" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+
+function funcLoad(){
+	location.reload();
+}
+    //for number check
+		function checkNum1(event) {
+			var currentId = event.currentTarget.id;
+			checkNum(currentId);
+			}
+		
+	
+		
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Employee Dependent/Nominee </span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Employee Dependent/Nominee</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${dpndAssign}" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+
+									<div class="col-lg-6">
+
+										<input type="hidden" th:if="${Edit}" id="id"
+											th:value="${dpndAssign[0].editId}" />
+
+										<div class="form-group">
+											<label>Employee Name</label> <select
+												class="form-control propertyCatName" id="empId">
+												<option value="">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${EmployeeList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected='${c.key==dpndAssign[0].empId}'></option>
+												<option th:unless="${Edit}" th:each="c:${EmployeeList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+
+											</select>
+										</div>
+
+
+
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th>Dependent/Nominee Name</th>
+													<th>Relationship</th>
+													<th>Share Percentage</th>
+													<th>Adhar Number</th>
+													<th>Mobile Number</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody id="tbodyData">
+
+												<tr class="tr_clone" th:if="${Edit}"
+													th:each="a,iter:${dpndAssign}">
+													<td><input type="text" id="selectName_"
+														class="form-control NameCls" th:value="${a.relName}"
+														onChange="disableTableOption();"/></td>
+													<td><select id="selectReln_"
+														class="form-control relnCls">
+															<option value="">--Select--</option>
+															<option th:each="c:${canDoList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.relationId}'></option>
+													</select></td>
+													<td><input type="text" id="selectshare_"
+														class="form-control shareCls" th:value="${a.share}"/></td>
+
+													<td><input type="text" id="selectAdhar_"
+														class="form-control adharCls" th:value="${a.adharNo}"/></td>
+													<td><input type="text" id="selectMob_" 
+														class="form-control mobCls" th:value="${a.mobNo}"/></td>
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+
+													</td>
+												</tr>
+
+
+												<tr class="tr_clone" th:unless="${Edit}">
+													<td><input type="text" id="selectName_"
+														class="form-control NameCls"
+														onChange="disableTableOption();"/>
+															</td>
+													<td><select id="selectReln_"
+														class="form-control relnCls" >
+															<option value="">--Select--</option>
+															<option th:each="c:${canDoList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+													</select></td>
+													<td><input type="text" id="selectShare_"
+														class="form-control shareCls"/>
+															</td>
+
+													<td><input type="text" id="selectAdhar_"
+														class="form-control adharCls" onkeyup="checkNum1(event)"/>
+															</td>
+													<td><input type="text" id="selectMob_"
+														class="form-control mobCls" onkeyup="checkNum1(event)"/>
+															</td>
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+
+
+										</table>
+									</div>
+								
+						</div>
+						<div class="row">
+							<div class="form-group col-md-12">
+								<button type="button" id="submit" class="btn btn-success">Submit</button>
+								<button type="button" class="btn btn-warning"
+									onclick="funcLoad();">Cancel</button>
+							</div>
+						</div>
+						</form>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<div style="clear: both;"></div>
+	</div>
+
+</div>
+</div>
+</html>

@@ -1,0 +1,982 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+
+
+function purchaseGroup(id) {
+	//alert('hello');
+	//var l = id.split("_");
+	//var counter = l[1];	
+		$.ajax({
+			type : "POST",
+			url : "add-items-getPurchaseSubGroup-throughAjax",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#"+id).val(),
+			success : function(response) {
+				console.log(response);
+				if (response.message == "success") {
+				if(response.body.length!=0)	{
+					$("#debitAccountSubGroup_0").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+					content += '<li onClick="autocompleteValue1(\''+response.body[i].key+'\',\''+response.body[i].name+'\',\''+response.body[i].description+'\',\''+response.body[i].fromAccountSubGroup+'\',\''+id+'\')">'+response.body[i].name+'('+response.body[i].key+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+					
+				}
+				else {
+					console.log("else: "+response);
+					$("#debitAccountSubGroup_0").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="autocompleteValue1(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+				}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+	
+function autocompleteValue1(sGroupId,sGroupName,groupId,groupName,id) {
+	//var l = id.split("_");
+	//var counter = l[1];
+
+	if (sGroupId) {
+		$("#accountGroup1").val(sGroupName + '( '+sGroupId+' )');
+		$("#tPurchaseSubGroup").val(sGroupId);
+		$("#accountGroup1").attr('data-procat', sGroupName);
+		$("#suggesstion-box1").hide();
+		
+		
+	}else {
+		$("#accountGroup1").val("");
+		$("#tPurchaseSubGroup").val("");
+		$("#accountGroup1").attr('data-procat', "");
+		$("#suggesstion-box1").hide();
+	}
+}
+
+
+function salesGroup(id) {
+	//alert('hello');
+	//var l = id.split("_");
+	//var counter = l[1];	
+		$.ajax({
+			type : "POST",
+			url : "add-items-getSalesSubGroup-throughAjax",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#"+id).val(),
+			success : function(response) {
+				console.log(response);
+				if (response.message == "success") {
+				if(response.body.length!=0)	{
+					$("#debitAccountSubGroup_0").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+					content += '<li onClick="autocompleteValue2(\''+response.body[i].key+'\',\''+response.body[i].name+'\',\''+response.body[i].description+'\',\''+response.body[i].fromAccountSubGroup+'\',\''+id+'\')">'+response.body[i].name+'('+response.body[i].key+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#suggesstion-box2").show();
+					$("#suggesstion-box2").html(content);
+					
+				}
+				else {
+					console.log("else: "+response);
+					$("#debitAccountSubGroup_0").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="autocompleteValue2(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box2").show();
+					$("#suggesstion-box2").html(content);
+				}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+
+	
+function autocompleteValue2(sGroupId,sGroupName,groupId,groupName,id) {
+	//var l = id.split("_");
+	//var counter = l[1];
+
+	if (sGroupId) {
+		$("#accountGroup2").val(sGroupName + '( '+sGroupId+' )');
+		$("#tsalesSubGroup").val(sGroupId);
+		$("#accountGroup2").attr('data-procat', sGroupName);
+		$("#suggesstion-box2").hide();
+		
+		
+	}else {
+		$("#accountGroup2").val("");
+		$("#tsalesSubGroup").val("");
+		$("#accountGroup2").attr('data-procat', "");
+		$("#suggesstion-box2").hide();
+	}
+	}
+
+
+    function funcLoad() {
+        location.reload();
+    }
+
+function returnToAddPage() {
+    window.location.href = "/inventory/view-items";
+}
+//method to validate ac number
+function checkMax(event) {
+    var currentId = event.currentTarget.id;
+    checkNum(currentId);
+}
+
+
+$(document).ready(function() {
+ 
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () { 
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+		});
+	
+	
+
+    $("#submit").click(function() {
+
+		 var dataset = []; 
+				item = {};
+				    item['item']    			= $("#item").val();
+				    item['itemName'] 			= $("#itemName").val();
+		            item['tAccountGroupType'] 	= $("#tAccountGroupType").val();
+		            item['tPurchaseSubGroup']	= $("#tPurchaseSubGroup").val();
+		            item['tsalesSubGroup']		= $("#tsalesSubGroup").val();
+		            item['itemCategory'] 		= $("#itemCategory").val();
+		            item['itemSubCategory']		= $("#itemSubCategory").val();
+		            item['serveType'] 			= $("#serveType").val();
+		           /*  item['serviceType'] 		= $("#serviceType").val(); */
+		            item['sacCode'] 			= $("#sacCode").val();
+		            item['itemMinStock']		= $("#itemMinStock").val();
+		            item['itemMaxStock'] 		= $("#itemMaxStock").val();
+		            item['itemActive'] 			= $("#itemActive").val();
+		            item['productionTypeId'] 	= $("#productionTypeId").val();				 
+					item['price']		       	= $("#price").val();
+					item['salesPrice']		   	= $("#salesPrice").val();
+					item['hsnCode']		   		= $("#hsnCode").val();
+					item['purchaseTAX']		   	= $("#purchaseTAX").val();
+					item['purchaseCess']		= $("#purchaseCess").val();
+					item['saleTAX']		   		= $("#saleTAX").val();
+					item['saleCess']		   	= $("#saleCess").val();
+				 
+				dataset.push(item);
+				console.log("inside submit "+item);
+		 
+			
+          
+        if (!blankValidation("itemName", "TextField", "Item Name can not be left blank"))
+            return false;
+       /*  if (!checkSpecialCharacter("itemName", "Special character is not allowed!!!"))
+            return false; */
+        if (!blankValidation("tAccountGroupType", "SelectBox", "Item Type Name can not be left blank"))
+            return false;
+        if (!blankValidation("tAccountGroupType", "SelectBox", "Item Type Name can not be left blank"))
+            return false;
+        if (!blankValidation("itemCategory", "SelectBox", "Item Category Name can not be left blank"))
+            return false;
+        if (!blankValidation("itemSubCategory", "SelectBox", "Sub Category Name can not be left blank"))
+            return false;
+        if (!blankValidation("serveType", "SelectBox", "Serve Type  can not be left blank"))
+            return false;
+        /* if (!blankValidation("serviceType", "SelectBox", "Service Type can not be left blank"))
+            return false; */
+        if (!blankValidation("tSacCode", "SelectBox", "Sac Code can not be left blank"))
+            return false;
+        if (!blankValidation("itemMinStock", "TextField", "Item Minimum Stock  can not be left blank"))
+            return false;
+        if (!blankValidation("itemMaxStock", "TextField", "Item Maximum Stock can not be left blank"))
+            return false;
+        if (!blankValidation("itemActive", "SelectBox", "Status can not be left blank"))
+            return false;
+
+        
+        var qtyValid =true; 
+    		$('.selectQtyCls').each(function(){
+    			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+    				qtyValid =false;
+    				return false;
+    			}		
+    		});
+    	 
+    	
+        var priceValid =true;
+    	if(qtyValid){
+    		$('.selectPriceCls').each(function(){
+    			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Price")){
+    				priceValid =false;
+    				return false;
+    			}		
+    		});
+    	}
+    	if(qtyValid && priceValid){
+    		 submitAddItems(dataset);
+    	}
+       
+    });
+
+
+    $("#fileUpload").change(function() {
+        readIMG(this);
+    });
+    
+    var tAccountGroupType = $("#tAccountGroupType").val();
+    
+    
+    $("#salesDiv").hide();
+    
+    $("#purchaseDiv").hide();
+
+    if (tAccountGroupType == 'dp054') {
+        $("#purchaseDiv").show();
+        $("#salesDiv").hide();
+    }
+    if (tAccountGroupType == 'dp055') {
+        $("#purchaseDiv").hide();
+        $("#salesDiv").show();
+    }
+    if (tAccountGroupType == 'dp056') {
+
+        $("#purchaseDiv").show();
+        $("#salesDiv").show();
+    }
+
+    $("#itemCategory").on('change', function() {
+        var itemCategory = $(this).val();
+        if (itemCategory) {
+            $.ajax({
+                type: 'POST',
+                url: 'add-items-getSubCategory-throughAjax',
+                contentType: false,
+                data: itemCategory,
+                success: function(
+                    response) {
+                    if (response.message == "success") {
+                        $("#itemSubCategory").empty();
+                        var option = $("<option></option>");
+                        $(option).val(null);
+                        $(option).html("--Select--");
+                        $("#itemSubCategory").append(option);
+
+                        for (var i = 0; i < response.body.length; i++) {
+                            var option = $("<option></option>");
+                            $(option).val(response.body[i].key);
+                            $(option).html(response.body[i].name);
+                            $("#itemSubCategory").append(option);
+                        }
+                    }
+
+                },
+                error: function(e) {
+                    console
+                        .log("error");
+                }
+            });
+        } else {
+            $("#itemSubCategory").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("--Select--");
+            $("#itemSubCategory").append(
+                option);
+        }
+    });
+
+    
+
+    // For Account Sub Group
+
+    $("#tAccountGroupType").on('change', function() {
+
+        var tAccountGroupType = $(this).val();
+        //alert(tAccountGroupType);
+
+        if (tAccountGroupType == "dp054") {
+            $("#purchaseDiv").show();
+            $("#salesDiv").hide();
+            $.ajax({
+                type: 'POST',
+                url: 'add-items-getPurchaseSubGroup-throughAjax',
+                contentType: false,
+                data: tAccountGroupType,
+                success: function(
+                    response) {
+                    if (response.message == "success") {
+                        $( "#tPurchaseSubGroup") .empty();
+                        var option = $("<option></option>");
+                        $(option).val(null);
+                        $(option).html( "Select");
+                        $( "#tPurchaseSubGroup") .append( option);
+                        for (var i = 0; i < response.body.length; i++) {
+                            var option = $("<option></option>");
+                            $(option).val( response.body[i].key);
+                            $(option).html( response.body[i].name);
+                            $("#tPurchaseSubGroup") .append( option);
+                        }
+                    }
+
+                },
+                error: function(e) {
+                    console .log("error");
+                }
+            });
+        }
+        if (tAccountGroupType == "dp055") {
+            $("#salesDiv").show();
+            $("#purchaseDiv").hide();
+            $
+                .ajax({
+                    type: 'POST',
+                    url: 'add-items-getSalesSubGroup-throughAjax',
+                    contentType: false,
+                    data: tAccountGroupType,
+                    success: function(
+                        response) {
+                        if (response.message == "success") {
+                            $( "#tsalesSubGroup") .empty();
+                            var option = $("<option></option>");
+                            $(option) .val( null);
+                            $(option) .html( "Select");
+                            $( "#tsalesSubGroup") .append( option);
+                            for (var i = 0; i < response.body.length; i++) {
+                                var option = $("<option></option>");
+                                $(  option) .val( response.body[i].key);
+                                $(  option) .html( response.body[i].name);
+                                $( "#tsalesSubGroup")  .append( option);
+                            }
+                        }
+
+                    },
+                    error: function(e) {
+                        console
+                            .log("error");
+                    }
+                });
+        }
+        if (tAccountGroupType == "dp056") {
+            $("#salesDiv").show();
+            $("#purchaseDiv").show();
+            var sales = "dp055";
+            var purchase = "dp054";
+
+            $  .ajax({
+                    type: 'POST',
+                    url: 'add-items-getSalesSubGroup-throughAjax',
+                    contentType: false,
+                    data: sales,
+                    success: function(
+                        response) {
+                        if (response.message == "success") {
+                            $( "#tsalesSubGroup") .empty();
+                            var option = $("<option></option>");
+                            $(option) .val( null);
+                            $(option) .html( "Select");
+                            $(  "#tsalesSubGroup") .append(  option);
+                            for (var i = 0; i < response.body.length; i++) {
+                                var option = $("<option></option>");
+                                $(  option)  .val( response.body[i].key);
+                                $(  option) .html( response.body[i].name);
+                                $( "#tsalesSubGroup") .append( option);
+                            }
+                        }
+
+                    },
+                    error: function(e) {
+                        console
+                            .log("error");
+                    }
+                });
+            $ .ajax({
+                    type: 'POST',
+                    url: 'add-items-getPurchaseSubGroup-throughAjax',
+                    contentType: false,
+                    data: purchase,
+                    success: function(
+                        response) {
+                        if (response.message == "success") {
+                            $( "#tPurchaseSubGroup")  .empty();
+                            var option = $("<option></option>");
+                            $(option)   .val( null);
+                            $(option) .html(  "Select");
+                            $( "#tPurchaseSubGroup") .append( option);
+                            for (var i = 0; i < response.body.length; i++) {
+                                var option = $("<option></option>");
+                                $( option).val(  response.body[i].key);
+                                $(  option) .html(  response.body[i].name);
+                                $( "#tPurchaseSubGroup") .append( option);
+                            }
+                        }
+
+                    },
+                    error: function(e) {
+                        console .log("error");
+                    }
+                });
+        } else {
+            $("#tPurchaseSubGroup").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("Select");
+            $("#tPurchaseSubGroup").append( option);
+            $("#tsalesSubGroup").empty();
+            var option = $("<option></option>");
+            $(option).val(null);
+            $(option).html("Select");
+            $("#tsalesSubGroup").append(option);
+        }
+    });
+
+});
+
+function minMaxHideShow(id) {
+
+    var idVal = $("#" + id).val();
+    if (idVal == 'PS3' || idVal == 'SS3')
+        $(".minMaxDiv").hide();
+    else
+        $(".minMaxDiv").show();
+
+}
+
+ 
+
+function saveFile() {
+    $("#upload_prev").empty();
+    var uFile = $('#fileUpload')[0].files[0];
+    var fileName = $('#fileUpload').val();
+
+    var lastIndex = fileName.lastIndexOf("\\");
+    if (lastIndex >= 0) {
+        fileName = fileName.substring(lastIndex + 1);
+    }
+    var iURL = URL.createObjectURL(uFile);
+    $("#uploadedImgDiv").html("");
+    var LightImg = "<a class='example-image-link' href='" + iURL + "' title='" + fileName + "' data-lightbox='" + fileName + "'>Preview Image</a>";
+    $("#uploadedImgDiv").html(LightImg);
+
+    var fileData = new FormData();
+    fileData.append('file', uFile);
+    fileData.append('path', 'none');
+    console.log(fileData, "sdcf")
+    $.ajax({
+        type: "POST",
+        url: "add-items-uploadFile",
+        enctype: "multipart/form-data",
+        contentType: false,
+        data: fileData,
+        processData: false,
+        cache: false,
+        success: function(response) {
+
+        },
+        error: function(e) {
+
+        }
+    });
+
+}
+
+//for refreshing image on the same page
+function readIMG(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+            $('#image').attr('src', e.target.result);
+        }
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function submitAddItems(dataset) {
+	console.log(dataset)
+    swal.fire({
+        title: "Are you sure want to Submit?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        }
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "add-items",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) { 
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                        	window.location.href = "/inventory/view-items" ;
+                        })
+
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(response) {
+                    console.log(response); 
+                }
+            }) //ajax ends
+        }
+    })
+} //submit function ends
+
+
+ 
+</script>
+<script>
+
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	
+	$("#myTable tbody tr:last").find(".selectQtyCls").val("");
+	$("#myTable tbody tr:last").find(".selectPriceCls").val(""); 
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		
+		textInput.eq(0).attr('id',"selectQty_"+i);
+		textInput.eq(1).attr('id',"selectPrice_"+i); 
+		
+	})
+	
+}
+
+function disableTableOption(){
+	
+	 $("#myTable > tbody > tr").each(function(i){
+	   $(".certifCls option").prop("disabled", false); //enable everything
+	
+	   var arr = $.map(
+	       $(".selectQtyCls option:selected"), function (n) {
+	             return n.value;
+	   });
+	   
+	   $(".selectQtyCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+	   }).hide();
+	
+	  
+	   $(".selectQtyCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+	   }).show();
+	 })
+}
+
+
+
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".selectQtyCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".selectQtyCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a href="#">View User</a></li>
+              <li><a href="#">Manage User</a></li> -->
+					<li class="active"><span>Add Item</span></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Item Name</label> <input type="text" th:if="${Edit}"
+											class="form-control" th:value="${itemModel[0].itemName}"
+											id="itemName"> <input class="form-control"
+											type="text" th:unless="${Edit}" id="itemName"> <input
+											type="hidden" th:if="${Edit}" class="form-control"
+											th:value="${itemModel[0].item}" id="item"> <input
+											class="form-control" type="hidden" th:unless="${Edit}"
+											id="item">
+									</div>
+									<div class="form-group">
+										<label>Item type</label> <select class="form-control"
+											id="tAccountGroupType">
+											<option th:value="null">--Select--</option>
+											<option th:if="${Edit}" th:each="c:${itemGroupList}"
+												th:value='${c.key}' th:text="${c.name}"
+												th:selected="${c.key==itemModel[0].tAccountGroupType}"></option>
+											<option th:unless="${Edit}" th:each="c:${itemGroupList}"
+												th:value='${c.key}' th:text="${c.name}"></option>
+										</select>
+									</div>
+
+									<div id="modalDiv">
+										<div class="form-group" id="purchaseDiv">
+											<label>Purchase Sub Group</label>
+											<!--select class="form-control" th:field="*{tPurchaseSubGroup}"
+													th:if="*{item}" disabled>
+													<option value=>Select</option>
+													<option th:each="c:${purchaseEditList}" th:value='${c.key}'
+														th:text="${c.name}"
+														th:selected="${c.key==tPurchaseSubGroup}"></option>
+												</select-->
+											<input type="text" th:if="${Edit}" th:value="${itemModel[0].purchaseName}" 
+												class="form-control debitAccountGroupCls" id="accountGroup1"
+												onkeyup="purchaseGroup(this.id);"
+												onchange="minMaxHideShow('tPurchaseSubGroup');"
+												data-procat=""> <input
+												th:unless="${Edit}" type="text"
+												class="form-control debitAccountGroupCls" id="accountGroup1"
+												onkeyup="purchaseGroup(this.id);"
+												onchange="minMaxHideShow('tPurchaseSubGroup');"
+												data-procat="">
+											<div id="suggesstion-box1"></div>
+											<input th:if="${Edit}" type="hidden" th:value="${itemModel[0].tPurchaseSubGroup}"  id="tPurchaseSubGroup">
+											<input th:unless="${Edit}" type="hidden"
+												id="tPurchaseSubGroup">
+											<!--select class="form-control"
+													th:field="*{tPurchaseSubGroup}"
+													th:unless="${itemModel.item}"
+													onchange="minMaxHideShow('tPurchaseSubGroup');">
+													<option value=>Select</option>
+													<option th:each="c:${purchaseEditList}" th:value='${c.key}'
+														th:text="${c.name}"
+														th:selected="${c.key==tPurchaseSubGroup}"></option>
+												</select-->
+										</div>
+										<div class="form-group" id="salesDiv">
+											<label>Sales Sub Group</label>
+											<input type="text" th:if="${Edit}" th:value="${itemModel[0].saleName}" 
+												class="form-control debitAccountGroupCls" id="accountGroup2"
+												onkeyup="salesGroup(this.id);"
+												onchange="minMaxHideShow('tsalesSubGroup');" data-procat="">
+											<input type="text" th:unless="${Edit}"
+												class="form-control debitAccountGroupCls" id="accountGroup2"
+												onkeyup="salesGroup(this.id);"
+												onchange="minMaxHideShow('tsalesSubGroup');" data-procat="">
+											<div id="suggesstion-box2"></div>
+											<input th:if="${Edit}" type="hidden" th:value="${itemModel[0].tsalesSubGroup}" id="tsalesSubGroup">
+											<input th:unless="${Edit}" type="hidden" id="tsalesSubGroup">
+										</div>
+									</div>
+
+									<!-- <div id="modalDiv">
+										<div class="form-group" id="purchaseDiv">
+											<label>Purchase Sub Group</label>
+											<select class="form-control" id="tPurchaseSubGroup"
+												onchange="minMaxHideShow('tPurchaseSubGroup');">
+												<option th:value="null">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${purchaseEditList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==itemModel[0].tPurchaseSubGroup}"></option>
+												<option th:unless="${Edit}" th:each="c:${purchaseEditList}"
+													th:value='${c.key}' th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="form-group" id="salesDiv">
+											<label>Sales Sub Group</label>
+											<select class="form-control" id="tsalesSubGroup"
+												onchange="minMaxHideShow('tsalesSubGroup');">
+												<option th:value="null">--Select--</option>
+												<option th:if="${Edit}" th:each="c:${getsalesSubGroupList}"
+													th:value='${c.key}' th:text="${c.name}"
+													th:selected="${c.key==itemModel[0].tsalesSubGroup}"></option>
+												<option th:unless="${Edit}"
+													th:each="c:${getsalesSubGroupList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+
+										</div>
+									</div> -->
+									<div class="form-group">
+										<label>Category</label> <select class="form-control"
+											id="itemCategory">
+											<option th:value="null">--Select--</option>
+											<option th:if="${Edit}" th:each="c:${itemCategoryList}"
+												th:value='${c.key}' th:text="${c.name}"
+												th:selected="${c.key==itemModel[0].itemCategory}"></option>
+											<option th:unless="${Edit}" th:each="c:${itemCategoryList}"
+												th:value='${c.key}' th:text="${c.name}"></option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>SubCategory</label> <select class="form-control"
+											id="itemSubCategory">
+											<option th:value="null">--Select--</option>
+											<option th:if="${Edit}" th:each="c:${itemSubCategoryList}"
+												th:value='${c.key}' th:text="${c.name}"
+												th:selected="${c.key==itemModel[0].itemSubCategory}"></option>
+											<option th:unless="${Edit}"
+												th:each="c:${itemSubCategoryList}" th:value='${c.key}'
+												th:text="${c.name}"></option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Product Type</label> <select class="form-control"
+											id="productionTypeId">
+											<option th:value="null">--Select--</option>
+											<option th:if="${Edit}" th:each="c:${productionList}"
+												th:value='${c.key}' th:text="${c.name}"
+												th:selected="${c.key==itemModel[0].productionTypeId}"></option>
+											<option th:unless="${Edit}" th:each="c:${productionList}"
+												th:value='${c.key}' th:text="${c.name}"></option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>HSN Code</label> <input type="text"
+											class="form-control" id="hsnCode" th:unless="${Edit}">
+										<input type="text" class="form-control" id="hsnCode"
+											th:if="${Edit}" th:value="${itemModel[0].hsnCode}">
+									</div>
+									<div class="form-group">
+										<label>Serve/Quantity Type</label> <select
+											class="form-control" id="serveType">
+											<option th:value="null">--Select--</option>
+											<option th:if="${Edit}" th:each="c:${serveTypeList}"
+												th:value='${c.key}' th:text="${c.name}"
+												th:selected="${c.key==itemModel[0].serveType}"></option>
+											<option th:unless="${Edit}" th:each="c:${serveTypeList}"
+												th:value='${c.key}' th:text="${c.name}"></option>
+										</select>
+
+									</div>
+									<!-- <div class="form-group">
+										<label>Service Type</label> <select class="form-control"
+											id="serviceType">
+											<option th:value="null">--Select--</option>
+											<option th:if="${Edit}" th:each="c:${serviceTypeList}"
+												th:value='${c.key}' th:text="${c.name}"
+												th:selected="${c.key==itemModel[0].serviceType}"></option>
+											<option th:unless="${Edit}" th:each="c:${serviceTypeList}"
+												th:value='${c.key}' th:text="${c.name}"></option>
+										</select>
+									</div> -->
+									<div class="form-group" th:unless="${Edit}">
+										<label for="fileUpload"> <img
+											src="../assets/images/default-item-img.png" alt="Empty"
+											height="100" width="100"
+											style="cursor: pointer; border-radius: 50%;" id="image" />
+										</label> <input type="file" name="fileUpload" id="fileUpload"
+											accept="image/*" onchange="saveFile()">
+										<div id="uploadedImgDiv">
+											<span th:if="*{action !=null}"> <a
+												class="example-image-link" th:href="${action}"
+												data-lightbox="hsdjas">Preview Image</a>
+											</span>
+										</div>
+										<span class="fornerrormsg" id="subcategory_photoerr"></span>
+									</div>
+									<div th:if="${Edit}">
+										<label for="fileUpload"> <img th:src="${image}" alt=""
+											height="100" width="100"
+											style="cursor: pointer; border-radius: 50%;" id="image" />
+										</label> <input type="file" name="fileUpload" id="fileUpload"
+											accept="image/*" onchange="saveFile()">
+										<div id="uploadedImgDiv">
+											<span th:if="*{action !=null}"> <a
+												class="example-image-link" th:href="*{action}"
+												data-lightbox="hsdjas">Preview Image</a>
+											</span>
+										</div>
+										<span class="fornerrormsg" id="subcategory_photoerr"></span>
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group" style="display: none;">
+										<label>Item SAC Code</label> <select class="form-control"
+											id="sacCode">
+											<option th:value="null">--Select--</option>
+											<option th:if="${Edit}" th:each="c:${sacCodeList}"
+												th:value='${c.key}' th:text="${c.name}"
+												th:selected="${c.key==itemModel[0].sacCode}"></option>
+											<option th:unless="${Edit}" th:each="c:${sacCodeList}"
+												th:value='${c.key}' th:text="${c.name}"></option>
+										</select>
+									</div>
+									<div class="form-group minMaxDiv">
+										<label>Min Stock</label> <input type="text" th:if="${Edit}"
+											class="form-control" id="itemMinStock"
+											th:value="${itemModel[0].itemMinStock}"
+											onkeyup="checkMax(event);"> <input type="text"
+											th:unless="${Edit}" id="itemMinStock"
+											onkeyup="checkMax(event);" class="form-control">
+
+									</div>
+									<div class="form-group minMaxDiv">
+										<label>Max Stock</label> <input type="text" th:if="${Edit}"
+											class="form-control" id="itemMaxStock"
+											th:value="${itemModel[0].itemMaxStock}"
+											onkeyup="checkMax(event);"> <input type="text"
+											th:unless="${Edit}" id="itemMaxStock"
+											onkeyup="checkMax(event);" class="form-control">
+									</div>
+									<div class="form-group ">
+										<label>Purchase Price</label> <input type="text"
+											th:if="${Edit}" class="form-control" id="price"
+											th:value="${itemModel[0].price}" onkeyup="checkNum(price);">
+										<input type="text" th:unless="${Edit}" id="price"
+											onkeyup="checkNum(price);" class="form-control">
+									</div>
+									<div class="form-group">
+										<label>Sales Price</label> <input type="text" th:if="${Edit}"
+											class="form-control" id="salesPrice"
+											th:value="${itemModel[0].salesPrice}"
+											onkeyup="checkNum(salesPrice);"> <input type="text"
+											th:unless="${Edit}" id="salesPrice"
+											onkeyup="checkNum(salesPrice);" class="form-control">
+									</div>
+									<div class="form-group">
+										<label>Purchase TAX</label> <input type="text" th:if="${Edit}"
+											class="form-control" id="purchaseTAX"
+											th:value="${itemModel[0].purchaseTAX}"
+											onkeyup="checkNum(purchaseTAX);"> <input type="text"
+											th:unless="${Edit}" id="purchaseTAX"
+											onkeyup="checkNum(purchaseTAX);" class="form-control">
+									</div>
+									<div class="form-group">
+										<label>Purchase Cess</label> <input type="text"
+											th:if="${Edit}" class="form-control" id="purchaseCess"
+											th:value="${itemModel[0].purchaseCess}"
+											onkeyup="checkNum(purchaseCess);"> <input type="text"
+											th:unless="${Edit}" id="purchaseCess"
+											onkeyup="checkNum(purchaseCess);" class="form-control">
+									</div>
+									<div class="form-group">
+										<label>Sale TAX</label> <input type="text" th:if="${Edit}"
+											class="form-control" id="saleTAX"
+											th:value="${itemModel[0].saleTAX}"
+											onkeyup="checkNum(saleTAX);"> <input type="text"
+											th:unless="${Edit}" id="saleTAX" onkeyup="checkNum(saleTAX);"
+											class="form-control">
+									</div>
+									<div class="form-group">
+										<label>Sale Cess</label> <input type="text" th:if="${Edit}"
+											class="form-control" id="saleCess"
+											th:value="${itemModel[0].saleCess}"
+											onkeyup="checkNum(saleCess);"> <input type="text"
+											th:unless="${Edit}" id="saleCess"
+											onkeyup="checkNum(saleCess);" class="form-control">
+									</div>
+									<div class="form-group">
+										<label>Status</label> <select class="form-control"
+											id="itemActive" th:if="${Edit}">
+											<option th:value="null">Select</option>
+											<option th:value="true"
+												th:selected="${itemModel[0].itemActive==true}">Active</option>
+											<option th:value="false"
+												th:selected="${itemModel[0].itemActive==false}">Inactive</option>
+										</select> <select class="form-control" id="itemActive"
+											th:unless="${Edit}">
+											<option th:value="true">Active</option>
+											<option th:value="false">Inactive</option>
+										</select>
+									</div>
+
+								</div>
+
+								<div class="col-lg-12">
+									<div class="form-group">
+										<input type="submit" value="Submit" id="submit"
+											class="btn btn-success" /> <input type="reset"
+											value="Cancel" class="btn btn-warning"
+											onclick="returnToAddPage();" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

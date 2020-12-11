@@ -1,0 +1,398 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+#chkbox{
+	margin-top:35px;
+	display:flex;
+	align-items:center;
+}
+tbody td{
+	text-align:right;
+}
+tbody td:first-child{
+	text-align:left;
+}
+tbody td:nth-child(2){
+	text-align:left;
+}
+</style>
+<script type="text/javascript">
+	
+
+	//Validation Function (Two Date Field Must Required)
+	function validateForm() {
+		if (!blankValidation("param1", "TextField", "From Date Is Required"))
+			return false;
+		if (!blankValidation("param2", "TextField", "To Date Is Required"))
+			return false;
+		if (!blankValidation("param3", "SelectBox", "Cost Center Name Is Required"))
+			return false;
+		pdfCreation();
+	}
+
+	//PDF Print Preview Function
+	function pdfCreation() {
+		window.open("/account/view-trial-balance-download-report?param1="
+				+ window.btoa($('#param1').val()) + "&param2="
+				+ window.btoa($('#param2').val())+ "&param3="
+				+ window.btoa($('#param3').val()), '_blank');
+	}
+
+	//Reload Page Function
+	function funcLoad() {
+		location.reload();
+	}
+	
+	function downloadExcel(){
+		window.open("download-excel-trial-balance?param1="+window.btoa($('#param1').val())+"&param2="+window.btoa($('#param2').val())+"&param3="+window.btoa($('#param3').val()),'_blank');
+	}
+
+	$(document).ready(function() {
+		
+	    var fullDate = new Date();
+		var twoDigitMonth = ((fullDate.getMonth().length+1) === 1)? (fullDate.getMonth()+1) : + (fullDate.getMonth()+1);
+		twoDigitMonth = twoDigitMonth>=10?twoDigitMonth:'0'+twoDigitMonth
+				
+		var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+		var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+		var pastDate = ((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+		
+		currentDate='15-01-2020'
+		$("#param1").val(currentDate);
+		$("#param2").val(currentDate);
+		
+		$("#param1" ).datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			timepicker : false,
+	    })
+		$("#param2" ).datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			timepicker : false,
+		})
+		
+		
+	
+		$('#utype').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			'paging' : true,
+			"ajax" : {
+				'url' : 'view-trial-balance-report-ajax',
+				'data' : function(d) {
+					d.param1 = window.btoa($('#param1').val());
+					d.param2 = window.btoa($('#param2').val());
+					d.param3 = window.btoa($('#param3').val());
+					d.param4 = $('#param4').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [{
+				'data' : 'slNo'
+			}, {
+				'data' : 'action'
+			}, {
+				'data' : 'openBal'
+			}, {
+				'data' : 'debitBal'
+			}, {
+				'data' : 'creditVal'
+			},{
+				'data' : 'openBal'
+			}]
+		});
+})
+function searchData() {
+	$('#utype').DataTable().draw();
+}
+	
+function accountGroupRequest(accountGrp){
+	var validate=true;
+	var message=""
+	if($('#param1').val()==""||$('#param1').val()==null){
+		message="Please Select From Date.";
+		validate=false;
+	}
+	if($('#param2').val()==""||$('#param2').val()==null){
+		message="Please Select To Date.";
+		validate=false;
+	}
+	if($('#param3').val()==""||$('#param3').val()==null){
+		message="Please Select Cost-Center.";
+		validate=false;
+	}
+	if(validate){
+		window.location.href="view-trial-balance-report-account-group?accountGroup="+accountGrp+"&fromdate="+window.btoa($('#param1').val())+"&todate="+window.btoa($('#param2').val())+"&costcenter="+window.btoa($('#param3').val());
+	}else{
+	 swal(message);		
+	}
+}
+
+/**************** R A J E S H *******************/
+ 
+var parentStr = '';
+var target = [];
+function showTrialModal(parent,rootString){
+	parentStr = parent;
+	target = rootString.split(',');
+	//console.log(parent)
+	//console.log(target)
+	//console.log(target[0])
+
+	$(".modal-body").html('');
+	$("#myModal").modal('show');
+	$.ajax({
+		url:"view-account-tree-ajax",
+		method:"GET",
+		contentType:"application/json",
+		success:function(response){
+			var hlevel = 0;
+			for(var i = 0;i<response.body.length;i++){
+				var level = parseInt(response.body[i].levelName.substring(1));
+				if(level > hlevel){
+					hlevel = level;
+				}
+			}
+			var margin = 22;
+			var font = 20;
+			for(var i = 1;i<=hlevel;i++){
+				var str = "";
+				var substr = "";
+				margin +=3;
+				font -=2;
+				for(var j = 0;j<response.body.length;j++){
+					var level = parseInt(response.body[j].levelName.substring(1));
+					var id = response.body[j].groupId;
+					var parent = "#"+response.body[j].parentId;
+					if(level == i){
+						if(level == 1){
+							str += "<div><div onclick=\"hide('"+id+"')\" id=\""+id+"h\"><i class=\"indicator fa fa-plus-circle\"></i>"+response.body[j].groupName+"</div><p class=\"accgrHead accgr\" style=\"font-size:inherit;\" id=\""+id+"\"></p><div>";
+						}else{
+							if(level == hlevel){
+								substr ="<div style=\"margin-left:"+margin+"px;\"><p id=\""+id+"\" class=\"accgr\"></p></div>";
+							}else{
+								substr ="<div style=\"margin-left:"+margin+"px;\"><div onclick=\"hide('"+id+"')\" id=\""+id+"h\"><i class=\"indicator fa fa-plus-circle\"></i>"+response.body[j].groupName+"</div><p id=\""+id+"\" class=\"accgr\" ></p></div>";
+							}
+							$(parent).append(substr);
+						}
+					}
+				}
+				$(".modal-body").append(str);
+				str = "";
+			}
+			addEvent();
+			//console.log(parentid)
+		},
+		error:function(err){
+			console.log(err)
+		}
+	})
+	
+}
+
+function hide(id){
+	//console.log(id)
+	if($("#"+id).html().length > 1){
+		$("#"+id).toggle("slow","swing");
+	}	
+	
+}
+
+
+function addEvent(){
+	var param1 = window.btoa($('#param1').val());
+	var param2 = window.btoa($('#param2').val());
+	var param3 = window.btoa($('#param3').val());
+	var trialData={};
+	var length = 0;
+	$.ajax({
+		url:"view-trial-balance-report-detls?param1="+param1+"&param2="+param2+"&param3="+param3,
+		method:"GET",
+		contentType:"application/json",
+		success:function(response){
+			trialData = response.data;
+			length = response.recordsTotal;
+			//console.log(trialData)
+			for(var j =0; j< target.length;j++){
+				$('.accgr').each(function(){
+					var tb = "";
+					if(target[j] == $(this).attr('id')){					
+						for(var i = 0; i < length ; i++){
+							if(target[j] == trialData[i].desc){
+								tb = //'<div style=\"color:red;\">ACCOUNTS:'+trialData[i].costCenter+'</div>'+
+								'<div style=\"float:right;width:50%;display:flex;text-align:right;\"><div  style=\"color:red;width:100px;margin-left:auto;\">'+trialData[i].debitBal.toFixed(2)+' Dr</div>'+
+								'<div style=\"color:red;margin-left:20px;width:100px;\">'+trialData[i].creditVal.toFixed(2)+' Cr</div></div>';	
+							}
+						}
+						
+						//$("#"+target[j]).append(tb);
+						//$(tb).insertBefore("#"+target[j]);
+						var id = "#"+target[j]+"h";
+						$(id).append(tb);
+						tb="";
+					}
+				});
+			}
+		},
+		error:function(err){
+			console.log(err)
+		}
+	});
+			
+	$('.accgr').each(function(){
+		if(parentStr.includes($(this).attr('id') ) || target.includes($(this).attr('id'))){
+			$("#"+$(this).attr('id')).prev().css("color","limegreen");
+			$("#"+$(this).attr('id')).toggle();
+		}
+		
+		$("#"+$(this).attr('id')).toggle();
+	});
+}
+
+$(document).ready(function(){
+	$('#showall').on("click",function(){
+		console.log("hii")
+		if($("input[name='showall']:checked").val()!=null){
+			$('#param4').val('all');
+			$('#utype').DataTable().draw();
+		}else{
+			$('#param4').val('specific');
+			$('#utype').DataTable().draw();
+			
+		}
+	})
+})
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="card-title">
+					<h4>Trial Balance Report</h4>
+				</div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+							<div class="basic-elements">
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>From Date</label> <input type="text"
+												class="form-control" id="param1" readonly>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>To Date</label> <input type="text"
+												class="form-control" id="param2" readonly>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Cost Center</label> <select class="form-control"
+												id="param3">
+												<option value="">--Select--</option>
+												<option th:each="c:${costCenterList}" th:value='${c.key}' th:selected="${c.key==costCenter}"
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group" id="chkbox">
+											<input type="checkbox" name="showall" id="showall" style="margin-right:10px;"/>
+											<label style="margin:0px;">Show All</label> 
+											<input type="hidden" id="param4" value="specific"/>
+										</div>
+									</div>
+								</div>
+								<div class="row">&nbsp;</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<div class="form-group">
+											<button class="btn btn-danger" onclick="funcLoad();">
+												Reset</button>
+											<button class="btn btn-info" onClick="searchData()">Search</button>
+											<button type="button" class="btn btn-primary"
+												onclick="validateForm();">Print Preview</button>
+											<button type="button" class="btn btn-primary"
+												onclick="pdfCreation();">Print</button>
+												<button type="button" class="btn btn-primary"
+												onclick="downloadExcel();">XLS</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div style="clear: both;"></div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="utype" class="table table-bordered">
+							<thead>
+								<tr>
+									<th class="tableheader" style="width: 40px;">SL.NO</th>
+									<th class="tableheader" align="left">ACCOUNTS</th>
+									<th class="tableheader" style="width: 105px;">OPENING BALANCE</th>
+									<th class="tableheader" style="width: 105px;">DEBIT</th>
+									<th class="tableheader" style="width: 105px;">CREDIT</th>
+									<th class="tableheader" style="width: 105px;">CLOSING BALANCE</th>
+								</tr>
+							</thead>
+							<tbody>
+								
+								<!-- table contents -->
+								
+							</tbody>
+						</table>
+					</div>
+					</div>
+					
+					<div style="clear: both;"></div>
+					
+				</div>
+				
+				<!-- Modal Start-->
+				<div id="myModal" class="modal fade" role="dialog">
+					<div class="modal-dialog" style="margin-left:220px;">
+			
+						<!-- Modal content-->
+						<div class="modal-content" style="width:900px;;height:750px;overflow: auto;min-width:525px;">
+							<div class="modal-header">
+								<h4 class="modal-title">Trial Balance Report</h4>
+								<button type="button" class="close" data-dismiss="modal">
+									<i class="fa fa-close fa-2x"></i>
+								</button>
+							</div>
+							<div class="modal-body">
+							<!-- ---------------------------------------------------------------------------- -->
+							
+							<!-- ---------------------------------------------------------------------------- -->
+							
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			<!-- Modal End-->
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+</div>
+</html>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+function editLeave(index) {
+	if(index) {
+		var data = index.split(",");
+		var fullDate1 = new Date();
+	    var twoDigitMonth1 = ((fullDate1.getMonth()+1)>=10)? (fullDate1.getMonth()+1) : '0' + (fullDate1.getMonth()+1);
+	    var twoDigitDate1 = ((fullDate1.getDate())>=10)? (fullDate1.getDate()) : '0' + (fullDate1.getDate());
+	    var currentDate1 = twoDigitDate1 + "-" + twoDigitMonth1 + "-" + fullDate1.getFullYear();
+	   	$("#date").val(currentDate1);
+		$("#empId").val(data[0]);
+		$("#prevDate").val(data[1]);
+		$('#myModal1').modal('show');
+	}
+}
+	
+	function deleteLeave(id){
+		//alert(id);
+		var data = id.split(",");
+		console.log(data);
+		obj = {};
+		obj.empId= data[0];
+		obj.date = data[1];
+		console.log(obj);
+		swal({
+		title				: "Are you sure want to Delete?",
+		text				: "Once Deleted,Can't revert back !",
+		type 				: "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Delete",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		 preConfirm: () => {
+	            return new Promise((resolve) => {
+	                setTimeout(() => {
+	                    console.log("Doing async operation");
+	                    resolve()
+	                }, 3000)
+	            })
+	        }
+	}).then((result) => { 
+		$.ajax({
+			type 		:"POST",
+			url : "view-employee-leave-delete",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : JSON.stringify(obj),
+			success 	: 	function(response) {
+				
+				if(response.message=="success"){
+					
+					swal({
+						title	: "Deleted Successfully.",
+						type: "success",
+				}).then(function(){
+					location.reload(); 
+				})
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}			
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		 }) 
+		 
+	}) 
+}
+</script>
+<script type="text/javascript">
+
+function searchData() {
+	 $('#tblTheme').DataTable().draw();
+}
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-employee-leave-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'empName'
+			}, {
+				'data' : 'date'
+			}, {
+				'data' : 'avlLeave'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+		$("#date").datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			timepicker : false,
+		});
+		 $("#param1").datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				//minDate: new Date() ,
+				timepicker : false,
+	})  
+	
+		 
+		 $("#param2").datetimepicker({
+					format:'d-m-Y',
+					closeOnDateSelect: true,
+					//minDate: new Date() ,
+					timepicker : false,
+		})  
+		
+		
+		$("#submitModal").click(function(){
+			//alert($("#empId").val());
+	   		var obj = {};
+	   		obj['empId'] 	= $("#empId").val();
+	   		obj['date'] 		= $("#date").val();
+	   		obj['prevDate'] 	= $("#prevDate").val();
+	   		
+	   		submitLeaveDate(obj);
+	   	})
+	});
+
+	
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+	
+	
+   	
+function submitLeaveDate(dataset) {
+	console.log(dataset)
+    swal.fire({
+        title: "Are you sure want to Submit?",
+        text: "Once Submited,Can't revert back !",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6BB5",
+        confirmButtonText: "Submit",
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log("Doing async operation");
+                    resolve()
+                }, 3000)
+            })
+        },
+        reverseButtons: true,
+        confirmButtonAriaLabel: 'Thumbs up, great!',
+        cancelButtonText: 'Cancel',
+        cancelButtonAriaLabel: 'Thumbs down',
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                type: "POST",
+                url: "view-employee-leave-date",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(dataset),
+                success: function(response) {
+                	console.log(response)
+
+                    if (response.message == "Success") {
+                        swal({
+                            title: "Data Saved Successfully.",
+                            type: "success",
+                        }).then(function() {
+                            window.location.href = "/employee/view-employee-leave";
+                        })
+                    } else {
+                        swal({
+                            title: response.code,
+                            text: response.message,
+                            type: "warning"
+                        })
+                    }
+                },
+                error: function(response) {
+                	console.log(response)
+                    swal(response.code);
+                }
+            }) //ajax ends
+        }
+    }) //swal function block ends
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/employee/add-employee-leave}">Update
+							Employee Leave</a></li>
+					<li class="active"><span>View Employee Leave </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Employee Leave</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-employee-leave">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>From Date</label> <input id="param1" class="form-control"
+									type="text" placeholder=" From Date" name="" readonly>
+							</div>
+							<div class="col-md-2">
+								<label>To Date</label> <input id="param2" class="form-control"
+									type="text" placeholder=" To Date" name="" readonly>
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblTheme" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Employee Name</th>
+									<th>Date</th>
+									<th>Available Leave</th>
+
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Employee Education Details</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		<div id="myModal1" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">Edit Employee Leave</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="col-lg-12">
+							<div class="form-group">
+								<input type="hidden" id="empId"> <input type="hidden"
+									id="prevDate"> <label>Date</label> <input type="text"
+									class="form-control" id="date" readonly>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" id="submitModal">Submit</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+
+	</div>
+</div>
+</html>

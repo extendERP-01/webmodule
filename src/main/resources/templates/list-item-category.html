@@ -1,0 +1,143 @@
+ <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+  xmlns:th="http://www.thymeleaf.org" 
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+  layout:decorate="~{thymeleaf/layout/master}">
+  <head>
+  <script type="text/javascript">
+  $(function () {
+	  $('#tblCategory').DataTable({
+	  'paging'      : true,
+	  'lengthChange': false,
+	  'searching'   : false,
+	  'ordering'    : false,
+	  'info'        : true,
+	  'autoWidth'   : false
+	  })
+	})
+  </script>
+  </head>
+  <div layout:fragment="content">
+ 	  
+         <div class="main mrt_20">
+            <div class="col-md-12">
+               <ol class="breadcrumb breadcrumb-arrow">
+                  <li><a href="index.html">Home</a></li>
+                  <!-- <li><a href="#">View User</a></li>
+                  <li><a href="#">Manage User</a></li> -->
+                  <li class="active"><span>View Item Category</span></li>
+               </ol>
+            </div>
+            <div class="card-title">
+               <h4>Listing of Item Category (1.5.2.1.2)</h4>
+            </div>
+            <div class="container-fluid">
+               
+               <ul class="nav nav-tabs" id="myTab" role="tablist">
+              <li class="nav-item">
+                <a class="nav-link active" th:href="@{item-category}" role="tab">View Item Category</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" th:href="@{add-item-category}" role="tab">Add Item Category</a>
+              </li>
+              
+            </ul>
+               
+               <div class="card">
+                  <div id="demo" class="collapse">
+                     <div class="search-field">
+                        <div class="row">
+                           <div class="col-md-2">
+                              <div class="org-name"> Category Name</div>
+                           </div>
+                           <div class="col-md-3">
+                              <input type="text" class="form-control" name="">
+                           </div>
+                           <!-- <div class="col-md-2">
+                              <div class="org-name">Role Name</div>
+                           </div> -->
+                           <!-- <div class="col-md-3">
+                              <input id="" class="form-control" type="text" placeholder="" name="">
+                           </div> -->
+                           
+                           <div class="col-md-2">
+                              <div class="form-group">
+                                 <button class="btn btn-primary">Search</button>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <a data-toggle="collapse" data-target="#demo" class="showhideangelbg"><i class="fa fa-angle-double-down"></i> </a>
+                  
+                  <div class="row">
+                     
+                     <div class="table-responsive" style="width:100%;">
+                        <table id="tblCategory" class="table table-bordered">
+                           <thead>
+                              <tr>
+                                 <th>Category Name</th>
+                                 <th>Status</th>
+                                 <th>Action</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr>
+                                 <td>Priya</td>
+                                 <td>Active</td>
+                                 <td>
+                                    <a data-toggle="modal" data-target="#myModal"> <i class="fa fa-search search"></i></a>
+                                    <i class="fa fa-edit edit"></i>
+                                    <i class="fa fa-trash trash"></i>
+                                 </td>
+                              </tr>
+                              
+                           </tbody>
+                        </table>
+                        
+                     </div>
+                     <div style="clear:both;"></div>
+                  </div>
+                  
+               </div>
+            </div>
+         </div>
+         <!-- Modal Start-->
+         <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+               
+               <!-- Modal content-->
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <h4 class="modal-title">View Details of Item Category (1.5.2.1.3)</h4>
+                     <button type="button" class="close" data-dismiss="modal"><i class="fa fa-close fa-2x"></i></button>
+                  </div>
+                  <div class="modal-body">
+                     <table width="100%" border="0">
+                        <tr>
+                           <td>Category Name :</td>
+                           <td align="left">Priyabrat</td>
+                        </tr>
+                        <tr>
+                           <td>Description</td>
+                           <td align="left">Hi Priyabrat</td>
+                        </tr>
+                        <tr>
+                           <td>Stauts</td>
+                           <td align="left">Active</td>
+                        </tr>
+                        
+                     </table>
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+               </div>
+               
+            </div>
+         </div>
+         <!-- Modal End-->
+         <!-- /# row -->
+      </div>
+    
+    </html>

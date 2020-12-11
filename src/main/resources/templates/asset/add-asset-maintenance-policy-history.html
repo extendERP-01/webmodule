@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 442px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script>
+function getAssetAutoSearch() {
+	var value = $('#asset').val();
+	
+	if(value) {
+		
+		$.ajax({
+			type : "POST",
+			url : "add-asset-maintenance-policy-history-get-asset-code",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : value,
+			success : function(response) {
+				if(response.body.length!=0)	{
+				
+					$("#asset").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\''+response.body[i].assetId+'\',\''+response.body[i].serialNo+'\',\''+response.body[i].category+'\')">'+response.body[i].serialNo+' ('+ response.body[i].category+')'+'</li>';
+					} 
+					content += '</ul>';
+					$("#assetSuggestionBox").show();
+					$("#assetSuggestionBox").html(content);
+				} else {
+					$("#asset").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#assetSuggestionBox").show();
+					$("#assetSuggestionBox").html(content);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$("#asset").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#assetSuggestionBox").show();
+				$("#assetSuggestionBox").html(content);
+			}
+		});
+	} else {
+		$("#asset").css("background","#FFF");
+		var content = '<ul id="autocomplete-list">';
+		content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#assetSuggestionBox").show();
+		$("#assetSuggestionBox").html(content);	
+	}
+}
+function selectAutocompleteValue(assetId,serialNo,category) {
+	if (assetId) {
+ 		$("#assetId").val(assetId);
+    	$("#asset").val(serialNo+" ("+category+")");
+    	$("#asset").attr('data-procat', assetId);
+    	$("#assetSuggestionBox").hide();
+    	getMaintenanceDetails(assetId);
+	} else {
+		$("#assetId").val("");
+    	$("#asset").val("");
+    	$("#asset").attr('data-procat', "");
+    	$("#assetSuggestionBox").hide();
+    	$("#tbodyTR").show();
+		$("#tbodyData").empty();
+	}
+}
+
+function getMaintenanceDetails(id) {
+	$("#tbodyTR").hide();
+	$.ajax({
+		type : "POST",
+		url : "add-asset-maintenance-policy-history-get-maintenace-details",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : id,
+		success : function(response) {
+			
+ 			if(response.body.length!=0)	{
+				$("#tbodyData").empty();
+ 				for(var i = 0; i < response.body.length; i++) { 
+					table = "<tr>"
+							+"<td><input type='hidden' class='form-control serviceTypeId' id='inputServiceTypeId_"+i+"' value='"+response.body[i].serviceTypeId+"'><input type='text' class='form-control serviceType' id='inputServiceType_"+i+"' readonly value='"+response.body[i].serviceType+"'></td>"
+							+"<td><input type='hidden' class='form-control policy' id='inputPolicy_"+i+"' value='"+response.body[i].policyId+"'><input type='text' class='form-control service' id='inputService_"+i+"' readonly value='"+response.body[i].serviceName+"'></td>"
+							+"<td><input type='text' class='form-control taskPerform' id='inputTaskPerform_"+i+"' readonly value='"+response.body[i].taskPerform+"'></td>"
+							+"<td><input type='hidden' class='form-control frequencyId' id='inputFrequencyId_"+i+"' value='"+response.body[i].freqId+"'><input type='text' class='form-control frequency' id='inputFrequency_"+i+"' readonly value='"+response.body[i].freqName+"'></td>"
+							+"<td class='hideCls'><input type='text' class='form-control policyKmHr' id='inputPolicyKmHr_"+i+"' readonly value='"+response.body[i].kmHr+"'></td>"
+							+"<td><textarea class='form-control desc' id='inputDescription_"+i+"'></textarea></td>"
+							+"<td><input type='text' class='form-control price' id='inputPrice_"+i+"'></td>"
+							+"<td><input type='text' class='form-control performedDate' id='inputPerformedDate_"+i+"' readonly></td>"
+							+"<td class='hideCls'><input type='text' class='form-control kmHr' id='inputKmHr_"+i+"'></td>"
+							+"<td><button class='btn btn-info' onclick=saveMaintenance('"+i+"')>Save</button></td>"
+							+"</tr>";
+							
+					$("#tbodyData").append(table);
+					
+					$(".hideCls").hide();
+				}
+				
+				$(".performedDate").datetimepicker({
+					format:'d-m-Y',
+					closeOnDateSelect: true,
+					timepicker : false,
+				});
+			} else {
+				$("#tbodyData").empty();
+				$("#tbodyTR").show();
+			}
+		}, error : function(data) {
+			console.log(data);
+			$("#tbodyData").empty();
+			$("#tbodyTR").show();
+		}
+	});
+}
+
+function saveMaintenance(i) {
+	var assetId = $("#assetId").val();
+	var policy = $("#inputPolicy_"+i).val();
+	var frequency = $("#inputFrequencyId_"+i).val();
+	var desc = $("#inputDescription_"+i).val();
+	var price = $("#inputPrice_"+i).val();
+	var performedDate = $("#inputPerformedDate_"+i).val();
+	var serviceType = $("#inputServiceTypeId_"+i).val();
+	var kmHr = $("#inputKmHr_"+i).val();
+	var policyKmHr = $("#inputPolicyKmHr_"+i).val();
+	
+	obj = {};
+	
+	obj['assetCode']	=	assetId;
+	obj['policyId']		=	policy;
+	obj['freqId']		=	frequency;
+	obj['desc']			=	desc;
+	obj['price']		=	parseFloat(price);
+	obj['performedDate']=	performedDate;
+	obj['serviceType']	=	serviceType;
+	obj['kmHr']			=	kmHr;
+	obj['policyKmHr']	=	policyKmHr;
+	
+	if (!blankValidation("inputDescription_"+i,"TextField" ,"Please Enter Description"))
+		return false;
+	if (!blankValidation("inputPrice_"+i,"TextField" ,"Please Enter Price"))
+		return false;
+	if (!blankValidation("inputPerformedDate_"+i,"TextField" ,"Please Enter Performed Date"))
+		return false;
+	console.log(obj)
+	
+	addMaintenance(obj);
+}
+
+function addMaintenance(obj) {
+	swal.fire({
+		title					: "Are you sure want to Submit?",
+		text					: "Once Submited,Can't Revert Back !",
+		type 					: "warning",
+		showCancelButton		: true,
+		confirmButtonColor		: "#DD6BB5",
+		confirmButtonText		: "Submit",
+		showLoaderOnConfirm		: true,
+		reverseButtons 			: true,
+		confirmButtonAriaLabel 	: 'Thumbs up, great!',
+		cancelButtonText 		: 'Cancel',
+		cancelButtonAriaLabel 	: 'Thumbs down',	
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "add-asset-maintenance-policy-history-save",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(obj),
+				success		: function(response){
+					if(response.message=="Success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							location.reload();
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			}) //ajax ends
+		}
+	})
+}
+
+$(document).ready(function(){
+	$(".hideCls").hide();
+})
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Maintenance Of Asset</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Maintenance Of Asset</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="row">
+
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Asset</label> <input type="hidden" class="form-control"
+											id="assetId"> <input type="text" class="form-control"
+											id="asset" onkeyup="getAssetAutoSearch();">
+										<div id="assetSuggestionBox"></div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<label id="" style="font-size: 20px;"><b> Service &
+											Task To Be Performed Details</b></label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<!-- id="table-data" -->
+									<table class="tbll table table-bordered" id="myTable"
+										width="100%" border="0" cellspacing="1" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Service Type</th>
+												<th>Service</th>
+												<th>Task To Be Performed</th>
+												<th>Frequency</th>
+												<th class='hideCls'>Policy Km/Hr</th>
+												<th>Description</th>
+												<th>Price</th>
+												<th>Performed Date</th>
+												<th class='hideCls'>KM/Hour</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyTR">
+											<tr>
+												<td style="color: #e30f0f;" valign="top" align="center"
+													colspan="8"><b>No records found</b></td>
+											</tr>
+										</tbody>
+										<tbody id="tbodyData">
+											<!-- <tr class="tr_clone">
+												<td><input type="hidden" id="inputAssetId_0"
+													class="form-control assetId" value=''> <input
+													type="text" id="inputSerialNo_0" 
+													class="form-control serialNo" value='' onkeyup="getAssetAutoSearch(event);">
+													<div id="suggesstion-box1_0"></div></td>
+												<td><input type="text" id="inputCategory_0"
+													class="form-control category" value='' readonly>
+													</td>
+												<td><input type="text" size="6" id="inputAssignKM_0"
+													class="form-control assignKM" value=''></td>
+												<td><input type="text" id="inputAssignDate_0"
+													class="form-control assignDate" value='' readonly></td>
+												<td><select id="selectAssignType_0" onchange="checkRunningKM(event);" class="form-control assignType">
+													<option value=false>Running</option>
+													<option value=true>Reserve</option>
+													</select></td>
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr> -->
+
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<!-- <div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+									</div>
+								</div>
+							</div> -->
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	function validateForm() {
+
+		if (!blankValidation("employeeId", "SelectBox",
+				"Employee  Name can not be left blank"))
+			return false;
+		if (!blankValidation("skillList", "SelectBox",
+				"Skill Name can not be left blank"))
+			return false;
+		if (!blankValidation("employeeSkillDesc", "TextField",
+				"Description can not be left blank"))
+			return false;
+
+	}
+	function funcGoback() {
+		location.href = "/hrms/view-employee-skill";
+	}
+</script>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<!--Alert Box-->
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		<!--Alert Box-->
+		<div class="col-md-12">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>Add Employee Skill</span></li>
+				<!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>Add Employee Skill</h4>
+			<div class="topbtnright" align="right">
+				<div class="form-group">
+					<button type="submit" class="btn btn-success">submit</button>
+					<button type="button" value="Reset" class="btn btn-warning"
+						onclick="funcGoback()">cancel</button>
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div class="card">
+				<div class="card-body">
+					<div class="basic-elements">
+						<form th:action="@{/employee/add-employee-skill}"
+							th:object="${assignSkill}" method="post"
+							onsubmit="return validateForm();" autocomplete="off">
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<input type="hidden" th:field="*{editId}" /> <label>Employee
+											Name</label> <select class="form-control" th:field="*{employeeId}">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${EmployeeList}" th:value='${c.key}'
+												th:text="${c.name}"></option>
+										</select>
+
+									</div>
+									<div class="form-group">
+										<label>Skill Name</label> <select multiple="multiple"
+											class="3col active multiselect" th:field="*{skillList}">
+											<option th:value="NULL">--Select--</option>
+											<option th:each="c:${SkillList}" th:value='${c.key}'
+												th:text="${c.name}"></option>
+										</select>
+
+									</div>
+									<div class="form-group">
+										<label>Skill Description</label>
+										<textarea class="form-control textarea"
+											th:field="*{employeeSkillDesc}"></textarea>
+									</div>
+
+
+									<!-- <button type="submit" class="btn btn-success">submit</button>
+									<button type="button" value="Reset" class="btn btn-warning"
+										onclick="funcGoback()">cancel</button> -->
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+</html>

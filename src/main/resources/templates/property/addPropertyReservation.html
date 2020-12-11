@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+ <script type="text/javascript">
+       
+     function validateForm(){
+    	 
+	  if (!blankValidation("userFname","TextField", " Firstname can not be left blank"))
+          return false;
+     
+      if (!blankValidation("userLname","TextField", "Lastname can not be left blank"))
+          return false;
+      if (!blankValidation("userMobileNo","TextField", "mobile no can not be left blank"))
+          return false;
+      if (!checkMobileNumberIN("userMobileNo", "please enter a valid mobile number"))
+          return false;
+      if (!blankValidation("pReservationDescription","TextArea", "Description can not be left blank"))
+          return false;
+      if (!blankValidation("from_date","TextField", "Booking from date  can not be left blank"))
+          return false;
+      if (!blankValidation("to_date","TextField", "Booking to date  can not be left blank"))
+          return false;
+      if (!blankValidation("pReservtnConfirm","TextField", "confirmation  can not be left blank"))
+          return false;
+      if (!blankValidation("propertyCategory","TextField", "Property category can not be left blank"))
+          return false;
+       if (!blankValidation("propertyType","TextField", "Property type no  can not be left blank"))
+          return false;
+      if (!blankValidation("property","TextField", "property name can not be left blank"))
+          return false;
+      if (!blankValidation("sitingPlan","TextField", "seating Plan can not be left blank"))
+          return false;
+      if (!blankValidation("propertyBookType","TextField", "Booking Type can not be left blank"))
+          return false;
+      if (!blankValidation("pReservtnActive","TextField", "Status can not be left blank"))
+          return false;  
+     }  
+/* datepicker function for reservation date */
+		$(document).ready(function() {			
+			 $("#from_date").datepicker({
+				format:'dd-mm-yyyy',
+				startDate: new Date(),
+				autoclose:true
+			}) 
+			 $("#to_date").datepicker({
+					format:'dd-mm-yyyy',
+					startDate: new Date(),
+					autoclose:true
+				}) 				
+	});
+/* Onchange function for get propertyType from PropertyCategory */
+function propertyCatagoryChange() {
+	var dd = $("#propertyCategory").val();
+	if (dd) {
+	$.ajax({
+		type : "POST",
+		url : "add-property-reservation-getPropertyTypList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#propertyCategory").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				//console.log(response);
+				$("#propertyType").empty();
+					$("#property").empty();
+					
+					$("#propertyType").append(
+							$("<option value>Select</option>"));
+					$("#property").append(
+							$("<option value>Select</option>"));
+				for (var i = 0; i < response.body.length; i++) {
+					var option = $("<option></option>");
+					$(option).val(response.body[i].key);
+					$(option).html(response.body[i].name);
+					$("#propertyType").append(option);
+				}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+	} else {
+		$("#propertyType").empty();
+		$("#propertyType").append(
+				$("<option value>Select</option>"));
+		$("#property").empty();
+		$("#property").append(
+				$("<option value>Select</option>"));
+		
+		}
+}
+
+/* Onchange function for get propertyName from propertyType */
+function propertyTypeChange() {
+	var dd = $("#propertyType").val();
+	if (dd) {
+	$.ajax({
+		type : "POST",
+		url : "add-property-reservation-getPropertNameList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#propertyType").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				//console.log(response);
+				$("#property").empty();
+				$("#property").append(
+						$("<option value>Select</option>"));
+				for (var i = 0; i < response.body.length; i++) {
+					var option = $("<option></option>");
+					$(option).val(response.body[i].key);
+					$(option).html(response.body[i].name);
+					$("#property").append(option);
+				}
+
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+	} else {
+		$("#property").empty();
+		$("#property").append(
+				$("<option value>Select</option>"));	
+	}
+}
+
+/* Onchange function for get seatingplan from property category */
+function propertySeatingChange() {
+	var dd = $("#propertyCategory").val();
+	if (dd) {
+	$.ajax({
+		type : "POST",
+		url : "add-property-reservation-getSeatingPlanList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#propertyCategory").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				//console.log(response);
+				$("#sitingPlan").empty();
+				$("#sitingPlan").append(
+						$("<option value>Select</option>"));
+				for (var i = 0; i < response.body.length; i++) {
+					var option = $("<option></option>");
+					$(option).val(response.body[i].key);
+					$(option).html(response.body[i].name);
+					$("#sitingPlan").append(option);
+				}
+
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+	} else {
+		$("#sitingPlan").empty();
+		$("#sitingPlan").append(
+				$("<option value>Select</option>"));	
+	}
+}
+/* Onchange function for get theme from propertyTheme */
+function propertyThemeChange() {
+	var dd = $("#propertyCategory").val();
+	if (dd) {
+	$.ajax({
+		type : "POST",
+		url : "add-property-reservation-getThemeList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#propertyCategory").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				//console.log(response);
+				$("#theme").empty();
+				$("#theme").append(
+						$("<option value>Select</option>"));
+				for (var i = 0; i < response.body.length; i++) {
+					var option = $("<option></option>");
+					$(option).val(response.body[i].key);
+					$(option).html(response.body[i].name);
+					$("#theme").append(option);
+				}
+
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+	} else {
+		$("#theme").empty();
+		$("#theme").append(
+				$("<option value>Select</option>"));	
+	}
+}
+
+</script> 
+</head>
+<div layout:fragment="content">
+<div class="content-wrap">
+        <div class="main mrt_20">
+            <div class="col-md-12">
+            <!--Alert Box-->
+	           <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+	              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+	             <span th:text="${message}"></span>
+	          </div>
+	          <!--Alert Box-->
+                <!--Alert Box-->
+                <div class="alert alert-success alert-dismissible" style="display: none;">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    <strong>Success!</strong> Indicates a successful or positive action.
+                </div>
+                <div class="alert alert-danger alert-dismissible" style="display: none;">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    <strong>Success!</strong> Indicates a successful or positive action.
+                </div>
+                <div class="alert alert-warning alert-dismissible" style="display: none;">
+                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                    <strong>Success!</strong> Indicates a successful or positive action.
+                </div>
+                <!--Alert Box-->
+                <ol class="breadcrumb breadcrumb-arrow">
+                    <li><a href="index.html">Home</a></li>
+                    <li class="active"><span>Add Property Reservation  </span></li>
+                </ol>
+            </div>
+            <div class="card-title">
+                <h4>Add Property Reservation </h4>
+            </div>
+            <div class="container-fluid">
+                <div class="card">
+                    <!-- <div class="row">
+                        <div class="card-title">
+                            <h4>Page Name</h4>
+                            <p>Small Description Goes Here...</p>
+                        </div>
+                    </div> -->
+                    <div class="card-body">
+                        <div class="basic-elements">
+                            <form th:action="@{/frontdesk/add-property-reservation}" th:object="${propertyReservation}" autocomplete="off"  method="post" onsubmit="return validateForm();" >
+                            <input type="hidden" th:field="*{propertyReservationId}" />
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                    <div class="form-group">
+                                            <label>First Name</label>
+                                            <input type="text" class="form-control" th:id="userFname" th:field="*{userFname}" th:name="userFname" >
+                                        </div> 
+                                       
+                                        <div class="form-group">
+                                            <label>Last Name</label>
+                                            <input type="text" class="form-control"  th:id="userLname" th:field="*{userLname}" th:name="userLname" >
+                                        </div>
+                                        <div class="form-group">
+                                            <label>mobile No</label>
+                                         
+                                            <input type="text" class="form-control"  th:id="userMobileNo" th:field="*{userMobileNo}" th:name="userMobileNo" >
+
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Description.</label>
+                                            <textarea class="form-control textarea" th:id="pReservationDescription" th:field="*{pReservationDescription}" th:name="pReservationDescription" ></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Reservation from date</label>
+                                           <input type="text" class="form-control" id="from_date"  th:field="*{pReservtnFromDate}" th:name="pReservtnFromDate"  readonly >
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Reservation to date</label>
+                                           <input type="text" class="form-control" id="to_date" th:field="*{pReservatnToDate}" th:name="pReservatnToDate" readonly>
+                                        </div>
+                                         
+                                       <div class="form-group">
+                                            <label>Reservation Confirm</label> 
+                                            <select  class="form-control" th:id="pReservtnConfirm" th:field="*{pReservtnConfirm}" th:name="pReservtnConfirm" >
+                                                 <option th:value=null>--select-- </option>
+                                               <option th:value=1>Yes</option>
+                                                <option th:value=0>No</option>
+                                            </select>
+                                        </div>
+                                       
+                                         <button type="submit" class="btn btn-success">submit</button>
+                                        <button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+                                   </div>
+                                   
+                                  
+                                    <div class="col-lg-6">
+                                   <div class="form-group">
+                                            <label>Property Category</label>
+                                            <select class="form-control"  th:field="*{propertyCategory}" onChange="propertyCatagoryChange();propertySeatingChange();propertyThemeChange();">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${categoryList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==propertyCategory}"></option>
+											</select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Property Type</label>
+                                            
+                                            <select  class="form-control" th:field="*{propertyType}" onChange="propertyTypeChange()"  >
+                                            <option th:each="c:${typeList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==propertyType}"></option>
+                                                 <option th:value=null>--select-- </option>
+                                               <!--  <option>Pr001 </option>
+                                                <option>Pr002</option> -->
+                                            </select>
+                                        </div>
+                                          <div class="form-group">
+                                            <label>Property Name</label>
+                                            
+                                            <select  class="form-control" th:field="*{property}"  >
+                                            <option th:each="c:${nameList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==property}"></option>
+                                                 <option th:value=null>--select-- </option>
+                                               <!--  <option>Pr001 </option>
+                                                <option>Pr002</option> -->
+                                            </select>
+                                        </div>
+                                         <div class="form-group">
+                                             <label>SeatingPlan</label>
+                                           <select  class="form-control" th:field="*{sitingPlan}"  >
+                                            <option th:each="c:${seatingplanList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==sitingPlan}"></option>
+                                                 <option th:value=null>--select-- </option>
+                                               <!--  <option>Pr001 </option>
+                                                <option>Pr002</option> -->
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                        <label>Theme Name</label>
+                                           
+                                            <select  class="form-control" th:field="*{theme}"  >
+                                            <option th:each="c:${themeList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==theme}"></option>
+                                                 <option th:value=null>--select-- </option>
+                                               <!--  <option>Pr001 </option>
+                                                <option>Pr002</option> -->
+                                            </select>
+                                           
+                                        </div>
+                                      <div class="form-group">
+                                            <label>Booking Type</label>
+                                            <select class="form-control" th:field="*{propertyBookType}">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${propertyBookTypeList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==propertyBookType}"></option>
+											</select> 
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label>Status</label>
+                                           <select class="form-control" th:id="pReservtnActive" th:field="*{pReservtnActive}" th:name="pReservtnActive">
+                                                <option th:value=null>select</option>
+                                                
+                                                <option th:value=1>Active</option>
+                                                <option th:value=0>Inactive</option>
+                                            </select>
+                                            </div>
+                                        </div>
+                                        </div>
+                                      </form>
+                                    </div>
+                                 
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</html>

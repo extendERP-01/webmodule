@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 233px;
+	position: absolute;
+	z-index: 999;
+	overflow: auto;
+	height: 100px;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #b8b8b8;
+	border-bottom: #bbb9b9 1px solid;
+}
+.subtbl-txt {
+    display: block;
+    width: 100%;
+    padding: 5px 10px;
+    font-size: 12px !important;
+    line-height: 1.25;
+    color: #a195a7;
+    background-color: #fff;
+    background-image: none;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .15);
+    border-radius: .25rem;
+    transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+.text-bd{
+    color: #373757;
+    padding: 5px 0px;
+    font-weight: 600;
+    font-size: 12px;
+    text-align: right;}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.red {
+	background-color: #b3ccff;
+}
+
+.important {
+	font-weight: bold;
+	font-size: 20px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	text-align: center;
+}
+
+.td-border-right {
+	height: 1px;
+	border-left: 1px solid #BABABA;
+	text-align: right;
+	width: 126px;
+	font-size: 12px;
+}
+</style>
+<script>
+
+function getReturnList(index){
+		$.ajax({
+			type : 'POST',
+			url : 'add-payment-voucher-getReturnValues',
+			contentType : false,
+			data : index,
+			success : function(response) {
+				
+				if(response.body.length>0){
+					for(var i=0;i<response.body.length;i++){
+							
+							table = '<tr><td>'+ response.body[i].grnNo+'</td><td>'+
+							response.body[i].poNumber+'</td><td>'+
+							response.body[i].goodsReturnNote+'</td><td>'+
+							response.body[i].resturnDesc+'</td><td class="stateTaxCls td-border-right">'+
+							(response.body[i].returnCgst).toFixed(2)+'</td><td class="stateTaxCls td-border-right">'+
+							(response.body[i].returnSgst).toFixed(2)+'</td><td class="centerTaxCls td-border-right ">'+
+							(response.body[i].returnIgst).toFixed(2)+'</td><td class="td-border-right">'+
+							(response.body[i].returnTotal).toFixed(2)+'</td></tr>';
+							$('#tblBody1').append(table);
+							$('#tBodyTD1').hide();
+							$("#returnDiv").show();
+							
+						
+					}
+					$('#taxType').val(response.body[0].taxType);
+					if(response.body[0].taxType == false){
+						$('.centerTaxCls').hide();
+						$('.stateTaxCls').show();
+					}else{
+						$('.stateTaxCls').hide();
+						$('.centerTaxCls').show();
+					}
+					
+				
+				}else {
+					$("#returnDiv").hide();
+					$('#tblBody1').empty();
+					$('#tBodyTD1').show();
+					
+				}
+			 	
+			},
+			error : function(data) {
+				$('#tblBody1').empty();
+				$('#tBodyTD1').show();
+				$("#returnDiv").hide();
+			}
+		});
+ 	
+}
+
+function getPriviousPayment(index){
+	$('#tblBody3').empty();
+	$('#tblBody4').empty();
+	$.ajax({
+		type : 'POST',
+		url : 'add-payment-voucher-getPartialPaymentDetails',
+		contentType : false,
+		data : index,
+		success : function(response) {
+			
+			if(response.body.length>0){
+				for(var i=0;i<response.body.length;i++){
+						
+						table = '<tr><td>'+ response.body[i].transactionDate+'</td><td>'+
+						response.body[i].paymentMode+'</td><td>'+
+						response.body[i].referenceNo+'</td><td style="text-align:right;">'+						
+						(response.body[i].outSatandingAmount).toFixed(2)+'</td></tr>';
+						$('#tblBody3').append(table);
+						$('#tbodyTR3').hide();
+						
+				}
+			
+			}else {
+				
+				$('#tbodyTR3').show();
+				
+			}
+		 	
+		},
+		error : function(data) {
+			$('#tbodyTR3').show();
+			
+		}
+	});
+	
+}
+/* 
+function getPriviousDebit(index){
+	$('#tblBody4').empty();
+	$.ajax({
+		type : 'POST',
+		url : 'add-payment-voucher-getCreditDetails',
+		contentType : false,
+		data : index,
+		success : function(response) {
+			
+			if(response.body.length>0){
+				for(var i=0;i<response.body.length;i++){
+						table1 = '<tr><td>'+ response.body[i].creditDate+'</td><td>'+
+						response.body[i].creditNote+'</td><td style="text-align:right;">'+						
+						(response.body[i].creditAmount).toFixed(2)+'</td></tr>';
+						$('#tblBody4').append(table1);
+						$('#tbodyTR4').hide();
+						table1='';
+				}
+			
+			}else {
+				$('#tbodyTR4').show();
+			}
+		 	
+		},
+		error : function(data) {
+			$('#tbodyTR4').show();
+		}
+	});
+	
+} */
+
+
+$(document).click(function() {
+	$("#suggesstion-box").hide();
+	$("#suggesstion-box1").hide();
+	
+	});
+$(document).ready(function(){
+	
+	HideBank();
+	$("#paymentDetails").hide();
+	$("#grnDetails").hide();
+	$("#returnDiv").hide();
+	$("#paymentDiv").hide();
+//submit button function through ajax 
+
+	
+	$("#submit").click(function(){
+		var dataset = [];
+			assign = {};
+			assign['subTotal']	        =	parseFloat($("#subtotal").html());
+			assign['sgst']		        =	parseFloat($("#sgst").html());
+			assign['cgst']	            =	parseFloat($("#cgst").html());
+			assign['igst']	            =	parseFloat($("#igst").html());
+			assign['total']		        =	parseFloat($("#total").html());
+			assign['cessAmt']		    =	parseFloat($("#cess").html());
+			assign['paymentMode']	    =	$("#paymentMode").val();
+			assign['bankName']	 	    =	$("#bankName").val();
+			assign['branchName']	 	=	$("#branchName").val();
+			assign['accNo']	 	        =	$("#accNo").val();
+			assign['paidFrom']	    	=	$("#paidFrom").val();
+			assign['chequeNo']	 	    =	$("#chequeNo").val();
+			assign['transNo']	 	    =	$("#transNo").val();
+			assign['grnNo']			    =	$("#grnId").val();
+			assign['transactionDate']	=	$("#transactionDate").val();
+			assign['taxType']	        =	$("#taxType").val();
+			assign['tdsRate']	        =	parseFloat($("#tdsRate").val());
+			assign['tdsAmount']	        =	parseFloat($("#tdsAmount").val());
+			assign['vendorName']	    =	$("#vendorId").val();
+			assign['partialAmt']	    =	parseFloat($("#partialAmt").val());
+			assign['paymentType']	    =	$("input[name='payment']:checked").val();
+			dataset.push(assign);
+		//table tbody tr loop ends
+		
+		if (!blankValidation("vendorName","SelectBox" ,"Please Select Vender Name"))
+		      return false;
+		if (!blankValidation("paymentMode","SelectBox" ,"Please Select Payment Mode"))
+		      return false;
+		if (!blankValidation("transactionDate","SelectBox" ,"Please Select Payment Date"))
+		      return false;
+		if($("#total").html()>=parseFloat($("#availBal").val())){
+			swal("Don't Have Sufficient Balance..");
+			return false;
+		}
+		if($("#paymentMode").val()!="PMOD002")
+			{
+				if (!blankValidation("bankName","SelectBox" ,"Please Select Bank Name"))
+				      return false;
+				
+			    if (!blankValidation("branchName","SelectBox" ,"Please Select Branch Name"))
+				      return false;  
+				
+			    if (!blankValidation("accNo","SelectBox" ,"Please Select Account Number"))
+				      return false;  
+			    
+			    if (!blankValidation("paidFrom","SelectBox" ,"Please Select Account Holder Name"))
+		     		   return false;  								
+			 }
+		
+	         submitpaymentVoucher(dataset);
+	})
+	
+	        //date time picker
+	        $( "#transactionDate" ).datetimepicker({
+					format:'d-m-Y',
+					closeOnDateSelect: true,
+					minDate: new Date() ,
+					timepicker : false,
+		    })
+			$( "#toDate" ).datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				timepicker : false,
+			  })
+			$( "#fromDate" ).datetimepicker({
+				format:'d-m-Y',
+				closeOnDateSelect: true,
+				timepicker : false,
+			  })
+				var fullDate = new Date();
+				var twoDigitMonth=((fullDate.getMonth()+1)>=10)? (fullDate.getMonth()+1) : '0' + (fullDate.getMonth()+1);
+				var twoDigitDate=((fullDate.getDate())>=10)? (fullDate.getDate()) : '0' + (fullDate.getDate());
+				var currentDate = twoDigitDate + "-" + twoDigitMonth + "-" + fullDate.getFullYear();
+				$("#transactionDate").val(currentDate);
+
+})
+
+	
+	function submitpaymentVoucher(dataset){
+	console.log(dataset)
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "add-payment-voucher-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					console.log(response)
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/inventory/view-payment-voucher-view?id="+window.btoa(response.body[0].paymentVoucher)  ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(response){
+					swal(response.code);	
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+function cancel() {
+	window.location.href = "/inventory/view-payment-voucher" ;
+}
+
+/* function check(index){
+	var baseAmount = 0;
+	var totaltax = 0;
+	var tds = 0;
+	var total = 0;
+	var cgst =0;
+	var sgst = 0;
+	var igst = 0;
+	var reTotal = 0 ;
+	var rDiscount = 0 ;
+	$('#subtotal').html(00.toFixed(2));
+ 	$('#total').html(00.toFixed(2));
+ 	$('#cgst').html(00.toFixed(2));
+ 	$('#igst').html(00.toFixed(2));
+ 	$('#sgst').html(00.toFixed(2));
+ 	$('#tds').html(00.toFixed(2));
+ 	$('#tdsAmount').val(00.toFixed(2)); 
+ 	$('#outStndTD').html(00.toFixed(2)); 
+ 	$('#tblBody1').empty();
+	$('#tBodyTD1').show();
+	
+	var poNo = $("#purchaseOrderName").val();
+	var vendorName = $("#vendorId").val();
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val();
+	obj = {};
+	obj.vendorName= poNo ;
+	obj.poNumber = vendorName;
+	obj.fromDate = fromDate;
+	obj.toDate = toDate;
+		console.log(obj)
+		$.ajax({
+			type : 'POST',
+			url : 'add-payment-voucher-get-grn-list-payment',
+			contentType : false,
+			data : JSON.stringify(obj),
+			success : function(response) {
+				$('#subtotal').html((response.body[0].subTotal).toFixed(2));
+			 	$('#total').html((response.body[0].total).toFixed(2));
+			 	$('#cgst').html((response.body[0].cgst).toFixed(2));
+			 	$('#igst').html((response.body[0].igst).toFixed(2));
+			 	$('#sgst').html((response.body[0].sgst).toFixed(2));
+			 	$('#tds').html((response.body[0].tdsAmount).toFixed(2));
+			 	$('#tdsAmount').val((response.body[0].tdsAmount)); 
+			 	$('#tdsRate').val(response.body[0].tdsRate);
+			 	$('#outStndTD').html(response.body[0].outstandingAmount.toFixed(2));
+				$('#grnId').val(index); 
+				$('#partialAmt').val(response.body[0].outstandingAmount.toFixed(2));
+			 	
+			},
+			error : function(data) {
+				$('#subtotal').html('00.00');
+				$('#tdsAmount').html('00.00');
+				$('#total').html('00.00');
+				$('#cgst').html('00.00');
+			}
+		});
+		
+} */
+
+// for purchase order auto search
+
+function POAutoComplete() {
+	$("#paymentDetails").hide();
+	$("#grnDetails").hide();
+	$("#returnDiv").hide();
+	$("#paymentDiv").hide();
+	$.ajax({
+		type : "POST",
+		url : "add-payment-voucher-getPOAutocompleteList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#purchaseOrderName").val(),
+		success : function(response) {
+			if (response.message == "success") {	
+				if(response.body.length!=0)	{
+			
+					$("#purchaseOrderName").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+					} 
+					
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+					
+				}else {
+					
+					$("#purchaseOrderName").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				   }
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+  }
+
+
+function selectAutocompleteValue(key,name) {
+	if (key) {
+		$("#purchaseOrderName").val(key);
+		$("#purchaseOrderName").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+		$('#bankName').val('');
+		$('#branchName').val('');
+		$('#accNo').val('');
+		$('#chequeNo').val('');
+		$('#paidFrom').val('');
+		$('#transNo').val('');
+		$('#paymentMode').val('');
+		$('#availBalDiv').val('');
+		HideBank();
+		$("#paymentDetails").hide();
+		$("#grnDetails").hide();
+		$("#returnDiv").hide();
+		$("#paymentDiv").hide();
+	}else {
+		$("#purchaseOrderName").val("");
+		$("#purchaseOrderName").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+		$('#bankName').val('');
+		$('#branchName').val('');
+		$('#accNo').val('');
+		$('#chequeNo').val('');
+		$('#paidFrom').val('');
+		$('#transNo').val('');
+		$('#paymentMode').val('');
+		$('#availBalDiv').val('');
+		HideBank();
+		$("#paymentDetails").hide();
+		$("#grnDetails").hide();
+		$("#returnDiv").hide();
+		$("#paymentDiv").hide();
+	}
+}
+
+// for vendor auto search 
+function venderAutoComplete() {
+	$("#paymentDetails").hide();
+	$("#grnDetails").hide();
+	$("#returnDiv").hide();
+	$("#paymentDiv").hide();
+	$.ajax({
+		type : "POST",
+		url : "add-payment-voucher-getVendorAutocompleteList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#vendorName").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				if(response.body.length!=0)	{
+					$("#vendorName").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="VenderAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'</li>';
+					} 
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+					
+				}else {
+					$("#vendorName").css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="VenderAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#suggesstion-box1").show();
+					$("#suggesstion-box1").html(content);
+				}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+   }
+
+function VenderAutocompleteValue(key,name) {
+	if (key) {
+		$("#vendorId").val(key);
+		$("#vendorName").val(name);
+		$("#vendorName").attr('data-procat', key);
+		$("#suggesstion-box1").hide();
+		$('#bankName').val('');
+		$('#branchName').val('');
+		$('#accNo').val('');
+		$('#chequeNo').val('');
+		$('#paidFrom').val('');
+		$('#transNo').val('');
+		$('#paymentMode').val('');
+		$('#availBalDiv').val('');
+		HideBank();
+		$("#paymentDetails").hide();
+		$("#grnDetails").hide();
+		$("#returnDiv").hide();
+		$("#paymentDiv").hide();
+	}else {
+		$("#vendorId").val(key);
+		$("#vendorName").val("");
+		$("#vendorName").attr('data-procat', "");
+		$("#suggesstion-box1").hide();
+		$('#bankName').val('');
+		$('#branchName').val('');
+		$('#accNo').val('');
+		$('#chequeNo').val('');
+		$('#paidFrom').val('');
+		$('#transNo').val('');
+		$('#paymentMode').val('');
+		$('#availBalDiv').val('');
+		HideBank();
+		$("#paymentDetails").hide();
+		$("#grnDetails").hide();
+		$("#returnDiv").hide();
+		$("#paymentDiv").hide();
+	}
+}
+/* function submitButtonStyle(event) { 
+		var currentId = event.currentTarget.id;
+		var prevId = $("#prevId").val();
+		$("#"+prevId).removeClass("red");
+		$("#"+currentId).addClass("red");
+		$("#prevId").val(currentId);
+		$("#paymentDetails").show();
+		$("#paymentDiv").show();
+	} */
+	﻿
+function getQuotationList() {
+	var poNo = $("#purchaseOrderName").val();
+	var vendorName = $("#vendorId").val();
+	var fromDate = $("#fromDate").val();
+	var toDate = $("#toDate").val();
+	obj = {};
+	obj.vendorName= poNo ;
+	obj.poNumber = vendorName;
+	obj.fromDate = fromDate;
+	obj.toDate = toDate;
+	$('#tBodyTD').hide();
+	$('#tblBody').empty();
+	if(poNo || vendorName || fromDate || toDate) {
+		$.ajax({
+			type : 'POST',
+			url : 'add-payment-voucher-get-grn-list-payment',
+			dataType : 'json',
+			contentType : 'application/json',
+			data : JSON.stringify(obj),
+			success : function(response) {
+				if(response.message=="success"){
+							if(response.body.length>0){
+								console.log(response.body)
+								//$("#paymentDiv").show();
+								for(var i=0;i<response.body.length;i++){
+			                           if(!response.body[i].activeStatus){
+										table = '<tr  id="'+ i +'grnCheck"><td><Button type="button"  id="'+ i +'grnCheck" class="btn btn-info" onclick="showPayDiv();getPriviousPayment(\''+response.body[i].grnNo+'\');  checkPaymentType('+response.body[i].paymentType+');">Pay </Button></td><td>'+ response.body[i].action1+'</td><td>'+
+										response.body[i].invNo+'</td><td>'+
+										response.body[i].poNumber+'</td><td class="stateTaxCls td-border-right">'+
+										(response.body[i].sgst).toFixed(2)+'</td><td class="stateTaxCls td-border-right">'+
+										(response.body[i].cgst).toFixed(2)+'</td><td class="centerTaxCls td-border-right">'+
+										(response.body[i].igst).toFixed(2)+'</td><td class="td-border-right">'+
+										(response.body[i].cessAmt).toFixed(2)+'</td><td class="td-border-right">'+
+										(response.body[i].total).toFixed(2)+'</td><td class="td-border-right">'+
+										(response.body[i].outstandingAmount).toFixed(2)+'</td></tr>';
+										$('#tblBody').append(table);
+			                           }else{
+			                        	   table = '<tr><td><Button type="button" id="grnCheck" class="btn btn-info" disabled >Paid</Button></td><td>'+ response.body[i].action1+'</td><td>'+
+											response.body[i].invNo+'</td><td>'+
+											response.body[i].poNumber+'</td><td class="stateTaxCls td-border-right">'+
+											(response.body[i].sgst).toFixed(2)+'</td><td class="stateTaxCls td-border-right">'+
+											(response.body[i].cgst).toFixed(2)+'</td><td class="centerTaxCls td-border-right">'+
+											(response.body[i].igst).toFixed(2)+'</td><td class="td-border-right">'+
+											(response.body[i].cessAmt).toFixed(2)+'</td><td class="td-border-right">'+
+											(response.body[i].total).toFixed(2)+'</td><td class="td-border-right">'+
+											(response.body[i].outstandingAmount).toFixed(2)+'</td></tr>';
+											$('#tblBody').append(table);
+											
+			                           }
+			                           $('#taxType').val(response.body[0].taxType);
+										
+										
+										if(response.body[i].taxType ==false){
+											$('.centerTaxCls').hide();
+											$('.stateTaxCls').show();
+										}else{
+											$('.stateTaxCls').hide();
+											$('.centerTaxCls').show();
+										}
+									
+								}
+								/* 
+								$('#subtotal').html((response.body[0].subTotal).toFixed(2));
+							 	$('#total').html((response.body[0].total).toFixed(2));
+							 	$('#cgst').html((response.body[0].cgst).toFixed(2));
+							 	$('#igst').html((response.body[0].igst).toFixed(2));
+							 	$('#sgst').html((response.body[0].sgst).toFixed(2));
+							 	$('#tds').html((response.body[0].tdsAmount).toFixed(2));
+							 	$('#tdsAmount').val((response.body[0].tdsAmount)); 
+							 	$('#tdsRate').val(response.body[0].tdsRate);
+							 	$('#outStndTD').html(response.body[0].outstandingAmount.toFixed(2));
+								$('#grnId').val(index); 
+								$('#partialAmt').val(response.body[0].outstandingAmount.toFixed(2)); 
+							 */
+							}else {
+								$('#tblBody').empty();
+								$('#tBodyTD').show();
+							}
+				
+						}
+				},
+				error : function(data) {
+					$('#tblBody').empty();
+					$('#tBodyTD').show();
+				}
+			});
+	}
+}
+	
+	function showPayDiv() {
+		$("#paymentDiv").show();
+		$("#paymentDetails").show();
+		var poNo = $("#purchaseOrderName").val();
+		var vendorName = $("#vendorId").val();
+		var fromDate = $("#fromDate").val();
+		var toDate = $("#toDate").val();
+		obj = {};
+		obj.vendorName= poNo ;
+		obj.poNumber = vendorName;
+		obj.fromDate = fromDate;
+		obj.toDate = toDate;
+		
+		$.ajax({
+			type : 'POST',
+			url : 'add-payment-voucher-get-grn-list-payment',
+			dataType : 'json',
+			contentType : 'application/json',
+			data : JSON.stringify(obj),
+			success : function(response) {
+				if(response.message=="success"){
+							if(response.body.length>0){
+								console.log(response.body)
+								$('#subtotal').html((response.body[0].subTotal).toFixed(2));
+							 	$('#total').html((response.body[0].total).toFixed(2));
+							 	$('#cgst').html((response.body[0].cgst).toFixed(2));
+							 	$('#igst').html((response.body[0].igst).toFixed(2));
+							 	$('#sgst').html((response.body[0].sgst).toFixed(2));
+							 	$('#tds').html((response.body[0].tdsAmount).toFixed(2));
+							 	$('#cess').html((response.body[0].cessAmt).toFixed(2));
+							 	$('#tdsAmount').val((response.body[0].tdsAmount)); 
+							 	$('#tdsRate').val(response.body[0].tdsRate);
+							 	$('#outStndTD').html(response.body[0].outstandingAmount.toFixed(2));
+								$('#grnId').val(response.body[0].grnNo); 
+								$('#partialAmt').val(response.body[0].outstandingAmount.toFixed(2)); 
+							}
+				}
+			}, error : function(data) {
+				console.log(data)
+			}
+		});
+	} 
+	// for checking payment type 
+	function checkPaymentType(paymentType){
+		if(paymentType != false){
+			$('#payPartialTypeTR').hide();
+			$('#lastPaymentTR').hide();
+			$('#payFullTypeTR').show();
+			$("#partialAmtDiv").hide();
+			document.getElementById("full").checked = true;
+		}else{
+			$('#payFullTypeTR').hide();
+			$('#payPartialTypeTR').show();
+			$('#lastPaymentTR').show();
+			
+		}
+	}
+	
+// for payment mode select hide and show	
+function checkBankDetails()
+{
+	var paymentMode = $("#paymentMode").val();
+	if(paymentMode=="PMOD002"){
+		HideBank();
+	}else if(paymentMode=="PMOD004"){
+		 ShowTrNo();
+	}else if(paymentMode=="PMOD003"){
+		  ShowCqNo();
+	}else{
+		HideBank();
+	}
+}
+	
+// for partial payment radio button
+function paymentTypePartial() {
+	$("#paymentDiv").show();	
+	$('#pPaymentTR').show();
+	$('#lastPaymentTR').show();
+	$("#partialAmtDiv").show();
+	
+	var tdVal = $("#outStndTD").html();
+	tdVal = tdVal.replace(/\,/g,'');
+	$("#outStndTD").text(tdVal);
+	$("#outStndTD").addClass("important");
+	$("#partialAmt").val(tdVal);
+}
+// for full payment radio button
+function paymentTypeFull(){
+	$("#paymentDiv").show();
+	$("#partialAmtDiv").hide();
+	$("#lastPaymentTR").hide();
+	$("#partialAmt").val('');
+	
+}
+
+// for  hide and show bank div 
+function HideBank(){
+		$('#bankNamediv').hide();
+		$('#branchNamediv').hide();
+		$('#accNodiv').hide();
+		$('#chequeNoDiv').hide();
+		$('#paidFromDiv').hide();
+		$('#availBalDiv').hide();
+		$('#transNoDiv').hide();
+		$('#bankName').val('');
+		$('#branchName').val('');
+		$('#accNo').val('');
+		$('#chequeNo').val('');
+		$('#paidFrom').val('');
+		$('#transNo').val('');
+	}
+
+function ShowTrNo(){
+		$('#bankNamediv').show();
+		$('#branchNamediv').show();
+		$('#accNodiv').show();
+		$('#transNoDiv').show();
+		$('#paidFromDiv').show();
+		$('#availBalDiv').show();
+		$('#chequeNoDiv').hide();
+  }
+function ShowCqNo(){
+		$('#bankNamediv').show();
+		$('#branchNamediv').show();
+		$('#accNodiv').show();
+		$('#paidFromDiv').show();
+		$('#availBalDiv').show();
+		$('#transNoDiv').hide();
+		$('#chequeNoDiv').show();
+  }
+	//for on change of branch name
+	function branchNameChange() {	
+		var bankName = $("#bankName").val();
+		if (bankName) {
+             $.ajax({
+				type : 'POST',
+				url : 'add-payment-voucher-branchList',
+				contentType : false,
+				data : bankName,
+				success : function(response) {
+					$("#branchName").empty();
+					$("#branchName").append("<option value>--Select--</option>");
+					$("#paidFrom").empty();
+					$("#paidFrom").val("");
+					$("#availBal").empty();
+					$("#availBal").val("");
+					
+					$("#accNo").empty();
+					$("#accNo").append("<option value>--Select--</option>");
+					
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#branchName").append(option);
+						
+					} 
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			});
+		}else {
+				$("#branchName").empty();
+				$("#branchName").append("<option value>--Select--</option>");
+				$("#accNo").empty();
+				$("#accNo").append("<option value>--Select--</option>");
+				$("#paidFrom").empty();
+				$("#paidFrom").val("");
+				$("#availBal").empty();
+				$("#availBal").val("");
+		}
+
+	}
+
+
+	//for on change of account number
+	function acNoChange() {	
+		var branchName = $("#branchName").val();
+		if (branchName) {
+		
+			$.ajax({
+				type : 'POST',
+				url : 'add-payment-voucher-acNoList',
+				contentType : false,
+				data : branchName,
+				success : function(response) {
+					
+					$("#accNo").empty();
+					$("#accNo").append("<option value>--Select--</option>");
+					$("#paidFrom").empty();
+					$("#paidFrom").val("");
+					$("#availBal").empty();
+					$("#availBal").val("");
+					 for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].key);
+						$("#accNo").append(option);
+					 	
+						
+					} 
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			});
+		}else {
+				$("#accNo").empty();
+				$("#accNo").append("<option value>--Select--</option>"); 
+				$("#paidFrom").empty();
+				$("#paidFrom").val("");
+				$("#availBal").empty();
+				$("#availBal").val("");
+		  }
+}
+	//for on change of account name by accound number
+	function acNameChange() {	
+		var accNo = $("#accNo").val();
+		if (accNo) {
+			   $.ajax({
+					type : 'POST',
+					url : 'add-payment-voucher-acName',
+					contentType : false,
+					data : accNo,
+					success : function(response) {
+							 for (var i = 0; i < response.body.length; i++) {
+									$("#paidFrom").empty();
+									$("#availBal").empty();
+									$("#paidFrom").val(response.body[i].name); 
+									$("#availBal").val(response.body[i].key); 
+							  }
+						},
+						error : function(data) {
+							conole.log(data);
+						}
+				});
+		}
+		else {
+			$("#paidFrom").empty();
+			$("#paidFrom").val("");
+			$("#availBal").empty();
+			$("#availBal").val(""); 
+			}
+
+		}
+
+	
+	function checkAlphabetNumber(fieldId){
+		  var tempVal = $("#"+fieldId).val().replace(/[^a-zA-Z0-9]/g,'');
+		  $("#"+fieldId).val(tempVal);
+		}
+	
+	//for view in modal 
+	function viewInModel(index){
+		$('#table2').empty();
+		$.ajax({
+				type 		:	"POST",
+				url 		:	"add-payment-voucher-modal?id="+index,
+				dataType 	:	'json',
+				contentType :	'application/json',
+				success 	: 	function(response) {
+					if(response.message=="success"){
+						 var taxType = "" ;
+						 var totaltax = 0;
+						if(response.body.taxType)
+							{
+							taxType = "Central Tax" ;
+							totaltax = response.body.igst;
+							}else{
+								taxType  = "State Tax" ;
+								totaltax = response.body.cgst+response.body.sgst;
+							}
+						
+					    table = '<tr><td>Perchase Order :</td>'+'<td align="left">'
+					    +response.body.poNumber+'</td>'+'</tr><tr><td>Invoice Number:</td><td align="left">'
+						+response.body.invNo+'</td></tr><tr><td>GRN Order:</td>'+'<td align="left">'
+						+response.body.grnNo+'</td></tr><tr><td>Discount :</td>'+'<td >'
+						+(response.body.discount).toFixed(2)+'</td>'+'</tr><tr><td>Total Tax:</td><td >'
+						+(totaltax).toFixed(2)+'</td>'+'</tr><tr><td>Tax Type:</td><td align="left">'
+						+taxType+'</td>'+'</tr><tr><td>TDS Rate:</td><td align="left">'
+						+response.body.tdsRate+'</td>'+'</tr><tr><td>TDS Amount:</td><td >'
+						+(response.body.tdsAmount).toFixed(2)+'</td>'+'</tr><tr><td >Total Amount:</td><td >'
+						+(response.body.total).toFixed(2)+'</td></tr>'; 
+						$('#myModal').modal('show');
+						$('#table2').append(table);
+						if(response.body.goodsReturnNote!=null)
+							{
+							table = '<tr><td style="font-size:20px"><b> Return Details</b> </td></tr>'+'<tr><td>Goods Return Note :</td>'+'<td align="left">'
+							  +response.body.goodsReturnNote+'</td>'+'</tr><tr><td>Return Description:</td><td align="left">'
+							  +response.body.resturnDesc+'</td>'+'</tr><tr><td>Return Tax:</td><td >'
+							  +(response.body.returnIgst).toFixed(2)+'</td>'+'</tr><tr><td>Return Discount:</td><td >'
+							  +(response.body.returnDiscount).toFixed(2)+'</td>'+'</tr><tr><td>Return Total:</td><td >'
+							  +(response.body.returnTotal).toFixed(2)+'</td></tr>'; 
+							$('#myModal').modal('show');
+							$('#table2').append(table);
+							} 
+					}				
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+		}
+	function searchData() {
+	        getQuotationList();
+	    	$("#grnDetails").show();
+		 }
+	// validation for partial amount 
+	function checkPartialAmount() {
+		var tdVal = $("#outStndTD").html();
+		var partialAmt = $("#partialAmt").val();
+		
+		if(parseFloat(partialAmt) > parseFloat(tdVal)) {
+			swal({
+				title: "Partial Amount Can't Be More Than Outstanding Amount.",
+				type: "warning",
+			})
+			$("#partialAmt").val(tdVal);
+		}
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Payment Voucher</span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Payment Voucher</h4>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+
+					<div class="basic-elements">
+						<div class="row">
+							<span style="color: red;" id="errorMsg"></span>
+							<div th:if="${message != null}">
+								<span th:text="${message}" style="color: red;"></span>
+							</div>
+						</div>
+
+						<div class="row search-field">
+
+
+
+
+							<div class="col-md-2" id="propertyDiv">
+								<input type="hidden" id="grnId" /> <input type="hidden"
+									id="prevId" value='0' /> <input type="hidden" id="vendorId" />
+
+								<label>Vendor Name</label> <input type="text"
+									class="form-control" id="vendorName"
+									onkeyup="venderAutoComplete(); " style="height: 30px;" />
+								<div id="suggesstion-box1"></div>
+								<input type="hidden" id="taxType" /> <input type="hidden"
+									id="tdsAmount" /> <input type="hidden" id="tdsRate" />
+
+							</div>
+
+							<div class="col-md-2">
+								<label>Purchase Order</label> <input type="text"
+									class="form-control" id="purchaseOrderName"
+									onkeyup="POAutoComplete(); " style="height: 30px;" />
+								<div id="suggesstion-box"></div>
+							</div>
+
+
+							<div class="col-md-2">
+								<label> From Date</label> <input type="text"
+									class="form-control" id="fromDate" th:name="fromDate"
+									style="height: 30px;" readonly>
+							</div>
+							<div class="col-md-2">
+								<label>To Date</label> <input type="text" class="form-control"
+									id="toDate" th:name="toDate" style="height: 30px;" readonly>
+							</div>
+
+
+							<div class="col-md-2" style="margin-top:6px;">
+								<div class="form-group filtersearch">
+									<button class="btn btn-primary" onclick="searchData()"
+										style="padding: 6px 37px !important">Search</button>
+								</div>
+							</div>
+						</div>
+
+					</div>
+					<!-- </div>
+					</div>  -->
+
+					<div class="row">
+						<div class="col-lg-12" id="grnDetails">
+							<label id="trId" style="font-size: 20px;"><b>GRN
+									DETAILS</b></label>
+							<table class="table table-bordered" id="table"
+								style="width: 100%;">
+								<thead id="tblHead">
+									<tr style="width: 100%;">
+										<th>SELECT TO PAY</th>
+										<th>GRN</th>
+										<th>INVOICE No</th>
+										<th>PO No</th>
+										<th class="stateTaxCls">SGST</th>
+										<th class="stateTaxCls">CGST</th>
+										<th class="centerTaxCls">IGST</th>
+										<th>CESS</th>
+										<th>TOTAL AMOUNT</th>
+										<th>OUTSTANDING AMOUNT</th>
+									</tr>
+								</thead>
+								<tbody id="tblBody">
+
+								</tbody>
+								<tbody id="tBodyTD">
+									<tr>
+										<td style="color: #e30f0f;" width="100%" valign="top"
+											align="center" colspan="10"><b>No records found</b></td>
+									</tr>
+
+
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<!-- <div class="row" id="returnDiv">
+						<div class="col-lg-12">
+							<label id="trId" style="font-size: 20px;"><b>GOODS
+									RETURNS DETAILS</b></label>
+
+							<table class="table table-bordered" id="table1"
+								style="width: 100%; border: none;">
+								<thead id="tblHead1">
+									<tr style="width: 100%;">
+										<th>GRN No</th>
+										<th>PO No</th>
+										<th>GRN RETURN NO</th>
+										<th>DESCRIPTION</th>
+										<th class="stateTaxCls">CGST</th>
+										<th class="stateTaxCls">SGST</th>
+										<th class="centerTaxCls">IGST</th>
+										<th>TOTAL AMOUNT</th>
+									</tr>
+								</thead>
+								<tbody id="tblBody1">
+
+								</tbody>
+								<tbody id="tBodyTD1">
+									<tr>
+										<td style="color: #e30f0f;" width="100%" valign="top"
+											align="center" colspan="10"><b>No records found</b></td>
+									</tr>
+
+
+								</tbody>
+
+							</table>
+						</div>
+					</div> -->
+					<div class="row" id="paymentDiv">
+						<div class="col-lg-12">
+							<table style="color: #e30f0f; border: none;" align="right">
+								<tr>
+									<td style="color: #e30f0f; border: none;" width="100%"
+										valign="top" align="right" colspan="9">
+										<table cellpadding="0" cellspacing="0" width="300"
+											style="border: none;">
+											<tr style="border: none;" width="1px">
+												<td colspan="2" width="115" style="border: none;"><div
+														class="text-bd">BASE AMOUNT</div></td>
+
+												<td width="130" style="border: none;"><div
+														style="border: none; text-align: right;" id="subtotal"
+														class="subtbl-txt">00.00</div></td>
+											</tr>
+											<tr style="border: none;" width="1px">
+												<td colspan="2" width="115" style="border: none;"
+													class="stateTaxCls"><div class="text-bd">SGST</div></td>
+
+												<td style="border: none;" class="stateTaxCls"><div
+														style="border: none; text-align: right;" id="sgst"
+														class="subtbl-txt">00.00</div></td>
+
+
+											</tr>
+											<tr style="border: none;" width="1px">
+												<td colspan="2" width="115" style="border: none;"
+													class="stateTaxCls"><div class="text-bd">CGST</div></td>
+
+												<td style="border: none;" class="stateTaxCls"><div
+														style="border: none; text-align: right;" id="cgst"
+														class="subtbl-txt">00.00</div></td>
+
+
+											</tr>
+											<tr style="border: none;">
+												<td colspan="2" width="115" style="border: none;"
+													class="centerTaxCls"><div class="text-bd">IGST</div></td>
+
+												<td style="border: none;" class="centerTaxCls"><div
+														style="border: none; text-align: right;" id="igst"
+														class="subtbl-txt">00.00</div></td>
+											</tr>
+											<tr style="border: none;">
+												<td colspan="2" width="115" style="border: none;"><div
+														class="text-bd">CESS</div></td>
+
+												<td style="border: none;"><div
+														style="border: none; text-align: right;" id="cess"
+														class="subtbl-txt">00.00</div></td>
+
+
+											</tr>
+											<tr style="border: none;">
+												<td colspan="2" width="115" style="border: none;"><div
+														class="text-bd">TOTAL TDS</div></td>
+
+												<td style="border: none;"><div
+														style="border: none; text-align: right;" id="tds"
+														class="subtbl-txt">00.00</div></td>
+
+
+											</tr>
+
+											<tr style="border: none;">
+												<td colspan="2" width="115" style="border: none;"><div
+														class="text-bd">GRAND TOTAL</div></td>
+
+												<td width="130" style="border: none; text-align: right;"><div
+														style="border: none" id="total" class="subtbl-txt">00.00</div></td>
+
+											</tr>
+
+										</table>
+									</td>
+								</tr>
+							</table>
+						</div>
+						<div class="col-lg-12">
+							<table style="color: #e30f0f; border: none;" align="left">
+								<tr id="payFullTypeTR">
+									<td colspan="2"><label><strong>Payment
+												Type&nbsp;&nbsp;&nbsp;&nbsp;</strong></label> <input type="radio"
+										onclick="paymentTypeFull()" id="full" name="payment"
+										value="true" checked>&nbsp;&nbsp;Full&nbsp;&nbsp; <input
+										type="radio" onclick="paymentTypePartial()" id="partial"
+										name="payment" value="false">&nbsp;&nbsp;Partial</td>
+								</tr>
+								<tr id="payPartialTypeTR">
+									<td colspan="2"><label><strong>Payment
+												Type&nbsp;&nbsp;&nbsp;&nbsp;</strong></label> <input type="radio"
+										onclick="paymentTypePartial()" id="partial1" checked
+										name="payment" value="false">&nbsp;&nbsp;Partial</td>
+								</tr>
+								<tr id="lastPaymentTR">
+									<td colspan="2">
+										<div class="row">
+											<div class="col-md-12">
+
+												<!-- <table class="table table-bordered" id="table"
+													style="width: 1000px;">
+													<thead id="tblHead">
+														<tr style="width: 100%;">
+															<th class="tableheader">Credit Date</th>
+															<th class="tableheader">Credit Note</th>
+															<th class="tableheader">Amount</th>
+														</tr>
+													</thead>
+													<tbody id="tblBody4">
+
+													</tbody>
+													<tbody id="tbodyTR4">
+														<tr>
+															<td style="color: #e30f0f;" valign="top" align="center"
+																colspan="4"><b>No records found</b></td>
+														</tr>
+													</tbody>
+												</table> -->
+												<!-- <div>&nbsp;</div> -->
+												<label id="trId" style="font-size: 20px;"><b>Last
+														Payment Details</b></label>
+												<table class="table table-bordered" id="table"
+													style="width: 1020px;">
+													<thead id="tblHead">
+														<tr style="width: 100%;">
+															<th class="tableheader">Transaction Date</th>
+															<th class="tableheader">Payment Mode</th>
+															<th class="tableheader">Payment Reference Number</th>
+															<th class="tableheader">Amount</th>
+														</tr>
+													</thead>
+													<tbody id="tblBody3">
+
+													</tbody>
+													<tbody id="tbodyTR3">
+														<tr>
+															<td style="color: #e30f0f;" valign="top" align="center"
+																colspan="4"><b>No records found</b></td>
+														</tr>
+													</tbody>
+													<tbody>
+														<tr>
+															<td colspan="2">&nbsp;</td>
+															<td align="right" style="border-left: 2px solid white;"><b>OUTSTANDING
+																	AMOUNT</b></td>
+															<td align="right" id="outStndTD"><b></b></td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</table>
+							<div style="clear: both;"></div>
+						</div>
+					</div>
+
+					<div class="col-md-12" id="paymentDetails">
+						<div class="card-title">
+							<h4>Payment Details</h4>
+						</div>
+						<div class="row">
+
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>Payment Mode</label> <select class="form-control"
+										id="paymentMode" onchange="checkBankDetails();">
+										<option value="">--Select--</option>
+										<option th:each="c:${PayModeList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div>
+								<div class="form-group" id="bankNamediv">
+									<label>Bank Name</label> <select class="form-control"
+										id="bankName" onchange="branchNameChange();">
+										<option value="">--Select--</option>
+										<option th:each="c:${bankNameList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select>
+								</div>
+								<div class="form-group" id="branchNamediv">
+									<label>Branch Name</label> <select class="form-control"
+										id="branchName" onchange="acNoChange();">
+										<option value="">--Select--</option>
+
+									</select>
+								</div>
+								<div class="form-group" id="partialAmtDiv">
+									<label><strong>Partial Amount</strong></label> <input
+										onkeyup="checkPartialAmount();" type="text"
+										class="form-control" id="partialAmt">
+								</div>
+
+
+
+							</div>
+							<div class="col-lg-6">
+								<div class="form-group">
+									<label>Transaction Date</label> <input type="text"
+										class="form-control" id="transactionDate" readOnly>
+								</div>
+
+								<div class="form-group" id="accNodiv">
+									<label>Account Number</label> <select class="form-control"
+										id="accNo" onchange="acNameChange();">
+										<option value="">--Select--</option>
+									</select>
+								</div>
+
+								<div class="form-group" id="paidFromDiv">
+									<label>Paid From</label> <input type="text"
+										class="form-control" id="paidFrom" readonly />
+								</div>
+								<div class="form-group" id="availBalDiv">
+									<label>Available Balance</label> <input type="text"
+										class="form-control" id="availBal" readonly />
+								</div>
+
+								<div class="form-group" id="chequeNoDiv">
+									<label>Cheque Number</label> <input type="text"
+										class="form-control" id="chequeNo"
+										onkeyup="checkNum('chequeNo');" />
+								</div>
+								<div class="form-group" id="transNoDiv">
+									<label>Transaction Number</label> <input type="text"
+										class="form-control" id="transNo"
+										onkeyup="checkNum('transNo');" />
+
+								</div>
+
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-lg-12">&nbsp;</div>
+							<div class="col-lg-12">&nbsp;</div>
+							<div class="col-lg-12">
+								<div class="form-group">
+									<button type="button" id="submit" class="btn btn-success">Submit</button>
+									<button type="button" class="btn btn-warning"
+										onclick="cancel();">Cancel</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<div style="clear: both;"></div>
+	<!-- Modal Start-->
+	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title">View Details of GRN</h4>
+					<button type="button" class="close" data-dismiss="modal">
+						<i class="fa fa-close fa-2x"></i>
+					</button>
+				</div>
+				<div class="modal-body">
+					<table width="100%" border="0" id="table2">
+
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- Modal End-->
+</div>
+
+</html>

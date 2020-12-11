@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+$(document).ready(function() {			
+	$('#table').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'view-question-through-ajax',
+			'data' : function(d) {
+				d.param1 = $('#param1').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [
+		
+			{'data' : 'questionName'},
+			{'data' : 'questionDesc'},
+			{'data' : 'questionActive'},
+			{'data' : 'action'}
+		]	
+	});
+});
+
+function searchData() {
+	$('#table').DataTable().draw();
+
+}
+
+function deleteQuestion(id){
+	swal.fire({
+		title	: "Are you sure want to Delete?",
+		text	: "Once Deleted,Can't revert back !",
+		type : "warning",
+	
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Delete",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/recruitment/view-question-delete?id=" + id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+							
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+						}).then(function(){
+							location.reload(); 
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error	: function(data){
+					console.log(data)
+				}
+			}) //ajax ends
+		 }
+	 })//swal function block ends
+}
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="add-question">Home</a></li>
+					<li><a th:href="@{/recruitment/add-question}">Question</a></li>
+					<!-- <li class="active"><span>Manage Question</span></li> -->
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Manage Question</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+
+
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-question">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							
+							<div class="col-md-2">
+							<label>Question Type Name</label> <input type="text" id="param1"
+								class="form-control" onkeyup="searchData()" />
+						</div>
+							
+						</div>
+					</div>
+					<div class="row">
+
+						
+						
+						
+					</div>
+
+					<div class="table-responsive" style="width: 100%;">
+						<table id="table" class="table table-bordered">
+							<thead>
+								<tr>
+
+									<th>Question Type Name</th>
+									<th>Description</th>
+									<th>Status</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+</html>

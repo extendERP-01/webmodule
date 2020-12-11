@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.logotext {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+}
+
+.heading {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.header {
+	background: #0095c6;
+	z-index: 990;
+	padding: 0px !important;
+	margin-left: 0px;
+	box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+	transition: margin-left 300ms ease-in-out 0s;
+}
+
+.sidebar {
+	position: absolute;
+	top: 0px;
+	left: 0;
+	bottom: 0;
+	width: 263px;
+	background: #004b63;
+	/* font-size: 14px; */
+	z-index: 100;
+	overflow: auto;
+	-webkit-transform: translateZ(0);
+	transform: translateZ(0);
+	-webkit-transition: width 300ms ease-in-out;
+	transition: width 300ms ease-in-out;
+	box-shadow: 0 5px 20px rgba(0, 0, 0, 0.50);
+	margin-top: 90px !important;
+	min-height: 100vh !important;
+}
+
+.slogan {
+	font-size: 14px;
+	color: #f26304;
+	padding: 5px;
+}
+
+.containersec {
+	width: 100%;
+	margin: 0 auto;
+}
+
+.address {
+	font-size: 14px;
+	text-align: left;
+	padding-right: 0px;
+	line-height: 16px;
+}
+
+div {
+	padding: 4px 0px;
+}
+
+.maintbl tr td {
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+	text-align: center;
+}
+
+.resturantname {
+	font-size: 16px;
+	font-weight: bold;
+	color: #2d1ea5;
+}
+
+.total {
+	background: #f9965a;
+	color: #FFF;
+	padding: 8px 5px;
+	text-align: left;
+	font-weight: bold;
+}
+
+.description {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+}
+
+.points {
+	padding: 20px 0px;
+	line-height: 26px;
+}
+
+.points span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+	padding: 5px 10px;
+	border-radius: 12px;
+	margin: 3px;
+}
+
+.bill {
+	color: #000;
+	text-align: right;
+	font-size: 18px;
+	font-weight: bold;
+	width: 690px;
+}
+
+.strip2 {
+	margin-top: 60px;
+	width: 800px;
+	height: 20px;
+	padding: 2px;
+	text-align: center;
+	background-color: #d0e6f8;
+	margin-bottom: 12px;
+}
+
+.lefttag {
+	width: 40px;
+	float: left;
+}
+
+.note {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.textarea {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.money {
+	text-align: right;
+}
+
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.subtotal {
+	border: none !important;
+	margin: 0px !important;
+	line-height: 2.4 !important;
+}
+</style>
+<script type="text/javascript">
+lightbox.option({
+	'resizeDuration':200,
+	'wrapAround':true,
+	
+}) 
+
+function calTotal(event){
+	
+   var currentId = event.currentTarget.id;
+   var currentValue = event.currentTarget.value;
+   var l = currentId.split("_"); 
+   var counter = l[1]; 
+   var price=$("#itemPrice_"+counter).val();
+   
+   var lineTotal=parseFloat(currentValue)*parseFloat(price);
+   $('#itemTotal_'+counter).val(lineTotal); 
+   calculateSubTotal();
+}
+
+//CALCULATE SUB TOTAL FUNCTION
+
+function calculateSubTotal(){
+	
+	var sum = 0;
+	
+	$(".lineTotal").each(function(i){
+		//alert('hello');
+		sum = sum + parseFloat($(this).val());
+	//	alert(sum);
+	})
+	//alert(sum)
+	//$('#subtotal').val((sum).toFixed(2));
+	$('#subtotal').html((sum).toFixed(2));
+	
+	var gstRate=$("#gstRate").html();
+	var cgst=parseFloat(gstRate)/2;
+	
+	var calCgst=(parseFloat(sum)*(cgst))/100;
+	var calIgst=(parseFloat(sum)*(parseFloat(gstRate)))/100;
+	//alert(calIgst);
+	$('#cgst').html((calCgst).toFixed(2));
+	$('#sgst').html((calCgst).toFixed(2));
+	$('#igst').html((calIgst).toFixed(2));
+	var grandTotal=sum+calIgst;
+	$('#grandTotalt').html((grandTotal).toFixed(2));
+	
+	
+}
+//(document).ready() Starts
+$(document).ready(function() {
+	var approveActive = $('#approveActive').val();
+	var dataToday= new Date();
+	//alert(dataToday);
+	$("#dataToday").val('25-10-2019');
+	if(approveActive=="true") {
+	} else {
+		$("#pOrderDate").datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			timepicker : false
+		});
+		$('#transTR').hide();
+		$('#checkTR').hide();
+		$('#posTR').hide();
+		$("#payMode").on('change', function() {
+			var payMode = $(this).val();
+			$('#checkId').val("");
+			$('#transId').val("");
+			$('#posNo').val("");
+			$('#posNumber').val("");
+			if(payMode=="PMOD001") {
+				$('#transTR').show();
+				$('#posTR').show();
+				$('#checkTR').hide();
+				$('#checkId').val("");
+			} else if(payMode=="PMOD003") {
+				$('#transTR').hide();
+				$('#posTR').hide();
+				$('#checkTR').show();
+				$('#transId').val("");
+				$('#posNo').val("");
+				$('#posNumber').val("");
+			} else {
+				$('#checkId').val("");
+				$('#transId').val("");
+				$('#posNo').val("");
+				$('#posNumber').val("");
+				$('#transTR').hide();
+				$('#checkTR').hide();
+				$('#posTR').hide();
+			}
+		})
+	}
+	
+	
+	$("#submit").click(function(){
+		var taxType = $("#taxType1").val();
+		if(taxType=="true") {
+		//	alert('igst');
+			$("#cgst").val("0.00");
+			$("#sgst").val("0.00");
+		} else {
+			//alert(' No igst');
+			$("#igst").html("0.00");
+		}
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			item = {};
+			item['venQuotId']		=	$("#quotId").val(); 
+			item['rfqNo']	        =	$("#rfqNo").val(); 
+			item['vendor']			=	$("#customerId").val();
+			item['qNote']			=	$("#qNote").val();
+			item['taxType']			=	$("#taxType1").val();
+			item['gstRate']			=	parseFloat($("#gstRate1").val());
+			item['subTotal']		=	parseFloat($("#subtotal").html());
+			item['qIGST']			=	parseFloat($("#igst").html());
+			item['qCGST']			=	parseFloat($("#cgst").html());
+			item['qSGST']			=	parseFloat($("#sgst").html());
+			item['grandTotal']		=	parseFloat($("#grandTotalt").html());
+			item['itemId']		    =	$(this).find(".ItemName").val(); 
+			item['unitPrice']		=	parseFloat($(this).find(".unitPrice").val());
+			item['quantity']		=	parseFloat($(this).find(".quantity").val()); 
+			item['lineTotal']		=	parseFloat($(this).find(".lineTotal").val()); 
+			item['quotValidity']	=	$("#qValidity").val();
+			item['subCat']	        =	$(this).find(".subCat").val(); 
+			item['category']	    =	$(this).find(".category").val();
+			dataset.push(item);
+		})
+		console.log('dateset---------',dataset);
+		
+	//	return false;
+		
+		/*  
+		if (!blankValidation("gstRate","TextField" ,"Please Enter GST Rate"))
+		      return false;
+		if (!blankValidation("qNote","TextArea" ,"Note Can't Be Left Blank"))
+		      return false;
+		
+		var itemNameValid = true;
+		$(".ItemName").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"TextField" ,"Please Enter Item Name")){
+				itemNameValid = false;
+				return false;
+			}
+			
+		});
+		
+		 
+		var unitPriceValid = true;
+		if(itemNameValid ){
+			$('.unitPrice').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Unit Price")){
+					unitPriceValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		
+		var quantityValid = true;
+		if(itemNameValid  && unitPriceValid){
+			$('.quantity').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Quantity")){
+					quantityValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+	  */
+		
+		/* if(itemNameValid &&   unitPriceValid && quantityValid){
+			submitQuotationItem(dataset);
+		} */
+		
+		submitPurchaseOrder(dataset);
+	});
+	
+ 
+});
+
+
+//SUBMIT QUOTATION FUNCTION
+
+function submitPurchaseOrder(dataset){
+//const ipAPI = 'https://api.ipify.org?format=json'
+		
+		//alert('hello');
+		console.log(dataset);
+			swal.fire({
+				title				: "Are you sure want to Submit?",
+				text				: "Once Submited,Can't revert back !",
+				type 				: "warning",
+				
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Submit",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+				confirmButtonAriaLabel : 'Thumbs up, great!',
+				cancelButtonText : 'Cancel',
+				cancelButtonAriaLabel : 'Thumbs down',
+				
+				preConfirm: () => {
+					return new Promise((resolve) => {
+						setTimeout(() => {
+							console.log("Doing async operation");
+							resolve()
+						}, 3000)
+					})
+				}
+			}).then((result) => {
+				if(result.value){
+					$.ajax({
+					type		: "POST",
+					url 		: "add-purchase-order-with-rfq",
+					dataType	: "json",
+					contentType	: "application/json",
+					data		: JSON.stringify(dataset),
+					success		: function(response){
+						//console.log(response);
+						if(response.message=="Success"){
+							swal({
+									title:"Data Saved Successfully.",
+									type: "success",
+							}).then(function(){
+									window.location.href = "/inventory/view-purchase-order" ;
+							})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+					},error		: function(response){
+						swal(response.code);	
+					}
+				}) //ajax ends
+			}
+			})//swal function block ends
+		} 
+
+//(document).ready() Ends
+
+//Upload File(Image / PDF) Function
+function saveFile() {
+	//alert('hello');
+	//$("#upload_prev").empty();
+	var uFile = $('#fileUpload')[0].files[0]; 
+	var fileName = $('#fileUpload').val();
+	
+	var lastIndex = fileName.lastIndexOf("\\");
+	if(lastIndex >= 0) {
+		fileName = fileName.substring(lastIndex + 1);
+	}
+	var iURL = URL.createObjectURL(uFile);
+	$("#uploadedImgDiv").html("");
+	
+	var LightImg =  "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' target='_blank'>Preview</a>";
+	$("#uploadedImgDiv").html(LightImg);
+	
+	var fileData = new FormData();
+	fileData.append('file',uFile);
+	fileData.append('path','none');
+	
+	$.ajax({
+		type        : "POST",
+		url         : "add-purchase-order-with-rfq-uploadFile",
+		enctype     : "multipart/form-data",
+		contentType : false,
+		data        : fileData,
+		processData : false,
+		cache       : false,
+		success     : function(response){
+						
+					},			  
+		error       : function(e) {
+			
+			  		}
+	});
+}
+
+//Quotation PDF Function
+function pdfCreation() {
+	var id = window.btoa($('#quotationId').val());
+	window.open("/download/view-sales-order-one-pdf?id="+id,'_blank');
+}
+
+//Advance Payment PDF Function
+function pdfAdvPayment() {
+	var id = window.btoa($('#salesOrder').val());
+	window.open("/download/view-sales-order-advance-payment-pdf?id="+id,'_blank');
+}
+
+//"View Sales Order" Default Page Open On Click 'Close' Button
+function cancel() {
+	window.location.href = "/sales/view-sales-order" ;
+}
+
+//GET POS NUMBER FUNCTION
+function posAutoComplete() {
+		$.ajax({
+				type : "POST",
+				url : "view-quotation-master-posAutoComplete",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#posNo").val(),
+				success : function(response) {
+					if (response.message == "success") {
+
+						if (response.body.length != 0) {
+							$("#posNo").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							for (var i = 0; i < response.body.length; i++) {  //For Loop Starts
+								content += '<li onClick="selectAutocompleteValue(\''
+										+ response.body[i].key
+										+ '\',\''
+										+ response.body[i].name
+										+ '\')">'
+										+ response.body[i].key +' ('+ response.body[i].name +')'+ '</li>';
+							}  //For Loop Ends
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+
+						} else {
+							$("#posNo").css("background", "#FFF");
+							var content = '<ul id="autocomplete-list">';
+							content += '<li onClick="selectAutocompleteValue(\''
+									+ ''
+									+ '\',\''
+									+ ''
+									+ '\')">'
+									+ "No Data Found" + '</li>';
+							content += '</ul>';
+							$("#suggesstion-box").show();
+							$("#suggesstion-box").html(content);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+					$("#posNo").css("background", "#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValue(\''
+							+ ''
+							+ '\',\''
+							+ ''
+							+ '\')">'
+							+ "Try Again" + '</li>';
+					content += '</ul>';
+					$("#suggesstion-box").show();
+					$("#suggesstion-box").html(content);
+				}
+			})
+}
+function selectAutocompleteValue(key, name) {
+	if (key) {
+		$("#posNumber").val(key);
+		$("#posNo").val(key+' ('+name+')');
+		$("#posNo").attr('data-procat', key);
+		$("#suggesstion-box").hide();
+	} else {
+		$("#posNumber").val("");
+		$("#posNo").val("");
+		$("#posNo").attr('data-procat', "");
+		$("#suggesstion-box").hide();
+	}
+}
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+			<div class="content-wrap">
+				<div class="main mrt_20">
+					<div class="col-md-12">
+						<ol class="breadcrumb breadcrumb-arrow">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="view-quotation-master">View Purchase Order
+									With Quotation</a></li>
+
+						</ol>
+					</div>
+					<div class="card-title">
+						<h4>Purchase Order With Quotation</h4>
+					</div>
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<!-- <form th:object="${quotation}" autocomplete="off"> -->
+								<form autocomplete="off">
+									<div class="containersec">
+										<table width="100%" height="100%">
+
+											
+											<tr>
+												<td width="200"><img src="../assets/images/login_img/extend.png"
+													alt="" class="img-fluid" height="200" width="200">
+												</td>
+												<td align="left" class="address" width="500">													
+													<div class="bill">Generate Purchase Order</div>												
+												</td>
+											</tr>
+
+											<tr>
+												<td colspan="2" bgcolor="#cedefd"></td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<table width="700" class="innertable">
+														<tr>
+															<td colspan="2">
+
+																<table>
+
+																	<tr>
+																		<td width="150px;"><label><b>Quotation
+																					Id</b></label></td>
+																		<td width="200px;"><input type="hidden"
+																			id="quotId" th:value="${quotation[0].venQuotId}">
+																			<label id="quotationId"
+																			th:text="${quotation[0].venQuotId}"
+																			class="form-control quotationId"> </label></td>
+																		<td width="150px;"></td>
+																		<td width="150px;"><label><b>Vendor
+																					Name</b></label></td>
+																		<td width="200px;"><input type="hidden"
+																			id="customerId" th:value="${quotation[0].vendor}">
+																			<label id="customerName"
+																			th:text="${quotation[0].vendorName}"
+																			class="form-control quotationId"> </label></td>
+																	<tr>
+																		<td width="150px;"><label><b>RFQ Name</b></label></td>
+																		<td width="200px;"><label id="rfqName"
+																			th:text="${quotation[0].rfqName}"
+																			class="form-control quotationId"> </label> <input
+																			type="hidden" id="rfqNo"
+																			th:value="${quotation[0].rfqNo}"></td>
+																		<td width="150px;"></td>
+																		<td width="150px;"><input type="hidden"
+																			id="qValidity"
+																			th:value="${quotation[0].quotValidity}"> <label><b>Quotation
+																					Valid Upto</b></label></td>
+																		<td width="200px;"><label id="quotationVDate"
+																			th:text="${quotation[0].quotValidity}"
+																			class="form-control quotationVDate"></label></td>
+																	</tr>
+
+																	<!-- 								
+																		<tr>
+																		<td width="150px;"><label><b>Quotation Name</b></label></td>
+																		  <td width="200px;">
+																		<label id="quotationName"
+																			th:text="${quotation[0].QuotName}"
+																			class="form-control quotationId">
+																			</label></td>  
+																		<td width="150px;"></td>
+																		 
+																	 
+																	</tr>
+																			 -->
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td colspan="2">
+
+																<table id="id_td" class="maintbl" cellpadding="0"
+																	cellspacing="0" border="1" style="width: 1020px;">
+																	<thead>
+																		<tr>
+																			<th class="tableheader">SL No.</th>
+																			<th class="tableheader">ITEM NAME</th>
+																			<th class="tableheader">PRICE</th>
+																			<th class="tableheader">QUANTITY</th>
+																			<th class="tableheader">TOTAL</th>
+																		</tr>
+																	</thead>
+																	<tbody id="tbodyData">
+
+
+
+
+																		<tr th:each="other,iter : ${quotation}">
+																			<td th:text=" ${iter.index+1}"></td>
+																			<td><input type="hidden" class="subCat"
+																				th:value="${other.subCat}"> <input
+																				type="hidden" class="category"
+																				th:value="${other.category}"> <input
+																				type="hidden" th:id="'itemName_'+${iter.index}"
+																				class="form-control ItemName"
+																				th:value='${other.itemId}'> <input
+																				type="text" readonly style="border: none"
+																				th:id="'menuItem_'+${iter.index}"
+																				class="form-control menuItemCls"
+																				th:value='${other.itemName}'></td>
+																			<td><input type="text" readonly
+																				style="border: none; text-align:right;"
+																				th:id="'itemPrice_'+${iter.index}"
+																				class="form-control unitPrice"
+																				th:value='${other.unitPrice}'></td>
+																			<!-- <td th:text="${other.itemName}">
+																			 </td> -->
+																			<!-- 	 <td> <input type="text" th:id="'itemPrice_'+${iter.index}" 
+																				class="form-control itemCategoryCls" th:text="${#numbers.formatDecimal(other.unitPrice, 0, 'COMMA', 2, 'POINT')}">
+																					</td> -->
+																			<!-- <td class="money"  th:id="'itemPrice_'+${iter.index}" th:text="${#numbers.formatDecimal(other.unitPrice, 0, 'COMMA', 2, 'POINT')}">
+																			 
+																			</td> -->
+
+																			<td><input type="text" style="border: none"
+																				th:id="'itemQty_'+${iter.index}"
+																				class="form-control quantity"
+																				th:value='${other.quantity}'
+																				onchange="calTotal(event)"></td>
+
+																			<!-- 	<td th:text="${other.quantity}"></td> -->
+																			<td><input type="text" readonly
+																				style="border: none; text-align:right;"
+																				th:id="'itemTotal_'+${iter.index}"
+																				class="form-control lineTotal"
+																				th:value='${other.lineTotal}'></td>
+
+																			<!--  <td class="money" th:text="${#numbers.formatDecimal(other.lineTotal, 0, 'COMMA', 2, 'POINT')}">
+																			 </td> -->
+																		</tr>
+																	</tbody>
+																</table>
+															</td>
+														</tr>
+														<tr>
+															<td width="100">
+																<div>
+																	<strong>Note</strong>
+																</div>
+																<div>
+																	<textarea class="form-control textarea" id="qNote"
+																		th:text="${quotation[0].qNote}" readOnly></textarea>
+																</div>
+															</td>
+															<td width="50">
+																<table cellpadding="0" cellspacing="0" width="340">
+																	<tr>
+																		<!-- <td colspan="2" width="115" align="right"><b>SUB TOTAL</b></td> -->
+
+																		<td>
+																			<!-- <input type="hidden" id="igstVal" th:value="${quotation[0].qIGST}"> -->
+																			<!-- <input type="text"  style="border: none"
+																				id="subtotal" class="form-control money"
+																			th:value="${#numbers.formatDecimal(quotation[0].subTotal, 0, 'COMMA', 2, 'POINT')}" /> -->
+
+																		</td>
+
+																		<td width="120" align="right"><b>SUB TOTAL :</b></td>
+
+																		<td width="20%"><label id="subtotal"
+																			class="form-control subtotal" style="text-align:right;"
+																			th:text="${#numbers.formatDecimal(quotation[0].subTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+																	</tr>
+
+																	<tr id="IgstTR" th:if="${quotation[0].taxType}">
+																		<td colspan="2" width="120" align="right"><b
+																			th:text="'IGST :'"></b></td>
+
+																		<!-- <td width="40%">
+																					<label id="subtotal"
+																					class="form-control subtotal" th:text="${#numbers.formatDecimal(quotation[0].subTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																					</td>  -->
+
+																		<td width="20%"><label id="igst"
+																			class="form-control igst" style="border: none;text-align:right;"
+																			th:text="${#numbers.formatDecimal(quotation[0].qIGST, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+
+																	</tr>
+
+																	<tr id="CgstTR" th:if="${!quotation[0].taxType}">
+																		<td colspan="2" id="getCGST" width="120" align="right"><b
+																			th:text="'CGST :'"></b></td>
+
+																		<!-- <td width="130"><input type="text"
+																			style="border: none" id="cgst" class="form-control money"
+																			th:value="${#numbers.formatDecimal(quotation[0].qCGST, 0, 'COMMA', 2, 'POINT')}" /></td> -->
+
+																		<td width="20%"><label id="cgst"
+																			class="form-control subtotal" style="border: none;text-align:right;"
+																			th:text="${#numbers.formatDecimal(quotation[0].qCGST, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+
+																	</tr>
+
+																	<tr id="SgstTR" th:if="${!quotation[0].taxType}">
+																		<td colspan="2" width="120" align="right"><b
+																			th:text="'SGST :'"></b></td>
+
+																		<!-- <td width="130">
+																		
+																		
+																		<input type="text"
+																			style="border: none" id="sgst" class="form-control money"
+																			th:value="${#numbers.formatDecimal(quotation[0].qSGST, 0, 'COMMA', 2, 'POINT')}" /></td> -->
+
+																		<td width="20%"><label id="sgst"
+																			class="form-control subtotal" style="border: none;text-align:right;"
+																			th:text="${#numbers.formatDecimal(quotation[0].qSGST, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td colspan="2" width="120" align="right"><b>GRAND
+																				TOTAL :</b></td>
+
+																		<!-- <td width="130"><input type="text"
+																			style="border: none" id="grandTotalt"
+																			class="form-control money"
+																			th:value="${#numbers.formatDecimal(quotation[0].grandTotal, 0, 'COMMA', 2, 'POINT')}" /></td> -->
+
+																		<td width="20%"><label id="grandTotalt"
+																			class="form-control subtotal" style="border: none;text-align:right;"
+																			th:text="${#numbers.formatDecimal(quotation[0].grandTotal, 0, 'COMMA', 2, 'POINT')}">0.00</label>
+																		</td>
+
+																	</tr>
+
+																</table>
+															</td>
+														</tr>
+														<tr style="display:none;">
+															<td width="90">
+
+																<table>
+																	<tr>
+																		<td width="150px;"><input type="hidden"
+																			th:value="${quotation[0].taxType}" id="taxType1">
+																			<label><b>Tax Type</b></label></td>
+
+																		<td width="200px;"><label id="taxType"
+																			th:if="${quotation[0].taxType}"
+																			class="form-control taxType">Center Tax</label> <label
+																			id="taxType" th:if="${!quotation[0].taxType}"
+																			class="form-control taxType">State Tax</label></td>
+																	</tr>
+																	<tr>
+																		<td width="150px;"><input type="hidden"
+																			id="gstRate1" th:value="${quotation[0].gstRate}">
+																			<label><b>GST Rate</b></label></td>
+																		<td width="200px;"><label id="gstRate"
+																			th:text="${quotation[0].gstRate}"
+																			class="form-control gstRate"></label></td>
+																	</tr>
+
+																	<!-- <tr  >
+																		<td width="150px;"><label><b>Image</b></label></td>
+																		<td width="200px;"><input type="file"
+																			id="fileUpload" style="display: block;"
+																			onchange="saveFile()">
+																			<div id="uploadedImgDiv">
+																				
+																			</div> <span class="fornerrormsg" id="subcategory_photoerr"></span></td>
+																	</tr> -->
+																</table>
+															</td>
+															<td width="90">
+
+																<table>
+
+
+																</table>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+
+											<tr>
+												<td colspan="2" align="center">
+													<button type="button" id="submit" class="btn btn-success">Submit</button>
+													<button type="button" class="btn btn-warning"
+														onclick="window.location.href='view-purchase-dept-rfq-vendor'">
+														Cancel</button>
+
+												</td>
+											</tr>
+
+										</table>
+									</div>
+								</form>
+							</div>
+							<div style="clear: both;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /# row -->
+		</div>
+	</div>
+</body>
+</html>

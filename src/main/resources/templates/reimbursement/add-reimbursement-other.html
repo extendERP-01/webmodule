@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+input[type="file"] {
+	display: inline-flex;
+}
+
+.mtop-10 {
+	margin-top: 12px;
+}
+
+.receiptsCls {
+	padding-left: 19px;
+	width: 189px;
+}
+</style>
+<script>
+
+function addMore(){
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add mtop-10" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	//$("#myTable tbody tr:last").find(".qualifCls").append(new Option("--Select--","")); 
+	$("#myTable tbody tr:last").find(".startCls").val("");
+	$("#myTable tbody tr:last").find(".descCls").val("");
+	$("#myTable tbody tr:last").find(".amountCls").val("");
+	$("#myTable tbody tr:last").find(".receiptsCls").val("");
+	$("#myTable tbody tr:last").find(".refNoCls").val("");
+	$("#myTable tbody tr:last").find(".uploadedImgCls").empty();
+	
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#myTable > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		var fileInput = $(this).find('file');
+		var divInput = $(this).find('div');
+		
+		textInput.eq(0).attr('id',"selectStart_"+i);
+		textInput.eq(1).attr('id',"selectDesc_"+i);
+		textInput.eq(2).attr('id',"selectAmount_"+i);
+		fileInput.eq(0).attr('id',"selectReceipts_"+i);
+		textInput.eq(3).attr('id',"selectRefNo_"+i);
+		divInput.eq(0).attr('id', "uploadedImgDiv_" + i);
+		selectInput.eq(0).attr('id', "selectReimType_" + i);
+		selectInput.eq(1).attr('id', "selectPolicy_" + i);
+	})
+	
+}
+
+function disableTableOption(){
+	
+	 $("#myTable > tbody > tr").each(function(i){
+	   $(".qualifCls option").prop("disabled", false); //enable everything
+	
+	   var arr = $.map(
+	       $(".qualifCls option:selected"), function (n) {
+	             return n.value;
+	   });
+	   
+	   $(".qualifCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) > -1; //if value is in the array of selected values
+	   }).hide();
+	
+	  
+	   $(".qualifCls option").filter(function () {
+	        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+	   }).show();
+	 })
+}	
+
+function displayTable(){
+	 $("#myTable > tbody > tr").each(function(i){
+		 var arr = $.map(
+			       $(".qualifCls option:selected"), function (n) {
+			             return n.value;
+			   });
+		 $(".qualifCls option").filter(function () {
+		        return $.inArray($(this).val(), arr) == -1; //if value is not in the array of selected values
+		   }).show();
+		 })
+}
+$(document).ready(function(){
+	
+	var lengthOfTableRow = $("#tbodyData").children('tr').length;
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add mtop-10" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+		if($("#tbodyData").children('tr').length > 1){
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+		displayTable();
+		});
+	
+	
+	
+
+	
+//submit button function
+	
+	$("#submit").click(function(){
+		
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			
+			var uFile = $(this).find(".receiptsCls")[0].files[0];
+			
+			var fileName = $(this).find(".receiptsCls").val();
+
+			assign = {};
+			if(fileName !='' &&   fileName != 'undefined' && fileName != null){
+				var lastIndex = fileName.lastIndexOf("\\");
+				if (lastIndex >= 0) {
+					fileName = fileName.substring(lastIndex + 1);
+				}
+				var data ='';
+				var x=[];
+				
+				var reader = new FileReader();
+				reader.readAsDataURL(uFile);
+				
+				reader.onload = function () {
+					console.log(reader.result);
+					data = reader.result.split(",");
+					
+					x.push(reader.result);
+				};
+			}else{
+				var x=[];
+				x.push('empty');
+			}
+			
+			assign['editId']        =	$("#id").val();
+			assign['empId']		    =	$("#empId").val();
+			assign['reqId']		    =	$("#travelReq").val();
+			assign['rembId']		  =	$("#reimId").val();
+			assign['placeName']		=	$("#placeName").val();
+			assign['purpose']		=	$("#purpose").val();
+			assign['fromDate']		=	$("#fromDate").val();
+			assign['toDate']		=	$("#toDate").val();
+			assign['advanceAmount']		=	$("#advanceAmount").val();
+			assign['rembType']	    =	$(this).find(".reimTypeCls").val();
+			assign['policyId']	    =	$(this).find(".policyCls").val();
+			assign['rembDate']	    =	$(this).find(".startCls").val();
+			assign['rembDesc']	    =	$(this).find(".descCls").val();
+			assign['rembAmount']    =	$(this).find(".amountCls").val();
+			assign['rembFile']	    =	x;
+			assign['rembRefNo']	    =	$(this).find(".refNoCls").val();
+			assign['fileName']	   =	fileName;
+			assign['reimbType']		=	2;
+			
+			dataset.push(assign);
+			
+			
+		});//table tbody tr loop ends
+
+		if (!blankValidation("empId","SelectBox" ,"Please Select Employee Name"))
+		      return false;
+		
+		var qualifValid = true;
+		$(".qualifCls").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"SelectBox" ,"Please Select Qualification")){
+				qualifValid = false;
+				return false;
+			}
+			
+		});
+		
+		var institiueValid = true;
+		if(qualifValid){
+			$('.instiCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Institute Name")){
+					institiueValid = false;
+					return false;
+				}
+			});
+		}
+		var startDateValid = true;
+		if(qualifValid && institiueValid){
+			$('.startCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Start Date")){
+					startDateValid = false;
+					return false;
+				}
+			});
+		}
+		var endDateValid = true;
+		if(qualifValid && institiueValid && startDateValid){
+			$('.endCls').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter End Date")){
+					endDateValid = false;
+					return false;
+				}
+			});
+		}
+		if(qualifValid && institiueValid && startDateValid && endDateValid){
+			submitAssignEducation(dataset);
+		}
+											
+			
+		
+	})
+})
+
+	function submitAssignEducation(dataset){
+	console.log("data set is : ",dataset );
+		swal.fire({
+			title				: "Are you sure want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton	: true,
+			confirmButtonColor	: "#DD6BB5",
+			confirmButtonText	:"Submit",
+			reverseButtons : true,
+			confirmButtonAriaLabel : 'Thumbs up, great!',
+			cancelButtonText : 'Cancel',
+			cancelButtonAriaLabel : 'Thumbs down', 
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+				type		: "POST",
+				url 		: "add-reimbursement-other-ajax",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					//console.log(response);
+					if(response.message=="Success"){
+						swal({
+								title:"Data Saved Successfully.",
+								type: "success",
+						}).then(function(){
+								window.location.href = "/reimbursement/view-reimbursement" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+		}
+		})//swal function block ends
+	}//submit function ends
+
+	function dateChange(event)
+	{
+		var item = event.currentTarget.value;
+		var itemId=event.currentTarget.id;
+		var l = itemId.split("_");
+		var counter = l[1];
+		$( "#selectStart_" +counter).datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			timepicker : false,
+		})
+		$( "#selectEnd_" +counter).datetimepicker({
+			format:'d-m-Y',
+			closeOnDateSelect: true,
+			timepicker : false,
+		})
+		
+		
+	}
+</script>
+
+<script type="text/javascript">
+//date time picker
+$(document).ready(function() {
+	$("#fromDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+	$("#toDate").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	})
+
+});
+		function checkForDuplicate(event) {	
+				var item = event.currentTarget.value;
+				var count=0;
+				var itemId=event.currentTarget.id;
+				$(".qualifCls ").each(function(){
+	
+					if(item == $(this).val()){
+						count++;
+					}	
+				})	
+	
+				if(count>=2){
+					swal('Qualification is Already Selected');
+					$("#"+itemId).val("");
+				}	
+
+			}
+		
+	
+		
+		//date validation 
+		function dateValidation1(){
+			var endDate = $( "#toDate" ).val();
+			
+			var startDate = $( "#fromDate" ).val();
+			
+			var parts =startDate.split('-');
+			var d1 = Number(parts[2] + parts[1] + parts[0]);
+			parts =endDate.split('-');
+			var d2 = Number(parts[2] + parts[1] + parts[0]);
+			if(d1 <= d2){
+				return true;
+			}else{
+				swal("From Date Can't be Less Than To Date .");
+				//$( "#selectEnd_" +counter).val('');
+				$("#"+itemId).val('');
+				return false;
+			}
+			
+		}
+		//date validation 
+		function dateValidation(event){
+			var itemId=event.target.id;
+			var l = itemId.split("_");
+			var counter = l[1];
+	
+			 var reimDate =$("#selectStart_" +counter).val().split('-');
+			var expenseDate = Number(reimDate[2] + reimDate[1] + reimDate[0]);
+
+			
+			var starts =$( "#fromDate" ).val().split('-');
+			var fromDate = Number(starts[2] + starts[1] + starts[0]);
+			var ends =$( "#toDate" ).val().split('-');
+			var endDate = Number(ends[2] + ends[1] + ends[0]);
+			
+			if(fromDate <= expenseDate && expenseDate <= endDate){
+				return true;
+			}else{
+				swal("Expense Date Must be within Start date and End Date .");
+				$("#selectStart_" +counter).val('');
+				return false;
+			}
+			
+		}
+		function funcReset(){
+			location.href = "/employee/view-employee-education";
+		}
+	
+		function getBase64(file) {
+			   var reader = new FileReader();
+			   reader.readAsDataURL(file);
+			   reader.onload = function () {
+			     console.log(reader.result);
+			     return reader.result;
+			   };
+			   reader.onerror = function (error) {
+			     console.log('Error: ', error);
+			   };
+			}
+		
+</script>
+
+<script type="text/javascript"> 
+ //  for requisition change
+
+function reqChange() {
+	var travelReq = $("#travelReq").val();
+	if (travelReq !='' && travelReq !='notGenerate') {
+		 $("#placeName").val('');
+		 $("#purpose").val('');
+		 $("#fromDate").val('');
+		 $("#toDate").val('');
+		 $("#advanceAmount").val(' ');
+		$.ajax({
+			type : "POST",
+			url : "add-reimbursement-requisition-onchange",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : travelReq,
+			success : function(response) {
+				if (response.message == "success") {
+					 $("#placeName").val(response.body[0].placeName);
+					 $("#purpose").val(response.body[0].purpose);
+					 $("#fromDate").val(response.body[0].fromDate);
+					 $("#toDate").val(response.body[0].toDate);
+					 $("#advanceAmount").val(response.body[0].advanceAmount);
+				}
+			},
+			error : function(data) {
+
+			}
+		})
+	} else {
+		 $("#placeName").val('');
+		 $("#purpose").val('');
+		 $("#fromDate").val('');
+		 $("#toDate").val('');
+		 $("#advanceAmount").val(' ');
+	}
+}
+
+/*
+ * for save file 
+ */
+
+function saveFile(event) {
+	
+	var AssignItemQty = event.currentTarget.value;
+	var currentFldId = event.currentTarget.getAttribute('id');
+	var l = currentFldId.split("_");
+	var counter = l[1];
+    var currentFldId = "#"+currentFldId;
+	
+	var uFile = $(currentFldId)[0].files[0];
+	var fileName = event.currentTarget.value;
+	var lastIndex = fileName.lastIndexOf("\\");
+	if (lastIndex >= 0) {
+		fileName = fileName.substring(lastIndex + 1);
+	}
+	var extension = fileName.split(".");
+	var iURL = URL.createObjectURL(uFile);
+	$("#uploadedImgDiv_"+counter).html("");
+	if(extension[1] == "pdf"){
+		var LightImg = "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' target='_balnk'>Preview Pdf</a>";
+	}else{
+		var LightImg = "<a class='example-image-link' href='"+iURL+"' title='"+fileName+"' data-lightbox='"+fileName+"'>Preview Image</a>";
+	}
+	$("#uploadedImgDiv_"+counter).html(LightImg);
+	
+
+}
+
+/*
+ * for validate the amount 
+ */
+function validPolicy(event){
+	var amount = event.currentTarget.value;
+	var currentFldId = event.currentTarget.getAttribute('id');
+	var l = currentFldId.split("_");
+	var counter = l[1];
+	var policyId = $("#selectPolicy_"+counter).val();
+	$.ajax({
+		type : "POST",
+		url : "add-reimbursement-requisition-valid-policy",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : policyId,
+		success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					console.log(amount);
+					if(response.body[0] != null){
+					var limitBal = parseFloat(response.body[0].key);
+					if(amount > limitBal){
+						swal("Reimbursement Amount can not be Greater Than Policy Amount.");
+						$("#selectAmount_"+counter).val('');
+					}
+				}
+			}
+		},
+		error : function(data) {
+
+		}
+	})
+}
+/*
+ *  for policy type type reimbursement type
+ */
+function reimbTypeOnchange(event){
+	var reimType = event.currentTarget.value;
+	var currentFldId = event.currentTarget.getAttribute('id');
+	var l = currentFldId.split("_");
+	var counter = l[1];
+	$("#selectPolicy_"+counter).empty();
+	$("#selectPolicy_"+counter).append($("<option value>--Select--</option>"));
+	//var reimType = $("#selectReimType_"+counter).val();
+	$.ajax({
+		type : "POST",
+		url : "add-reimbursement-requisition-get-policy",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : reimType,
+		success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#selectPolicy_"+counter).append(option);
+
+					}
+			}
+		},
+		error : function(data) {
+
+		}
+	})
+}
+
+function checkNum(event){
+	var reimType = event.currentTarget.value;
+	var currentFldId = event.currentTarget.getAttribute('id');
+	var l = currentFldId.split("_");
+	var counter = l[1];
+	  var tempVal = reimType.replace(/[^0-9\.]/g,'');
+	  $("#"+currentFldId).val(tempVal);
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Add Other Reimbursment </span></li>
+				</ol>
+			</div>
+			<div class="col-md-12"></div>
+			<div class="card-title">
+				<h4>Add Other Reimbursment</h4>
+
+				<div class="topbtnright" align="right">
+					<div class="form-group">
+						<button type="button" id="submit" class="btn btn-success">Submit</button>
+						<button type="button" class="btn btn-warning"
+							onclick="funcReset();">Cancel</button>
+					</div>
+				</div>
+
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+
+							<form th:object="${reimbursement}" autocomplete="off">
+								<div class="row">
+									<span style="color: red;" id="errorMsg"></span>
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+
+								<div class="row">
+
+
+									<div class="col-lg-6">
+										<input type="hidden" th:if="${Edit}" id="id"
+											th:value="${reimbursement[0].editId}" /> <input
+											type="hidden" th:unless="${Edit}" id="*reimId" /> <input
+											type="hidden" th:if="${Edit}" id="reimId"
+											th:value="${reimbursement[0].rembId}" />
+
+										<!-- <div class="form-group">
+											<label>Traveling Requisition</label> <select
+												class="form-control" id="travelReq" onchange="reqChange()">
+												<option th:unless="${Edit}"  value="">--Select--</option>
+
+												<option th:if="${Edit}" th:each="c:${travelReqList}"
+													th:value='${c.key}' th:text="${c.key}"
+													th:selected='${c.key==reimbursement[0].reqId}'></option>
+												<option th:unless="${Edit}" value="notGenerate">Not
+													Generated</option>
+												<option th:unless="${Edit}" th:each="c:${travelReqList}"
+													th:value='${c.key}' th:text="${c.key}"></option>
+
+											</select>
+										</div> -->
+										<!-- <div class="form-group">
+											<label>Place Name</label> <input type="text"
+												class="form-control" id="placeName" th:unless="${Edit}" />
+											<input type="text" class="form-control" id="placeName"
+												th:if="${Edit}" th:value="${reimbursement[0].placeName}" />
+
+										</div> -->
+										<div class="form-group">
+											<label>Date</label> <input type="text"
+												class="form-control" id="fromDate" th:unless="${Edit}"
+												readonly /> <input type="text" class="form-control"
+												id="fromDate" th:if="${Edit}"
+												th:value="${reimbursement[0].fromDate}" readonly />
+										</div>
+
+										<!-- <div class="form-group" id="advanceTr">
+
+											<label>Advance Amount</label> <input type="text"
+												class="form-control" id="advanceAmount" th:unless="${Edit}" />
+											<input type="text" class="form-control" id="advanceAmount"
+												th:if="${Edit}" th:value="${reimbursement[0].advanceAmount}" />
+										</div> -->
+
+
+									</div>
+									<div class="col-lg-6">
+
+
+										<div class="form-group">
+
+											<!-- <div class="form-group">
+												<label>Traveling To Date</label> <input type="text"
+													class="form-control" id="toDate" th:unless="${Edit}"
+													onchange="dateValidation1()" readonly /> <input
+													type="text" class="form-control" id="toDate"
+													th:if="${Edit}" th:value="${reimbursement[0].toDate}"
+													onchange="dateValidation1()" readonly />
+											</div> -->
+											<div class="form-group">
+												<label>Traveling Purpose</label> <input type="text"
+													class="form-control " id="purpose" th:unless="${Edit}">
+												<input type="text" class="form-control " id="purpose"
+													th:if="${Edit}" th:value="${reimbursement[0].purpose}">
+											</div>
+
+										</div>
+
+
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-12">
+										<!-- id="table-data" -->
+
+										<table class="tbll" id="myTable" width="100%" border="0"
+											cellspacing="1" cellpadding="5">
+											<thead>
+												<tr>
+													<th align="center">Type</th>
+													<!-- <th align="center">Policy Name</th> -->
+													<th align="center">Date of expense</th>
+													<th align="center">Expense Description</th>
+													<th align="center">Expense Amount</th>
+													<th align="center">Upload Receipts</th>
+													<th align="center">Reference Number</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody id="tbodyData">
+
+												<tr class="tr_clone" th:if="${Edit}"
+													th:each="a,iter:${reimbursement}">
+													<td><select id="selectReimType_"
+														class="form-control reimTypeCls">
+															<option th:value="null">--select--</option>
+															<option th:each="c:${reimbTypeList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.rembType}'></option>
+
+													</select></td>
+													<!-- <td><select id="selectPolicy_"
+														class="form-control policyCls">
+															<option th:value="null">--select--</option>
+															<option th:each="c:${policyList}" th:value='${c.key}'
+																th:text="${c.name}" th:selected='${c.key==a.policyId}'></option>
+													</select></td> -->
+													<td><input type="text" class="form-control startCls"
+														id="selectStart_" th:value="${a.rembDate}"
+														onclick="dateChange(event)" readonly
+														onchange="dateValidation(event)" /></td>
+													<td><input type="text" class="form-control descCls"
+														id="selectDesc_" th:value="${a.rembDesc}" /></td>
+
+													<td><input type="text" class="form-control amountCls"
+														id="selectAmount_" th:value="${a.rembAmount}"
+														onKeyup="validPolicy(event);checkNum(event)" /></td>
+													<td><input type="file" class="receiptsCls pdl38"
+														id="selectReceipts_" onchange="saveFile(event)" />
+														<div id="uploadedImgDiv_" align="center"
+															class="uploadedImgCls">
+															<span th:if="${a.action !=null}"> <a
+																class="example-image-link" th:href="${a.action}"
+																target="_blank">Preview Image</a>
+															</span>
+														</div></td>
+													<td><input type="text" class="form-control refNoCls"
+														id="selectRefNo_" th:value="${a.rembRefNo}" /></td>
+													<td>
+														<button th:if="${iter.size == iter.index+1}" type="button"
+															class="btn btn-primary tr_clone_add" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>
+														<button th:if="${iter.size != 1}" type="button"
+															class="btn btn-warning rmv" name="Remove">
+															<span class="ti-minus"></span>
+														</button>
+
+													</td>
+												</tr>
+
+
+												<tr class="tr_clone" th:unless="${Edit}">
+													<td><select id="selectReimType_"
+														class="form-control reimTypeCls"
+														onchange="reimbTypeOnchange(event)">
+															<option th:value="null">--select--</option>
+															<option th:each="c:${reimbTypeList}" th:value='${c.key}'
+																th:text="${c.name}"></option>
+
+													</select></td>
+
+													<!-- <td><input type="text" class="form-control reimTypeCls"
+														id="selectReimType_" /></td> -->
+
+													<!-- <td><select id="selectPolicy_"
+														class="form-control policyCls">
+															<option th:value="null">--select--</option>
+
+													</select></td> -->
+													<td><input type="text" class="form-control startCls"
+														id="selectStart_" onclick="dateChange(event)"
+														onchange="dateValidation(event)" readonly /></td>
+													<td><input type="text" class="form-control descCls"
+														id="selectDesc_" /></td>
+
+													<td><input type="text" class="form-control amountCls"
+														id="selectAmount_"
+														onKeyup="validPolicy(event); checkNum(event);" /></td>
+													<td><input type="file" class="receiptsCls"
+														id="selectReceipts_" onchange="saveFile(event)" />
+														<div id="uploadedImgDiv_" align="center"
+															class="uploadedImgCls">
+															<span th:if="*{action !=null}"> <a
+																class="example-image-link" th:href="*{action}"
+																data-lightbox="hsdjas">Preview Image</a>
+															</span>
+														</div></td>
+													<td><input type="text" class="form-control refNoCls"
+														id="selectRefNo_" /></td>
+													<td><button type="button"
+															class="btn btn-primary tr_clone_add mtop-10" name="add"
+															onclick="addMore();">
+															<span class="ti-plus"></span>
+														</button>&nbsp;</td>
+												</tr>
+											</tbody>
+
+
+										</table>
+										<div class="row"></div>
+									</div>
+
+								</div>
+
+							</form>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+	</div>
+</div>
+
+</html>

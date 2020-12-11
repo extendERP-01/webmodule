@@ -1,0 +1,842 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width:96%;
+	position: absolute;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+.hello{
+width:50%;
+}
+</style>
+<script type="text/javascript">
+ function validateForm(){ 	 
+	   if (!blankValidation("user","TextField", " Guest Name can not be left blank"))
+          return false; 
+      if (!blankValidation("propertyCategory","TextField", "Property Category can not be left blank"))
+          return false;
+      if (!blankValidation("Property Type","TextField", "Property Type can not be left blank"))
+          return false;
+      if (!blankValidation("property","TextField", "Property Name can not be left blank"))
+          return false;
+       if (!blankValidation("sitingPlan","TextField", "siting Plan no  can not be left blank"))
+          return false;
+      /* if (!blankValidation("theme","TextField", "theme can not be left blank"))
+          return false; */
+      if (!blankValidation("pBookingDescription","TextField", "Description can not be left blank"))
+          return false;
+      if (!blankValidation("propertyBookType","TextField", "booking type can not be left blank"))
+          return false;
+      if (!blankValidation("from_date","TextField", "Booking fromdate can not be left blank"))
+          return false;
+      if (!blankValidation("to_date","TextField", "Booking todate can not be left blank"))
+          return false;    
+      if (!blankValidation("pBookingCheckinAmount","TextField", "Checkin Amount  can not be left blank"))
+          return false;
+      if (!blankValidation("checkfrom_date","TextField", "Checkin date  can not be left blank"))
+          return false;
+      if (!blankValidation("pBookingActive","TextField", "Status can not be left blank"))
+          return false;
+     }  
+ 
+/* Radio Button Function for bookingType */
+		$(document).ready(function() {
+			
+			$(':radio[id=thirdParty]').change(function() {
+				   $("#div1").removeClass("hide");
+				   $("#propertyReservation").removeClass("hide");
+				});
+				$(':radio[id=walkin]').change(function() {
+				   $("#div1").addClass("hide");
+				   $("#propertyReservation").addClass("hide");
+
+				});
+				
+/* DatePicker Function for booking date and checkIn date	 */			
+			 $("#from_date").datepicker({
+				format:'dd-mm-yyyy',
+				startDate: new Date(),
+				autoclose:true
+			}) ;
+			 $("#to_date").datepicker({
+				 	format:'dd-mm-yyyy',
+					startDate: new Date(),
+					autoclose:true
+				}) ;
+				
+				$("#checkto_date").datepicker({
+					format:'dd-mm-yyyy',
+					startDate: new Date(),
+					autoclose:true
+				}) ;
+				$("#checkfrom_date").datepicker({
+					format:'dd-mm-yyyy',
+					startDate: new Date(),
+					autoclose:true
+				}) ;		
+	});
+	
+	/* Onchange function for get propertyType from PropertyCategory for reservationid selection*/
+	function propertyCatagoryChangeReservation(PropertypeIdSelected) {
+		var dd = $("#propertyCategory").val();
+		//alert("categoryid=="+dd);
+		if (dd) {
+			$.ajax({
+				type : "POST",
+				url : "add-property-booking-getPropertyTypList",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#propertyCategory").val(),
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						$("#propertyType").empty();
+						
+						$("#propertyType").append(
+								$("<option value>Select</option>"));
+						
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#propertyType").append(option);
+						}
+						$("#propertyType").val(PropertypeIdSelected);
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+		} else {
+			$("#propertyType").empty();
+			$("#propertyType").append(
+					$("<option value>Select</option>"));
+			
+		}
+	}
+/* Onchange function for get propertyName from PropertyType for reservationid selection*/
+  
+
+/* Onchange function for get propertyType from PropertyCategory */
+function propertyCatagoryChange() {
+	var dd = $("#propertyCategory").val();
+	//alert("categoryid=="+dd);
+	if (dd) {
+		$.ajax({
+			type : "POST",
+			url : "add-property-booking-getPropertyTypList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#propertyCategory").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#propertyType").empty();
+					$("#property").empty();
+					
+					$("#propertyType").append(
+							$("<option value>Select</option>"));
+					$("#property").append(
+							$("<option value>Select</option>"));
+					
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#propertyType").append(option);
+					}
+
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	} else {
+		$("#propertyType").empty();
+		$("#propertyType").append(
+				$("<option value>Select</option>"));
+		$("#property").empty();
+		$("#property").append(
+				$("<option value>Select</option>"));
+		
+	}
+}
+/* Onchange function for get propertyName from PropertyType */
+function propertyTypeChange() {
+	var dd = $("#propertyType").val();
+	if (dd) {
+	$.ajax({
+		type : "POST",
+		url : "add-property-booking-getPropertNameList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#propertyType").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				//console.log(response);
+				$("#property").empty();
+				$("#property").append(
+						$("<option value>Select</option>"));
+				
+				for (var i = 0; i < response.body.length; i++) {
+					var option = $("<option></option>");
+					$(option).val(response.body[i].key);
+					$(option).html(response.body[i].name);
+					$("#property").append(option);
+				}
+
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+	} else {
+		$("#property").empty();
+		$("#property").append(
+				$("<option value>Select</option>"));
+		
+	}
+}
+/* Onchange function for get seating plan from PropertyCategory */
+function propertySeatingChange() {
+	var dd = $("#propertyCategory").val();
+	if (dd) {
+	$.ajax({
+		type : "POST",
+		url : "add-property-booking-getSeatingPlanList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#propertyCategory").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				//console.log(response);
+				$("#sitingPlan").empty();
+				$("#sitingPlan").append(
+						$("<option value>Select</option>"));
+				for (var i = 0; i < response.body.length; i++) {
+					var option = $("<option></option>");
+					$(option).val(response.body[i].key);
+					$(option).html(response.body[i].name);
+					$("#sitingPlan").append(option);
+				}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+	} else {
+		$("#sitingPlan").empty();
+		$("#sitingPlan").append(
+				$("<option value>Select</option>"));
+	}
+}
+/* Onchange function for get theme from PropertyCategory */
+function propertyThemeChange() {
+	var dd = $("#propertyCategory").val();
+	if (dd) {
+	$.ajax({
+		type : "POST",
+		url : "add-property-booking-getThemeList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#propertyCategory").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				//console.log(response);
+				$("#theme").empty();
+				$("#theme").append(
+						$("<option value>Select</option>"));
+				for (var i = 0; i < response.body.length; i++) {
+					var option = $("<option></option>");
+					$(option).val(response.body[i].key);
+					$(option).html(response.body[i].name);
+					$("#theme").append(option);
+				}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+	} else {
+		$("#theme").empty();
+		$("#theme").append(
+				$("<option value>Select</option>"));
+		
+	}
+}
+
+function propertyRevChange() {
+	$.ajax({
+		type : "POST",
+		url : "add-property-booking-getReservList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#propertyReservation").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				
+			    $("#propertyCategory").val(response.body.propertyCategory);
+			    propertyCatagoryChangeReservation(response.body.propertyType);
+			    propertyNameChangeReservation(response.body.property);
+			    propertySeatingPlanChangeReservation(response.body.sitingPlan);
+			    propertyThemeChangeReservation(response.body.theme);
+				//$("#propertyType").val(response.body.propertyType);
+				console.log(response);
+				//alert(response.body.userFname);
+				/* $("#propertyCategory").empty();
+				for (var i = 0; i < response.body.length; i++) {
+					var option = $("<option></option>");
+					$(option).val(response.body[i].key);
+					$(option).html(response.body[i].name);
+					$("#propertyCategory").append(option);
+				} */
+
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+}
+
+/* Onchange function for get property type from propertyReservation */
+function propertyRevTypChange() {
+	$.ajax({
+		type : "POST",
+		url : "add-property-booking-getReservptypeList",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#propertyReservation").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				//console.log(response);
+				$("#propertyType").empty();
+				for (var i = 0; i < response.body.length; i++) {
+					var option = $("<option></option>");
+					$(option).val(response.body[i].key);
+					$(option).html(response.body[i].name);
+					$("#propertyType").append(option);
+				}
+
+			}
+		},
+		error : function(data) {
+			console.log(data);
+		}
+	})
+}
+
+/* extra Onchange function for get propertyname from property type for reservationid selection*/
+function propertyNameChangeReservation(PropertypeIdSelected) {
+	var dd = $("#propertyType").val();
+	//alert("typeid=="+dd);
+	if (dd) {
+		$.ajax({
+			type : "POST",
+			url : "add-property-booking-getPropertNameList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#propertyType").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#property").empty();
+					
+					$("#property").append(
+							$("<option value>Select</option>"));
+					
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#property").append(option);
+					}
+					$("#property").val(PropertypeIdSelected);
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	} else {
+		$("#property").empty();
+		$("#property").append(
+				$("<option value>Select</option>"));
+		
+	}
+}
+/*extra Onchange function for get seatingplan from PropertyCategory for reservationid selection*/
+function propertySeatingPlanChangeReservation(PropertypeIdSelected) {
+	var dd = $("#propertyCategory").val();
+	//alert("categoryid=="+dd);
+	if (dd) {
+		$.ajax({
+			type : "POST",
+			url : "add-property-booking-getSeatingPlanList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#propertyCategory").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#sitingPlan").empty();
+					
+					$("#sitingPlan").append(
+							$("<option value>Select</option>"));
+					
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#sitingPlan").append(option);
+					}
+					$("#sitingPlan").val(PropertypeIdSelected);
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	} else {
+		$("#sitingPlan").empty();
+		$("#sitingPlan").append(
+				$("<option value>Select</option>"));
+		
+	}
+}
+/*extra Onchange function for get theme from PropertyCategory for reservationid selection*/
+function propertyThemeChangeReservation(PropertypeIdSelected) {
+	var dd = $("#propertyCategory").val();
+	//alert("categoryid=="+dd);
+	if (dd) {
+		$.ajax({
+			type : "POST",
+			url : "add-property-booking-getThemeList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#propertyCategory").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#theme").empty();
+					
+					$("#theme").append(
+							$("<option value>Select</option>"));
+					
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#theme").append(option);
+					}
+					$("#theme").val(PropertypeIdSelected);
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	} else {
+		$("#theme").empty();
+		$("#theme").append(
+				$("<option value>Select</option>"));
+		
+	}
+}
+
+/* walkIn and thirdParty function */
+function walkIn(){
+  document.getElementById('div1').style.display ='none';
+  
+}
+function thirdParty(){
+  document.getElementById('div1').style.display = 'block';
+}
+
+
+/* function for add a new guest */
+
+         
+            function addMore() {
+            	
+               window.location = "http://localhost:8051/frontdesk/add-guest-details";
+            }
+</script>
+<script>
+       	 function guestReservComplete() {
+       		
+       			$.ajax({
+       				
+       				type : "POST",
+       				url : "add-property-booking-get-ResAutocompleteList",
+       				dataType : 'json',
+       				contentType : 'application/json',
+       				data : $("#requisition").val(),
+       				success : function(response) {
+       					console.log(response);
+       					if (response.message == "success") {
+       						
+       					if(response.body.length!=0)	{
+       						console.log("if: "+response);
+       						$("#requisition").css("background","#FFF");
+       						var content = '<ul id="autocomplete-list">';
+       						for (var i = 0; i < response.body.length; i++) {
+       								content += '<li onClick="selectAutocompleteValue1(\''+response.body[i].key+'\')">'+response.body[i].key+'</li>';
+       						} 
+       						content += '</ul>';
+       						$("#suggesstion-box1").show();
+       						$("#suggesstion-box1").html(content);
+       						
+       					}
+       					else {
+       						console.log("else: "+response);
+       						$("#requisition").css("background","#FFF");
+       						var content = '<ul id="autocomplete-list">';
+       						content += '<li onClick="selectAutocompleteValue1(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+       						content += '</ul>';
+       						$("#suggesstion-box1").show();
+       						$("#suggesstion-box1").html(content);
+       					}
+       					}
+       				},
+       				error : function(data) {
+       					console.log(data);
+       				}
+       			})
+       		}
+       	 
+       	 function selectAutocompleteValue1(key) {
+        		if (key) {
+        			$("#propertyReservation").val(key);
+        			$("#requisition").val(key);
+        			$("#requisition").attr('data-procat', key);
+        			$("#suggesstion-box1").hide();
+        			propertyRevChange();
+        			propertyRevTypChange();
+        		}else {
+        			$("#propertyReservation").val("");
+        			$("#requisition").val("");
+        			$("#requisition").attr('data-procat', "");
+        			$("#suggesstion-box1").hide();
+        			propertyRevChange();
+        			propertyRevTypChange();
+        		}
+       		}
+       	</script>
+       	<script>
+       	           	function guestAutoCompleteMob() {
+                	$.ajax({
+                	type : "POST",
+                	url : "add-property-booking-getGuestAutocompleteListMob",
+                	dataType : 'json',
+                	contentType : 'application/json',
+                	data : $("#userMob").val(),
+                	success : function(response) {
+    	            	if (response.message == "success") {
+    	console.log(response);
+    		            	if(response.body.length!=0)	{
+    			            	console.log("if: "+response);
+    			            	$("#userMob").css("background","#FFF");
+    			            	var content = '<ul id="autocomplete-list">';
+    			            	for (var i = 0; i < response.body.length; i++) {
+    			            	content += '<li onClick="selectAutocompleteValue(\''+response.body[i].userMob+'\',\''+response.body[i].userProp+'\',\''+response.body[i].userPropCat+'\')">'+response.body[i].userMob+'</li>';
+    			            	} 
+    			            	content += '</ul>';
+    			            	$("#suggesstion-box").show();
+    			            	$("#suggesstion-box").html(content);
+    		
+    		            	}
+    	            	else {
+    		            	console.log("else: "+response);
+    		            	$("#userMob").css("background","#FFF");
+    		            	var content = '<ul id="autocomplete-list">';
+    		            	content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+    		            	content += '</ul>';
+    		            	$("#suggesstion-box").show();
+    		            	$("#suggesstion-box").html(content);
+    		            	//alert(userMob);
+    		            	//addMore()
+    		            	//display:block
+    		            	$("#add").show();
+    	            	}
+    	            	}
+                	},
+                	error : function(data) {
+                	console.log(data);
+                	}
+                	})
+                	}
+                	function selectAutocompleteValue(userMob,userProp,userPropCat) {
+    	            	if (userMob) {
+    	            		//alert(userMob);
+    		            	$("#user").val(userProp);
+    		            	$("#userMob").val(userMob);
+    		            	$("#userMob").attr('data-procat', userMob);
+    		            	$("#userProp").val(userProp);
+    		            	$("#userPropCat").val(userPropCat);
+    		            	$("#suggesstion-box").hide();
+    	            	}
+    	            	else {
+    		            	$("#user").val("");
+    		            	$("#userMob").val("");
+    		            	$("#userMob").attr('data-procat', "");
+    		            	$("#userProp").val("");
+    		            	$("#userPropCat").val("");
+    		            	$("#suggesstion-box").hide();
+    	            	}
+                	}
+      </script>
+<style type="text/css">
+body {
+	font-family: arial;
+}
+
+.btype {
+	font-weight: bold;
+	font-size: 20px;
+}
+
+.hide {
+	display: none;
+}
+</style>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<!--Alert Box-->
+				<!--Alert Box-->
+				<div class="alert alert-danger alert-dismissible"
+					th:if="${message != null}">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<span th:text="${message}"></span>
+				</div>
+				<!--Alert Box-->
+				<div class="alert alert-success alert-dismissible"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action.
+				</div>
+				<div class="alert alert-danger alert-dismissible"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action.
+				</div>
+				<div class="alert alert-warning alert-dismissible"
+					style="display: none;">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<strong>Success!</strong> Indicates a successful or positive
+					action.
+				</div>
+				<!--Alert Box-->
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li class="active"><span>Add Property Booking </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Property Booking</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form th:action="@{/frontdesk/add-property-booking}"
+								th:object="${propertyBooking}" autocomplete="off" method="post"
+								onsubmit="return validateForm();">
+								<input type="hidden" th:field="*{propertyBookingId}" />
+								<div class="row">
+									<div class="col-lg-6">
+									<label>Booking Type :</label>
+										<span><input type="radio"
+											th:field="*{propertyBookType}" name="radio" value="dp036"
+											id="walkin" checked>walkin</span> <span><input
+											type="radio" th:field="*{propertyBookType}" name="radio"
+											value="dp037" id="thirdParty" checked>thirdparty</span>
+										<div id="div1" class="hide">
+                                        <div class="form-group">
+												<label>Reservation Id</label>  <input type="hidden" id="propertyReservation"   /> 
+											<input type="text" class="form-control" 
+												id="requisition" value="requisition"
+												th:field="*{propertyReservation}"
+												onkeyup="guestReservComplete();"/> 
+											<div id="suggesstion-box1"></div>
+											</div>
+											
+										</div>
+                                      
+                                         <div class="form-group">
+											<label>Mobile No</label>
+											<div class= "input-group md-form form-sm form-2 pl-0">
+											<input type="text"
+												class="form-control" th:field="*{userMob}"
+												onkeyup="guestAutoCompleteMob();" />										
+										<div style="float: right;">
+												<button type="button"  class="btn btn-primary tr_clone_add"
+													name="add" onclick="addMore();">
+													<span class="fa fa-user-plus" style="font-size:20px"></span>
+												</button>
+												</div>
+											</div>
+											<div id="suggesstion-box"></div>
+										</div> 
+										<div class="form-group">
+											<label>Registration Id</label> <input type="hidden"
+												th:field="*{user}" /> <input type="text"
+												class="form-control" th:field="*{userProp}"
+												onkeyup="guestAutoComplete();" />						
+											<div id="suggesstion-box"></div>
+										</div>
+										<div class="form-group">
+											<label>Guest Name</label>
+											<!-- <input type="hidden" th:field="*{tblGuest}" /> -->
+											<input type="text" class="form-control"
+												th:field="*{userPropCat}" />
+											<div id="suggesstion-box"></div>
+										</div>
+										<div class="form-group">
+											<label>Property Category</label> <select class="form-control"
+												th:field="*{propertyCategory}"
+												onChange="propertyCatagoryChange();propertySeatingChange();propertyThemeChange();">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${categoryList}" th:value='${c.key}'
+													th:text="${c.name}"
+													th:selected="${c.key==propertyCategory}"></option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Property Type</label> <select class="form-control"
+												th:field="*{propertyType}" onChange="propertyTypeChange()">
+												<option th:each="c:${typeList}" th:value='${c.key}'
+													th:text="${c.name}" th:selected="${c.key==propertyType}"></option>
+												<option th:value=null>--select--</option>
+												<!--  <option>Pr001 </option>
+                                                <option>Pr002</option> -->
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Property Name</label> <select class="form-control"
+												th:field="*{property}">
+												<option th:each="c:${nameList}" th:value='${c.key}'
+													th:text="${c.name}" th:selected="${c.key==property}"></option>
+												<option th:value=null>--select--</option>
+												<!--  <option>Pr001 </option>
+                                                <option>Pr002</option> -->
+											</select>
+										</div>
+										<div class="form-group">
+											<label>SeatingPlan</label> <select class="form-control"
+												th:field="*{sitingPlan}">
+												<option th:each="c:${seatingplanList}" th:value='${c.key}'
+													th:text="${c.name}" th:selected="${c.key==sitingPlan}"></option>
+												<option th:value=null>--select--</option>
+												<!--  <option>Pr001 </option>
+                                                <option>Pr002</option> -->
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Theme Name</label> <select class="form-control"
+												th:field="*{theme}">
+												<option th:each="c:${themeList}" th:value='${c.key}'
+													th:text="${c.name}" th:selected="${c.key==theme}"></option>
+												<option th:value=null>--select--</option>
+												<!--  <option>Pr001 </option>
+                                                <option>Pr002</option> -->
+											</select>
+										</div>
+										<button type="submit" class="btn btn-success">submit</button>
+										<button type="reset" value="Reset" class="btn btn-warning">cancel</button>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Description.</label>
+											<textarea class="form-control textarea"
+												th:id="pBookingDescription"
+												th:field="*{pBookingDescription}"
+												th:name="pBookingDescription"></textarea>
+										</div>
+										<div class="form-group">
+											<label>Book from date</label> <input type="text"
+												class="form-control" id="from_date"
+												th:field="*{pBookingFromDate}" th:name="pBookingFromDate">
+										</div>
+										<div class="form-group">
+											<label>Book to date</label> <input type="text"
+												class="form-control" id="to_date"
+												th:field="*{pBookingToDate}" th:name="pBookingToDate">
+										</div>
+										<div class="form-group">
+											<label>Check In Amout</label> <input type="text"
+												class="form-control" th:id="pBookingCheckinAmount"
+												th:field="*{pBookingCheckinAmount}"
+												th:name="pBookingCheckinAmount">
+										</div>
+
+										<div class="form-group">
+											<label>Check In Date</label> <input type="text"
+												class="form-control" id="checkfrom_date"
+												th:field="*{checkinDate}" th:name="checkinDate" readonly>
+										</div>
+										<div class="form-group">
+											<label>Check Out Date</label> <input type="text"
+												class="form-control" id="checkto_date"
+												th:field="*{checkoutDate}" th:name="checkoutDate" readonly>
+										</div>
+										<div class="form-group">
+											<label>Status</label> <select class="form-control"
+												th:id="pBookingActive" th:field="*{pBookingActive}"
+												th:name="pBookingActive">
+												<option th:value=null>select</option>
+
+												<option th:value=1>Active</option>
+												<option th:value=0>Inactive</option>
+											</select>
+										</div>
+									</div>
+									</div>
+									
+							</form>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

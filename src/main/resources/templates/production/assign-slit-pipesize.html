@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script src="../assets/ckeditor/ckeditor.js"></script>
+<script src="../assets/ckeditor/samples/js/sample.js"></script>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 200px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+#autocomplete-list1 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 170px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list1 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list1 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+
+.money {
+	text-align: right;
+}
+.headLabel {
+	color: #647dfc;
+    font-weight: 600;
+    font-size: 20px;
+}
+</style>
+<script>
+
+//ADD MORE FUNCTION
+function addMore() {
+	var count =0;
+	$(".pipeSizeId").each(function(i){
+		var id = $(this).val();
+		var lastId = $("#myTable tbody tr:last").find(".pipeSizeId").val();
+		if(lastId == id){
+			count = count + 1;
+		}
+	})
+	if(count > 1) {
+		swal({
+			title	:	"Duplicate Pipe Size Selected",
+			type	:	"warning",
+		})
+		$("#myTable tbody tr:last").find(".gradeId").val("");
+		$("#myTable tbody tr:last").find(".grade").val("");
+		$("#myTable tbody tr:last").find(".thicknessId").val("");
+		$("#myTable tbody tr:last").find(".thickness").val("");
+		$("#myTable tbody tr:last").find(".pipeSizeId").val("");
+		$("#myTable tbody tr:last").find(".pipeSize").val("");
+		$("#myTable tbody tr:last").find(".slitWidth").val("");
+		$("#myTable tbody tr:last").find(".status").val("true");
+		$("#myTable tbody tr:last").find(".grade").attr('data-procat', "");
+		$("#myTable tbody tr:last").find(".thickness").attr('data-procat', "");
+		$("#myTable tbody tr:last").find(".pipeSize").attr('data-procat', "");
+	} else {
+		addMore1();
+	}
+}
+function addMore1(){
+	var gradeValid = true;
+	$(".gradeId").each(function(){
+		var current_id = $(this).attr("id");
+		if (!blankValidation(current_id,"TextField" ,"Please Enter Grade")){
+			gradeValid = false;
+			return false;
+		}
+		
+	});
+	
+	var thicknessValid = true;
+	if(gradeValid){
+		$('.thicknessId').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Thickness")){
+				thicknessValid = false;
+				return false;
+			}
+				  	
+		});
+	}
+	
+	var pipeSizeValid = true;
+	if(gradeValid && thicknessValid){
+		$('.pipeSizeId').each(function(){
+			if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Pipe Size")){
+				pipeSizeValid = false;
+				return false;
+			}
+				  	
+		});
+	}
+	
+	var slitValid = true;
+	if(gradeValid && thicknessValid && pipeSizeValid){
+		$('.slitWidth').each(function(){
+			if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Slit Width")){
+				slitValid = false;
+				return false;
+			}
+				  	
+		});
+	}
+	if(gradeValid && thicknessValid && pipeSizeValid && slitValid){ 
+		
+		var lengthOfTableRow = $("#tbodyData").children('tr').length;
+		var cloneHtml = $("#myTable tbody tr:first").clone();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+		
+		$("#myTable tbody tr td:last").html("");
+		var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+		
+		$("#myTable tbody tr:last").find('td:last').append(addMore);
+		$("#myTable tbody tr:last").find('td:last').append(removeMore);
+		
+		var editTr = 0;
+		
+		if(lengthOfTableRow>editTr){
+			$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+		}
+		
+		$("#myTable tbody tr:last").find(".gradeId").val("");
+		$("#myTable tbody tr:last").find(".grade").val("");
+		$("#myTable tbody tr:last").find(".thicknessId").val("");
+		$("#myTable tbody tr:last").find(".thickness").val("");
+		$("#myTable tbody tr:last").find(".pipeSizeId").val("");
+		$("#myTable tbody tr:last").find(".pipeSize").val("");
+		$("#myTable tbody tr:last").find(".slitWidth").val("");
+		$("#myTable tbody tr:last").find(".status").val("true");
+		
+		$("#myTable > tbody > tr").each(function(i){
+			
+			var textInput 	= $(this).find('input') ;
+			var selectInput = $(this).find('select');
+			var divInput = $(this).find('div');
+			
+			textInput.eq(0).attr('id',"inputGradeId_"+i);
+			textInput.eq(1).attr('id',"inputGrade_"+i);
+			textInput.eq(2).attr('id',"inputThicknessId_"+i);
+			textInput.eq(3).attr('id',"inputThickness_"+i);
+			textInput.eq(4).attr('id',"inputPipeSizeId_"+i);
+			textInput.eq(5).attr('id',"inputPipeSize_"+i);
+			selectInput.eq(0).attr('id',"selectSlitWidth_"+i);
+			selectInput.eq(1).attr('id',"selectStatus_"+i);
+			divInput.eq(0).attr('id', "divgrade_" + i);
+			divInput.eq(1).attr('id', "divthickness_" + i);
+			divInput.eq(2).attr('id', "divpipeSize_" + i);
+		})
+	}
+	
+}
+$(document).ready(function(){
+	$('#table').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'assign-slit-pipesize-view-through-ajax',
+			'data' : function(d) {
+
+				d.param1 = $('#param1').val();
+				d.param2 = $('#param2').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [ {
+			'data' : 'grade'
+		}, {
+			'data' : 'thickness'
+		}, {
+			'data' : 'pipeSize'
+		}, {
+			'data' : 'createdBy'
+		}, {
+			'data' : 'action'
+		} ]
+	});
+	
+	$('.tbll').on('click', '.rmv', function () {
+		$(this).closest('tr').remove();
+		$("#myTable tbody tr:last").find('td:last').html('');
+		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+		var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+		if($("#tbodyData").children('tr').length > 1){
+			$("#myTable tbody tr:last").find('td:last').append(add);
+			$("#myTable tbody tr:last").find('td:last').append(remove);
+		}else{
+			$("#myTable tbody tr:last").find('td:last').append(add);
+		}
+	});
+	
+	$("#submit").click(function(){
+		var dataset = [];
+		$("#tbodyData > tr").each(function(){
+			item = {};
+			
+			item['gradeId']			=	$(this).find(".gradeId").val();
+			item['thicknessId']		=	$(this).find(".thicknessId").val();
+			item['pipeSizeId']		=	$(this).find(".pipeSizeId").val();
+			item['slitWidth']		=	$(this).find(".slitWidth").val();
+			item['status']			=	$(this).find(".status").val();
+			
+			dataset.push(item);
+		});
+		console.log(dataset)
+		var gradeValid = true;
+		$(".gradeId").each(function(){
+			var current_id = $(this).attr("id");
+			if (!blankValidation(current_id,"TextField" ,"Please Enter Grade")){
+				gradeValid = false;
+				return false;
+			}
+			
+		});
+		
+		var thicknessValid = true;
+		if(gradeValid){
+			$('.thicknessId').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Thickness")){
+					thicknessValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		
+		var pipeSizeValid = true;
+		if(gradeValid && thicknessValid){
+			$('.pipeSizeId').each(function(){
+				if (!blankValidation($(this).attr('id'),"TextField" ,"Please Enter Pipe Size")){
+					pipeSizeValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		
+		var slitValid = true;
+		if(gradeValid && thicknessValid && pipeSizeValid){
+			$('.slitWidth').each(function(){
+				if (!blankValidation($(this).attr('id'),"SelectBox" ,"Please Select Slit Width")){
+					slitValid = false;
+					return false;
+				}
+					  	
+			});
+		}
+		
+		if(gradeValid && thicknessValid && pipeSizeValid && slitValid){ 
+			submitAssignment(dataset);
+		}
+	});
+})
+function submitAssignment(dataset) {
+	swal.fire({
+		title					: "Are you sure want to Submit?",
+		text					: "Once Submited,Can't revert back !",
+		type 					: "warning",
+		showCancelButton		: true,
+		confirmButtonColor		: "#DD6BB5",
+		confirmButtonText		: "Submit",
+		showLoaderOnConfirm		: true,
+		reverseButtons 			: true,
+		confirmButtonAriaLabel 	: 'Thumbs up, great!',
+		cancelButtonText 		: 'Cancel',
+		cancelButtonAriaLabel 	: 'Thumbs down',	
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "assign-slit-pipesize-save",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(dataset),
+				success		: function(response){
+					if(response.message=="Success"){
+						swal({
+							title:"Data Saved Successfully.",
+							type: "success",
+						}).then(function(){
+							window.location.href = "/production/assign-slit-pipesize" ;
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			}) //ajax ends
+		}
+	})
+}
+function searchData() {
+	$('#table').DataTable().draw();
+}
+function gardeAutoSearch(e) {
+	var id = e.currentTarget.id;
+	var grade = e.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+	if(grade) {
+		$.ajax({
+			type : "POST",
+			url : "assign-slit-pipesize-get-grade",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : grade,
+			success : function(response) {
+				if (response.message == "success") {
+					if(response.body.length!=0)	{
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						for (var i = 0; i < response.body.length; i++) {
+								content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\','+counter+')">'+response.body[i].name+' ('+ response.body[i].key+')'+'</li>';
+						} 
+						content += '</ul>';
+						$("#divgrade_"+counter).show();
+						$("#divgrade_"+counter).html(content);
+						
+					}
+					else {
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#divgrade_"+counter).show();
+						$("#divgrade_"+counter).html(content);
+					}
+				}
+			},
+			error : function(data) {
+				console.log(data);
+				$(id).css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#divgrade_"+counter).show();
+				$("#divgrade_"+counter).html(content);
+			}
+		})
+	} else {
+		$(id).css("background","#FFF");
+		var content = '<ul id="autocomplete-list">';
+		content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#divgrade_"+counter).show();
+		$("#divgrade_"+counter).html(content);
+	}
+}
+function selectAutocompleteValue(key,name,counter) {
+	if (key) {
+		$("#inputGradeId_"+counter).val(key);
+		$("#inputGrade_"+counter).val(name);
+		$("#inputGrade_"+counter).attr('data-procat', key);
+		$("#divgrade_"+counter).hide();
+		}
+	else {
+		$("#inputGradeId_"+counter).val("");
+		$("#inputGrade_"+counter).val("");
+		$("#inputGrade_"+counter).attr('data-procat', "");
+		$("#divgrade_"+counter).hide();
+	}
+}
+function thicknessAutoSearch(e) {
+	var id = e.currentTarget.id;
+	var value = e.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+	var category = $("#inputGradeId_"+counter).val();
+	if(category) {
+		if(value) {
+			obj = {};
+			obj['key']	= category;
+			obj['name']	= value;
+			$.ajax({
+				type : "POST",
+				url : "assign-slit-pipesize-get-thickness",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : JSON.stringify(obj),
+				success : function(response) {
+					if(response.body.length!=0)	{
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValueSubCat(\''+response.body[i].key+'\',\''+response.body[i].name+'\','+counter+')">'+response.body[i].name+' ('+ response.body[i].key+')'+'</li>';
+						} 
+						content += '</ul>';
+						$("#divthickness_"+counter).show();
+						$("#divthickness_"+counter).html(content);
+					} else {
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValueSubCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#divthickness_"+counter).show();
+						$("#divthickness_"+counter).html(content);
+					}
+				}, error : function(data) {
+					console.log(data)
+					$(id).css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValueSubCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#divthickness_"+counter).show();
+					$("#divthickness_"+counter).html(content);
+				}
+			});
+		} else {
+			$(id).css("background","#FFF");
+			var content = '<ul id="autocomplete-list">';
+			content += '<li onClick="selectAutocompleteValueSubCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+			content += '</ul>';
+			$("#divthickness_"+counter).show();
+			$("#divthickness_"+counter).html(content);
+		}
+	} else {
+		swal({
+			title	:	"Please Enter Grade",
+			type	:	'warning',
+		})
+		$("#"+id).val("");
+		$("#"+value).val("");
+		$("#divthickness_"+counter).hide();
+	}
+}
+function selectAutocompleteValueSubCat(key,name,counter) {
+	if (key) {
+ 		$("#inputThicknessId_"+counter).val(key);
+    	$("#inputThickness_"+counter).val(name);
+    	$("#inputThickness_"+counter).attr('data-procat', key);
+    	$("#divthickness_"+counter).hide();
+	} else {
+		$("#inputThicknessId_"+counter).val("");
+    	$("#inputThickness_"+counter).val("");
+    	$("#inputThickness_"+counter).attr('data-procat', "");
+    	$("#divthickness_"+counter).hide();
+	}
+}
+function pipeSizeAutoSearch(e) {
+	var id = e.currentTarget.id;
+	var value = e.currentTarget.value;
+	var l = id.split("_");
+	var counter = l[1];
+	var category = $("#inputThicknessId_"+counter).val();
+	if(category) {
+		if(value) {
+			obj = {};
+			obj['key']	= category;
+			obj['name']	= value;
+			$.ajax({
+				type : "POST",
+				url : "assign-slit-pipesize-get-pipeSize",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : JSON.stringify(obj),
+				success : function(response) {
+					if(response.body.length!=0)	{
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValueCat(\''+response.body[i].key+'\',\''+response.body[i].name+'\','+counter+')">'+response.body[i].name+' ('+ response.body[i].key+')'+'</li>';
+						} 
+						content += '</ul>';
+						$("#divpipeSize_"+counter).show();
+						$("#divpipeSize_"+counter).html(content);
+					} else {
+						$(id).css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValueCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#divpipeSize_"+counter).show();
+						$("#divpipeSize_"+counter).html(content);
+					}
+				}, error : function(data) {
+					console.log(data)
+					$(id).css("background","#FFF");
+					var content = '<ul id="autocomplete-list">';
+					content += '<li onClick="selectAutocompleteValueCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#divpipeSize_"+counter).show();
+					$("#divpipeSize_"+counter).html(content);
+				}
+			});
+		} else {
+			$(id).css("background","#FFF");
+			var content = '<ul id="autocomplete-list">';
+			content += '<li onClick="selectAutocompleteValueCat(\''+''+'\',\''+''+'\','+counter+')">'+"No Data Found"+'</li>';
+			content += '</ul>';
+			$("#divpipeSize_"+counter).show();
+			$("#divpipeSize_"+counter).html(content);
+		}
+	} else {
+		swal({
+			title	:	"Please Enter Thickess",
+			type	:	'warning',
+		})
+		$("#"+id).val("");
+		$("#"+value).val("");
+		$("#divpipeSize_"+counter).hide();
+	}
+}
+function selectAutocompleteValueCat(key,name,counter) {
+	if (key) {
+ 		$("#inputPipeSizeId_"+counter).val(key);
+    	$("#inputPipeSize_"+counter).val(name);
+    	$("#inputPipeSize_"+counter).attr('data-procat', key);
+    	$("#divpipeSize_"+counter).hide();
+	} else {
+		$("#inputPipeSizeId_"+counter).val("");
+    	$("#inputPipeSize_"+counter).val("");
+    	$("#inputPipeSize_"+counter).attr('data-procat', "");
+    	$("#divpipeSize_"+counter).hide();
+	}
+}
+function deleteAssignedDataId(grade,thickness,pipeSize,slitWidth){
+	obj = {};
+	obj['grade']		= 	grade;
+	obj['thickness']	= 	thickness;
+	obj['pipeSize']		= 	pipeSize;
+	obj['slitWidth']	= 	slitWidth;
+	console.log(obj)
+	swal.fire({
+		title	: "Are you sure want to Delete?",
+		text	: "Once Deleted,Can't revert back !",
+		type : "warning",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Delete",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type		: "POST",
+				url 		: "assign-slit-pipesize-delete",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(obj),
+				success		: function(response){
+					if(response.message=="success"){
+						swal({
+							title	: "Data Deleted Successfully.",
+							type	: "success",
+						}).then(function(){
+							location.reload(); 
+						})
+					} else {
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				}, error	: function(data){
+					console.log(data)	
+				}
+			}) 
+		}
+	})
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					<li class="active"><span>Manage Assignment Of Slit Width To Pipe Size</span></li>
+				</ol>
+			</div>
+			<!-- <div class="card-title">
+				<h4>Assign Slit Width To Pipe Size</h4>
+			</div> -->
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<input type="hidden" id="quotationId" th:value="${quotationId}">
+							<div class="row">
+								<span style="color: red;" id="errorMsg"></span>
+								<div th:if="${message != null}">
+									<span th:text="${message}" style="color: red;"></span>
+								</div>
+							</div>
+							<div class="search-field">
+								<div class="row">
+									<div class="col-lg-2">
+										<div class="form-group">
+											<label>Grade</label> <input type="text"
+												class="form-control" id="param1">
+										</div>
+									</div>
+									<div class="col-lg-2">
+										<div class="form-group">
+											<label>Thickness</label> <input type="text"
+												class="form-control" id="param2">
+										</div>
+									</div>
+									<div class="col-lg-2" style="margin-top: 26px;">
+										<div class="form-group">
+											<button class="btn btn-primary" onclick="searchData()">Search</button>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class=col-lg-12>
+									<label class="headLabel">View Assigned Slit Width To Pipe Size</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="table-responsive col-lg-12" style="width: 100%;">
+									<table id="table" class="table table-bordered">
+										<thead>
+											<tr>
+												<th>Grade</th>
+												<th>Thickness</th>
+												<th>Pipe Size</th>
+												<th>Slit Width</th>
+												<th align="center">Action</th>
+											</tr>
+										</thead>
+
+									</table>
+								</div>
+								<div style="clear: both;"></div>
+							</div>
+							<div class="row">
+								<div class=col-lg-12>
+									<label class="headLabel">Assign Slit Width To Pipe Size</label>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<!-- id="table-data" -->
+									<table class="tbll" id="myTable" width="100%" border="0"
+										cellspacing="1" cellpadding="5">
+										<thead>
+											<tr>
+												<th>Grade</th>
+												<th>Thickness</th>
+												<th>Pipe Size</th>
+												<th>Slit Width</th>
+												<th>Status</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody id="tbodyData">
+											<tr class="tr_clone" th:unless="${assigned}">
+												<td><input type="hidden" id="inputGradeId_0"
+													class="form-control gradeId" value=''> <input
+													type="text" id="inputGrade_0"
+													onkeyup="gardeAutoSearch(event);"
+													class="form-control grade" value=''>
+													<div id="divgrade_0"></div></td>
+												<td><input type="hidden" id="inputThicknessId_0"
+													class="form-control thicknessId" value=''> <input
+													type="text" id="inputThickness_0"
+													onkeyup="thicknessAutoSearch(event);"
+													class="form-control thickness" value=''>
+													<div id="divthickness_0"></div></td>
+												<td><input type="hidden" id="inputPipeSizeId_0"
+													class="form-control pipeSizeId" value=''> <input
+													type="text" id="inputPipeSize_0"
+													onkeyup="pipeSizeAutoSearch(event);"
+													class="form-control pipeSize" value=''>
+													<div id="divpipeSize_0"></div></td>
+												<td><select id="selectSlitWidth_0"
+													class="form-control slitWidth">
+														<option value="">--Select--</option>
+														<option th:each="c,iter:${slitWidthList}" th:value="${c.key}" th:text="${c.name}"></option>
+												</select></td>
+												<td><select id="selectStatus_0" class="form-control status">
+													<option value="true">Active</option>
+													<option value="flase">Inactive</option>
+													</select></td>
+												<td><button type="button"
+														class="btn btn-primary tr_clone_add" name="add"
+														onclick="addMore();">
+														<span class="ti-plus"></span>
+													</button>&nbsp;</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									<div class="form-group">
+										<button type="button" id="submit" class="btn btn-success">Submit</button>
+										<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+									</div>
+								</div>
+							</div>
+							<!-- </form> onclick="funcLoad();" -->
+						</div>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+
+		</div>
+	</div>
+</div>
+</html>

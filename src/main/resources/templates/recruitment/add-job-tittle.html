@@ -1,0 +1,358 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script src="../assets/js/dob-validation.js"></script>
+
+<script type="text/javascript">
+
+$(function () {
+	
+	CKEDITOR.replace( 'comment',{height: 220,
+		toolbar: [
+		{ name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
+		{ name: 'basicstyles', items: [ 'Bold', 'Italic','S' ] },
+		{ name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+		{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ],
+		items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] }
+		]
+		});
+	CKEDITOR.replace( 'resp',{height: 220,
+		toolbar: [
+		{ name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
+		{ name: 'basicstyles', items: [ 'Bold', 'Italic','S' ] },
+		{ name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+		{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ],
+		items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] }
+		]
+		});
+	CKEDITOR.replace( 'work',{height: 220,
+		toolbar: [
+		{ name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
+		{ name: 'basicstyles', items: [ 'Bold', 'Italic','S' ] },
+		{ name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+		{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ],
+		items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] }
+		]
+		});
+	CKEDITOR.replace( 'skil',{height: 220,
+		toolbar: [
+		{ name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
+		{ name: 'basicstyles', items: [ 'Bold', 'Italic','S' ] },
+		{ name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+		{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ],
+		items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] }
+		]
+		});
+	CKEDITOR.replace( 'edu',{height: 220,
+		toolbar: [
+		{ name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo' ] },
+		{ name: 'basicstyles', items: [ 'Bold', 'Italic','S' ] },
+		{ name: 'styles', items: [ 'Styles', 'Format', 'Font', 'FontSize' ] },
+		{ name: 'paragraph', groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ],
+		items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] }
+		]
+		});
+	
+	
+	})
+	
+$(document).ready(function() {
+	$("#p").click(function(){
+		$("#editor").toggle();
+	});
+	$("#pj").click(function(){
+		$("#editor1").toggle();
+	});
+	$("#wh").click(function(){
+		$("#editor2").toggle();
+	});
+	$("#sq").click(function(){
+		$("#editor3").toggle();
+	});
+	$("#ee").click(function(){
+		$("#editor4").toggle();
+	});
+	$("#btnCancel").click(function(){
+		
+		window.location.href = "/recruitment/view-job-tittle" ;
+	});
+});
+ 
+  function send(){ 
+ 		        obj={};
+ 				obj['jobId']=$('#jobTittleId').val();
+ 				obj['department'] = $('#dept').find(":selected").val();
+ 				obj['intPragraph']	= 	CKEDITOR.instances.comment.getData();
+ 				obj['responsibility']	= 	CKEDITOR.instances.resp.getData();
+ 				obj['jobType'] = $('#jobType').find(":selected").val();
+ 				obj['workHourBenifit']	= 	CKEDITOR.instances.work.getData();
+ 				obj['skill']	= 	CKEDITOR.instances.skil.getData();
+ 				obj['education']	= 	CKEDITOR.instances.edu.getData();
+ 				obj['jObtitle'] = document.getElementById("jobTit").value;
+
+ 		 swal.fire({
+			title				: "Are you sure! You want to Submit?",
+			text				: "Once Submited,Can't revert back !",
+			type 				: "warning",
+			
+			showCancelButton: true,
+	        confirmButtonColor: '#ef5920',
+	        cancelButtonColor: '#e7b63a',
+	        confirmButtonText: 'Submit',
+	        showLoaderOnConfirm: true,
+	        //closeOnConfirm: false,
+	        reverseButtons: true,
+			preConfirm: () => {
+	            return new Promise((resolve) => {
+	                setTimeout(() => {
+	                    console.log("Doing async operation");
+	                    resolve()
+	                }, 2000)
+	            })
+	        }
+		}).then((result) => {
+			if(result.value){
+				$.ajax({
+					type		: "POST",
+					url 		: "add-jobtitle-through-ajax",
+					dataType	: "json",
+					contentType	: "application/json",
+					data		: JSON.stringify(obj),
+					success		: function(response){
+						console.log(response);
+						if(response.message=="Success"){
+							swal({
+									title:"Data Saved Successfully.",
+									type: "success",
+							}).then(function(){
+									window.location.href = "/recruitment/view-job-tittle" ;
+							})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}
+					},error		: function(data){
+						console.log(data);
+						
+					}
+				}) //ajax ends
+		}
+		}) //swal function block ends
+
+
+
+ 		
+ 	}
+
+
+/* 	function validateForm() {
+
+		if (!blankValidation("policyName", "TextField",
+				"Policy Name can not be left blank"))
+			return false;
+		if (!blankValidation("reimType", "TextField",
+				"Reimbursement Type can not be left blank"))
+			return false;
+		if (!blankValidation("timePeriod", "TextField",
+				"Time Period  can not be left blank"))
+			return false;
+		if (!blankValidation("userRole", "TextField",
+				"Job Title can not be left blank"))
+			return false;
+		if (!blankValidation("desc", "TextField",
+				"Description can not be left blank"))
+			return false;
+		if (!blankValidation("status", "TextField",
+				"Status can not be left blank"))
+			return false;
+
+	} */
+</script>
+<style>
+.icon-p {
+	float: right;
+	padding-top: 8px;
+	font-size: 17px;
+	color: #2c61e6;
+}
+
+.bg-color {
+	background-color: #f1f1f1;
+	border-radius: 4px;
+}
+
+.pdt-4 {
+	padding-top: 4px;
+}
+
+.align-center {
+	text-align: center;
+}
+</style>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<!--Alert Box-->
+		<div class="alert alert-danger alert-dismissible"
+			th:if="${message != null}">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<span th:text="${message}"></span>
+		</div>
+		<!--Alert Box-->
+		<div class="col-md-12">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>Add Job Title</span></li>
+
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>Add Job Title</h4>
+			<div class="topbtnright" align="right">
+				<div class="form-group">
+					<button type="button" id="submit" class="btn btn-success"
+						onclick="send();">Submit</button>
+					<button type="button" class="btn btn-warning" id="btnCancel">Cancel</button>
+
+				</div>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div class="card">
+
+				<div class="card-body">
+					<div class="basic-elements">
+
+						<input type="hidden" id="jobTittleId" th:value="${jobId}">
+
+						<div class="col-lg-12">
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Job Title</label> <input name="searchTxt"
+											th:if="${jobId}" type="text" class="form-control" id="jobTit"
+											th:value="${jobForm.jObtitle}"> <input
+											name="searchTxt" type="text" class="form-control" id="jobTit"
+											th:unless="${jobId}">
+									</div>
+
+
+									<div class="form-group">
+										<label>Department</label> <select id="dept"
+											class="form-control">
+											<option value="">--Select--</option>
+											<option th:if="${jobId}"
+												th:each="c,iter:${jobDepartmentList}" th:value="${c.key}"
+												th:selected="${c.key==jobForm.department}"
+												th:text="${c.name}"></option>
+
+											<option th:unless="${jobId}"
+												th:each="c,iter:${jobDepartmentList}" th:value="${c.key}"
+												th:text="${c.name}"></option>
+										</select>
+
+									</div>
+
+									<div class="form-group bg-color">
+										<div class="col-lg-12" id="p">
+											<label class="pdt-4">Introduction Paragraph</label> <i
+												class="fa fa-expand icon-p"></i> <span
+												style="display: none;" id="editor"> <textarea
+													th:if="${jobId}" class="form-control textarea" id="comment"
+													name="comment" th:utext="${jobForm.intPragraph}"></textarea>
+												<textarea th:unless="${jobId}" class="form-control textarea"
+													id="comment" name="comment"></textarea></span>
+										</div>
+									</div>
+									<div class="form-group bg-color">
+										<div class="col-lg-12" id="pj">
+											<label class="pdt-4">Job Responsibility</label> <i
+												class="fa fa-expand icon-p"></i> <span
+												style="display: none;" id="editor1"><textarea
+													th:if="${jobId}" th:utext="${jobForm.responsibility}"
+													class="form-control textarea" id="resp" name="resp"></textarea>
+												<textarea th:unless="${jobId}" class="form-control textarea"
+													id="resp" name="resp"></textarea></span>
+										</div>
+
+									</div>
+								</div>
+								<div class="col-lg-6">
+
+									<div class="form-group">
+										<label>Job Type</label> <select id="jobType"
+											class="form-control">
+											<option value="">--Select--</option>
+											<option th:if="${jobId}" th:each="c,iter:${jobTypeList}"
+												th:value="${c.key }" th:selected="${c.key==jobForm.jobType}"
+												th:text="${c.name}"></option>
+											<option th:unless="${jobId}" th:each="c,iter:${jobTypeList}"
+												th:value="${c.key}" th:text="${c.name}"></option>
+										</select>
+
+									</div>
+
+
+
+									<div class="form-group bg-color">
+										<div class="col-lg-12" id="wh">
+											<label class="pdt-4">Work Hour/Benefit</label> <i
+												class="fa fa-expand icon-p"></i> <span
+												style="display: none;" id="editor2"> <textarea
+													class="form-control textarea" id="work" name="work"
+													th:if="${jobId}" th:utext="${jobForm.workHourBenifit}"></textarea>
+												<textarea class="form-control textarea" id="work"
+													name="work" th:unless="${jobId}"></textarea></span>
+										</div>
+									</div>
+
+
+									<div class="form-group bg-color">
+										<div class="col-lg-12" id="sq">
+											<label class="pdt-4">Skill And Qualification</label> <i
+												class="fa fa-expand icon-p"></i> <span
+												style="display: none;" id="editor3"> <textarea
+													th:if="${jobId}" th:utext="${jobForm.skill}"
+													class="form-control textarea" id="skil" name="skil"></textarea>
+												<textarea th:unless="${jobId}" class="form-control textarea"
+													id="skil" name="skil"></textarea></span>
+										</div>
+									</div>
+									<div class="form-group bg-color">
+										<div class="col-lg-12" id="ee">
+											<label class="pdt-4">Education and Experience </label> <i
+												class="fa fa-expand icon-p"></i> <span
+												style="display: none;" id="editor4"> <textarea
+													th:if="${jobId}" th:utext="${jobForm.education}"
+													class="form-control textarea" id="edu" name="edu"></textarea>
+												<textarea th:unless="${jobId}" class="form-control textarea"
+													id="edu" name="edu"></textarea></span>
+										</div>
+									</div>
+									<div style="clear: both;"></div>
+
+								</div>
+
+							</div>
+							<div class="row">
+								<div class="col-md-12"></div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<div style="clear: both;"></div>
+		</div>
+	</div>
+</div>
+
+</html>

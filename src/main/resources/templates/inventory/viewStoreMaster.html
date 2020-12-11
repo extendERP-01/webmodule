@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script type="text/javascript">
+	//Method for listing of all the Item Category Records
+	$(document).ready(function() {
+		/* $('#listAllItem').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-store-master-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'store'
+			},{
+				'data' : 'storeName'
+			},{
+				'data' : 'storeLocation'
+			},
+			{
+				'data' : 'costCenterName'
+			},
+			{
+				'data' : 'status'
+			}, {
+				'data' : 'action'
+			}
+
+			]
+		}); */
+	});
+
+	//Method For Searching Records In The List
+
+	function searchData() {
+		$('#listAllItem').DataTable().draw();
+
+	}
+
+	 // Method For View Details In Model
+
+	function viewInModelData(index) {
+		$('#listOneItem').empty();
+		var id = window.atob(index);
+		$.ajax({
+			type : "POST",
+			url : "view-store-master-model",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					var storeActive = "";
+					/* if (response.body.storeActive) {
+						storeActive = "Active";
+					} else {
+						storeActive = "InActive";
+					} */
+
+					 table = '<tr><td>Store Id :</td>'+'<td>'
+					  	+'STR001'+'</td>'+'</tr><tr><td>Store Name:</td>'+'<td>'
+					    +'Store One'+'</td>'+'</tr><tr><td>Store Status:</td>'+'<td>'
+						+'Active'+'</td></tr>';
+/* 					 table = '<tr><td>Store Id :</td>'+'<td>'
+					  	+response.body.store+'</td>'+'</tr><tr><td>Store Name:</td>'+'<td>'
+					    +response.body.storeName+'</td>'+'</tr><tr><td>Store Location:</td>'+'<td>'
+						+response.body.storeLocation+'</td></tr><tr><td> Cost Center Name :</td>'+'<td>'
+						+response.body.costCenterName+'</td></tr><tr><td>Description:</td>'+'<td>'
+						+response.body.storeDescription+'</td></tr><tr><tr><td>Store Status:</td>'+'<td>'
+						+storeActive+'</td></tr>'; */
+					$('#myModal').modal('show');
+					$('#listOneItem').append(table);
+				}
+			},
+			error : function(data) {
+			}
+		})
+
+	}
+
+	//Deleting the Store
+	function deleteStore(id){
+		swal.fire({
+			  title: "Are you sure want to Delete?",
+			  text: "Once Deleted,Can't revert back !",
+			  type: "warning",
+			  showCancelButton: true,
+			  confirmButtonColor: '#d33',
+			  cancelButtonColor: '#e7b63a',
+			  confirmButtonText: 'Delete',
+			  //closeOnConfirm: false,
+			  reverseButtons : true
+			  
+			}).then((result) => {
+				if(result.value){
+				 $.ajax({
+					    type: "GET",
+					    url:"/inventory/delete-store-master?id="+ id,
+					    success: function(response) {
+					        if (response.message == "success") {
+					        	swal({
+					        		title: "Record Deleted Successfully.",
+					        		type: "success"
+					        	}).then(function(){
+					        		 location.reload();
+					        	})
+					        
+					        	
+					        } else {
+					            swal({
+					                title: 'Unsuccess',
+					                text: response.code
+					            })
+					        }
+					    },
+					    error: function(data) {
+				       
+					    }
+					})
+				}
+			  
+			});
+		
+
+	}
+	 
+
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="add-store-master">Add Store Master</a></li>
+					<li class="active"><span>View Store Master</span></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+				
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-store-master">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Store Name</label>
+								
+									<input class="form-control" type="text" placeholder="" name=""
+										id="param1">
+								</div>
+								<div class="col-md-2">
+									<label>Cost Center Name</label>
+								
+									<input class="form-control" type="text" placeholder="" name=""
+										id="param2">
+								</div>
+								<div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<button class="btn btn-info" onclick="searchData()">Search</button>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table class="table table-bordered" id="listAllItem">
+								<thead>
+									<tr>
+										<th>Store Id</th>
+										<th>Store Name</th>
+										<!-- <th>Store Location</th>
+										<th>Cost Center</th> -->
+										<th>Store Status</th>
+										<th>Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>STR001</td>
+										<td>Store One</td>
+										<td>Active</td>
+										<td><a data-toggle="modal" title="View" data-target="#myModal" href="javascript:void(0)" onclick="viewInModelData('STR001')"><i class="fa fa-search search"></i></a></td>
+									</tr>
+									<tr>
+										<td>STR002</td>
+										<td>Store Two</td>
+										<td>Active</td>
+										<td><a data-toggle="modal" title="View" data-target="#myModal" href="javascript:void(0)" onclick="viewInModelData('STR002')"><i class="fa fa-search search"></i></a></td>
+									</tr>
+									<tr>
+										<td>STR003</td>
+										<td>Store Three</td>
+										<td>Active</td>
+										<td><a data-toggle="modal" title="View" data-target="#myModal" href="javascript:void(0)" onclick="viewInModelData('STR003')"><i class="fa fa-search search"></i></a></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+					</div>
+					</div>
+					<!-- Modal Start-->
+					<div id="myModal" class="modal fade" role="dialog">
+						<div class="modal-dialog">
+
+							<!-- Modal content-->
+							<div class="modal-content">
+								<div class="modal-header">
+									<h4 class="modal-title">View Details of Store</h4>
+									<button type="button" class="close" data-dismiss="modal">
+										<i class="fa fa-close fa-2x"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<table width="100%" border="0" id="listOneItem">
+										
+										<tbody id="tModelBody"></tbody>
+									</table>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default"
+										data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Modal End-->
+					<!-- /# row -->
+				</div>
+			</div>
+</html>

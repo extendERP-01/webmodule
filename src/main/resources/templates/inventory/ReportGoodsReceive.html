@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script type="text/javascript">
+	
+	$(function() {
+		
+		//date picker
+		 $("#param3").datetimepicker({
+					format:'d-m-Y',
+					closeOnDateSelect: true,
+					//minDate: new Date() ,
+					timepicker : false,
+		})  
+		 
+		//date picker
+		 $("#param4").datetimepicker({
+					format:'d-m-Y',
+					closeOnDateSelect: true,
+					//minDate: new Date() ,
+					timepicker : false,
+		})  
+		 });
+	
+	$(document).ready(function() {
+		$('#table').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-goods-receive-note-throughAjax',
+				'data' : function(d) {
+
+					d.param1 = $('#param1').val();
+					d.param2 = $('#param2').val();
+					d.param3 = $('#param3').val();
+					d.param4 = $('#param4').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [
+				  {'data' :'gRNInvoiceId'},
+				  {'data' :'gRNPurchaseOrderId'},
+				  {'data' :'gRnInvoiceNumber'},
+				  {'data' :'status'},
+				  {'data' :'action'}
+			  ]
+		});
+	});
+
+	function searchData() {
+		 $('#listAllGoodsReceive').DataTable().draw();
+	 }
+	function pdfCreation() 
+	{
+		//alert("In function call");
+		window.open("/inventory/view-goods-receive-note-download-report?param1="+window.btoa($('#param1').val())+"&param2="+window.btoa($('#param2').val())+"&param3="+window.btoa($('#param3').val())+"&param4="+window.btoa($('#param4').val()),'_blank');
+	}
+	//method to validate the page
+	
+	 function validate(){
+			var param1 = $('#param1').val();
+			var param2 = $('#param2').val();
+		    var param3 = $('#param3').val();
+		    var param4 =$('#param4').val();
+			if( ($('#param1').val()=="")&&($('#param2').val()=="")&&($('#param3').val()=="")&&($('#param4').val()==""))
+			{
+			swal({
+			title : "Select Any One from search Feild.."
+			})
+			}
+			else if(param3>param4){
+				swal({
+					title : "From Date Must be less Than from Todate.."
+					})
+			}
+			else{
+				pdfCreation();
+			}
+
+			}
+	//method to reload the page
+	function funcLoad() {
+		location.reload();
+	}
+	//method for autocomplete of purchase order
+	
+	 function pOrderNumberAutoSuggestions() {
+			$.ajax({
+				type : "POST",
+				url : "add-good-receive-note-getpurchase-number-autosuggest",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#param1").val(),
+				success : function(response) {
+					if (response.message == "success") {
+					if(response.body.length!=0)	{
+						$("#param1").css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+						} 
+						content += '</ul>';
+						$("#suggesstion-box1").show();
+						$("#suggesstion-box1").html(content);
+						
+					}
+					else {
+						$("#param1").css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#suggesstion-box1").show();
+						$("#suggesstion-box1").html(content);
+					}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+		}
+		function selectAutocompleteValue(key,name) {
+			if (key) {
+				$("#param1").val(key);
+				$("#param1").attr('data-procat', key);
+				$("#suggesstion-box1").hide();
+				}
+			else {
+				$("#param1").val("");
+				$("#param1").attr('data-procat', "");
+				$("#suggesstion-box1").hide();
+			}
+		}
+		
+		function invoiceNumberAutoSuggestions() {
+			$.ajax({
+				type : "POST",
+				url : "add-good-receive-note-getinvoice-number-autosuggest",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#param2").val(),
+				success : function(response) {
+					if (response.message == "success") {
+					if(response.body.length!=0)	{
+						$("#param2").css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValues(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+						} 
+						content += '</ul>';
+						$("#suggesstion-box2").show();
+						$("#suggesstion-box2").html(content);
+						
+					}
+					else {
+						$("#param1").css("background","#FFF");
+						var content = '<ul id="autocomplete-list">';
+						content += '<li onClick="selectAutocompleteValues(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#suggesstion-box2").show();
+						$("#suggesstion-box2").html(content);
+					}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+		}
+		function selectAutocompleteValues(key,name) {
+			if (key) {
+				$("#param2").val(key);
+				$("#param2").attr('data-procat', key);
+				$("#suggesstion-box2").hide();
+				}
+			else {
+				$("#param2").val("");
+				$("#param2").attr('data-procat', "");
+				$("#suggesstion-box2").hide();
+			}
+		}
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+
+				<div class="card-title">
+					<h4>Goods Receipt Report</h4>
+				</div>
+				<div class="container-fluid">
+
+
+					<div class="card">
+
+						<div class="card-body">
+							<div class="basic-elements">
+
+								<div class="row">
+									<div th:if="${message != null}">
+										<span th:text="${message}" style="color: red;"></span>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-lg-6">
+
+										<div class="form-group">
+											<label>Purchase Order Number</label> 
+											<!-- <select class="form-control" id="param1">
+												<option th:value="null">Select</option>
+												<option th:each="c:${propertyNameList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+									<option th:each="c:${purchase}" th:value='${c.key}'
+													th:text="${c.key}"></option>
+											</select> -->
+											<input type="text"
+											class="form-control" id="param1"
+											onkeyup="pOrderNumberAutoSuggestions();" />
+										<div id="suggesstion-box1"></div>
+										</div>
+										<div class="form-group">
+											<label>Invoice Number</label> 
+											<!-- <select class="form-control" id="param2">
+												<option th:value="null">Select</option>
+												<option th:each="c:${userNameList}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											<option th:each="c:${invoice}" th:value='${c.key}'
+													th:text="${c.key}"></option>
+											</select> -->
+											<input type="text"
+											class="form-control" id="param2"
+											onkeyup="invoiceNumberAutoSuggestions();" />
+										<div id="suggesstion-box2"></div>
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Booking FromDate</label> 
+											<input type="text"
+												class="form-control" id="param3" placeholder="Booking From Date" readonly>
+										</div>
+										<div class="form-group">
+											<label>Booking ToDate</label> 
+											<input type="text"
+												class="form-control" id="param4"  placeholder="Booking To Date" readonly>
+										</div>
+									</div>
+
+								</div>
+								<div class="form-group">
+									<button class="btn btn-primary" onclick="funcLoad();">
+										Reset</button>
+									<button type="button" class="btn btn-primary"
+										onclick="validate();">Print Preview</button>
+									<button type="button" class="btn btn-primary"
+										onclick="validate();">Print</button>
+									<!-- <input name="" type="reset" class="btn warning" value="Cancel"> -->
+								</div>
+							</div>
+
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+
+
+
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+
+</div>
+</div>
+</html>

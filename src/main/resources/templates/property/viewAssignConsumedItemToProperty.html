@@ -1,0 +1,318 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+function viewInModel(id) {
+	$('#table1').empty();
+	var data = id.split(",");
+	console.log(data[1])
+	obj = {};
+	obj.propertyNameId = data[0];
+	obj.itemNameId = data[1];
+	console.log(obj);
+	$.ajax({
+				type : "POST",
+				url : "view-assign-consumed-modal-view",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : JSON.stringify(obj),
+				success : function(response) {
+					if (response.message == "success") {
+
+						console.log(response.body.assignActive);
+						var assignActive = "";
+						if(response.body.assignActive)
+						{
+							assignActive= "Active";
+						}
+						else
+						{
+							assignActive="InActive";
+						}
+						table = '<tr><td>property Name :</td>'
+								+ '<td align="left">'
+								+ response.body.propertyName
+								+ '</td>'
+								+ '</tr><tr><td>ItemName:</td><td align="left">'
+								+ response.body.itemName
+								+ '</tr><tr><td>AssignQuantity:</td><td align="left">'
+								+ response.body.assignQuantity
+								+ '</td></tr><tr><td>Status</td><td align="left">'
+								+ assignActive + '</td></tr>';
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+}
+ 
+ $(document).ready(function() {      	 
+	  $('#listAllItemsConsumed').DataTable({
+		  'processing'  : true,
+		  'serverSide'  : true,
+		  'searching'   : false,
+		  'ordering'    : false,
+		  "ajax"  : {
+		  'url': 'view-assign-consumed-throughAjax',
+		  'data': function(d) {
+		   d.param1 = $('#param1').val();
+		   d.param2 = $('#param2').val();
+		   d.param3 = $('#param3').val();
+		   d.param4 = $('#param4').val();
+			       }
+		  },
+		  'dataSrc' :"",
+		  'columns' : [
+			  {'data' :'propertyName'},
+			  {'data' :'itemName'},
+			  {'data' :'assignQuantity'},
+			  {'data' :'createdOn'},
+			  /*{'data' :'status'},*/
+			  {'data' :'action'}
+		  ]
+	  });
+	});
+	         
+	
+	function DeleteItem(id){
+		//var index = window.atob(id);
+		var data = id.split(",");
+			swal.fire({
+			title	: "Are you sure want to Delete?",
+			text	: "Once Deleted,Can't revert back !",
+			type : "warning",
+	
+			showCancelButton	: true,
+			confirmButtonColor	: "RED",
+			confirmButtonText	:"Delete",
+			showLoaderOnConfirm	: true,
+			reverseButtons : true,
+		}).then((result) => {
+		if(result.value)
+		{
+			//alert(result.value)
+			$.ajax({
+				
+				type	: "GET",
+			    url: "/property/delete-assign-consumeditem?id=" + data[0] +"&ac="+data[1],
+
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: JSON.stringify(id),
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+						
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+					}).then(function(){
+						location.reload(); 
+					})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+			},error	: function(response){
+				swal(response.code);	
+			}
+		}) //ajax ends
+	  }
+	 });//swal function block ends
+	}
+	
+	function pdfCreation() 
+	{
+		
+		window.open("/download/assigned-consumed-item-pdf?param1="+window.btoa($('#param1').val())+"&param2="+window.btoa($('#param2').val())+"&param3="+window.btoa($('#param3').val())+"&param4="+window.btoa($('#param4').val()),'_blank');
+		
+		
+	}
+	
+	
+	
+	 function searchData() {
+		 $('#listAllItemsConsumed').DataTable().draw();
+	 }
+	 
+	 $(document).ready(function() {
+		 $("#param3").datepicker({
+		 format : 'dd-mm-yyyy',
+		 autoclose : true
+		 })
+		 
+		 $("#param4").datepicker({
+		 format : 'dd-mm-yyyy',
+		 autoclose : true
+		 })
+
+		 });
+	 
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a href="add-assign-consumed">Add Assigned Asset to
+							property</a></li>
+					<li class="active"><span>View Assigned Asset to
+							property </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>List Assigned Asset to Property</h4>
+			</div>
+			<div class="container-fluid">
+
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+
+					<li></li>
+				</ul>
+				<div class="card">
+					<!-- <div align="right">
+						<a href="javascript:pdfCreation()" target='blank'
+							data-toggle='tooltip' title='PdfView' data-placement='bootom'
+							data-orginal-title='Download'> <i class='fa fa-download'
+							style='font-size: 40px;'></i></a>
+					</div> -->
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-assign-consumed">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<a href="javascript:pdfCreation()" class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</a>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+										<div class="col-md-2">
+											<label>Property Name</label>
+										
+											<select class="form-control" id="param1">
+												<option value=>Select</option>
+												<option th:each="c:${propertyName}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+										<div class="col-md-2">
+											<label>Item Name</label>
+										
+											<select class="form-control" id="param2">
+												<option value=>Select</option>
+												<option th:each="c:${itemName}" th:value='${c.key}'
+													th:text="${c.name}"></option>
+											</select>
+										</div>
+
+										<div class="col-md-2">
+											<label>Booking From Date</label>
+										
+											<input id="param3" class="form-control" type="text"
+												placeholder="" name="">
+										</div>
+									
+										<div class="col-md-2">
+											<label>Booking To Date</label>
+										
+											<input id="param4" class="form-control" type="text"
+												placeholder="" name="">
+										</div>
+									
+
+
+								<div class="col-md-2 mrt_10">
+									<div class="form-group filtersearch">
+										<input type="button" class="btn btn-info" value="Search"
+											onclick="searchData()" />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table id="listAllItemsConsumed" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Property Name</th>
+										<th>ItemName</th>
+										<th>Quantity</th>
+										<!-- <th>Status</th> -->
+										<th>Assign Date</th>
+										<th align="center">Action</th>
+									</tr>
+								</thead>
+								<tbody>
+
+								</tbody>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">ViewDetails of Property</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+							<tbody>
+								<tr class="propertyName">
+									<td><b>PropertyName:</b></td>
+								</tr>
+								<tr class="itemName">
+									<td><b>ItemName :</b></td>
+								</tr>
+								<tr class="assignQuantity">
+									<td><b>AssignQuantity :</b></td>
+								</tr>
+								<tr class="status">
+									<td><b>status :</b></td>
+								</tr>
+
+							</tbody>
+						</table>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+
+	</div>
+</div>
+</html>

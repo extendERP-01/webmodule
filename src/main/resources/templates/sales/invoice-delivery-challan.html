@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<title>Generate Invoice</title>
+<link href="https://fonts.googleapis.com/css?family=Montserrat"
+	rel="stylesheet" />
+<style type="text/css">
+.logotext {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+}
+
+.heading {
+	font-size: 20px;
+	color: #2952a4;
+	padding: 5px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.slogan {
+	font-size: 14px;
+	color: #f26304;
+	padding: 5px;
+}
+
+.containersec {
+	width: 100%;
+	margin: 0 auto;
+}
+
+.address {
+	font-size: 14px;
+	text-align: left;
+	padding-right: 0px;
+	line-height: 16px;
+}
+
+div {
+	padding: 4px 0px;
+}
+
+.maintbl tr td {
+	border-collapse: collapse;
+	padding: 12px 5px;
+}
+
+.tableheader {
+	padding: 5px;
+	background: #95BFE3;
+}
+
+.resturantname {
+	font-size: 16px;
+	font-weight: bold;
+	color: #2d1ea5;
+}
+
+.total {
+	background: #f9965a;
+	color: #FFF;
+	padding: 8px 5px;
+	text-align: left;
+	font-weight: bold;
+}
+
+.description {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair {
+	padding: 20px 0px;
+	line-height: 20px;
+}
+
+.declair span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+}
+
+.points {
+	padding: 20px 0px;
+	line-height: 26px;
+}
+
+.points span {
+	background: #b3caf7;
+	text-transform: uppercase;
+	color: #000;
+	padding: 5px 10px;
+	border-radius: 12px;
+	margin: 3px;
+}
+
+.bill {
+	color: #000;
+	text-align: center;
+	font-size: 18px;
+	font-weight: bold;
+	 
+}
+
+.strip2 {
+	margin-top: 60px;
+	width: 800px;
+	height: 20px;
+	padding: 2px;
+	text-align: center;
+	background-color: #d0e6f8;
+	margin-bottom: 12px;
+}
+
+.lefttag {
+	width: 40px;
+	float: left;
+}
+
+.note {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+
+.clearfix {
+	clear: both;
+}
+
+.textarea {
+	font-size: 12px;
+	color: #333;
+	height: 80px;
+	width: 300px;
+	border: 1px solid #333;
+}
+</style>
+<script>
+function myFunction() {
+    var subtotalamount = $('#subtotalamount').val();
+    subtotalamount = subtotalamount.replace(/\,/g, '');
+    //var pumpPrice = $('#pumpPrice').val();
+    //pumpPrice=pumpPrice.replace(/\,/g,''); 
+    var pumpPrice = 0;
+    alert(subtotalamount)
+    var discount = $('#discount').val();
+    if (discount == null || discount == "") {
+        discount = 0;
+    }
+    if (pumpPrice == null || pumpPrice == "") {
+        pumpPrice = 0;
+    }
+
+    if (discount > parseInt(subtotalamount)) {
+        $('#discount').val("");
+        swal({
+            title: "Discount Amount Can't Be Greater Than Sub Total Amount.",
+            type: "warning",
+        })
+    }
+    var totalamountpay = parseInt(subtotalamount) + 0 - discount;
+    if (totalamountpay >= 0) {
+        $('#grandtamt').val(totalamountpay);
+    } else {
+        $('#grandtamt').val("");
+    }
+
+    var totalamountpay = parseInt(subtotalamount) + 0 - discount;
+    alert(totalamountpay)
+    var IGST = $('#taxRate').val();
+    alert(IGST)
+    var newValue = ((totalamountpay * IGST) / 100);
+    var value = newValue / 2;
+
+    $('#igst').val(newValue);
+    $('#cgst').val(value);
+    $('#sgst').val(value);
+    if (totalamountpay >= 0) {
+        var newAmnt = totalamountpay + newValue;
+        $('#grandtamt').val(newAmnt).toFixed(2);
+    } else {
+        $('#grandtamt').val("");
+    }
+
+}
+
+function checkNumber() {
+    if (isNaN($("#discount").val())) {
+        swal({
+            title: "Please Enter Numbers Only",
+            type: "warning",
+        })
+        return false;
+    }
+}
+
+function ShowHideTrS() {
+    $('#IgstTR').hide();
+    $('#CgstTR').show();
+    $('#SgstTR').show();
+}
+
+function ShowHideTrC() {
+    $('#IgstTR').show();
+    $('#CgstTR').hide();
+    $('#SgstTR').hide();
+}
+
+$(function() {
+    $('#IgstTR').hide();
+    $("#submit_discount").click(function() {
+
+        var encodeId = $('#transactionId').val();
+
+        var discount = $('#discount').val();
+        var grandtamt = $('#grandtamt').val();
+        var taxRate = $('#taxRate').val();
+        var taxType = $("input[name='tax']:checked").val();
+
+        swal({
+            title: "Are you sure want to Add Discount?",
+
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6BB5",
+            confirmButtonText: "ADD",
+            showLoaderOnConfirm: false,
+            reverseButtons: true,
+
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    type: "GET",
+                    url: "/sales/list-deliveryChalan-update-invoice-data?id=" + encodeId + "&discount=" + discount + "&taxType=" + taxType + "&taxRate=" + taxRate,
+                    success: function(response) {
+
+                        if (response.message == "success") {
+
+                            swal({
+                                title: "Discount Added Successfully.",
+                                type: "success",
+                            }).then(function() {
+
+                                window.location.href = '/sales/list-deliveryChalan-generate-preview?id=' + window.btoa(encodeId);
+                            })
+                        } else {
+                            swal({
+                                title: response.code,
+                                text: response.message,
+                                type: "warning"
+                            })
+                        }
+                    },
+                    error: function(data) {}
+                })
+            }
+        })
+    });
+});
+
+$(document).ready(myFunction);
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+			<div class="content-wrap">
+				<div class="main mrt_20">
+					<div class="col-md-12">
+						<ol class="breadcrumb breadcrumb-arrow">
+							<li><a href="index.html">Home</a></li>
+							<li><a href="view-gym-transaction">Generate Invoice
+									Delivery Challan</a></li>
+
+						</ol>
+					</div>
+					<div class="card-title">
+						<h4>Generate Invoice Delivery Challan</h4>
+					</div>
+					<div class="container-fluid">
+						<div class="card">
+							<div class="card-body">
+								<form th:object="${gymTransactionModel}">
+									<div class="containersec">
+										<table width="100%" height="100%">
+											<!-- <span th:text="${encodeId}"></span> -->
+											<tr>
+												<td><input type="hidden" id="transactionId"
+													th:value="${deliveryChallanInvoiceModel[0].challanNo}" />
+													<input type="text" id="taxRate"
+													th:value="${deliveryChallanInvoiceModel[0].taxRate}" /></td>
+											</tr>
+
+											 
+											<tr bgcolor="">
+												<td  ><img src="../assets/images/logo.png" width="150" height="150" /></td>
+                                                 <td><div class="bill">Delivery Challan Invoice</div></td>
+												<!-- 	<td align="left" class="address" width="380">
+													<div class="resturantname"
+														th:text="${gymTransactionModel[0].gymName}"></div> <div
+													th:text="${gymTransactionModel.invoice}"></div>
+	
+													<div class="lefttag">Date :</div>
+													<div th:text="${gymTransactionModel[0].transactionDate}"></div>
+												</td> -->
+											</tr>
+
+											<tr>
+												<td colspan="2" bgcolor="#cedefd"></td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<table width="700" class="innertable">
+														<tr>
+															<td>
+
+																<table>
+																	<tr>
+																		<td><strong>Bill To:</strong></td>
+																		<td
+																			th:text="${deliveryChallanInvoiceModel[0].customerName}"
+																			style="font-weight: 600;"></td>
+																	</tr>
+																	<tr>
+																		<td><strong>Invoice Number:</strong></td>
+																		<td
+																			th:text="${deliveryChallanInvoiceModel[0].challanNo}"
+																			style="font-weight: 600;"></td>
+																	</tr>
+
+																</table>
+
+
+
+															</td>
+
+
+														</tr>
+													</table>
+												</td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<table id="id_td" class="maintbl" cellpadding="0"
+														cellspacing="0" border="1" style="width: 100%;">
+														<thead>
+															<tr>
+																<th class="tableheader">Sl No.</th>
+																<th class="tableheader">Item Name</th>
+																<th class="tableheader">Quantity</th>
+																<th class="tableheader">Price</th>
+																<th class="tableheader">Total Price</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr th:each="other,iter : ${deliveryChallanInvoiceModel}">
+																<td th:text=" ${iter.index+1}"></td>
+
+																<td th:text="${other.itemName}"></td>
+
+																<td th:text="${other.Quantity } "></td>
+																<td
+																	th:text="${#numbers.formatDecimal(other.price, 0, 'COMMA', 2, 'POINT')} "></td>
+																<td
+																	th:text="${#numbers.formatDecimal(other.subTotal, 0, 'COMMA', 2, 'POINT')} "></td>
+
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+
+											<tr>
+												<td width="591">
+													<div>
+														<strong>Tax Type:</strong>
+													</div>
+													<div>
+														<input type="radio" id="taxS" name="tax" value="false"
+															onclick="ShowHideTrS()" checked />&nbsp;<label>State
+															Tax</label>&nbsp;&nbsp;&nbsp; <input type="radio" id="taxC"
+															name="tax" value="true" onclick="ShowHideTrC()" />&nbsp;<label>Center
+															Tax</label>
+													</div>
+												</td>
+											</tr>
+
+											<tr>
+												<td width="591">
+													<div>
+														<strong>Note:</strong>
+													</div>
+													<div>
+														<input type="text" class="textarea" th:value="notes"
+															readOnly>
+													</div>
+												</td>
+
+												<td>
+													<table cellpadding="0" cellspacing="0" width="300">
+														<tr>
+															<td colspan="2" width="115"><b>SUB TOTAL</b></td>
+
+															<td width="130"><input type="text"
+																style="border: none" id="subtotalamount"
+																class="form-control"
+																th:value="${#numbers.formatDecimal(deliveryChallanInvoiceModel[0].subTotal, 0, 'COMMA', 2, 'POINT')} " /></td>
+														</tr>
+														<!-- <tr th:if="${deliveryChallanInvoiceModel[0].isPumUsed}">
+															<td colspan="2" width="115"><b>Pump Price</b></td>
+
+															<td width="130"><input type="text"
+																style="border: none" id="pumpPrice" class="form-control"
+																th:value="${#numbers.formatDecimal(deliveryChallanInvoiceModel[0].pumpPrice, 0, 'COMMA', 2, 'POINT')} " /></td>
+														</tr> -->
+														<tr>
+															<td colspan="2" width="115"><b>DISCOUNT</b></td>
+
+															<td><input type="text" id="discount"
+																class="form-control" value="0" style="width: 50px;"
+																onkeyup="myFunction(); checkNumber();" /></td>
+
+
+														</tr>
+
+														<tr id="CgstTR">
+															<td colspan="2" width="115"><b>CGST</b></td>
+
+															<td width="130"><input style="border: none"
+																type="text" class="form-control" id="cgst"
+																th:value=" 0.00"></td>
+														</tr>
+
+														<tr id="SgstTR">
+															<td colspan="2" width="115"><b>SGST</b></td>
+
+															<td width="130"><input style="border: none"
+																type="text" class="form-control" id="sgst"
+																th:value="0.00" /></td>
+														</tr>
+
+														<tr id="IgstTR">
+															<td colspan="2" width="115"><b>IGST</b></td>
+
+															<td width="130"><input style="border: none"
+																type="text" class="form-control" id="igst"
+																th:value="0.00" /></td>
+														</tr>
+
+														<tr>
+															<td colspan="2" width="115"><b>GRAND TOTAL</b></td>
+
+															<td width="130"><input type="text"
+																style="border: none" id="grandtamt" class="form-control"
+																th:value="0.00" /></td>
+
+														</tr>
+
+													</table>
+												</td>
+											</tr>
+											<tr>
+												<td colspan="2" align="center">
+													<button type="button" id="submit_discount"
+														class="btn btn-success">Save</button>
+												</td>
+											</tr>
+										</table>
+									</div>
+								</form>
+							</div>
+							<div style="clear: both;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /# row -->
+		</div>
+	</div>
+</body>
+</html>

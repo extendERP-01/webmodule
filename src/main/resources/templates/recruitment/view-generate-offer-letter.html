@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-resource-add-offer-Letter-ajax'
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'jobId'
+			}, {
+				'data' : 'jobTitle'
+			},{
+				'data' : 'deptName'
+			},{
+				'data' : 'candidateName'
+			},{
+				'data' : 'dob'
+			}, {
+				'data' : 'document'
+			}, {
+				'data' : 'action'
+			}, {
+				'data' : 'jobType'
+			}, {
+				'data' : 'status'
+			}]
+		}); 
+	});
+	
+	function myFun(id){
+		
+		$("input:radio[name=status1]:checked").each(function() {
+			rate_value=$(this).val();
+		})
+		
+		obj = {};
+		obj.status = rate_value;
+		obj.candidateId = id;
+		console.log(obj)
+		
+		if(rate_value == "2"){	
+			document.getElementById("offer_"+id).style.display = 'none';	
+			
+			$.ajax({
+				type		: "POST",
+				url 		: "view-generate-offer-letter-status",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(obj),
+				success		: function(response){
+					//console.log(response);
+					if(response.message=="Success"){
+						
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+			
+		} else if(rate_value == "1"){
+			//document.getElementById(id).style.display = 'block'
+			$.ajax({
+				type		: "POST",
+				url 		: "view-generate-offer-letter-status",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(obj),
+				success		: function(response){
+					//console.log(response);
+					if(response.message=="Success"){
+						
+						window.location.href = "/recruitment/view-generate-offer-letter" ;
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+			document.getElementById("offer_"+id).style.display = 'block';
+		} else if(rate_value == "3"){
+			//document.getElementById(id).style.display = 'block'
+			$.ajax({
+				type		: "POST",
+				url 		: "view-generate-offer-letter-status",
+				dataType	: "json",
+				contentType	: "application/json",
+				data		: JSON.stringify(obj),
+				success		: function(response){
+					//console.log(response);
+					if(response.message=="Success"){
+					
+						window.location.href = "/recruitment/view-generate-offer-letter" ;
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error		: function(data){
+					console.log(data);
+				}
+			}) //ajax ends
+		} 
+		
+	}
+	
+	function View(id,index) {
+		
+		$('#tbodyId').empty();
+		$("#scheduleModal").modal('show');
+		$("#reqId").val(id);
+		$("#candId").val(index);
+		
+		$.ajax({
+			type		: "GET",
+			url 		: "view-generate-offer-letter-view-details?reqId=" + id + "&candId=" + index,
+			dataType	: "json",
+			contentType	: "application/json",
+			success		: function(response){
+				console.log(response);
+				
+				if(response.message=="Success"){
+					
+					for(var i = 0 ; i<response.body.length; i++){
+						
+						if(response.body[i].status == "1"){
+							div ="<tr><td>" + response.body[i].employeeName + "</td><td>" +
+							response.body[i].jobTitle + "</td><td>Hired</td>" + 
+							"<td><a class='fa fa-info-circle' style='color:blue;font-size:16px' href='view-generate-offer-letter-view-feedback?empId=" + response.body[i].employeeId + "&candId=" + index +"'></a></td>";
+						} else if(response.body[i].status == "2"){
+							div ="<tr><td>" + response.body[i].employeeName + "</td><td>" +
+							response.body[i].jobTitle + "</td><td>Hold</td>" + 
+							"<td><a class='fa fa-info-circle' style='color:blue;font-size:16px' href='view-generate-offer-letter-view-feedback?empId=" + response.body[i].employeeId + "&candId=" + index +"'></a></td>";
+						} else if(response.body[i].status == "3"){
+							div ="<tr><td>" + response.body[i].employeeName + "</td><td>" +
+							response.body[i].jobTitle + "</td><td>Rejected</td>" + 
+							"<td><a class='fa fa-info-circle' style='color:blue;font-size:16px' href='view-generate-offer-letter-view-feedback?empId=" + response.body[i].employeeId + "&candId=" + index +"'></a></td>";
+						}
+						
+						$('#tbodyId').append(div);
+					}
+				}else{
+					swal({
+						title:response.code,
+						text:response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(data){
+				console.log(data);
+			}
+		}) //ajax ends
+
+	}
+	
+/* 
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	} */
+	
+	 function pdfCreate(id) {
+		 	window.open("/employee/View-offer-letter-dtls-genetate-offer-letter-pdf?id="+id,'_blank');
+		 	}
+function addOfferLater(reqId, candId) {
+	
+	 $.ajax({
+			type		: "GET",
+			url 		: "view-generate-offer-letter-add?reqId=" + reqId + "&candId=" + candId,
+			dataType	: "json",
+			contentType	: "application/json",
+			success		: function(response){ 
+				if(response.message=="Success"){
+					window.location.href = "/recruitment/view-generate-offer-letter-add-data";
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+			},error		: function(data){
+				console.log(data);
+			}
+		}) //ajax ends 
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/employee/add-offer-letter-dtls}">Add
+							Offer Letter</a></li>
+					<li class="active"><span>View Generate Offer Letter</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Generate Offer Letter</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<!-- <div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-offer-letter-dtls">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Offer Letter</label>
+								
+									
+									<input type="text" id="param1" class="form-control" onkeyup="searchData()"/>
+								</div> 
+								<div class="col-md-2">
+									<div class="form-group">
+										<button type="search" class="btn btn-primary" value="Search" onclick="searchData()" >Search</button>
+										<input type="button" class="btn btn-info" value="Search"
+											onclick="searchData()" />
+									</div>
+								</div>
+							</div>
+						</div> -->
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+									<th>Job Code</th>
+									<th>Job Title</th>
+									<th>Department</th>
+									<th>Candidate Name</th>
+									<th>Date Of Birth</th>
+									<th>Resume</th> 
+									<th>View Details</th>
+									<th>Status</th>
+									<th>Add Offer Letter</th>
+								</tr>
+								</thead>
+								<tbody>
+									
+								</tbody>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="scheduleModal" class="modal fade" role="dialog">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content" >
+					<div class="modal-header">
+						<h4 class="modal-title">View Employee Feedback Details</h4>
+						<button type="button" class="close" data-dismiss="modal" style="font-size:30px; cursor:pointer;">&times;</button>
+					</div>
+					<div class="modal-body" style="height:150px;overflow-y:scroll;">
+						<div class="row">
+							<div class="col-md-4">
+								<!-- Hidden Field -->
+								<input type="hidden" id="reqId">
+								<input type="hidden" id="candId">
+								
+							</div>
+						</div>
+						<div class="row">
+						<!-- 	<label><b style="margin-left: 15px; font-size: 20px;">Details</b></label> -->
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Employee Name</th>
+										<th>Designation</th>
+										<th>Status</th>
+										<th>More Info</th>
+									</tr>								
+								</thead>
+								<tbody id="tbodyId">
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+tbody td{
+	text-align:right;
+}
+tbody td:first-child{
+	text-align:left;
+}
+tbody td:nth-child(2){
+	text-align:left;
+}
+</style>
+<script>
+
+/**************** R A J E S H *******************/
+ 
+var parentStr = '';
+var target = [];
+function showTrialModal(parent,rootString){
+	parentStr = parent;
+	target = rootString.split(',');
+	//console.log(parent)
+	//console.log(target)
+	//console.log(target[0])
+
+	$("tbody").html('');
+	//$("#myModal").modal('show');
+	$.ajax({
+		url:"view-account-tree-ajax",
+		method:"GET",
+		contentType:"application/json",
+		success:function(response){
+			var hlevel = 0;
+			for(var i = 0;i<response.body.length;i++){
+				var level = parseInt(response.body[i].levelName.substring(1));
+				if(level > hlevel){
+					hlevel = level;
+				}
+			}
+			var margin = 22;
+			var font = 20;
+			var slno = 1;
+			for(var i = 1;i<=hlevel;i++){
+				var str = "";
+				var substr = "";
+				margin +=3;
+				font -=2;
+				for(var j = 0;j<response.body.length;j++){
+					var level = parseInt(response.body[j].levelName.substring(1));
+					var id = response.body[j].groupId;
+					var parent = "#"+response.body[j].parentId;
+					if(level == i){
+						if(level == 1){
+							str += "<tr id=\""+id+"tr1\"><td>"+slno+"</td><td><div><span onclick=\"hide('"+id+"')\"><i class=\"indicator fa fa-plus-circle\"></i>"+response.body[j].groupName+"</span><p class=\"accgrHead accgr\" style=\"font-size:inherit;\" id=\""+id+"\"></p><div></td><td>0.00</td><td>0.00</td></tr>";
+							slno++;
+						}else{
+							if(level == hlevel){
+								substr ="<tr id=\""+id+"tr\"><td><div style=\"margin-left:"+margin+"px;\"><p id=\""+id+"\" class=\"accgr\"></p></div></td><td>0.00(Debit)</td><td>0.00(Credit)</td></tr>";
+							}else{
+								substr ="<tr id=\""+id+"tr\"><td><div style=\"margin-left:"+margin+"px;\"><span onclick=\"hide('"+id+"')\"><i class=\"indicator fa fa-plus-circle\"></i>"+response.body[j].groupName+"</span><p id=\""+id+"\" class=\"accgr\" ></p></div></td><td>0.00(Debit)</td><td>0.00(Credit)</td></tr>";
+							}
+							$(parent).append(substr);
+						}
+					}
+				}
+				$("tbody").append(str);
+				str = "";
+			}
+			addEvent();
+			//console.log(parentid)
+		},
+		error:function(err){
+			console.log(err)
+		}
+	})
+	
+}
+
+function hide(id){
+	console.log(id)
+		
+	$("#"+id).toggle("slow","swing");
+	
+}
+
+
+function addEvent(){
+	var param1 = window.btoa($('#param1').val());
+	var param2 = window.btoa($('#param2').val());
+	var param3 = window.btoa($('#param3').val());
+	var trialData={};
+	var length = 0;
+	$.ajax({
+		url:"view-trial-balance-report-detls?param1="+param1+"&param2="+param2+"&param3="+param3,
+		method:"GET",
+		contentType:"application/json",
+		success:function(response){
+			trialData = response.data;
+			length = response.recordsTotal;
+			console.log(response)
+			//console.log(trialData)
+			for(var j =0; j< response.data.length;j++){
+				$('tr').each(function(){
+					var tb = "";
+					var trid = response.data[j].desc+"tr";
+					var trid1 = response.data[j].desc+"tr1";
+					if(trid == $(this).attr('id')){		
+						/*for(var i = 0; i < length ; i++){
+							if(target[j] == trialData[i].desc){
+								tb = '<div style=\"color:red;\">ACCOUNTS:'+trialData[i].costCenter+'</div>'+
+								'<div  style=\"color:red;\">DEBIT:'+trialData[i].debitBal+'</div>'+
+								'<div  style=\"color:red;\">CREDIT:'+trialData[i].creditVal+'</div>';	
+							}
+						}*/
+						$("#"+$(this).attr('id')+' td:nth-child(2)').html(trialData[j].debitBal+"(Debit)");
+						$("#"+$(this).attr('id')+' td:nth-child(3)').html(trialData[j].creditVal+"(Credit)");
+												
+					}else if(trid1 == $(this).attr('id')){
+						$("#"+$(this).attr('id')+' td:nth-child(3)').html(trialData[j].debitBal+"(Debit)");
+						$("#"+$(this).attr('id')+' td:nth-child(4)').html(trialData[j].creditVal+"(Credit)");
+					}
+				});
+			}
+		},
+		error:function(err){
+			console.log(err)
+		}
+	});
+			
+	$('.accgr').each(function(){
+		if(parentStr.includes($(this).attr('id') ) || target.includes($(this).attr('id'))){
+			$("#"+$(this).attr('id')).prev().css("color","limegreen");
+		}
+		
+		$("#"+$(this).attr('id')).toggle();
+	});
+}
+
+$(document).ready(function(){
+	showTrialModal("GN001","GN001");
+	$('#showall').on("click",function(){
+		console.log("hii")
+		if($("input[name='showall']:checked").val()!=null){
+			$('#param4').val('all');
+			$('#utype').DataTable().draw();
+		}else{
+			$('#param4').val('specific');
+			$('#utype').DataTable().draw();
+			
+		}
+	})
+})
+</script>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="content-wrap">
+			<div class="main mrt_20">
+				<div class="card-title">
+					<h4>Trial Balance Report</h4>
+				</div>
+				<div class="container-fluid">
+					<div class="card">
+						<div class="card-body">
+	
+						</div>
+						<div style="clear: both;"></div>
+						<input type="hidden" id="param1" th:value="${param1}"/>
+						<input type="hidden" id="param2" th:value="${param2}"/>
+						<input type="hidden" id="param3" th:value="${param3}"/>
+						<div class="table-responsive" style="width: 100%;">
+						<table id="utype" class="table table-bordered">
+							<thead>
+								<tr>
+									<th class="tableheader" style="width: 40px;">SL.NO</th>
+									<th class="tableheader" align="left">ACCOUNTS</th>
+									<th class="tableheader" >DEBIT</th>
+									<th class="tableheader">CREDIT</th>
+								</tr>
+							</thead>
+							<tbody>
+								
+								<!-- table contents -->
+								
+							</tbody>
+						</table>
+					</div>
+					</div>
+					
+					<div style="clear: both;"></div>
+					
+				</div>
+	
+			</div>
+		</div>
+	</div>
+	<!-- /# row -->
+</div>
+</html>

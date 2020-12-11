@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+#autocomplete-list2 {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 496px;
+	position: absolute;
+	z-index: 999;
+	height: 100px;
+	overflow: auto;
+}
+
+#autocomplete-list2 li {
+	padding: 5px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list2 li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+function validateForm() {
+    /* !-- === === === Call Below function by on form submit or any event === === = -- > */
+    function checkSpecialCharacter(assetCodeName, message) {
+        var SpecialCharRegExp = /[ !@#$%^&*()+\=\[\]{};':"\\|,.<>\/?]/;
+        var fieldVal = $("#assetCodeName").val();
+
+        if (SpecialCharRegExp.test(fieldVal)) {
+            $('#assetCodeName').focus();
+            swal(message);
+            return false;
+        }
+        return true;
+
+    }
+    if (!blankValidation("item", "SelectBox", "Please Select Item"))
+        return false;
+    if (!blankValidation("classId", "TextField", "Please Enter Classification"))
+        return false;
+    if (!blankValidation("store", "SelectBox", "Please Select Store"))
+        return false;
+    if (!checkSpecialCharacter("item", "Special character is not allowed!!!"))
+        return false;
+    if (!blankValidation("assetCodeName", "TextField", "asset code name can not be left blank"))
+        return false;
+    if (!blankValidation("tSerialNo", "TextField", "serial no. can not be left blank"))
+        return false;
+    /* if (!checkSpecialCharacter("tSerialNo", "invalid serial no."))
+        return false; */
+    if (!blankValidation("grrnty", "TextField", "Garrenty period can not be left blank"))
+        return false;
+    /* if (!blankValidation("custPhone","TextField", "Customer phone no can not be left blank"))
+        return false; */
+    /* if (!checkMobileNumberIN("custPhone", "Customer phone no is not valid"))
+        return false; */
+    if (!blankValidation("description", "TextField", "Description can not be left blank"))
+        return false;
+    if (!blankValidation("from_date", "TextField", "date of purchase   can not be left blank"))
+        return false;
+    if (!blankValidation("brndNm", "TextField", "Brand name can not be left blank"))
+        return false;
+    /* if (!blankValidation("custEmail","TextField", "Email can not be left blank"))
+        return false;
+    if (!checkEmailId("custEmail", "Email is not valid"))
+        return false; */
+    if (!blankValidation("workingStatus", "TextField", "Working Status  can not be left blank"))
+        return false;
+    if (!blankValidation("assetactive", "TextField", "Status can not be left blank"))
+        return false;
+}
+/* datepicker for date of purchase */
+$(document).ready(function() {
+
+    var id = $("#assetCodeId").val();
+    if (id) {
+        /* var option = $("#categoryId").val();
+        if (option == "icat0009") {
+            $("#modelDiv").show();
+            $("#chassisDiv").show();
+            $("#engineDiv").show();
+        } else {
+            $("#modelDiv").hide();
+            $("#chassisDiv").hide();
+            $("#engineDiv").hide();
+        } */
+    } else {
+        $("#modelDiv").hide();
+        $("#chassisDiv").hide();
+        $("#engineDiv").hide();
+    }
+
+    $("#from_date").datetimepicker({
+        format: 'd-m-Y',
+        closeOnDateSelect: true,
+        maxDate: new Date(),
+        timepicker: false,
+    })
+
+})
+
+function getItemCategory() {
+	$("#itemId").val("");
+	$("#item").val("");
+	$("#item").attr('data-procat', "");
+	$("#itemDiv").hide();
+	var value = $('#category').val();
+	if(value) {
+		$.ajax({
+			type : "POST",
+			url : "add-assetcode-get-item-category",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : value,
+			success : function(response) {
+				if(response.body.length!=0)	{
+					$("#category").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue10(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'</li>';
+					} 
+					content += '</ul>';
+					$("#categoryDiv").show();
+					$("#categoryDiv").html(content);
+				} else {
+					$("#category").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					content += '<li onClick="selectAutocompleteValue10(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#categoryDiv").show();
+					$("#categoryDiv").html(content);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$("#category").css("background","#FFF");
+				var content = '<ul id="autocomplete-list2">';
+				content += '<li onClick="selectAutocompleteValue10(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#categoryDiv").show();
+				$("#categoryDiv").html(content);
+			}
+		});
+	} else {
+		$("#category").css("background","#FFF");
+		var content = '<ul id="autocomplete-list2">';
+		content += '<li onClick="selectAutocompleteValue10(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#categoryDiv").show();
+		$("#categoryDiv").html(content);	
+	}
+}
+
+function selectAutocompleteValue10(key,name) {
+	if (key) {
+ 		$("#categoryId").val(key);
+    	$("#category").val(name);
+    	$("#category").attr('data-procat', key);
+    	$("#categoryDiv").hide();
+    	//showDiv(key);
+	} else {
+		$("#categoryId").val("");
+    	$("#category").val("");
+    	$("#category").attr('data-procat', "");
+    	$("#categoryDiv").hide();
+    	//showDiv("");
+	}
+}
+
+function getBarcodesOfItem() {
+	$("#grn").val("");
+	var value = $('#barcode').val();
+	if(value) {
+		$.ajax({
+			type : "POST",
+			url : "add-assetcode-get-barcode",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : value,
+			success : function(response) {
+				if(response.body.length!=0)	{
+					$("#barcode").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue100(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].key+'</li>';
+					} 
+					content += '</ul>';
+					$("#barcodeDiv").show();
+					$("#barcodeDiv").html(content);
+				} else {
+					$("#barcode").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					content += '<li onClick="selectAutocompleteValue100(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#barcodeDiv").show();
+					$("#barcodeDiv").html(content);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$("#barcode").css("background","#FFF");
+				var content = '<ul id="autocomplete-list2">';
+				content += '<li onClick="selectAutocompleteValue100(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#barcodeDiv").show();
+				$("#barcodeDiv").html(content);
+			}
+		});
+	} else {
+		$("#barcode").css("background","#FFF");
+		var content = '<ul id="autocomplete-list2">';
+		content += '<li onClick="selectAutocompleteValue100(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#barcodeDiv").show();
+		$("#barcodeDiv").html(content);	
+	}
+}
+
+function selectAutocompleteValue100(key,name) {
+	if (key) {
+ 		$("#barcode").val(key);
+    	$("#grn").val(name);
+    	$("#barcodeDiv").hide();
+	} else {
+		$("#barcode").val("");
+    	$("#grn").val("");
+    	$("#barcodeDiv").hide();
+	}
+}
+
+function showDiv(id) {
+	if (id == "icat0009") {
+        $("#modelDiv").show();
+        $("#chassisDiv").show();
+        $("#engineDiv").show();
+    } else {
+        $("#modelDiv").hide();
+        $("#chassisDiv").hide();
+        $("#engineDiv").hide();
+    }
+}
+
+function getItem() {
+	var cat = $('#categoryId').val();
+	if(cat) {
+		var value = $('#item').val();
+		obj = {};
+		obj.key = cat;
+		obj.name = value;
+		if(value) {
+			$.ajax({
+				type : "POST",
+				url : "add-assetcode-get-item",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : JSON.stringify(obj),
+				success : function(response) {
+					if(response.body.length!=0)	{
+						$("#item").css("background","#FFF");
+						var content = '<ul id="autocomplete-list2">';
+						for (var i = 0; i < response.body.length; i++) {
+							content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\','+response.body[i].count+')">'+response.body[i].name+'</li>';
+						} 
+						content += '</ul>';
+						$("#itemDiv").show();
+						$("#itemDiv").html(content);
+					} else {
+						$("#item").css("background","#FFF");
+						var content = '<ul id="autocomplete-list2">';
+						content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\',0)">'+"No Data Found"+'</li>';
+						content += '</ul>';
+						$("#itemDiv").show();
+						$("#itemDiv").html(content);
+					}
+				}, error : function(data) {
+					console.log(data)
+					$("#item").css("background","#FFF");
+					var content = '<ul id="autocomplete-list2">';
+					content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\',0)">'+"No Data Found"+'</li>';
+					content += '</ul>';
+					$("#itemDiv").show();
+					$("#itemDiv").html(content);
+				}
+			});
+		} else {
+			$("#item").css("background","#FFF");
+			var content = '<ul id="autocomplete-list2">';
+			content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\',0)">'+"No Data Found"+'</li>';
+			content += '</ul>';
+			$("#itemDiv").show();
+			$("#itemDiv").html(content);	
+		}
+	} else {
+		swal({
+			title	:	"Please Enter Item Category",
+			type	:	"warning",
+		})
+		$('#item').val("");
+	}
+}
+
+function selectAutocompleteValue(key,name,count) {
+	if (key) {
+ 		$("#itemId").val(key);
+    	$("#item").val(name);
+    	$("#item").attr('data-procat', key);
+    	$("#itemDiv").hide();
+    	validAssetCode(count);
+	} else {
+		$("#itemId").val("");
+    	$("#item").val("");
+    	$("#item").attr('data-procat', "");
+    	$("#itemDiv").hide();
+	}
+}
+
+function validAssetCode(count) {
+	if(count <= 0) {
+		swal({
+			title	:	"There is no more Item available",
+			type	:	"warning",
+		})
+		$("#itemId").val("");
+    	$("#item").val("");
+    	$("#item").attr('data-procat', "");
+    	$("#itemDiv").hide();
+	}
+}
+
+function gotoview() {
+	window.location.href = "/property/view-assetcode";
+}
+
+function salesGroup(id) {
+    $.ajax({
+        type: "POST",
+        url: "add-assetcode-get-classification-throughAjax",
+        dataType: 'json',
+        contentType: 'application/json',
+        data: $("#" + id).val(),
+        success: function(response) {
+            console.log(response);
+            if (response.message == "success") {
+                if (response.body.length != 0) {
+                    $("#className").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    for (var i = 0; i < response.body.length; i++) {
+                        content += '<li onClick="autocompleteValue2(\'' + response.body[i].key + '\',\'' + response.body[i].name + '\',\'' + response.body[i].description + '\',\'' + response.body[i].fromAccountSubGroup + '\',\'' + id + '\')">' + response.body[i].name + '(' + response.body[i].key + ')' + '</li>';
+                    }
+                    content += '</ul>';
+                    $("#suggesstion-box2").show();
+                    $("#suggesstion-box2").html(content);
+
+                } else {
+                    $("#className").css("background", "#FFF");
+                    var content = '<ul id="autocomplete-list">';
+                    content += '<li onClick="autocompleteValue2(\'' + '' + '\',\'' + '' + '\')">' + "No Data Found" + '</li>';
+                    content += '</ul>';
+                    $("#suggesstion-box2").show();
+                    $("#suggesstion-box2").html(content);
+                }
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+
+
+function autocompleteValue2(sGroupId, sGroupName, groupId, groupName, id) {
+    if (sGroupId) {
+        $("#className").val(sGroupName + '( ' + sGroupId + ' )');
+        $("#classId").val(sGroupId);
+        $("#className").attr('data-procat', sGroupName);
+        $("#suggesstion-box2").hide();
+    } else {
+        $("#className").val("");
+        $("#classId").val("");
+        $("#className").attr('data-procat', "");
+        $("#suggesstion-box2").hide();
+    }
+}
+</script>
+</head>
+<div layout:fragment="content">
+
+	<div class="main mrt_20">
+		<div class="col-md-12">
+			<!--Alert Box-->
+			<div class="alert alert-danger alert-dismissible"
+				th:if="${message != null}">
+				<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+				<span th:text="${message}"></span>
+			</div>
+			<!--Alert Box-->
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><span>Generate Asset Code </span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>Generate Asset Code</h4>
+		</div>
+		<div class="container">
+			<div class="card">
+				<div class="card-body">
+					<div class="basic-elements">
+						<form th:action="@{/property/add-assetcode}"
+							th:object="${assetCode}" method="post"
+							onsubmit="return validateForm();">
+							<input type="hidden" th:field="*{assetCodeId}" />
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Store</label> <select class="form-control"
+											th:field="*{store}">
+											<option th:value="NULL">Select</option>
+											<option th:each="c:${storeList}" th:value='${c.key}'
+												th:text="${c.name}" th:selected="${c.key==item}"></option>
+										</select>
+									</div>
+									<div class="form-group" id="salesDiv">
+										<label>Classification</label> 
+										<input type="text"
+											class="form-control" th:field="*{className}"
+											onkeyup="salesGroup(this.id);"  data-procat="">
+										<div id="suggesstion-box2"></div>
+										<input type="hidden" th:field="*{classId}">
+									</div>
+									<div class="form-group">
+										<label>Item Category</label> <input type="hidden"
+											th:field="*{categoryId}"> <input type="text"
+											th:field="*{category}" class="form-control"
+											onkeyup="getItemCategory();">
+										<div id="categoryDiv"></div>
+									</div>
+									<div class="form-group">
+										<label>Item Name</label> <input type="hidden"
+											th:field="*{itemId}"> <input type="text"
+											class="form-control" th:field="*{item}" onkeyup="getItem();">
+										<div id="itemDiv"></div>
+									</div>
+									<div class="form-group">
+										<label>Asset Code</label> <input type="text"
+											class="form-control" th:id="assetCodeName"
+											th:field="*{assetCodeName}" th:name="assetCodeName">
+									</div>
+									<div class="form-group">
+										<label>Serial No.</label> <input type="text"
+											class="form-control" th:id="tSerialNo"
+											th:field="*{tSerialNo}" th:name="tSerialNo">
+									</div>
+									<div class="form-group">
+										<label>Guarantee Period</label> <input type="text"
+											class="form-control" th:id="grrnty" th:field="*{grrnty}"
+											th:name="grrnty">
+									</div>
+									<div class="form-group">
+										<label>Description</label>
+										<textarea class="form-control textarea" th:id="description"
+											th:field="*{description}" th:name="description"></textarea>
+									</div>
+									<div class="form-group">
+										<button type="submit" class="btn btn-success">Submit</button>
+										<input type="button" class="btn btn-warning"
+											onclick="gotoview();" value="Cancel">
+									</div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group">
+										<label>Date Of Purchase</label> <input type="text"
+											class="form-control" id="from_date" th:field="*{dop}"
+											th:name="dop" readonly>
+									</div>
+									<div class="form-group">
+										<label>Barcode No.</label> <input type="text"
+											class="form-control" th:field="*{barcode}" onkeyup="getBarcodesOfItem();">
+										<div id="barcodeDiv"></div>
+									</div>
+									<div class="form-group">
+										<label>GRN</label> <input type="text"
+											class="form-control" th:field="*{grn}">
+									</div>
+									<div class="form-group">
+										<label>Brand Name</label> <input type="text"
+											class="form-control" th:id="brndNm" th:field="*{brndNm}"
+											th:name="brndNm">
+									</div>
+									<div class="form-group" id="modelDiv" style="display: none;">
+										<label>Model</label> <input type="text" class="form-control"
+											th:field="*{model}">
+									</div>
+									<div class="form-group" id="chassisDiv" style="display: none;">
+										<label>Chassis Number</label> <input type="text"
+											class="form-control" th:field="*{chassisNo}">
+									</div>
+									<div class="form-group" id="engineDiv" style="display: none;">
+										<label>Engine Number</label> <input type="text"
+											class="form-control" th:field="*{engineNo}">
+									</div>
+									<div class="form-group">
+										<label>Customer Email</label> <input type="text"
+											class="form-control" th:id="custEmail"
+											th:field="*{custEmail}" th:name="custEmail">
+									</div>
+									<div class="form-group">
+										<label>Customer Phone No.</label> <input type="text"
+											class="form-control" th:id="custPhone"
+											th:field="*{custPhone}" th:name="custPhone">
+									</div>
+									<div class="form-group">
+										<label>Working Status</label> <select class="form-control"
+											th:id="workingStatus" th:field="*{workingStatus}"
+											th:name="workingStatus">
+											<option th:value=null>Select</option>
+											<option th:value=1>Active</option>
+											<option th:value=0>Inactive</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>Status</label> <select class="form-control"
+											th:id="assetactive" th:field="*{assetactive}"
+											th:name="assetactive">
+											<option th:value=1>Active</option>
+											<option th:value=0>Inactive</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div style="clear: both;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

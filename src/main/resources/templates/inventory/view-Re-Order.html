@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head> 
+<script>
+function reOrderItem(i,itemId,itemName,minQty,itemCat,subCat) {
+	var c = 0;
+	var dataset = [];
+	$("input:checkbox[id=VND_"+i+"]:checked").each(function(){
+		c = c + 1;
+		
+		data = {};
+		
+		data.itemCategory = itemCat;
+		data.subCategory = subCat;
+		data.itemId = itemId;
+		data.itemName = itemName;
+		data.minQty = minQty;
+		data.vendor = $(this).val();
+		data.vendorName = $(this).attr("vnd-name");
+		data.price = parseFloat($(this).attr("price"));
+		
+		dataset.push(data);
+	});
+	
+	if(c == 0) {
+		swal({
+			title: 'Please Choose Vendor for Re-Ordering the item "'+itemName+'".',
+			type: "warning",
+		})
+	} else {
+		console.log(dataset);
+		localStorage.setItem("dataset", JSON.stringify(dataset));
+		window.location.href = "/inventory/view-order";
+	}
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+					<li class="active"><span>View Re-Order</span></li>
+				</ol>
+			</div>
+
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="table-responsive" style="width: 100%;">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Item</th>
+									<th>Name</th>
+									<th>Avl Qty</th>
+									<th>Min Qty</th>
+									<th>Vendor</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="c,iter:${itemList}">
+									<td th:text="${c.itemId}"></td>
+									<td th:text="${c.itemName}"></td>
+									<td th:text="${c.avlQty}"></td>
+									<td th:text="${c.minQty}"></td>
+									<td>
+										<div th:each="a,itr:${c.vendorList}">
+											<input type="checkbox" th:name="${'VND_'+iter.index}" th:id="${'VND_'+iter.index}" th:value="${a.key}" th:attr="vnd-name=${a.name},price=${a.capacity}" />&nbsp;&nbsp;<span class="chkboxtxt" th:text="${a.name}"></span>
+										</div>
+									</td>
+									<td><button title='Re-Order' class="btn btn-success" th:attr="onclick=|reOrderItem('${iter.index}','${c.itemId}','${c.itemName}','${c.minQty}','${c.itemCategory}','${c.subCategory}')|" >Re-Order</button></td>
+								</tr>
+
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+
+				</div>
+			</div>
+		</div>
+
+		<!-- /# row -->
+	</div>
+</div>
+</html>

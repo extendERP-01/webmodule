@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.modalIn {
+	border-bottom: 1px solid #e8e4e4;
+}
+</style>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		
+ 		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-resource-interview-feedback-ajax'/* ,
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				} */
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'jobId'
+			}, {
+				'data' : 'jobTitle'
+			},{
+				'data' : 'candidateName'
+			},{
+				'data' : 'dob'
+			},{
+				'data' : 'fromTime'
+			}, {
+				'data' : 'document'
+			}, {
+				'data' : 'status'
+			}, {
+				'data' : 'action'
+			} ]
+		}); 
+	});
+
+	/* function searchData() {
+		$('#tblTheme').DataTable().draw();
+	} */
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a th:href="@{/recruitment/add-employee-feedback}">Add
+							Job Tittle</a></li> -->
+					<li class="active"><span>Interview/Feedback </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Interview/Feedback</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<!-- <div class="search-field">
+						
+						<div class="row">
+							<div class="col-md-2">
+							<label>Job Title</label>
+								<select class="form-control vendor" id="jobTitle">
+											<option th:value="null">--Select JobTitle--</option>
+											<option th:each="c:${jobTitleList}" th:value="${c.key}" 
+													th:text="${c.name}"></option>
+								</select>
+
+								</select>
+
+							</div>
+							<div class="col-md-2 mrt_10">
+								<div class="form-group">
+									<input type="button" class="btn btn-info" value="Search"
+										onclick="searchData()" />
+								</div>
+							</div>
+						</div>
+					</div> -->
+					<div class="table-responsive" style="width: 100%;">
+					<input type="hidden" id="id" th:value="${id}">
+						<table id="tblTheme" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Job Code</th>
+									<th>Job Tittle</th>
+									<th>Candidate Name</th>
+									<th>Date</th>
+									<th>Time</th>
+									<th>Resume</th>
+									<th>Status</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+		
+
+	</div>
+</div>
+</html>

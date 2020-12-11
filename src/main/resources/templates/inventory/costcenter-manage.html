@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+  xmlns:th="http://www.thymeleaf.org" 
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+  layout:decorate="~{layout/master}">
+<head>
+	<style type="text/css">
+	.sidebar.sidebar-shrink ~.content-wrap {
+		margin-left: 250px;
+		-webkit-transition: margin-left 300ms ease-in-out;
+		transition: margin-left 300ms ease-in-out;
+		height: 100vh !important;
+	}
+	</style>
+	<script type="text/javascript">
+	  function validateForm(){
+		  if (!blankValidation("costCenterName","TextField", "Cst Center Name can not be left blank"))
+	          return false;
+		 if (!blankValidation("propertyCategory","TextField", "propertyCategory can not be left blank"))
+	          return false;
+		  if (!blankValidation("description","TextField", "Cost center Description can not be left blank"))
+	          return false;
+		
+		  
+		  if (!checkSpecialCharacter("costCenterName","Special character is not allowed!!!"))
+	          return false;
+		 /*  
+		  if (!fieldLengthCheck("thmName", 5, "Category Name","Max"))
+	          return false;
+	      if (!fieldLengthCheck("thmName", 3, "Name","Min"))
+	          return false;
+	       */
+		  
+	  }
+	  </script>
+  </head>
+  <div layout:fragment="content">
+	<div class="content-wrap">
+        <div class="main mrt_20">
+            <div class="col-md-12">
+               <!--Alert Box-->
+	           <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+	              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+	             <span th:text="${message}"></span>
+	          </div>
+	          <!--Alert Box-->
+               <ol class="breadcrumb breadcrumb-arrow">
+                   <li><a th:href="${'/'+session.DASHBOARD}">Home</a></li>
+                   <li class="active"><span>Manage Cost Center </span></li>
+               </ol>
+            </div>
+            <div class="card-title">
+                <h4>Manage Cost Center </h4>
+            </div>
+            <div class="container-fluid">
+                
+                <div class="card">
+                    
+                    <div class="card-body">
+                        <div class="basic-elements">
+                            <form th:action="@{/inventory/add-costcenter}" th:object="${costcenter}" method="post"  onsubmit="return validateForm();">
+                            <input type="hidden" th:field="*{costcenterId}"/>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Cost Center Name</label>
+                                            <input type="text" class="form-control" th:field="*{costCenterName}">
+                                        </div>
+                                        <div class="form-group">
+											<label>Property Category</label> 
+											<select  multiple="multiple" class="3col active multiselect" th:field="*{propertyCategory}">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${propertyNameList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==propertyCategory}"></option>
+											</select>
+										</div>
+                                        
+                                        <div class="form-group">
+                                            <label>Description.</label>
+                                            <textarea class="form-control textarea" placeholder="Description" th:field="*{description}"></textarea>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                       <a href="/inventory/view-costcenter"> <button type="button" class="btn btn-warning">Cancel</button></a>
+                                    </div>
+                                    </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <!-- nav tab section end -->
+    <div id="search">
+        <button type="button" class="close">×</button>
+        <form>
+            <input type="search" value="" placeholder="type keyword(s) here" />
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+</html>

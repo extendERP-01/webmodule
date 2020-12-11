@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+ <script type="text/javascript">
+	$(function() {
+
+	})
+	
+	function propertyCatagoryChange() {
+
+		$.ajax({
+			type : "POST",
+			url : "getPropertyTypeList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#propertyCategory").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#propertyType").empty();
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#propertyType").append(option);
+					}
+
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+	
+	function amenityChange() {
+		$.ajax({
+			type : "POST",
+			url : "getAmenitiesList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#propertyType").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#amenities").empty();
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#amenities").append(option);
+					}
+
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+	
+	function itemSubCategoryChange() {
+		$.ajax({
+			type : "POST",
+			url : "getSubCategoryItemList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#itemCategory").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#ItemSubCategory").empty();
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#ItemSubCategory").append(option);
+					}
+
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+	function itemNameChange() {
+		$.ajax({
+			type : "POST",
+			url : "getItemList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#ItemSubCategory").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#item").empty();
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#item").append(option);
+					}
+
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+</script>
+<script type="text/javascript">
+  function validateForm(){
+	  if (!blankValidation("amenityItemQty","TextField", " amenity Item Quantity can not be left blank"))
+          return false;
+	  
+	  if (!checkSpecialCharacter("item","Special character is not allowed!!!"))
+          return false;
+	 /*  
+	  if (!fieldLengthCheck("thmName", 5, "Category Name","Max"))
+          return false;
+      if (!fieldLengthCheck("thmName", 3, "Name","Min"))
+          return false;
+       */
+	  
+  }
+      </script>
+</head>
+<div layout:fragment="content">
+<div class="content-wrap">
+        <div class="main mrt_20">
+        <div class="col-md-12">
+            <!--Alert Box-->
+            <div class="col-md-12">
+                <!--Alert Box-->
+                <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+             <span th:text="${message}"></span>
+          </div>
+          <div class="alert alert-success alert-dismissible" style="display: none;">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              <strong>Success!</strong> Indicates a successful or positive action.
+          </div>
+          
+          <div class="alert alert-danger alert-dismissible" style="display: none;">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              <strong>Success!</strong> Indicates a successful or positive action.
+          </div>
+          
+          <div class="alert alert-warning alert-dismissible" style="display: none;">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              <strong>Success!</strong> Indicates a successful or positive action.
+          </div>
+          
+          <!--Alert Box-->
+          <ol class="breadcrumb breadcrumb-arrow">
+             <li><a href="index.html">Home</a></li>
+             <li class="active"><span>Add Items of Amenity</span></li>
+            <!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+          </ol>
+       </div>
+        <div class="card-title">
+           <h4>Edit Items of Amenity</h4>
+        </div>
+            <div class="container-fluid">
+                <!-- <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="add_Itemsof_Amenity(1.4.4.2.1).html" role="tab">Add Items of Amenity</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list_Itemsof_Amenity(1.4.4.2.2).html" role="tab">View Items of Amenity</a>
+                    </li>
+                </ul> -->
+                <div class="card">
+                    <!-- <div class="row">
+                        <div class="card-title">
+                            <h4>Page Name</h4>
+                            <p>Small Description Goes Here...</p>
+                        </div>
+                    </div> -->
+                    <div class="card-body">
+                        <div class="basic-elements">
+                            <form th:action="@{/property/edit-amenityItem}" th:object="${amenityItem}" method="post" onsubmit="return validateForm();">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group" hidden>
+                                            <label>Property Category</label>
+                                            <select class="form-control"  th:field="*{propertyCategory}" onChange="propertyCatagoryChange()" >
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${propertyNameList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.name==propertyCategory}" ></option>
+											</select>
+                                        </div>
+                                     
+                                        
+                                        <div class="form-group" hidden>
+                                            <label>Property Type</label>
+                                            <select  class="form-control" th:field="*{propertyType}" onChange="amenityChange()" >
+                                            	<option th:value="NULL">Select</option>
+                                                <option th:each="c:${propertyTypeList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.name==propertyType}" ></option>
+                                                
+                                            </select>
+                                        </div>
+                                        <div class="form-group" hidden>
+                                            <label>Amenity</label>
+                                            <select  class="form-control" th:field="*{amenities}" >
+                                                <option th:value=null>--select-- </option>
+                                                <option th:each="c:${amenityList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.name==amenities}" ></option>
+                                               <!--  <option>am002</option> -->
+                                            </select>
+                                        </div>
+                                         <div class="form-group">
+                                            <label>Quantity.</label>
+                                            <input type="text"  class="form-control" th:field="*{amenityItemQty}">
+                                        </div>
+                                       <div class="form-group">
+                                            <label>Status.</label>
+                                            <select  class="form-control" th:field="*{amntyItemActive}">
+                                                <option th:value=null>--select-- </option>
+                                                <option th:value=1>Active </option>
+                                                <option th:value=0>Inactive</option>
+                                            </select>
+                                        </div>
+                                        
+                                        
+                                        <button type="submit" class="btn btn-success">submit</button>
+                                        <button type="reset" class="btn btn-warning">cancel</button>
+                                    </div>
+                                    <div class="col-lg-6">
+                                     <div class="form-group" hidden>
+                                            <label>Item Category</label>
+                                                <select class="form-control" th:field="*{itemCategory}" onChange="itemSubCategoryChange()" >
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${itemCategoryList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==themeCategory}"></option>
+											</select>
+                                        </div>
+                                        <div class="form-group" hidden>
+                                            <label>Item SubCategory</label>
+                                                <select class="form-control" th:field="*{ItemSubCategory}" onChange="itemNameChange()" >
+                                                <option th:each="c:${SubCategoryList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.name==ItemSubCategory}" ></option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group" hidden>
+                                            <label>Item Name</label >
+                                            <select  class="form-control" th:field="*{item}" >
+                                            	<option th:each="c:${itemNameList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.name==item}" ></option>
+                                                <!-- <option>--select-- </option>
+                                                <option>item1 </option>
+                                                <option>item2</option> -->
+                                            </select>
+                                        </div>
+                                       
+                                        
+                                    </div>
+                                 </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</html>

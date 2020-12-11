@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+$(document).ready(function() {
+	
+	$('#listWarehouse').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'asset-with-vendor-throughajax',
+			'data' : function(d) {
+				/* d.param1 	= 	$('#param1').val();
+				d.param2 	= 	$('#param2').val();
+				d.param3 	= 	$('#param3').val(); */
+				d.param3 	= 	$('#param3').val();
+				d.param4 	= 	$('#param4').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [{
+			'data' : 'assetCode'
+		}, {
+			'data' : 'item'
+		}, {
+			'data' : 'classification'
+		}, {
+			'data' : 'grn'
+		}, {
+			'data' : 'vendor'
+		}, {
+			'data' : 'warranty'
+		}, {
+			'data' : 'remainingDays'
+		}]
+	});
+	
+	$("#param3").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	});
+	$("#param4").datetimepicker({
+		format : 'd-m-Y',
+		closeOnDateSelect : true,
+		timepicker : false,
+	});
+	
+});
+
+function searchData() {
+	$('#listWarehouse').DataTable().draw();
+}
+</script> 
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a th:href="${session.DASHBOARD}">Home</a></li>
+					<!-- <li><a href=add-warehouse-master>Add Warehouse</a></li> -->
+					<li class="active"><span>Maps With Vendor And Warranty Period</span></li>
+				</ol>
+			</div>
+			<div class="container-fluid">
+
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+                                <div class="col-md-2">
+                                    <label>From Date</label>
+                                    <input id="param3" readonly class="form-control" type="text" placeholder="" name="">
+                                </div>
+                                <div class="col-md-2">
+                                    <label>To Date</label>
+                                    <input id="param4" readonly class="form-control" type="text" placeholder="" name="">
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group filtersearch">
+                                       <button class="btn btn-info" onclick="searchData()">Search</button>
+                                    </div>
+                                </div>
+                            </div>
+						<!-- <div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-warehouse-master">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div> -->
+						
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table class="table table-bordered" id="listWarehouse">
+							<thead>
+								<tr>
+									<th>Asset Code</th>
+									<th>Item</th>
+									<th>Classification</th>
+									<th>GRN</th>
+									<th>Vendor</th>
+									<th>Warranty Period (in years)</th>
+									<th>Remaining Warranty (in years)</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Rack Master</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table width="100%" border="0" id="table1">
+							<tbody>
+								<tr class="rackName">
+									<td><b>Warehouse :</b></td>
+									<td align="left" id="tdWarehouse"></td>
+								</tr>
+								<tr class="subInventoryName">
+									<td><b>Sub-Inventory :</b></td>
+									<td align="left" id="tdSubInv"></td>
+								</tr>
+								<tr class="storeName">
+									<td><b>Store :</b></td>
+									<td align="left" id="tdStore"></td>
+								</tr>
+								<tr class="rackActive">
+									<td><b>Status :</b></td>
+									<td align="left" id="tdStatus"></td>
+								</tr>
+							</tbody>
+
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		<!-- /# row -->
+	</div>
+</div>
+</html>

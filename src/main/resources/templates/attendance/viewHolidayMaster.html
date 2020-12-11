@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+
+	 $(document).ready(function() {
+		$('#tblHoliday').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-holiday-master-throughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+					
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [
+
+			{
+				'data' : 'tHolidayName'
+			}, {
+				'data' : 'tHolidayFromDate'
+			}, {
+				'data' : 'tHolidayToDate'
+			}, {
+				'data' : 'tHolidayStatus'
+		
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+	function searchData() {
+		$('#tblHoliday').DataTable().draw();
+	} 
+	
+	
+	//Delete particular holiday
+	
+	function deleteItem(id){
+			swal.fire({
+				  title: "Are you sure want to Delete?",
+				  text: "Once Deleted,Can't revert back !",
+				  type: "warning",
+				  showCancelButton: true,
+				  confirmButtonColor: '#d33',
+				  cancelButtonColor: '#e7b63a',
+				  confirmButtonText: 'Delete',
+				  reverseButtons : true
+				  
+				}).then((result) => {
+					if(result.value){
+					 $.ajax({
+						    type: "GET",
+						   	url : "/attendance/delete-holiday-list?id=" + id,
+						    success: function(response) {
+						        if (response.message == "success") {
+						        	swal({
+						        		title: "Record Deleted Successfully.",
+						        		type: "success"
+						        	}).then(function(){
+						        		 location.reload();
+						        	})
+						              } else {
+						            swal({
+						                title: 'Unsuccess',
+						                text: response.code
+						            })
+						        }
+						    },
+						    error: function(data) {
+		   					    }
+						})
+					}
+			});
+		}
+		
+
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20 col-md-12">
+			<ol class="breadcrumb breadcrumb-arrow">
+				<li><a href="index.html">Home</a></li>
+				<li><a href="add-holiday-master">Add Holiday</a></li>
+				<li class="active"><span>View Holiday </span></li>
+			</ol>
+		</div>
+		<div class="card-title">
+			<h4>View Holiday</h4>
+		</div>
+		<div class="container-fluid">
+
+			<div class="card">
+					<div class="search-field">
+					<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-holiday-master">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Holiday Name</label>
+							
+								<input class="form-control" type="text" placeholder="" name=""
+									id="param1">
+							</div>
+
+							<div class="col-md-2 mrt_10">
+								<div class="form-group filtersearch">
+									<button class="btn btn-info" onclick="searchData()">Search</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblHoliday" class="table  table-bordered">
+							<thead>
+								<tr>
+									<th>Day</th>
+									<th>Holiday From</th>
+									<th>Holiday Till</th>
+									<th>Holiday Status</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							</tbody>
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				
+			</div>
+		</div>
+		<!-- Modal Start-->
+
+		<!-- Modal End-->
+
+	</div>
+</div>
+</html>

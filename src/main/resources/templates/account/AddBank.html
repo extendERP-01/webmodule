@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+
+<script type="text/javascript">
+/* FORM VALIDATION */
+
+function validateFormBank() {
+	if (!blankValidation("bankName", "TextField","Bank Name Required"))
+		return false;
+	/* if (!checkSpecialCharacter("bankName","Special character is not allowed!!!"))
+        return false; */
+	 if (!blankValidation("bankDescription","TextArea" ,"Description Required"))
+       return false;
+	 if (!blankValidation("bankActive","SelectBox", "Please Select Status"))
+       return false; 
+
+}
+
+function gotoview() {
+	window.location.href="/account/view-bank";
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+			<div class="alert alert-danger alert-dismissible"
+					th:if="${message != null}">
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					<span th:text="${message}"></span>
+				</div>
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="">Home</a></li>
+					
+					<li class="active"><span>Add Bank</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>Add Bank</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="card-body">
+						<div class="basic-elements">
+							<form action="#" th:action="@{/account/add-bank}" th:object="${addbank}" method="POST" onsubmit="return validateFormBank();">
+							<input type="hidden" th:field="*{bank}" />
+								<div class="row">
+									<div class="col-lg-6">
+										<div class="form-group">
+											<label>Bank Name</label> 
+											<input type="text" class="form-control" th:field="*{bankName}" />
+										</div>
+										
+										<div class="form-group">
+											<label>Status</label> 
+											<select class="form-control" th:field="*{bankActive}">
+												<option th:value="NULL">Select</option>
+												<option th:value="true">Active</option>
+												<option th:value="false">Inactive</option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-6">
+
+
+										<div class="form-group">
+											<label>Description</label>
+		                                    <textarea name="" cols="" rows="" class="form-control textarea" th:field="*{bankDescription}" ></textarea>
+										</div>
+									</div>
+									<div class="form-group col-md-12">
+										<button class="btn btn-success">Submit</button>
+										<input type="button" class="btn btn-warning" onclick="gotoview()" value="Cancel">
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

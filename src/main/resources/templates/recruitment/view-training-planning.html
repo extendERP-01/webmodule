@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style>
+.modalIn {
+	border-bottom: 1px solid #e8e4e4;
+}
+</style>
+<script>
+$(document).ready(function() {
+	$('#tblThem').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'view-trainning-planning-through-ajax',
+			'data' : function(d) {
+				d.param1 = $('#param1').val();
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [
+			{'data' : 'tranningName'},
+			{'data' : 'tranningType'},
+			{'data' : 'startDate'},
+			{'data' : 'endDate'},
+			{'data' : 'statusName'},
+			{'data' : 'action'}
+		]	
+	});
+	}); 
+
+	
+function searchData() {
+	
+	$('#tblThem').DataTable().draw();
+} 
+function deletePlanning(id){
+	
+	swal.fire({
+		title	: "Are you sure want to Delete?",
+		text	: "Once Deleted,Can't revert back !",
+		type : "warning",
+	
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Delete",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		preConfirm: () => {
+			return new Promise((resolve) => {
+				setTimeout(() => {
+					console.log("Doing async operation");
+					resolve()
+				}, 3000)
+			})
+		}
+	}).then((result) => {
+		if(result.value){
+			$.ajax({
+				type	: "GET",
+				url : "/recruitment/view-trainning-planning-delete?id=" + id,
+				dataType	: "json",
+				contentType	: "application/json",
+				data	: id,
+				success	: function(response){
+					console.log(response);
+					if(response.message=="success"){
+							
+						swal({
+							title	: "Data Deleted Successfully.",
+							type: "success",
+						}).then(function(){
+							location.reload(); 
+						})
+					}else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					}
+				},error	: function(data){
+					console.log(data)
+				}
+			}) //ajax ends
+		 }
+	 })//swal function block ends
+}
+
+	
+</script>
+
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/recruitment/add-training-planning}">Add
+							Training Planning</a></li>
+					<li class="active"><span>View Training Planning </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Training Planning</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary" href="add-training-planning">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<label>Training Name</label> <input type="text"
+									class="form-control" id="param1" />
+
+							</div>
+
+							<div class="col-md-2 mrt_10">
+								<div class="form-group">
+									<input type="button" class="btn btn-info" value="Search"
+										onclick="searchData()" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive" style="width: 100%;">
+						<table id="tblThem" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>Training Name</th>
+									<th>Training Type</th>
+									<th>Start Date</th>
+									<th>End Date</th>
+									<th>Status</th>
+									<th align="center">Action</th>
+								</tr>
+							</thead>
+
+						</table>
+					</div>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+		</div>
+
+
+
+
+	</div>
+</div>
+</html>

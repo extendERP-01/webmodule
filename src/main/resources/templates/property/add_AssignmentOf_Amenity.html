@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+	$(function() {
+
+	})
+</script>
+<script type="text/javascript">
+	function propertyCatagoryChange() {
+		$.ajax({
+			type : "POST",
+			url : "getPropertyTypeList",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : $("#propertyCategory").val(),
+			success : function(response) {
+				if (response.message == "success") {
+					//console.log(response);
+					$("#propertyType").empty();
+					for (var i = 0; i < response.body.length; i++) {
+						var option = $("<option></option>");
+						$(option).val(response.body[i].key);
+						$(option).html(response.body[i].name);
+						$("#propertyType").append(option);
+					}
+
+				}
+			},
+			error : function(data) {
+				console.log(data);
+			}
+		})
+	}
+	</script>
+</head>
+<div layout:fragment="content">
+<div class="content-wrap">
+        <div class="main mrt_20">
+            <div class="col-md-12">
+                <!--Alert Box-->
+          <div class="alert alert-success alert-dismissible" style="display: none;">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              <strong>Success!</strong> Indicates a successful or positive action.
+          </div>
+          
+          <div class="alert alert-danger alert-dismissible" style="display: none;">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              <strong>Success!</strong> Indicates a successful or positive action.
+          </div>
+          
+          <div class="alert alert-warning alert-dismissible" style="display: none;">
+              <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+              <strong>Success!</strong> Indicates a successful or positive action.
+          </div>
+          
+          <!--Alert Box-->
+                <ol class="breadcrumb breadcrumb-arrow">
+                    <li><a href="index.html">Home</a></li>
+                    <li class="active"><span>Add Property Type</span></li>
+                    <!--  <li><a href="list_Amenity_Form(1.4.3.1.2).html"></a>List Amenity</li> -->
+                </ol>
+            </div>
+            <div class="card-title">
+                <h4>Add Property Type</h4>
+            </div>
+            <div class="container-fluid">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="add_PopertyType(1.4.4.1.1).html" role="tab">Add Property Type</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list_PropertyType(1.4.4.1.2).html" role="tab">View Property Type</a>
+                    </li>
+                </ul>
+                <div class="card">
+                    <!-- <div class="row">
+                        <div class="card-title">
+                            <h4>Page Name</h4>
+                            <p>Small Description Goes Here...</p>
+                        </div>
+                    </div> -->
+                    <div class="card-body">
+                        <div class="basic-elements">
+                             <form th:action="@{/property/add-assignmentOfSeatingPlanModel}" th:object="${assignmentOfSeatingPlanModel}" method="post" >
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                    	<div class="form-group">
+                                            <label>Property Category</label>
+                                            <select class="form-control"  th:field="*{propertyCategory}" onChange="propertyCatagoryChange()">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${propertyNameList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==propertyCategory}"></option>
+											</select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Property Type</label>
+                                             <select  class="form-control" th:field="*{propertyType}" onChange="amenityChange()">
+                                                <option>---Select---</option>
+                                                <option>Property1</option>
+                                                <option>Property2 </option>
+                                            </select>
+                                        </div>
+                                         
+                                        <div class="form-group">
+                                            <label>Amenity Type</label>
+                                            <select class="form-control">
+                                                <option>---Select---</option>
+                                                <option>Amenity1</option>
+                                                <option>Amenity2 </option>
+                                            </select>
+                                        </div>
+                                        
+                                        
+                                        <button type="button" class="btn btn-success">submit</button>
+                                        <button type="button" class="btn btn-warning">cancel</button>
+                                    </div>
+                                </div>   
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

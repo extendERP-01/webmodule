@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+function rejectAppraisal(id){
+	var data = id.split(",");
+
+	var tAppraisalSetupId= data[0];
+	var tAppraisalFromDate= data[1];
+	 console.log(tAppraisalSetupId);
+	 console.log(tAppraisalFromDate);
+	
+		if(tAppraisalSetupId && tAppraisalFromDate){
+			swal({
+				title				: "Are you sure want to reject ?",
+				text				: "Make  Sure That All The Service Status Are Completed !",
+				type 				: "warning",
+				showCancelButton	: true,
+				confirmButtonColor	: "#DD6BB5",
+				confirmButtonText	:"Complete",
+				showLoaderOnConfirm	: true,
+				reverseButtons : true,
+				showLoaderOnConfirm	: true,
+				preConfirm: () => {
+								return new Promise((resolve) => {
+									setTimeout(() => {
+										console.log("Doing async operation");
+										resolve()
+									}, 3000)
+								})
+							}
+
+			}).then((result) => {
+				if(result.value){
+				$.ajax({
+					type 		:"GET",
+					url : "view-manager-appraisal-form-change-status?id="+tAppraisalSetupId+"&date=" +tAppraisalFromDate,
+					dataType : 'json',
+					contentType : 'application/json',
+					//data : JSON.stringify(obj),
+					success 	: 	function(response) {
+						
+						if(response.message=="success"){
+							
+							swal({
+								title	: "Appraisal Setup Status Changes Successfully.",
+								type: "success",
+						}).then(function(){
+							location.reload(); 
+						})
+						}else{
+							swal({
+								title:response.code,
+								text: response.message,
+								type:"warning"
+							})
+						}			
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				 }) 
+				}
+			}) 
+		} 
+	}  
+
+</script>
+<script>
+	function viewInModel(id) {
+		alert("hi")
+		$('#table1').empty();
+		$.ajax({
+					type : "POST",
+					url : "view-manager-appraisal-form-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : id,
+					success : function(response) {
+						console.log(response);
+						if (response.message == "success") {
+							table = '<tr><td><b>Employee Name :</b></td>'
+									+ '<td align="left">'
+									+ response.body[0].tEmployeeName
+									+ '</td>' + '</tr><tr><td><b>Department Name :</b></td>'
+									+ '<td align="left">'
+									+ response.body[0].tEmployeeDept + '</td>'
+									+ '</tr><tr><td><b>Job Title :</b></td>'
+									+ '<td align="left">'
+									+ response.body[0].tEmployeeJobTitle
+									+ '</td>'
+									+ '</tr><tr><td><b>From Date :</b></td>'
+									+ '<td align="left">'
+									+ response.body[0].tAppraisalFromDate
+									+ '</td>'
+									+ '</tr><tr><td><b>To Date :</b></td>'
+									+ '<td align="left">'
+									+ response.body[0].tAppraisalToDate
+									+ '</td>' + '</tr>';
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+							table = '<tr><th><b>Goal</b></th><th><b>KRA Measure</b></th><th><b>Target</b></th><th><b>Employee self Rated</b></th><th><b>First Stage Rating</b></th><th><b>First Stage Comment</b></th>';
+
+							$('#myModal').modal('show');
+							$('#table1').append(table);
+							for (var i = 0; i < response.body.length; i++) {
+								table = '<tr><td>' + response.body[i].tGoal
+										+ '</td><td>'
+										+ response.body[i].tKRAMeasure
+										+ '</td><td>'
+										+ response.body[i].tTarget
+										+ '</td><td>'
+										+ response.body[i].tSelfRate
+										+ '</td><td>'
+										+ response.body[i].tFirstStageRating
+										+ '</td><td>'
+										+ response.body[i].tStage1Comment
+										+ '</td></tr>';
+								$('#myModal').modal('show');
+								$('#table1').append(table);
+							}
+
+						}
+					},
+					error : function(data) {
+						console.log(response);
+					}
+				})
+
+	}
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-manager-appraisal-form-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'tEmployeeId'
+			}, {
+				'data' : 'tAppraisalFromDate'
+			}, {
+				'data' : 'tAppraisalToDate'
+			
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<!-- <li><a th:href="@{/employee/add-employee-appraisal-details}">Add Employee Appraisal Details</a></li> -->
+					<li class="active"><span>View Employee Appraisal Forms
+					</span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Employee Appraisal Forms</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+					<div id="demo" class="collapse">
+						<div class="search-field">
+							<div class="row">
+								<div class="col-md-2">
+									<div class="org-name">Department</div>
+								</div>
+								<div class="col-md-3">
+									<input id="param1" class="form-control" type="text"
+										placeholder="" name="" onkeyup="searchData()">
+								</div>
+
+								<div class="col-md-2"></div>
+							</div>
+						</div>
+					</div>
+					<a data-toggle="collapse" data-target="#demo"
+						class="showhideangelbg"><i class="fa fa-angle-double-down"></i>
+					</a>
+					<div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+									
+										<th>Employee Id</th>
+
+
+										<th>From Date</th>
+										<th>To Date</th>
+
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Appraisal Details</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

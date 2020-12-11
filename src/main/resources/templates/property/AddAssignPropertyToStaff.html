@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script type="text/javascript">
+  function validateForm(){
+	  if (!blankValidation("propertyCategory","SelectBox", "PropertyCategory can not be left blank"))
+          return false;
+	  
+	  if (!blankValidation("property","SelectBox", "PropertyType can not be left blank"))
+          return false;
+	  
+	  if (!blankValidation("itemCategory","SelectBox", " ItemCategory can not be left blank"))
+          return false;
+	  
+	  if (!blankValidation("ItemSubCategory","SelectBox", " ItemSubCategory can not be left blank"))
+          return false;
+	  
+	  if (!blankValidation("item","SelectBox", " Item Name can not be left blank"))
+          return false;
+	
+	  if (!blankValidation("assetsList","SelectBox", " Amenity Item List can not be left blank"))
+          return false;
+	  
+	  if (!blankValidation("satffActive","SelectBox", " Status can not be left blank"))
+          return false;
+	
+  }
+      </script>
+<script type="text/javascript">
+	
+	function userRoleChange(){
+		var costCenter = $("#costCenter").val();
+		if (costCenter) {
+			$.ajax({
+				type : "POST",
+				url : "assign-property-to-staff-getUserRole",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#costCenter").val(),
+				success : function(response) {
+					if (response.message == "success") {
+						
+						$("#userRole").empty();
+						$("#userRole").append($("<option value>Select</option>"));
+						$("#user").empty();
+						$("#user").append($("<option value>Select</option>"));
+						$("#propertyList").empty();
+						$("#propertyList").append($("<option value>Select</option>"));
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#userRole").append(option);
+						}
+
+					}
+				},
+				error : function(data) {
+					
+				}
+			})
+		} else {
+			$("#userRole").empty();
+			$("#userRole").append($("<option value>Select</option>"));
+			$("#user").empty();
+			$("#user").append($("<option value>Select</option>"));
+			$("#propertyList").empty();
+			$("#propertyList").append($("<option value>Select</option>"));
+		}
+	}
+	
+	function userChange() {
+		var userRole = $("#userRole").val();
+		if (userRole) {
+			$.ajax({
+				type : "POST",
+				url : "assign-property-to-staff-getUserList",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#userRole").val(),
+				success : function(response) {
+					if (response.message == "success") {
+						
+						$("#user").empty();
+						$("#user").append(
+								$("<option value>Select</option>"));
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#user").append(option);
+						}
+
+					}
+				},
+				error : function(data) {
+					
+				}
+			})
+		} else {
+			$("#user").empty();
+			$("#user").append($("<option value>Select</option>"));
+			
+		}
+	}
+	
+  function propertyListChange() {
+		var costCenter = $("#costCenter").val();
+		if (costCenter) {
+			$.ajax({
+				type : "POST",
+				url : "assign-property-to-staff-getPropertyList",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : $("#costCenter").val(),
+				success : function(response) {
+					if (response.message == "success") {
+						
+
+						$("#propertyList").empty();
+						$("#propertyList").append(
+								$("<option value>Select</option>"));
+						for (var i = 0; i < response.body.length; i++) {
+							 var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#propertyList").append(option); 
+							
+						}			
+						
+
+					}
+				},
+				error : function(data) {
+					
+				}
+			})
+		} else {
+
+			$("#propertyList").empty();
+			$("#propertyList").append($("<option value>Select</option>"));
+		}
+	}  
+	 
+	
+
+	 
+	
+</script>
+</head>
+<div layout:fragment="content">
+ <div class="content-wrap">
+        <div class="main mrt_20">
+        
+               <div class="col-md-12">
+                <!--Alert Box-->
+               		 <div class="alert alert-danger alert-dismissible" th:if="${message != null}">
+            		 <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+           			 <span th:text="${message}"></span>
+                </div>
+                
+                <!--Alert Box-->
+                <ol class="breadcrumb breadcrumb-arrow">
+                    <li><a href="index.html">Home</a></li>
+                    <li class="active"><span>Assign  Property To Staff </span></li>
+                </ol>
+            </div>
+            <div class="card-title">
+                <h4>Assign  Property To Staff </h4>
+            </div>
+            <div class="container-fluid">
+               
+                <div class="card">
+                    <div class="card-body">
+                        <div class="basic-elements">
+                            <form th:action="@{/property/assign-property-to-staff}" th:object="${propertyAssignPropertyToStaff}" method="post" onsubmit="return validateForm();"   autocomplete="off">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                    	<div class="form-group">
+                                            <label>CostCenter</label>
+                                            <select class="form-control"  th:field="*{costCenter}" onChange="userRoleChange(),propertyListChange();">
+												<option th:value="NULL">Select</option>
+												<option th:each="c:${costCenterList}" th:value='${c.key}' th:text="${c.name}" th:selected="${c.key==themeCategory}"></option>
+											</select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Role</label>
+                                            <select class="form-control" th:field="*{userRole}" onChange="userChange()">
+                                                 <option value=null >Select</option>
+                                              
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Staff list</label>
+                                            <select class="form-control" th:field="*{user}" >
+                                                 <option value=null >Select</option>
+                                               
+                                            </select>
+                                        </div>
+                                        <div class="col-md-12">
+                                        <input type="submit" class="btn btn-success">
+                                        <a href="view-assigned-property-to-staff"> <button type="button" class="btn btn-warning">cancel</button></a>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        
+                                        <div class="form-group" >
+                                            <label>Property list</label>
+                                           <select  multiple="multiple" class="3col active multiselect" th:field="*{propertyList}">
+                                                <option value=null>--select-- </option>
+                                                 <!--<option value=2>Asset list2</option> -->
+                                            </select> 
+  												<!--  <input type="text" th:field="*{assetsList}"  > -->
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Status</label>
+                                            <select class="form-control" th:field="*{satffActive}" >
+                                                 <option value="" >Select</option>
+                                                 <option value=true >Active</option>
+                                                 <option value=false >InActive</option>
+                                              
+                                            </select>
+                                        </div>
+                                    </div>
+                                  </div>  
+                            </form>
+                        </div>
+                    </div>
+                    <div style="clear:both;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

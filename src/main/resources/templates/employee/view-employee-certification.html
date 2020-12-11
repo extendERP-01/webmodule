@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	
+	function viewInModel(index) {
+		$('#table1').empty();
+		$.ajax({
+					type : "POST",
+					url : "view-employee-certification-modalView",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : index,
+					success : function(response) {
+						if (response.message == "success") {
+							table = '<tr><td><b>Employee Name :</b></td>'
+									+ '<td align="left">'
+									+ response.body[0].empName
+									+ '</td>'
+									+ '</tr><tr></tr>';
+									$('#myModal').modal('show');
+									$('#table1').append(table);
+									table = '<tr><th><b>Certification Name</b></th><th><b>Institute Name</b></th><th><b>Grant Date</b></th><th><b>Valid Upto</b></th>' ;
+									
+									$('#myModal').modal('show');
+									$('#table1').append(table);
+									for (var i=0; i<response.body.length; i++) {
+										table =  '<tr><td>'
+											+ response.body[i].certifName
+											+ '</td><td>'
+											+ response.body[i].insti
+											+ '</td><td>'
+											+ response.body[i].grantDate
+											+ '</td><td>'
+											+ response.body[i].validDate
+											+ '</td></tr>';
+										$('#myModal').modal('show');
+										$('#table1').append(table);
+									}
+							
+						}
+					},
+					error : function(data) {
+						console.log(data);
+					}
+				})
+
+	}
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-employee-certification-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'slNo'
+			},  {
+				'data' : 'empName'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/employee/add-employee-certification}">Add Employee
+							Certification</a></li>
+					<li class="active"><span>View Employee Certification </span></li>
+				</ol>
+			</div>
+			<div class="card-title">
+				<h4>View Employee Certification</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-employee-certification">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Employee Name</label>
+								
+									<!-- <select class="form-control" id="param1" onchange="searchData()">
+										<option th:value="null">--Select--</option>
+										<option th:each="c:${EmployeeList}" th:value='${c.key}'
+											th:text="${c.name}"></option>
+									</select> -->
+									<input type="text" id="param1" class="form-control" onkeyup="searchData()"/>
+								</div> 
+								<!-- <div class="col-md-2">
+									<div class="form-group">
+										<button type="search" class="btn btn-primary" value="Search" onclick="searchData()" >Search</button>
+										<input type="button" class="btn btn-info" value="Search"
+											onclick="searchData()" />
+									</div>
+								</div> -->
+							</div>
+						</div>
+					
+					
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>SL.NO</th>
+										<th>Employee Name</th>
+
+										<th align="center">Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Employee Certification Details</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

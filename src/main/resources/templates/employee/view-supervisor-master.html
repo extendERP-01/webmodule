@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 490px;
+	position: absolute;
+	z-index: 999;
+}
+
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+
+<script type="text/javascript">
+//Deleting the Theme Item
+const ipAPI = 'https://api.ipify.org?format=json'
+function deletesupervisor(id){
+ //var data = id.split(",");
+		swal.fire({
+		title	: "Are you sure want to Delete?",
+		text	: "Once Deleted,Can't revert back !",
+		type : "warning",
+
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Delete",
+		showLoaderOnConfirm	: true,
+		reverseButtons : true,
+		preConfirm: () => {
+			return fetch(ipAPI)
+			.then(response => response.json())
+			.then(data => Swal.insertQueueStep(data.ip))
+			.catch(() => {
+			Swal.insertQueueStep({
+				type: 'error',
+				title: 'Unable to get your public IP'
+		, })
+		})
+	  } 
+	}).then((result) => {
+	if(result.value){
+		$.ajax({
+			type	: "GET",
+			url : "/employee/view-Supervisor-master-delete?id=" +id,
+			dataType	: "json",
+			contentType	: "application/json",
+			data	: JSON.stringify(id),
+			success	: function(response){
+				console.log(response);
+				if(response.message=="success"){
+					
+					swal({
+						title	: "Data Deleted Successfully.",
+						type: "success",
+				}).then(function(){
+					location.reload(); 
+				})
+				}else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				}
+		},error	: function(data){
+			console.log(data);	
+		}
+	}) //ajax ends
+  }
+ })//swal function block ends
+}
+
+
+
+function viewInModel(index) {
+	$('#table1').empty();
+	$
+			.ajax({
+				type : "POST",
+				url : "view-supervisor-master-modalView",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : index,
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response.body.employmentStatus);
+						var employmentStatus = "";
+						if (response.body.status) {
+							employmentStatus = "Active";
+						} else {
+							employmentStatus = "InActive";
+						}
+						table = '<tr><td>Employee Name :</td>'
+								+ '<td align="left">'
+								+ response.body.empName
+								+ '</td>'
+								+ '</tr><tr><td>Department Name :</td><td align="left">'
+								+ response.body.deptName
+								+ '</td></tr><tr><td>Description :</td><td align="left">'
+								+ response.body.desc
+								+ '</td></tr><tr><td>Stauts :</td><td align="left">'
+								+ employmentStatus + '</td></tr>';
+						$('#myModal').modal('show');
+						$('#table1').append(table);
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+
+}
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#tblTheme').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-supervisor-master-ThroughAjax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val();
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ {
+				'data' : 'empName'
+			},{
+				'data' : 'deptName'
+			}, {
+				'data' : 'desc'
+			}, {
+				'data' : 'ststusName'
+			}, {
+				'data' : 'action'
+			} ]
+		});
+	});
+
+	function searchData() {
+		$('#tblTheme').DataTable().draw();
+	}
+</script>
+<script>
+
+/*
+ * for auto complete user 
+ */
+function employeeAutoComplete() {
+	$.ajax({
+		type : "POST",
+		url : "add-supervisor-master-employeeAutoComplete",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : $("#param1").val(),
+		success : function(response) {
+			if (response.message == "success") {
+				
+			if(response.body.length!=0)	{
+				
+				$("#param1").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				for (var i = 0; i < response.body.length; i++) {
+						content += '<li onClick="selectAutocompleteValue(\''+response.body[i].key+'\',\''+response.body[i].name+'\')">'+response.body[i].name+'</li>';
+				} 
+				content += '</ul>';
+				$("#suggesstion-box").show();
+				$("#suggesstion-box").html(content);
+				
+			}
+			else {
+				
+				$("#param1").css("background","#FFF");
+				var content = '<ul id="autocomplete-list">';
+				content += '<li onClick="selectAutocompleteValue(\''+''+'\',\''+''+'\')">'+"No Data Found"+'</li>';
+				content += '</ul>';
+				$("#suggesstion-box").show();
+				$("#suggesstion-box").html(content);
+			}
+			}
+		},
+		error : function(data) {
+		
+		}
+	})
+}
+function selectAutocompleteValue(key,name) {
+	if (key) {
+    		$("#param1").val(name);
+    		//$("#empid").val(key);
+    		
+    		$("#param1").attr('data-procat', key);
+    		
+    	
+    		$("#suggesstion-box").hide();
+    		
+		}
+	else {
+    		$("#param1").val("");
+    		$("#param1").val("");
+    		$("#param1").attr('data-procat', "");
+    		
+    		
+    		$("#suggesstion-box").hide();
+    		$("#myTable tbody tr:not(:first)").remove();
+    		$("#myTable tbody tr:last").find('td:last').remove();
+    		var add='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
+    		$("#myTable tbody tr:last").append('<td>'+ add+'</td>');
+	}
+}
+</script>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				 <ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li>
+					<li><a th:href="@{/employee/add-supervisor-master}">Add Supervisor</a></li>
+					<li class="active"><span>View Supervisor </span></li>
+				</ol> 
+			</div>
+			<div class="card-title">
+				<h4>View Supervisor</h4>
+			</div>
+			<div class="container-fluid">
+				<div class="card">
+						<div class="search-field">
+						<div class="row">
+							<div class="col-md-1">
+								<div class="form-group">
+									<a class="btn btn-secondary"
+										href="add-supervisor-master">Create</a>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-info">Import</button>
+								</div>
+							</div>
+							<div class="col-md-1">
+								<div class="form-group">
+									<button class="btn btn-warning">
+										<i class="fa fa-download"> </i>
+									</button>
+								</div>
+							</div>
+							<div class="col-md-1"></div>
+						</div>
+							<div class="row">
+								<div class="col-md-2">
+									<label>Supervisor Name</label>
+								
+									<input type="text" id="param1" class="form-control" onkeyup="searchData()"/>
+								</div>
+								
+							</div>
+						</div>
+						<div class="table-responsive" style="width: 100%;">
+							<table id="tblTheme" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>Employee Name</th>
+										<th>Department Name</th>
+										<th>Description</th>
+										<th>Status</th>
+										<th align="center">Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+						<div style="clear: both;"></div>
+					
+				</div>
+			</div>
+		</div>
+		<!-- Modal Start-->
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+				<!-- Modal content-->
+				<div class="modal-content" style="width: 750px;">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Supervisor</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%; border: 0;" id="table1">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+	</div>
+</div>
+</html>

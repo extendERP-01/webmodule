@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+<head>
+<style type="text/css">
+#autocomplete-list {
+	float: left;
+	list-style: none;
+	margin-top: -3px;
+	padding: 0;
+	width: 570px;
+	position: absolute;
+	z-index:9999;
+}
+ 
+#autocomplete-list li {
+	padding: 10px;
+	background: #f0f0f0;
+	border-bottom: #bbb9b9 1px solid;
+}
+
+#autocomplete-list li:hover {
+	background: #ece3d2;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+	$(document).ready(function() {
+		//alert($('#param1').val());
+		//Method for listing of all the Item Records
+		$('#itemList').DataTable({
+			'processing' : true,
+			'serverSide' : true,
+			'searching' : false,
+			'ordering' : false,
+			"ajax" : {
+				'url' : 'view-purchase-dept-rfq-vendor-select-through-ajax',
+				'data' : function(d) {
+					d.param1 = $('#param1').val(); 
+				}
+			},
+			'dataSrc' : "",
+			'columns' : [ 
+				{'data' : 'rfqNo'},
+				{'data' : 'rfqName'}, 
+				{'data' : 'vendorName'},
+				{'data' : 'venQuotId'},
+				{'data' : 'showStatus'}, 
+				{'data' : 'action'} 
+			]
+		});
+	});
+	
+	 
+	
+	function searchData() {
+		$('#itemList').DataTable().draw();
+	}
+	// Method For View Details In Model
+	
+  function viewInModel(index) {
+	 
+	// alert(index);
+	var id = index;
+		
+	$('#table1').empty();
+	$('#table2').empty();
+		$.ajax({
+				type : "POST",
+				url : "view-purchase-dept-rfq-vendor-select-model",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : id,
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						// console.log(response.body.status_m);
+						console.log(response.body);
+						
+						 var status_m = "";
+						if (response.body[0].status_m) {
+							status_m = "Active";
+						} else {
+							status_m = "Inactive";
+						}
+						   
+					
+						span = '<tr><td>Quotation No  :</td>' + '<td>'
+						+response.body[0].venQuotId + '</td>'
+						+ '</tr><tr><td>Vendor Name:</td>' + '<td>'
+						+response.body[0].vendorName
+						+ '</tr><tr><td>Notes:</td>' + '<td>'
+						+response.body[0].qNote
+						+ '</td></tr><tr><td>Grand Total:</td>' + '<td>'
+						+ response.body[0].grandTotal + '</td></tr><tr><th><b>Details Of Item Details :<b></th></tr>';  
+						$('#myModal').modal('show');
+						$('#table1').append(span);
+							
+						table2 = '<tr><th><b>Item Name</b></th><th><b>Item Price</b></th><th><b>Item Qnty.</b></th><th><b>Line Total</b></th>' ;
+						$('#myModal').modal('show');
+						$('#table2').append(table2);
+					 
+						for (var i=0; i<response.body.length; i++) {
+							
+							var status = "";
+							if (response.body[i].status_m) {
+								status = "Active";
+							} else {
+								status = "Inactive";
+							}
+							
+						 
+							table =  '<tr><td>'
+								+ response.body[i].itemName
+								+ '</td><td>'
+								+ response.body[i].unitPrice
+								+ '</td><td>'
+								+ response.body[i].quantity
+								+ '</td><td>'
+								+ response.body[i].lineTotal
+								+ '</td> </tr>';
+							$('#myModal').modal('show');
+							$('#table2').append(table);
+						} 
+								
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+		})
+}
+ 
+	function approveVendor(id){ 
+		var data = id.split(','); 
+	if(data[2] == 0){
+		data[2] = 1;
+		//data[2] = 2;
+	}else{
+		data[2] = 0;
+	}
+	console.log('data----',data);
+	if(data[2] == 1){
+		swal({
+	
+		title	: "Are you sure to Approve this Quotation?",
+		text	: "Make sure that Before Approve.",
+		type : "warning",
+		//title	: "Delivery Status Not Completed",
+		showCancelButton	: true,
+		confirmButtonColor	: "#DD6BB5",
+		confirmButtonText	:"Complete",
+		showLoaderOnConfirm	: false,
+		reverseButtons : true,
+	
+	
+		}).then((result) => {
+		 	if(result.value){
+		 	 $.ajax({
+		    	type :	"GET",
+		    	url :	"/inventory/view-purchase-dept-rfq-vendor-select-change-status?id="+data[0]+"&rfqId="+data[1]+"&approveStatus="+data[2]+"&createdBy="+data[3],    
+		    	success : function(response) {
+	
+		    	if(response.message=="success"){
+	
+		     	 swal({
+			  		title	: "Approved Successfully.",
+			  		type: "success",
+			  		}).then(function(){		
+			    		location.reload(); 
+			 			})
+				}else{
+			 		swal({
+						title:response.code,
+						text: response.message,
+						type:"warning",
+						text	: " Not Approved Successfully.",
+					})
+				}	
+			},
+			error : function(data) {
+				console.log(data);
+				}
+	  		 }) 
+	 		}
+	 	  }) 
+	    } 
+	 } 
+
+	 
+</script>
+<style>
+.ui-autocomplete-loading {
+	background: white url("/static/images/ui-anim_basic_16x16.gif") right
+		center no-repeat;
+}
+</style>
+</head>
+<div layout:fragment="content">
+	<div class="content-wrap">
+		<div class="main mrt_20">
+			<div class="col-md-12">
+				<ol class="breadcrumb breadcrumb-arrow">
+					<li><a href="index.html">Home</a></li> 
+             <!--        <li><a href="add-vendor-rfq-detail">Add RFQ Vendor Quotation</a></li>  -->
+					<li class="active"><span>View Purchase Department Vendor Selection</span></li>
+				</ol>
+			</div> 
+			<div class="container-fluid">
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+				</ul> 
+				<div class="card"> 
+				 <input type="hidden" id="param1"  th:value="${rfqId}"  />
+				  <div class="row">
+						<div class="table-responsive" style="width: 100%;">
+							<table id="itemList" class="table table-bordered">
+								<thead>
+									<tr>
+										<th>RFQ No</th>
+										<th>RFQ Name</th>
+										<th>Vendor</th>  
+										<th>Quotation No</th>
+										<th>Status</th> 
+										<th>Action</th>
+									</tr>
+								</thead>
+							</table>
+						</div><div> 
+						
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<!-- Modal Start-->
+		
+		<div id="myModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
+
+				<!-- Modal content-->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title">View Details of Vendor RFQ</h4>
+						<button type="button" class="close" data-dismiss="modal">
+							<i class="fa fa-close fa-2x"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%;" id="table1">
+						</table>
+					</div>
+					<div class="modal-body">
+						<table style="width: 100%;" id="table2">
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>
