@@ -35,7 +35,12 @@ input :focus
 	outline: none;;
 }
 
-
+input[type=checkbox], input[type=radio] {
+    box-sizing: border-box;
+    padding: 0;
+    height: 10px!important;
+    width: 10px!important;
+}
 
 .checkbox label input
 {
@@ -559,8 +564,8 @@ background-color: #f6f8f8;
 }
 hr {
     position: relative;
-    top: -2px;
-    left: -115px;
+    top: -7px;
+    left: -45px;
     width: 60%;
 }
 .padding-0

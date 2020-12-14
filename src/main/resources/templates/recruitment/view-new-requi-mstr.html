@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+   <head>
+   <link rel="stylesheet" href="../assets/css/extend/style-extend.css">
+    <title>Extend</title>
+   <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/themify-icons.css">
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>
+<script>
+function autocomplete(inp, arr) {
+  /*the autocomplete function takes two arguments,
+  the text field element and an array of possible autocompleted values:*/
+  var currentFocus;
+  /*execute a function when someone writes in the text field:*/
+  inp.addEventListener("input", function(e) {
+      var a, b, i, val = this.value;
+      /*close any already open lists of autocompleted values*/
+      closeAllLists();
+      if (!val) { return false;}
+      currentFocus = -1;
+      /*create a DIV element that will contain the items (values):*/
+      a = document.createElement("DIV");
+      a.setAttribute("id", this.id + "autocomplete-list");
+      a.setAttribute("class", "autocomplete-items");
+      /*append the DIV element as a child of the autocomplete container:*/
+      this.parentNode.appendChild(a);
+      /*for each item in the array...*/
+      for (i = 0; i < arr.length; i++) {
+        /*check if the item starts with the same letters as the text field value:*/
+        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+          /*create a DIV element for each matching element:*/
+          b = document.createElement("DIV");
+          /*make the matching letters bold:*/
+          b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+          b.innerHTML += arr[i].substr(val.length);
+          /*insert a input field that will hold the current array item's value:*/
+          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+          /*execute a function when someone clicks on the item value (DIV element):*/
+          b.addEventListener("click", function(e) {
+              /*insert the value for the autocomplete text field:*/
+              inp.value = this.getElementsByTagName("input")[0].value;
+              /*close the list of autocompleted values,
+              (or any other open lists of autocompleted values:*/
+              closeAllLists();
+          });
+          a.appendChild(b);
+        }
+      }
+  });
+  /*execute a function presses a key on the keyboard:*/
+  inp.addEventListener("keydown", function(e) {
+      var x = document.getElementById(this.id + "autocomplete-list");
+      if (x) x = x.getElementsByTagName("div");
+      if (e.keyCode == 40) {
+        /*If the arrow DOWN key is pressed,
+        increase the currentFocus variable:*/
+        currentFocus++;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 38) { //up
+        /*If the arrow UP key is pressed,
+        decrease the currentFocus variable:*/
+        currentFocus--;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 13) {
+        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+        e.preventDefault();
+        if (currentFocus > -1) {
+          /*and simulate a click on the "active" item:*/
+          if (x) x[currentFocus].click();
+        }
+      }
+  });
+  function addActive(x) {
+    /*a function to classify an item as "active":*/
+    if (!x) return false;
+    /*start by removing the "active" class on all items:*/
+    removeActive(x);
+    if (currentFocus >= x.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = (x.length - 1);
+    /*add class "autocomplete-active":*/
+    x[currentFocus].classList.add("autocomplete-active");
+  }
+  function removeActive(x) {
+    /*a function to remove the "active" class from all autocomplete items:*/
+    for (var i = 0; i < x.length; i++) {
+      x[i].classList.remove("autocomplete-active");
+    }
+  }
+  function closeAllLists(elmnt) {
+    /*close all autocomplete lists in the document,
+    except the one passed as an argument:*/
+    var x = document.getElementsByClassName("autocomplete-items");
+    for (var i = 0; i < x.length; i++) {
+      if (elmnt != x[i] && elmnt != inp) {
+        x[i].parentNode.removeChild(x[i]);
+      }
+    }
+  }
+  /*execute a function when someone clicks in the document:*/
+  document.addEventListener("click", function (e) {
+      closeAllLists(e.target);
+  });
+}
+
+/*An array containing all the country names in the world:*/
+var countries = ["Amit Jha","Ashish Dash","Arun Kar","Asima Barik","Aradhya Pal","Bisakha Senapati","Bikash Palei","Bidhan Nath","Bijayalaxmi Sahoo","Binita Parida","Chandan Palei",,"Chaaya Kar","Chimayee Rath","Cabir Singh","Chinu Dhar","Deepak Das","Disha Kar","DiyaPal","Dikhya Muduli","Dhiren Dhar","Divyanka Tripathy","Esha Jha","Eli Jena","Eshan Barik","Eyana Kar","Eilina Sahu"];
+
+/*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+autocomplete(document.getElementById("myInput"), countries);
+</script>
+
+
+ <script type="text/javascript">
+    $(document).ready(function(){
+  for(var n = 1; n <=25; n++){    
+    $('#box ul').append('<li><span>image '+n+' </span><img src="http://unsplash.it/280/180?image='+n+'"></li>');
+  }
+  $('#box').mCustomScrollbar({
+    theme: "inset",    
+    scrollButtons:{ enable: true }   
+  });
+
+});
+
+</script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#newBtn").click(function(){
+            $("#myTbl").hide();
+            $(".btn-hs").hide();
+            $("#demo").show();
+        })
+        
+        $("#cancelBtn").click(function(){
+            $("#myTbl").show();
+            $(".btn-hs").show();
+            $("#demo").hide();
+        });
+
+         $("#copyBtn").click(function(){
+            $("#myTbl").hide();
+            $(".btn-hs").hide();
+            $("#copy").show();
+        })
+
+         $("#copycancelBtn").click(function(){
+            $("#myTbl").show();
+            $(".btn-hs").show();
+            $("#copy").hide();
+        });
+
+         $("#profilebtn").click(function(){
+            $("#myTbl").hide();
+            $(".btn-hs").hide();
+            $("#profile").show();
+        })
+        $("#profilecancelbtn").click(function(){
+            $("#myTbl").show();
+            $(".btn-hs").show();
+            $("#profile").hide();
+        });
+    });
+</script>
+
+
+<script type="text/javascript">
+  $(document).ready(function(){
+   /* $('#header').load('../header-ads.html');
+    $('#footer').load('../footer-ads.html');*/
+     jQuery(document).delegate('a.add-record', 'click', function(e) {
+     e.preventDefault();    
+     var content = jQuery('#append_table tr'),
+     size = jQuery('#myTbl >tbody >tr').length + 1,
+     element = null,    
+     element = content.clone();
+     element.attr('id', 'rec-'+size);
+     element.find('.delete-record').attr('data-id', size);
+     element.appendTo('#myTbl_body');
+     element.find('.sn').html(size);
+   });
+    jQuery(document).delegate('a.delete-record', 'click', function(e) {
+     e.preventDefault();    
+     var didConfirm = confirm("Are you sure You want to delete");
+     if (didConfirm == true) {
+      var id = jQuery(this).attr('data-id');
+      var targetDiv = jQuery(this).attr('targetDiv');
+      jQuery('#rec-' + id).remove();
+      
+    //regnerate index number on table
+    $('#myTbl_body tr').each(function(index){
+        $(this).find('span.sn').html(index+1);
+    });
+    return true;
+  } else {
+    return false;
+  }
+});
+  });
+  
+  var count = 0;
+  function allCheck(){
+	  count++;
+	  
+	  if(count == 1){
+		  $('.checkCls').prop("checked",true);
+	  } else{
+		  count = 0;
+		  $('.checkCls').prop("checked",false);
+	  }
+  }
+</script>
+   </head>
+   <body>
+   <div layout:fragment="content">
+	<div class="content-wrap">
+	<div class="container-fluid">
+    
+        <div class="row">
+            
+            <div class="maincontentsec">
+                <div class="content_padding">
+                    <div class="row margin_topbot btn-hs">
+                        <div class="col-md-8">
+                            <div class="input-style row">
+                                <div class="autocomplete">
+                                <input  id="myInput" type="text" name="myCountry" class="searchboxinput" placeholder="Software..">
+                                </div>
+                                <div class="searchicon"><a href="#"><span class="close_i">X</span></a> <a href="#"><i class="fa fa-search"></i></a></div>
+                            </div>
+                    </div>
+                </div>
+<!--  <form enctype="multipart/form-data"> -->
+                <div class="row">
+                   
+                        <div class="col-md-6  btn-hs">
+                            <div class="font-design">REQUISITION LIST <span>(24)</span></div>
+                        </div>
+                        <div class="col-md-3 btn-hs">
+                            <div class="row">
+                                <button class="btn1" id="newBtn">NEW</button>
+                                <button class="btn2" id="copyBtn">COPY</button>
+                                <button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+                                <!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+                            </div>
+                        </div>
+                        <div class="col-md-2 btn-hs">
+                            <div class="row">
+                                <button class="btn2">APPROVE</button>
+                                <button class="btn2">POST</button>
+                            </div>
+                        </div>
+                        <div class="col-md-1 btn-hs">
+                            <div class="row">
+                                <button class="btn2" data-toggle="modal" data-target="#myModal1">ALLOCATE VENDOR</button>
+                            </div>
+                        </div>
+                  </div>
+
+                    <table class="table table-bordered table-responsive" id="myTbl">
+                        <thead>
+                            <tr>
+                                <th align="center" width="20"><label for="check1"></label><input id="check1" onclick="allCheck()" type="checkbox" name=""></th>
+                                <th>Req ID</th>
+                                <th>Title</th>
+                                <th># of positions </th>
+                                <th>Band</th>
+                                <th>Department</th>
+                                <th>Hiring Manager </th>
+                                <th>Join Date</th>
+                                <th>CTC Cap </th>
+                                <th>Status</th>
+                                <th>Applicants</th>
+                                <th>Shortlisted</th>
+                                <th>Interviewed</th>
+                                <th>Offered</th>
+                                <th>Create Date</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                                <td align="center" ><input class="checkCls" type="checkbox" name=""></td>
+                                <td align="center" ><div class="txt-blue">8</div> </td>
+                                <td > <div data-toggle="collapse" data-target="#profile" class="txt-blue" id="profilebtn"> Software Engineer</div></td>
+                                <td align="center" >2</td>
+                                <td >Band 4</td>
+                                <td >Product development</td>
+                                <td >Pradip Singh</td>
+                                <td  align="center">8-Nov-2020</td>
+                                <td  align="right">600.00</td>
+                                <td  align="center">Active</td>
+                                <td  align="right">8</td>
+                                <td  align="right">5</td>
+                                <td  align="right">3</td>
+                                <td  align="right">0</td>
+                                <td  align="center">9-Oct-2020</td>
+                            </tr>
+                            <tr>
+                                <td align="center" ><input class="checkCls" type="checkbox" name=""></td>
+                                <td align="center" > <div class="txt-blue"> 7</div></td>
+                                <td > <div class="txt-blue" data-toggle="collapse" data-target="#profile"> Software Engineer - II </div></td>
+                                <td align="center" >1</td>
+                                <td >Band 6</td>
+                                <td >Product development</td>
+                                <td >Pradip Singh</td>
+                                <td  align="center">10-Oct-20</td>
+                                <td  align="right">600.00</td>
+                                <td  align="center">Active</td>
+                                <td  align="right">20</td>
+                                <td  align="right">9</td>
+                                <td  align="right">8</td>
+                                <td  align="right">1</td>
+                                <td  align="center">9-Oct-2020</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                     <!-- </form> -->
+                 <!-- </div>  -->
+  
+  <!-- <div style="display:none;">
+    <table id="append_table">
+      <tbody><tr id="">
+       <td align="center" ><input type="checkbox" name=""></td>
+        <td align="center" > <div class="txt-blue"> 7</div></td>
+        <td > <div class="txt-blue" data-toggle="collapse" data-target="#profile" class="txt-blue"> Software Engineer - II </div></td>
+        <td align="center" >1</td>
+        <td >Band 6</td>
+        <td >Product development</td>
+        <td >Pradip Singh</td>
+        <td  align="center">10-Oct-20</td>
+        <td  align="right">600.00</td>
+        <td  align="center">Active</td>
+        <td  align="right">20</td>
+        <td  align="right">9</td>
+        <td  align="right">8</td>
+        <td  align="right">1</td>
+        <td  align="center">9-Oct-2020</td>
+     </tr>
+   </tbody></table>
+ </div> -->
+
+
+
+
+
+<div  class="collapse" id="copy" >
+      <div class="col-md-12">              
+<div class="row">
+    <div class="col-md-6">
+        <hr>
+        <div class="main-div">
+            <div class="section2">
+                <div class="green-box">
+                    <div class="green-box-heading">CREATED</div>
+                    <div class="date">9-OCT-20</div>
+                </div>
+            </div>
+            <div class="section3">
+                <div class="green-box">
+                    <div class="green-box-heading">ACTIVE</div>
+                    <div class="date">11-OCT-20</div>
+                </div>
+            </div>
+            <div class="section4">
+                <div class="grey-box">
+                <div>CLOSED</div>   
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+       <button class="btn2">Approve</button>
+       <button class="btn2">Post</button>
+    </div>
+    <div class="col-md-3 padding-0" align="right">
+        <button class="btn4" type="button" data-dismiss="modal" id="copycancelBtn">CANCEL</button>
+        <button class="btn3">DELETE</button>
+        <button class="btn1">SAVE</button>
+    </div>
+</div>
+<div class="row">
+
+<div class="col-md-12 padding-0">
+    <div class="row">
+        <div class="newgrid">
+            <div class="box border-line" align="center">
+                <a href="#" data-toggle="collapse" data-target="#demo">
+                    <div class="number1">8</div>
+                    <div class="text1">APPLIED</div>
+                </a>
+            </div>
+        </div>
+        <div class="newgrid">
+            <div class="box border-line" align="center">
+                <a href="hrms_hire.html">
+                    <div class="number1">5</div>
+                    <div class="text1">SHORTLISTED</div>
+                </a>
+            </div>
+        </div>
+        <div class="newgrid">
+            <div class="box border-line" align="center">
+                <a href="hrms_hire.html">
+                    <div class="number1">3</div>
+                    <div class="text1">INTERVIEWED</div>
+                </a>
+            </div>
+        </div>
+        <div class="newgrid">
+            <div class="box border-line" align="center">
+                <a href="hrms_hire.html">
+                    <div class="number1">0</div>
+                    <div class="text1">OFFERED</div>
+                </a>
+            </div>
+        </div>
+        
+        
+    </div>
+</div>
+</div>
+<div class="row">
+<div class="row">
+<div class="col-md-4">
+<div class="form-group">
+    <label>Job Title</label>
+    <input type="text" class="form-control"  placeholder="Software Engineer">
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Create Date</label>
+    <input type="text" class="form-control no-border"  placeholder="9-oct-2020">
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Created By</label>
+    <input type="text" class="form-control no-border"  placeholder="Manoj Sen">
+  </div>
+</div>
+<div class="col-md-4">
+<div class="form-group">
+    <label>Job Type</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>Ii Developer</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Band</label>
+    <input type="text" class="form-control no-border"  placeholder="Band4">
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Department</label>
+   <select class="form-control" id="exampleFormControlSelect1">
+      <option>Product Development</option>
+    </select>
+  </div>
+</div>
+
+<div class="col-md-4">
+    <div class="form-check">
+  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+  <label class="form-check-label" for="defaultCheck1">
+    Include about company
+  </label>
+</div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>job location</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>Chicago,IL</option>
+    </select>
+  </div>
+</div>
+
+<div class="col-md-4">
+<div class="form-group">
+    <label>Hiring Manager</label>
+   <select class="form-control" id="exampleFormControlSelect1">
+      <option>Pradip Singh</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Minimum Education Required</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>B-Tech</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Excepted Work hours</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>8AM-5PM (Mon-Fri)</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+<div class="form-group">
+    <label>Number of Position</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>2</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Annual Salary Range (Minimum)</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>200,000</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Annual Salary Range (Maximum)</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>500,000</option>
+    </select>
+  </div>
+</div>
+</div>
+<div class="row">
+                <div class="col-md-12">
+                    <div class="modal-inrheading">Position Summary</div>
+                    <div class="position-box">
+                        <div class="position-text">
+                            The Developer’s primary role is to transform business functional requirements into technical solutions as well as provide 2nd and 3rd level tier support for Salesforce applications. The Developer is expected to perform analysis,design, development, and implementation of process and technology within the Salesforce suite of applications.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-inrheading">Position Responsibility</div>
+                    <div class="position-box">
+                        <div class="position-text">
+                            Analysis, design, development, and implement new and/or existing business applications and software.
+                           Development will include interface and integration work.Develop customized solutions within the Salesforce platform to support critical business functions and meet projectobjectives, business requirements and goals.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-inrheading">Required Skills and Experience</div>
+                    <div class="position-box">
+                        <div class="position-text">
+                            Bachelor’s Degree in Computer Science, Management Information Systems or related field. 3+ years working as a Salesforce Developer.
+                        </div>
+                    </div>
+               </div>
+               <div class="col-md-12">
+                <div class="row">
+                <div class="col-md-3">
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Bonus</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Disability Insurance</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Paid Time Off</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">401(k)</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Health Insurance</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Retirement Plan</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">401(k) Match</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Flexible Schedule</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Vision Insurance</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Dental Insurance</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Life Insurance</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="col-md-12">
+            <div class="row">
+                <div class="col-4 col-md-4">
+                    <div class="checkbox">
+                      <label><input type="checkbox" value=""> Need Approval</label>
+                    </div>
+                </div>
+                <div class="col-4 col-md-4">
+                      <div class="form-group">
+                        <label for="exampleFormControlSelect1">Approver</label>
+                        <select class="form-control" id="exampleFormControlSelect1">
+                          <option>Pinaki Datta</option>
+                        </select>
+                      </div>
+                </div>
+            </div>
+     </div>
+     <div class="col-md-12">
+          <div class="modal-inrheading" style="display: block;">Activity History</div>
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th align="center" width="33%">Date</th>
+                            <th align="center" width="33%">Activity</th>
+                            <th align="center" width="33%">By</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td align="center">10-Oct-20 <span>04:48PM</span></td>
+                            <td align="left">Updated</td>
+                            <td align="center">Pinaki Datta</td>
+                          </tr>
+                          <tr>
+                            <td align="center">08-Nov-20 <span>10:29PM</span></td>
+                            <td align="left">Created</td>
+                            <td align="center">Manoj Sen</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                </div>
+           </div>
+        </div>
+    </div>
+                </div>
+
+
+
+
+
+
+
+<div  class="collapse" id="demo" >
+      <div class="col-md-12">              
+<div class="row">
+    <div class="col-md-6">
+        <hr>
+        <div class="main-div">
+            <div class="section2">
+                <div class="green-box">
+                    <div class="green-box-heading">CREATED</div>
+                    <div class="date">9-OCT-20</div>
+                </div>
+            </div>
+            <div class="section3">
+                <div class="green-box">
+                    <div class="green-box-heading">ACTIVE</div>
+                    <div class="date">11-OCT-20</div>
+                </div>
+            </div>
+            <div class="section4">
+                <div class="grey-box">
+                <div>CLOSED</div>   
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+       <button class="btn2">Approve</button>
+       <button class="btn2">Post</button>
+    </div>
+    <div class="col-md-3 padding-0" align="right">
+        <button class="btn4" type="button" data-dismiss="modal" id="cancelBtn">CANCEL</button>
+        <button class="btn3">DELETE</button>
+        <button class="btn1">SAVE</button>
+    </div>
+</div>
+<div class="row">
+
+<div class="col-md-12 padding-0">
+    <div class="row">
+        <div class="newgrid">
+            <div class="box border-line" align="center">
+                <a href="#" data-toggle="collapse" data-target="#demo">
+                    <div class="number1">8</div>
+                    <div class="text1">APPLIED</div>
+                </a>
+            </div>
+        </div>
+        <div class="newgrid">
+            <div class="box border-line" align="center">
+                <a href="hrms_hire.html">
+                    <div class="number1">5</div>
+                    <div class="text1">SHORTLISTED</div>
+                </a>
+            </div>
+        </div>
+        <div class="newgrid">
+            <div class="box border-line" align="center">
+                <a href="hrms_hire.html">
+                    <div class="number1">3</div>
+                    <div class="text1">INTERVIEWED</div>
+                </a>
+            </div>
+        </div>
+        <div class="newgrid">
+            <div class="box border-line" align="center">
+                <a href="hrms_hire.html">
+                    <div class="number1">0</div>
+                    <div class="text1">OFFERED</div>
+                </a>
+            </div>
+        </div>
+        
+        
+    </div>
+</div>
+</div>
+<div class="row">
+<div class="row">
+<div class="col-md-4">
+<div class="form-group">
+    <label>Job Title</label>
+    <input type="text" class="form-control"  placeholder="Type Job Title">
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Create Date</label>
+    <input type="date" class="form-control no-border"  placeholder="DD-MM-YYYY">
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Created By</label>
+    <input type="text" class="form-control no-border"  placeholder="">
+  </div>
+</div>
+<div class="col-md-4">
+<div class="form-group">
+    <label>Job Type</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>Ii Developer</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Band</label>
+    <input type="text" class="form-control no-border"  placeholder="">
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Department</label>
+   <select class="form-control" id="exampleFormControlSelect1">
+      <option>Select Department</option>
+      <option>Product Development</option>
+      <option>Finance Department</option>
+      <option>Marketing Department</option>
+      <option>Admin Development</option>
+    </select>
+  </div>
+</div>
+
+<div class="col-md-4">
+    <div class="form-check">
+  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+  <label class="form-check-label" for="defaultCheck1">
+    Include about company
+  </label>
+</div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>job location</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>Select Location</option>
+      <option>Chicago,IL</option>
+      <option>Chicago,IL</option>
+    </select>
+  </div>
+</div>
+
+<div class="col-md-4">
+<div class="form-group">
+    <label>Hiring Manager</label>
+   <select class="form-control" id="exampleFormControlSelect1">
+      <option>Select Manager</option>
+      <option>Pradip Singh</option>
+      <option>Pinaki Dutta</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Minimum Education Required</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>Select  Education</option>
+      <option>B-Tech</option>
+      <option>M-Tech</option>
+      <option>MCA</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Excepted Work hours</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>Select Work Hour</option>
+      <option>8AM-5PM (Mon-Fri)</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+<div class="form-group">
+    <label>Number of Position</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>Select Position</option>
+      <option>2</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Annual Salary Range (Minimum)</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>Select Salary Range</option>
+      <option>200,000</option>
+    </select>
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Annual Salary Range (Maximum)</label>
+    <select class="form-control" id="exampleFormControlSelect1">
+      <option>500,000</option>
+    </select>
+  </div>
+</div>
+</div>
+<div class="row">
+                <div class="col-md-12">
+                    <div class="modal-inrheading">Position Summary</div>
+                    <div class="position-box">
+                        <div class="position-text">
+                            The Developer’s primary role is to transform business functional requirements into technical solutions as well as provide 2nd and 3rd level tier support for Salesforce applications. The Developer is expected to perform analysis,design, development, and implementation of process and technology within the Salesforce suite of applications.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-inrheading">Position Responsibility</div>
+                    <div class="position-box">
+                        <div class="position-text">
+                            Analysis, design, development, and implement new and/or existing business applications and software.
+                           Development will include interface and integration work.Develop customized solutions within the Salesforce platform to support critical business functions and meet projectobjectives, business requirements and goals.
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="modal-inrheading">Required Skills and Experience</div>
+                    <div class="position-box">
+                        <div class="position-text">
+                            Bachelor’s Degree in Computer Science, Management Information Systems or related field. 3+ years working as a Salesforce Developer.
+                        </div>
+                    </div>
+               </div>
+               <div class="col-md-12">
+                <div class="row">
+                <div class="col-md-3">
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Bonus</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Disability Insurance</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Paid Time Off</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">401(k)</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Health Insurance</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Retirement Plan</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">401(k) Match</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Flexible Schedule</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Vision Insurance</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Dental Insurance</label>
+                    </div>
+                    <div class="checkbox">
+                      <label><input type="checkbox" value="">Life Insurance</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="col-md-12">
+            <div class="row">
+                <div class="col-4 col-md-4">
+                    <div class="checkbox">
+                      <label><input type="checkbox" value=""> Need Approval</label>
+                    </div>
+                </div>
+                <div class="col-4 col-md-4">
+                      <div class="form-group">
+                        <label for="exampleFormControlSelect1">Approver</label>
+                        <select class="form-control" id="exampleFormControlSelect1">
+                          <option>Pinaki Datta</option>
+                        </select>
+                      </div>
+                </div>
+            </div>
+     </div>
+     <div class="col-md-12">
+          <div class="modal-inrheading" style="display: block;">Activity History</div>
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th align="center" width="33%">Date</th>
+                            <th align="center" width="33%">Activity</th>
+                            <th align="center" width="33%">By</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td align="center">10-Oct-20 <span>04:48PM</span></td>
+                            <td align="left">Updated</td>
+                            <td align="center">Pinaki Datta</td>
+                          </tr>
+                          <tr>
+                            <td align="center">08-Nov-20 <span>10:29PM</span></td>
+                            <td align="left">Created</td>
+                            <td align="center">Manoj Sen</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                </div>
+           </div>
+        </div>
+    </div>
+                </div>
+<!-- profile Section -->
+<div class="collapse"  id="profile">
+<div class="row">
+<div class="col-md-12" align="right">
+<button class="btn3" id="profilecancelbtn">Cancel</button>
+<button class="btn1">Save</button>
+</div>
+<div class="col-md-4">
+<div class="hvrbox">
+    <img src="img/profile.jpg" alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+    <div class="hvrbox-layer_top">
+        <div class="hvrbox-text">
+            <span><i class="fa fa-pencil-square-o"></i></span>
+            <span><i class="fa fa-trash"></i></div></span>
+    </div>
+</div>
+        </div>
+        <div class="col-md-4">
+            <div class="name">Kamala Suresh</div>
+            <div>
+            <div class="details">AP Manager</div>
+            <div class="details">Finance Department</div>
+            <div class="details">Chennai,India</div>
+           </div>
+           <div class="mt-20">
+            <div class="details">+91 723 76237</div>
+            <div class="details">Kamala@trend.com</div>
+           </div>
+        </div>
+        <div class="col-md-4 mt-60">
+            <div>
+            <div class="details">Manager: <a href="#">Sailesh Kumar</a></div>
+           </div>
+           <div class="mt-20">
+            <div class="details">Direct Report - 4 <span> <a type="button" data-toggle="collapse" data-target="#forwardto">+</a></span></div>
+            <div id="forwardto" class="details collapse ml-45">
+                <div><a href="#">Anil Kapur</a></div>
+                <div><a href="#">Shubhnam Saif</a></div>
+                <div><a href="#">Krishna Kumar</a></div>
+                <div><a href="#">Arun Jetli</a></div>
+           </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-12 mt-60">
+<div class="accordion md-accordion" id="accordionEx" role="tablist" aria-multiselectable="true">
+
+  <!-- Accordion card -->
+ 
+
+    <!-- Card header -->
+    <div class="card-header" role="tab" id="headingOne1">
+      <a data-toggle="collapse" data-parent="#accordionEx" href="#collapseOne1" aria-expanded="true"
+        aria-controls="collapseOne1">
+        <h5 class="mb-0">
+          Internal Journey <i class="fa fa-angle-down rotate-icon"></i>
+        </h5>
+      </a>
+    </div>
+
+    <!-- Card body -->
+    <div id="collapseOne1" class="collapse show" role="tabpanel" aria-labelledby="headingOne1"
+      data-parent="#accordionEx">
+      <div class="card-body">   
+         <div class="col-md-12 col-lg-12">
+         <div id="tracking-pre"></div>
+         <div id="tracking">
+               <div class="tracking-item">
+                  <div class="tracking-icon status-intransit">
+                     <!-- <i class="fas fa-circle"></i> -->
+                  </div>
+                  <div class="tracking-content"><span>9-Oct-17: Onboarded-Marketing Analyst (Marketing department)</span></div>
+               </div>
+               <div class="tracking-item">
+                  <div class="tracking-icon status-intransit">
+                     <!-- <i class="fas fa-circle"></i> -->
+                  </div>
+                  <div class="tracking-content"><span>1-Jan-18: Transitioned from Marketing Analyst (Marketing department) to AP Analyst (Finance Department)</span></div>
+               </div>
+               <div class="tracking-item">
+                  <div class="tracking-icon status-intransit">
+                     <!-- <i class="fas fa-circle"></i> -->
+                  </div>
+                  <div class="tracking-content"><span>20-Dec-18: Promoted from AP Analyst (Finance Department) to AP Lead (Finance department)</span></div>
+               </div>
+               <div class="tracking-item">
+                  <div class="tracking-icon status-intransit">
+                     <!-- <i class="fas fa-circle"></i> -->
+                  </div>
+                  <div class="tracking-content"><span>14-Feb-20: Promoted from AP Lead (Finance Department) to AP Manager (Finance department)</span></div>
+               </div>
+         </div>
+      </div>
+      </div>
+    </div>
+
+ 
+  <!-- Accordion card -->
+
+  <!-- Accordion card -->
+ 
+
+    <!-- Card header -->
+    <div class="card-header" role="tab" id="headingTwo2">
+      <a class="collapsed" data-toggle="collapse" data-parent="#accordionEx" href="#collapseTwo2"
+        aria-expanded="false" aria-controls="collapseTwo2">
+        <h5 class="mb-0">
+          Personal Information <i class="fa fa-angle-down rotate-icon"></i>
+        </h5>
+      </a>
+    </div>
+
+    <!-- Card body -->
+    <div id="collapseTwo2" class="collapse" role="tabpanel" aria-labelledby="headingTwo2"
+      data-parent="#accordionEx">
+      <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                <label>First Name</label>
+                <input type="text" class="form-control" placeholder="Kamala">
+              </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                <label>Middle Name</label>
+                <input type="text" class="form-control" placeholder="">
+              </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                <label for="email">Last Name</label>
+                <input type="text" class="form-control" placeholder="Kamala">
+              </div>
+            </div>
+            <div class="col-md-3">
+             <div class="form-group">
+                <label>Gender</label>
+                <select class="form-control">
+                  <option>Female</option>
+                  <option>Male</option>
+                  <option>Transgender</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                <label>Address</label>
+                <input type="text" class="form-control" placeholder="1 Main Street">
+              </div>
+            </div>
+            <div class="col-md-3">
+             <div class="form-group">
+                <label>State</label>
+                <select class="form-control">
+                  <option>Karnataka</option>
+                  <option>Odisha</option>
+                  <option>Maharastra</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3">
+             <div class="form-group">
+                <label>City</label>
+                <select class="form-control">
+                  <option>Bangaluru</option>
+                  <option>Bhubaneswar</option>
+                  <option>Mumbai</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                <label>Postal Code</label>
+                <input type="text" class="form-control" placeholder="502 092">
+              </div>
+            </div>
+        </div>
+    </div>
+
+  </div>
+  <!-- Accordion card -->
+</div>
+  <!-- profile Section -->
+
+</div>
+    </div>
+
+    </div>
+          <!--   </div>
+        </div>
+    </div> -->
+<!-- The Modal -->
+
+<div class="modal fade" id="myModal1">
+<div class="modal-dialog modal-lg" style="max-width:1100px">
+<div class="modal-content" style="width:100%">
+
+<!-- Modal Header -->
+<div class="modal-header">
+<h4 class="modal-title" style="font-size:16px"><b>Allocate Vendor for Requisition: 8 - Software Engineer</b></h4>
+<button type="button" class="close" data-dismiss="modal" style="font-size:25px">×</button>
+</div>
+    <!-- Modal body -->
+<div class="modal-body" style="height: 600px; overflow-y:scroll; ">
+<div class="vertical-line">
+
+
+ <div class="row">
+                <div class="col-md-12">
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th align="center">Req ID</th>
+                            <th align="center">Title</th>
+                            <th align="center"># Ofposition</th>
+                            <th align="center">Band</th>
+                            <th align="center">Department</th>
+                            <th align="center">Hiring Manger</th>
+                            <th align="center">Join Date</th>
+                            <th align="center">CTC CAp</th>
+                            <th align="center">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td align="center">8</td>
+                            <td align="left">Software Engineer</td>
+                            <td align="center">2</td>
+                            <td align="left">Brand 4</td>
+                            <td align="left">Product Development</td>
+                            <td align="left">Pradp Singh</td>
+                            <td align="center">8-Nov-20</td>
+                            <td align="right">600.000</td>
+                            <td align="center">Active</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+            <div class="row mt-20">
+                <div class="col-md-9">
+                    <div class="modal-inrheading">Vendor List (2/31)</div>
+                </div>
+                <div class="col-md-3 mrt_btm" align="right">
+                    <button class="btn3">Remove</button>
+                    <button class="btn1">Allocate</button>
+                </div>
+                <div class="col-md-12">
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th align="center">
+                              <input type="checkbox" value="">
+                            </th>
+                            <th width="100" align="center">ID</th>
+                            <th width="300" align="center">Name</th>
+                            <th align="center">Location</th>
+                            <th align="center">Expertize</th>
+                            <th align="center">Reqs Sent<br>(Last 12 Months)</th>
+                            <th align="center">Candidates<br>(Last 12 Months)</th>
+                            <th align="center">Closed<br>(Last 12 Months)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td><input type="checkbox" value=""></td>
+                            <td align="center" class="activetd">102</td>
+                            <td align="left" class="activetd">Advanced Tech</td>
+                            <td align="left">Chennai.India</td>
+                            <td align="left">IT</td>
+                            <td align="center">12</td>
+                            <td align="center">29</td>
+                            <td align="center">3</td>
+                          </tr>
+                          <tr>
+                            <td><input type="checkbox" value=""></td>
+                            <td align="center" class="activetd">329</td>
+                            <td align="left" class="activetd">Global Tech</td>
+                            <td align="left">Mumbai.India</td>
+                            <td align="left">Software Developer</td>
+                            <td align="center">23</td>
+                            <td align="center">47</td>
+                            <td align="center">12</td>
+                          </tr>
+                          <tr>
+                            <td><input type="checkbox" value=""></td>
+                            <td align="center">102</td>
+                            <td align="left">Advanced Tech</td>
+                            <td align="left">Chennai.India</td>
+                            <td align="left">IT</td>
+                            <td align="center">12</td>
+                            <td align="center">29</td>
+                            <td align="center">3</td>
+                          </tr>
+                          <tr>
+                            <td><input type="checkbox" value=""></td>
+                            <td align="center">329</td>
+                            <td align="left">Global Tech</td>
+                            <td align="left">Mumbai.India</td>
+                            <td align="left">Software Developer</td>
+                            <td align="center">23</td>
+                            <td align="center">47</td>
+                            <td align="center">12</td>
+                          </tr>
+                          <tr>
+                            <td><input type="checkbox" value=""></td>
+                            <td align="center">102</td>
+                            <td align="left">Advanced Tech</td>
+                            <td align="left">Chennai.India</td>
+                            <td align="left">IT</td>
+                            <td align="center">12</td>
+                            <td align="center">29</td>
+                            <td align="center">3</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                </div>
+            </div>         
+             <div class="row mt-20">
+                <div class="col-md-12">
+                    <div class="modal-inrheading">Activity History</div>
+                </div>
+                <div class="col-md-12">
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th align="center">Date</th>
+                            <th align="center">Activity</th>
+                            <th align="center">By</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td align="center">10-Oct-20 <span>04:48PM</span></td>
+                            <td align="left">Alocated: Advanced Tech</td>
+                            <td align="center">Pinaki Datta</td>
+                          </tr>
+                          <tr>
+                            <td align="center">08-Nov-20 <span>10:29PM</span></td>
+                            <td align="left">Alocated: Global Tech</td>
+                            <td align="center">Manoj Sen</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+       </div>
+  </div>
+</div>
+</div>
+</div>
+
+ <!-- The Modal -->
+  <div class="modal fade" id="delete">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+       <!-- Modal body -->
+        <div class="modal-body">
+          <div align="center">
+            <h6>Are you Sure You want to delete the user role !</h6>
+          </div>
+          <div class="deletepopupbtnsec">
+             <button  class="btn3" data-dismiss="modal">Yes</button><!-- class="close" -->
+             <button  class="btn1" data-dismiss="modal">No</button><!-- class="close" -->
+          </div>
+        </div>
+       <!-- Modal footer -->
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</body>
+</html>

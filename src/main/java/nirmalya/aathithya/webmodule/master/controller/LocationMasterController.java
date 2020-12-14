@@ -279,4 +279,59 @@ public class LocationMasterController {
 		logger.info("Method : saveAllImage ends");
 		return imageName;
 	}
+	@SuppressWarnings("unused")
+	@GetMapping(value = { "manage-warehouse" })
+	public String manageWareHouse(Model model, HttpSession session) {
+		logger.info("Method : manageWareHouse starts");
+		
+		try {
+			DropDownModel[] locationType = restClient.getForObject(env.getMasterUrl() + "getLocationTypeList", DropDownModel[].class);
+			List<DropDownModel> locationTypeList = Arrays.asList(locationType);
+			
+			model.addAttribute("locationTypeList", locationTypeList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			DropDownModel[] country = restClient.getForObject(env.getMasterUrl() + "getCountryListForLocation", DropDownModel[].class);
+			List<DropDownModel> countryList = Arrays.asList(country);
+			
+			model.addAttribute("countryList", countryList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			LocationMasterModel[] location = restClient.getForObject(env.getMasterUrl() + "getLocationList", LocationMasterModel[].class);
+			List<LocationMasterModel> locationList = Arrays.asList(location);
+			
+			int count = 0;
+			
+			for(LocationMasterModel m : locationList) {
+				count = count + 1;
+				if(m.getLocVirtual().equals("0")) {
+					m.setLocVirtual("No");
+				}
+				if(m.getLocVirtual().equals("1")) {
+					m.setLocVirtual("Yes");
+				}
+				if(m.getLocStatus().equals("0")) {
+					m.setLocStatus("Inactive");
+				}
+				if(m.getLocStatus().equals("1")) {
+					m.setLocStatus("Active");
+				}
+			}
+			
+			model.addAttribute("count", count);
+			
+			model.addAttribute("locationList", locationList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Method : manageWareHouse ends");
+		return "master/managewarehouse";
+	}
 }

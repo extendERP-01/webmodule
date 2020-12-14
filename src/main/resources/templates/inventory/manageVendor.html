@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<link rel="stylesheet" href="../assets/css/extend/style-extend.css">
+<!-- <script src="../assets/js/extend/treed.js"></script> -->
+<style type="text/css">
+hr {
+    position: relative;
+    top: -5px;
+    left: -45px;
+    width: 60%;
+}
+
+label {
+    display: inline-block;
+    color: #009900;
+    font-size: 14px;
+    font-weight: 500;
+    text-indent: 3px;
+}
+.input-style {
+    width: 43%;
+    border-radius: 34px;
+    border: 1px solid #e8e7e7;
+    font-size: 12px;
+    padding: 4px 10px;
+    background: #FFF;
+}
+</style>
+
+<script>
+	function openNav() {
+		document.getElementById("mySidenav").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
+		document.getElementById("main").style.width = "420px";
+	}
+
+	function closeNav() {
+		document.getElementById("mySidenav").style.width = "0";
+		document.getElementById("main").style.width = "480px";
+	}
+</script>
+<script type="text/javascript">
+	$(document)
+			.ready(
+					function() {
+						$.fn
+								.extend({
+									treed : function(o) {
+
+										/*var openedClass = 'fa-minus-circle';
+										var closedClass = 'fa-plus-circle';*/
+										var openedClass = 'fa fa-angle-down';
+										var closedClass = 'fa fa-angle-right ';
+
+										if (typeof o != 'undefined') {
+											if (typeof o.openedClass != 'undefined') {
+												openedClass = o.openedClass;
+											}
+											if (typeof o.closedClass != 'undefined') {
+												closedClass = o.closedClass;
+											}
+										}
+										;
+
+										//initialize each of the top levels
+										var tree = $(this);
+										tree.addClass("tree");
+										tree
+												.find('li')
+												.has("ul")
+												.each(
+														function() {
+															var branch = $(this); //li with children ul
+															branch
+																	.prepend("<i class='indicator fa " + closedClass + "'></i>");
+															branch
+																	.addClass('branch');
+															branch
+																	.on(
+																			'click',
+																			function(
+																					e) {
+																				if (this == e.target) {
+																					var icon = $(
+																							this)
+																							.children(
+																									'i:first');
+																					icon
+																							.toggleClass(openedClass
+																									+ " "
+																									+ closedClass);
+																					$(
+																							this)
+																							.children()
+																							.children()
+																							.toggle();
+																				}
+																			})
+															branch.children()
+																	.children()
+																	.toggle();
+														});
+										//fire event from the dynamically added icon
+										tree
+												.find('.branch .indicator')
+												.each(
+														function() {
+															$(this)
+																	.on(
+																			'click',
+																			function() {
+																				$(
+																						this)
+																						.closest(
+																								'li')
+																						.click();
+																			});
+														});
+										//fire event to open branch if the li contains an anchor instead of text
+										tree.find('.branch>a').each(function() {
+											$(this).on('click', function(e) {
+												$(this).closest('li').click();
+												e.preventDefault();
+											});
+										});
+										//fire event to open branch if the li contains a button instead of text
+										tree
+												.find('.branch>button')
+												.each(
+														function() {
+															$(this)
+																	.on(
+																			'click',
+																			function(
+																					e) {
+																				$(
+																						this)
+																						.closest(
+																								'li')
+																						.click();
+																				e
+																						.preventDefault();
+																			});
+														});
+									}
+								});
+
+						$('#tree1').treed();
+
+						$('#tree2').treed({
+							openedClass : 'glyphicon-folder-open',
+							closedClass : 'glyphicon-folder-close'
+						});
+
+						$('#tree3').treed({
+							openedClass : 'glyphicon-chevron-right',
+							closedClass : 'glyphicon-chevron-down'
+						});
+					})
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		changeOpt();
+		$("#newBtn").click(function() {
+			$("#myTbl").hide();
+			$(".btn-hs").hide();
+			$("#demo").show();
+		})
+
+		$("#cancelBtn").click(function() {
+			$("#myTbl").show();
+			$(".btn-hs").show();
+			$("#demo").hide();
+		});
+		$("#quarter").click(function() {
+			$("#myTbl").hide();
+			$(".btn-hs").hide();
+			$("#demo").show();
+		})
+
+		$("#cancelBtn").click(function() {
+			$("#myTbl").show();
+			$(".btn-hs").show();
+			$("#demo").hide();
+		});
+	});
+
+	$("input[class='myCheckbox']").click(function() {
+		if ($("#formID input:checkbox:checked").length > 0) {
+
+			$(".checkSubmit").addClass('active');
+		} else {
+			$(".checkSubmit").removeClass('active');
+		}
+	});
+
+	function changeOpt() {
+		var Category = $("#Category").val();
+		$("#type").empty();
+		if (Category == 'Product') {
+			var option = "<option id='ProductOpt'>Software</option> <option id='ProductOpt'>Hardware</option> <option id='ProductOpt'>Office</option> <option id='ProductOpt'>Food</option> <option id='ProductOpt'>Parts</option> <option id='ProductOpt'>Raw Material</option>";
+			$("#type").append(option);
+		} else {
+			var option = "<option id='ServicesOpt'>Credit Card</option> <option id='ServicesOpt'>Bank</option> <option id='ServicesOpt'>Insurance</option> <option id='ServicesOpt'>Financial Service</option> <option id='ServicesOpt'>Government Agency</option> <option id='ServicesOpt'>GOffice Maintenance</option> <option id='ServicesOpt'>Consulting</option>";
+			$("#type").append(option);
+		}
+	}
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+
+			<div class="maincontentsec">
+				<div class="content_padding">
+					<div class="row margin_topbot btn-hs">
+						<div class="col-md-8 padding-7 ">
+							<div class="input-style row">
+								<div class="autocomplete">
+									<input id="myInput" type="text" name="myCountry"
+										class="searchboxinput" placeholder="Software..">
+								</div>
+								<div class="searchicon">
+									<a href="#"><span class="close_i">X</span></a> <a href="#"><i
+										class="fa fa-search"></i></a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!--  <form enctype="multipart/form-data"> -->
+					<div class="row">
+
+						<div class="col-md-7 padding-7 btn-hs">
+							<div class="font-design">
+								Vendor LIST <span>(10)</span>
+							</div>
+						</div>
+						<div class="col-md-2 btn-hs">
+							<div class="row">
+								<button class="btn1" id="newBtn">NEW</button>
+								<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+								<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+								<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+							</div>
+						</div>
+						<div class="col-md-1 btn-hs">
+							<button class="btn2">Approve</button>
+						</div>
+
+						<div class="col-md-2 btn-hs padding-7" align="right">
+							<button class="btn4">Upload</button>
+							<button class="btn4">Download</button>
+						</div>
+
+					</div>
+
+					<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+						<thead>
+							<tr>
+								<th align="center" width="20"><input type="checkbox"
+									name=""></th>
+								<th>ID</th>
+								<th>Code</th>
+								<th>Name</th>
+								<th>Type</th>
+								<th>Address</th>
+								<th>City</th>
+								<th>State</th>
+								<th>Country</th>
+								<th>Phone</th>
+								<th>Email</th>
+								<th>Bank Info</th>
+								<th>Status</th>
+								<th>Create Date</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td align="center"><input type="checkbox" name=""></td>
+								<td align="center">
+									<div class="txt-blue">1023</div>
+								</td>
+								<td>
+									<div class="txt-blue" data-toggle="collapse"
+										data-target="#demo" id="quarter">120001</div>
+								</td>
+								<td align="left">Shree Vendor</td>
+								<td>Office</td>
+
+								<td>1 Main Street</td>
+								<td align="left">Chicago</td>
+								<td align="left">Illinois</td>
+								<td align="center">USA</td>
+								<td align="center">9090123123</td>
+								<td align="center">demo@gmail.com</td>
+								<td align="center">ICICI Bank</td>
+
+								<td align="center">Active</td>
+								<td align="center">9-Oct-2020</td>
+							</tr>
+						</tbody>
+					</table>
+					<!--  </div> -->
+					<div class="collapse" id="demo">
+						<div class="row">
+							<div class="col-md-4">Vendor ID: 1023</div>
+							<div class="col-md-4">
+								<hr>
+								<div class="main-div">
+									<div class="section2">
+										<div class="green-box">
+											<div class="green-box-heading">CREATED</div>
+											<div class="date">9-OCT-20</div>
+										</div>
+									</div>
+									<div class="section3">
+										<div class="green-box">
+											<div class="green-box-heading">ACTIVE</div>
+											<div class="date">11-OCT-20</div>
+										</div>
+									</div>
+									<div class="section4">
+										<div class="grey-box">
+											<div>CLOSED</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4" align="right">
+								<button class="btn3" id="cancelBtn">Cancel</button>
+								<button class="btn1">Save</button>
+							</div>
+							<div class="col-md-3">
+								<div class="hvrbox">
+									<img src="../assets/images/noimage.jpg" alt="Mountains"
+										class="hvrbox-layer_bottom img-fluid">
+									<div class="hvrbox-layer_top">
+										<div class="hvrbox-text">
+											<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+												class="fa fa-trash red"></i></span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-9">
+								<div class="row">
+									<div class="col-md-12">
+										<!-- <div class="name-bar">Head Quarter</div> -->
+										<input type="text" name="code" value=""
+											placeholder="Vendor Name" class="form-control_big">
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>Code</label> <input type="text" name="code" value=""
+												placeholder="Code" class="form-control">
+										</div>
+									</div>
+
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>Category</label> <select class="form-control"
+												id="Category" onchange="changeOpt()">
+												<option id='Product'>Product</option>
+												<option id='Services'>Services</option>
+
+											</select>
+										</div>
+									</div>
+
+									<div class="col-md-4">
+										<div class="form-group">
+											<label>Type</label> <select class="form-control" id="type">
+
+											</select>
+										</div>
+									</div>
+
+									<!-- <div class="col-md-4">
+										<div class="form-group mrt_25">
+
+											<input type="checkbox"> <label>Virtual</label>
+										</div>
+									</div> -->
+
+
+
+									<div class="col-md-8">
+										<div class="form-group">
+											<label>Company Overview</label>
+											<textarea class="form-control">  Shree Vendor is in business for 10 years. </textarea>
+										</div>
+									</div>
+
+									<div class="col-md-4">
+										<div class="form-group mrt_25">
+
+											<input type="checkbox"> <label>Active</label>
+										</div>
+									</div>
+
+									<!-- <div class="col-md-4">
+										<div class="form-group">
+											<label>City</label> <select class="form-control"
+												id="exampleFormControlSelect1">
+												<option>Chicago</option>
+											</select>
+										</div>
+									</div> -->
+									<!-- <div class="col-md-8">
+										<div class="form-group">
+											<label>Street Address</label> <input type="text"
+												name="Street" value="" placeholder="Street Name"
+												class="form-control">
+
+										</div>
+									</div> -->
+
+									<!-- <div class="col-md-4">
+										<div class="form-group mrt_25">
+
+											<input type="checkbox"> <label>Active</label>
+										</div>
+									</div> -->
+								</div>
+							</div>
+
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="headingbar">
+									<a href="#" data-toggle="collapse" data-target="#demo_11"
+										style="color: #333; text-decoration: none;">Locations</a> <a
+										href="#" data-toggle="collapse" data-target="#demo_11"
+										style="float: right; color: #333; text-decoration: none;"><i
+										class="ti-angle-down"></i></a>
+								</div>
+							</div>
+						</div>
+						<div id="demo_11" class="collapse show">
+							<div class="row">
+
+								<div class="col-md-7 padding-7 btn-hs1">
+									<div class="font-design">
+										<!-- Vendor LIST <span>(10)</span> -->
+									</div>
+								</div>
+								<div class="col-md-2 btn-hs1">
+									<div class="row">
+										<button class="btn1" id="newBtn1">NEW</button>
+										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+									</div>
+								</div>
+								<div class="col-md-1 btn-hs1">
+									<button class="btn2">Approve</button>
+								</div>
+
+								<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<button class="btn4">Upload</button>
+									<button class="btn4">Download</button>
+								</div>
+
+							</div>
+
+							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+								<thead>
+									<tr>
+										<th align="center" width="20"><input type="checkbox"
+											name=""></th>
+										<th>ID</th>
+										<th>Name</th>
+										<th>Type</th>
+										<th>Billing</th>
+										<th>Primary</th>
+										<th>Address</th>
+										<th>City</th>
+										<th>State</th>
+										<th>Country</th>
+										<th>Create Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td align="center"><input type="checkbox" name=""></td>
+										<td align="center">
+											<div class="txt-blue">1023</div>
+										</td>
+										<!-- <td>
+											<div class="txt-blue" data-toggle="collapse"
+												data-target="#demo" id="quarter">120001</div>
+										</td> -->
+										<td align="left">Shree Vendor</td>
+										<td>Office</td>
+
+										<td align="center"><i class='ti-check'></i></td>
+										<td align="center"><i class='ti-check'></i></td>
+										<td>1 Main Street</td>
+										<td align="left">Chicago</td>
+										<td align="left">Illinois</td>
+										<td align="center">USA</td>
+
+										<td align="center">9-Oct-2020</td>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
+
+						<div class="row">
+							<div class="col-md-12">
+								<div class="headingbar">
+									<a href="#" data-toggle="collapse" data-target="#demo_12"
+										style="color: #333; text-decoration: none;">Contacts</a> <a
+										href="#" data-toggle="collapse" data-target="#demo_12"
+										style="float: right; color: #333; text-decoration: none;"><i
+										class="ti-angle-down"></i></a>
+								</div>
+							</div>
+						</div>
+
+						<div id="demo_12" class="collapse show">
+							<div class="row">
+
+								<div class="col-md-7 padding-7 btn-hs1">
+									<div class="font-design">
+										<!-- Vendor LIST <span>(10)</span> -->
+									</div>
+								</div>
+								<div class="col-md-2 btn-hs1">
+									<div class="row">
+										<button class="btn1" id="newBtn1">NEW</button>
+										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+									</div>
+								</div>
+								<div class="col-md-1 btn-hs1">
+									<button class="btn2">Approve</button>
+								</div>
+
+								<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<button class="btn4">Upload</button>
+									<button class="btn4">Download</button>
+								</div>
+
+							</div>
+
+							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+								<thead>
+									<tr>
+										<th align="center" width="20"><input type="checkbox"
+											name=""></th>
+										<th>ID</th>
+										<th>Name</th>
+										<th>Designation</th>
+										<th>Function</th>
+										<th>Location</th>
+										<th>Phone</th>
+										<th>Email</th>
+										<th>Create Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td align="center"><input type="checkbox" name=""></td>
+										<td align="center">
+											<div class="txt-blue">1023</div>
+										</td>
+
+										<td align="left">Pinaki Datta</td>
+										<td align="left">CEO</td>
+
+										<td align="left">Escalation</td>
+										<td align="left">Corporate Office</i></td>
+										<td align="center">+01 7213232304</td>
+										<td align="center">Pinaki@gmail.com</td>
+
+										<td align="center">9-Oct-2020</td>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
+
+
+						<div class="row">
+							<div class="col-md-12">
+								<div class="headingbar">
+									<a href="#" data-toggle="collapse" data-target="#demo_13"
+										style="color: #333; text-decoration: none;">Legal</a> <a
+										href="#" data-toggle="collapse" data-target="#demo_13"
+										style="float: right; color: #333; text-decoration: none;"><i
+										class="ti-angle-down"></i></a>
+								</div>
+							</div>
+						</div>
+
+						<div id="demo_13" class="collapse show">
+							<div class="row">
+
+								<div class="col-md-7 padding-7 btn-hs1">
+									<div class="font-design">
+										<!-- Vendor LIST <span>(10)</span> -->
+									</div>
+								</div>
+								<div class="col-md-2 btn-hs1">
+									<div class="row">
+										<button class="btn1" id="newBtn1">NEW</button>
+										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+									</div>
+								</div>
+								<div class="col-md-1 btn-hs1">
+									<button class="btn2">Approve</button>
+								</div>
+
+								<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<button class="btn4">Upload</button>
+									<button class="btn4">Download</button>
+								</div>
+
+							</div>
+							<div class="row">
+
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>Company Registration Number</label> <input type="text"
+											name="code" value="" class="form-control">
+									</div>
+								</div>
+
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>Company License Number</label> <input type="text"
+											name="code" value="" class="form-control">
+									</div>
+								</div>
+
+								<div class="col-md-3">
+									<div class="form-group mrt_25">
+
+										<input type="checkbox"> <label>Insured</label>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group mrt_25">
+
+										<input type="checkbox"> <label>Bonded</label>
+									</div>
+								</div>
+
+							</div>
+
+							<div class="row">
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>GST</label> <input type="text" name="code" value=""
+											class="form-control">
+
+
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>PAN</label> <input type="text" name="code" value=""
+											class="form-control">
+
+
+									</div>
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>VAT</label> <input type="text" name="code" value=""
+											class="form-control">
+
+
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>TIN</label> <input type="text" name="code" value=""
+											class="form-control">
+
+
+									</div>
+								</div>
+							</div>
+
+
+
+							<div class="row mrt_10">
+
+								<div class="col-md-7 padding-7 btn-hs1">
+									<div class="font-design">
+										Proof Of Insurance
+									</div>
+								</div>
+								<div class="col-md-2 btn-hs1">
+									<div class="row">
+										<button class="btn1" id="newBtn1">NEW</button>
+										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+									</div>
+								</div>
+								<div class="col-md-1 btn-hs1">
+									<button class="btn2">Approve</button>
+								</div>
+
+								<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<button class="btn4">Upload</button>
+									<button class="btn4">Download</button>
+								</div>
+
+							</div>
+
+
+							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+								<thead>
+									<tr>
+										<th align="center" width="20"><input type="checkbox"
+											name=""></th>
+										<th>ID</th>
+										<th>Name</th>
+										<th>Start Date</th>
+										<th>End Date</th>
+										<th>Create Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td align="center"><input type="checkbox" name=""></td>
+										<td align="center">
+											<div class="txt-blue">1023</div>
+										</td>
+
+										<td align="left">Pinaki Datta</td>
+
+										<td align="center">9-Oct-2020</td>
+										<td align="center">9-Oct-2020</td>
+										<td align="center">9-Oct-2020</td>
+									</tr>
+								</tbody>
+							</table>
+
+
+
+
+							<div class="row mrt_10">
+
+								<div class="col-md-7 padding-7 btn-hs1">
+									<div class="font-design">
+										Contacts
+									</div>
+								</div>
+								<div class="col-md-2 btn-hs1">
+									<div class="row">
+										<button class="btn1" id="newBtn1">NEW</button>
+										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+									</div>
+								</div>
+								<div class="col-md-1 btn-hs1">
+									<button class="btn2">Approve</button>
+								</div>
+
+								<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<button class="btn4">Upload</button>
+									<button class="btn4">Download</button>
+								</div>
+
+							</div>
+
+
+							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+								<thead>
+									<tr>
+										<th align="center" width="20"><input type="checkbox"
+											name=""></th>
+										<th>ID</th>
+										<th>Name</th>
+										<th>Start Date</th>
+										<th>End Date</th>
+
+										<th>Create Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td align="center"><input type="checkbox" name=""></td>
+										<td align="center">
+											<div class="txt-blue">1023</div>
+										</td>
+
+										<td align="left">Pinaki Datta</td>
+
+										<td align="center">9-Oct-2020</td>
+										<td align="center">9-Oct-2020</td>
+										<td align="center">9-Oct-2020</td>
+									</tr>
+								</tbody>
+							</table>
+
+
+							<div class="row mrt_10">
+
+								<div class="col-md-7 padding-7 btn-hs1">
+									<div class="font-design">
+										Other Document
+									</div>
+								</div>
+								<div class="col-md-2 btn-hs1">
+									<div class="row">
+										<button class="btn1" id="newBtn1">NEW</button>
+										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+									</div>
+								</div>
+								<div class="col-md-1 btn-hs1">
+									<button class="btn2">Approve</button>
+								</div>
+
+								<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<button class="btn4">Upload</button>
+									<button class="btn4">Download</button>
+								</div>
+
+							</div>
+
+
+							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+								<thead>
+									<tr>
+										<th align="center" width="20"><input type="checkbox"
+											name=""></th>
+										<th>ID</th>
+										<th>Name</th>
+										<th>Start Date</th>
+										<th>End Date</th>
+
+										<th>Create Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td align="center"><input type="checkbox" name=""></td>
+										<td align="center">
+											<div class="txt-blue">1023</div>
+										</td>
+
+										<td align="left">Pinaki Datta</td>
+
+										<td align="center">9-Oct-2020</td>
+										<td align="center">9-Oct-2020</td>
+										<td align="center">9-Oct-2020</td>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
+
+
+						<div class="row">
+							<div class="col-md-12">
+								<div class="headingbar">
+									<a href="#" data-toggle="collapse" data-target="#demo_14"
+										style="color: #333; text-decoration: none;">Bank Details</a> <a
+										href="#" data-toggle="collapse" data-target="#demo_14"
+										style="float: right; color: #333; text-decoration: none;"><i
+										class="ti-angle-down"></i></a>
+								</div>
+							</div>
+						</div>
+
+						<div id="demo_14" class="collapse show">
+							<div class="row">
+
+								<div class="col-md-7 padding-7 btn-hs1">
+									<div class="font-design">
+										<!-- Vendor LIST <span>(10)</span> -->
+									</div>
+								</div>
+								<div class="col-md-2 btn-hs1">
+									<div class="row">
+										<button class="btn1" id="newBtn1">NEW</button>
+										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+									</div>
+								</div>
+								<div class="col-md-1 btn-hs1">
+									<button class="btn2">Approve</button>
+								</div>
+
+								<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<button class="btn4">Upload</button>
+									<button class="btn4">Download</button>
+								</div>
+
+							</div>
+
+							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+								<thead>
+									<tr>
+										<th align="center" width="20"><input type="checkbox"
+											name=""></th>
+										<th>ID</th>
+										<th>Bank Name</th>
+										<th>Address</th>
+										<th>City</th>
+										<th>State</th>
+										<th>Country</th>
+										<th>Account Details</th>
+										<th>Create Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td align="center"><input type="checkbox" name=""></td>
+										<td align="center">
+											<div class="txt-blue">1023</div>
+										</td>
+
+										<td align="left">Bank OF America</td>
+										<td align="left">1 Main Street</td>
+
+										<td align="left">Chicago</td>
+										<td align="left">llins</i></td>
+										<td align="center">USA</td>
+										<td align="center">Account : 1213212121</td>
+
+										<td align="center">9-Oct-2020</td>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
+
+
+
+						<div class="row">
+							<div class="col-md-12">
+								<div class="headingbar">
+									<a href="#" data-toggle="collapse" data-target="#demo_16"
+										style="color: #333; text-decoration: none;">Company
+										Information</a> <a href="#" data-toggle="collapse"
+										data-target="#demo_16"
+										style="float: right; color: #333; text-decoration: none;"><i
+										class="ti-angle-down"></i></a>
+								</div>
+							</div>
+						</div>
+
+						<div id="demo_16" class="collapse show">
+							<div class="row">
+
+								<div class="col-md-7 padding-7 btn-hs1">
+									<div class="font-design">
+										<!-- Vendor LIST <span>(10)</span> -->
+									</div>
+								</div>
+								<div class="col-md-2 btn-hs1">
+									<div class="row">
+										<button class="btn1" id="newBtn1">NEW</button>
+										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+									</div>
+								</div>
+								<div class="col-md-1 btn-hs1">
+									<button class="btn2">Approve</button>
+								</div>
+
+								<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<button class="btn4">Upload</button>
+									<button class="btn4">Download</button>
+								</div>
+
+							</div>
+
+							<div class="row">
+
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>Date Of Company Established</label> <input type="text"
+											name="code" value="" class="form-control">
+									</div>
+								</div>
+
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>Gross Annual Sale</label> <input type="text"
+											name="code" value="" class="form-control">
+									</div>
+								</div>
+
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>Sales Currency</label> <input type="text" name="code"
+											value="" class="form-control">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>Total Employee</label> <input type="text" name="code"
+											value="" class="form-control">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>Website</label> <input type="text" name="code" value=""
+											class="form-control">
+									</div>
+								</div>
+							</div>
+
+						</div>
+
+
+
+						<div class="row">
+							<div class="col-md-12">
+								<div class="headingbar">
+									<a href="#" data-toggle="collapse" data-target="#demo_15"
+										style="color: #333; text-decoration: none;">Activities</a> <a
+										href="#" data-toggle="collapse" data-target="#demo_15"
+										style="float: right; color: #333; text-decoration: none;"><i
+										class="ti-angle-down"></i></a>
+								</div>
+							</div>
+						</div>
+						<div id="demo_15" class="collapse show">
+							<div class="row">
+
+								<div class="col-md-7 padding-7 btn-hs1">
+									<div class="font-design">
+										<!-- Vendor LIST <span>(10)</span> -->
+									</div>
+								</div>
+								<div class="col-md-2 btn-hs1">
+									<div class="row">
+										<button class="btn1" id="newBtn1">NEW</button>
+										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+									</div>
+								</div>
+								<div class="col-md-1 btn-hs1">
+									<button class="btn2">Approve</button>
+								</div>
+
+								<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<button class="btn4">Upload</button>
+									<button class="btn4">Download</button>
+								</div>
+
+							</div>
+
+							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+								<thead>
+									<tr>
+										<th align="center" width="20"><input type="checkbox"
+											name=""></th>
+										<th>Activity</th>
+										<th>User Name</th>
+										<th>Create Date</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td align="center"><input type="checkbox" name=""></td>
+
+
+										<td align="left">Vendor Approved</td>
+
+										<td align="left">Pinaki Datta</td>
+
+										<td align="center">9-Oct-2020</td>
+									</tr>
+								</tbody>
+							</table>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+</body>
+</html>
