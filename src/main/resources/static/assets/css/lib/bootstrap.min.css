@@ -104,7 +104,7 @@ body {
     font-weight: 400;
     line-height: 1.5;
     color: #212529;
-    background-color: #fff;
+    background-color: #F6f8f8;
 	overflow-x:hidden;
 }
 
@@ -289,6 +289,8 @@ th {
 
 label {
     display: inline-block;
+    font-weight: 100;
+    color: #008F00;
     /* margin-bottom: .5rem */
 }
 
@@ -668,7 +670,6 @@ pre code {
     margin-left: auto;
     padding-right: 15px;
     padding-left: 15px;
-    width: 100%
 }
 
 .row {
@@ -1648,15 +1649,15 @@ pre code {
 .form-control {
     display: block;
     width: 100%;
-    padding: 0rem .3rem;
+    padding:0;
     font-size: 14px;
     line-height: 1.25;
     color: #495057;
-    background-color: #fff;
+    background-color: #f6f8f8;
     background-image: none;
     background-clip: padding-box;
-    border: 1px solid rgba(0, 0, 0, .15);
-    border-radius: .25rem;
+    
+    /* border-radius: .25rem; */
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s
 }
 
@@ -1667,31 +1668,39 @@ pre code {
 
 .form-control:focus {
     color: #495057;
-    background-color: #fff;
-    border-color: #80bdff;
+    background-color: #f6f8f8;
     outline: 0
 }
 
 .form-control::-webkit-input-placeholder {
-    color: #868e96;
-    opacity: 1
+    color: #e5e5e5;
+    opacity: 1;
+    padding:0px;
 }
 
 .form-control:-ms-input-placeholder {
-    color: #868e96;
-    opacity: 1
+    color: #e5e5e5;
+    opacity: 1;
+    padding:0px;
 }
 
 .form-control::placeholder {
-    color: #868e96;
-    opacity: 1
+    color: #e5e5e5;
+    opacity: 1;
+    padding:0px;
 }
 
 .form-control:disabled,
 .form-control[readonly] {
     background-color: #e9ecef;
-    opacity: 1
+    opacity: 1;
+     padding:0px;
 }
+textarea
+{
+	text-indent:0;
+}
+
 
 /*select.form-control:not([size]):not([multiple]) {
     height: calc(2.25rem + 2px)
@@ -2695,7 +2704,7 @@ input[type=submit].btn-block {
 
 .fade.show {
     opacity: 1;
-	background:rgba(0,0,0,0.8);
+	background:rgba(0,0,0,0.1);
 }
 
 .collapse {
@@ -2759,14 +2768,14 @@ tbody.collapse.show {
     z-index: 1000;
     display: none;
     float: left;
-    min-width: 10rem;
-    padding: .5rem 0;
+    min-width: 15rem;
+    padding:0;
     margin: .125rem 0 0;
     font-size: 1rem;
     color: #212529;
     text-align: left;
     list-style: none;
-    background-color: #fff;
+    background-color:rgba(255,255,255,0.95);
     background-clip: padding-box;
     border: 1px solid rgba(0, 0, 0, .15);
     border-radius: .25rem
@@ -2780,23 +2789,29 @@ tbody.collapse.show {
 }
 
 .dropdown-item {
+	font-family: 'HelveticaNeue';
     display: block;
     width: 100%;
-    padding: .25rem 1.5rem;
+    padding: 1rem 0.5rem;
     clear: both;
-    font-weight: 400;
+    font-weight: 100;
     color: #212529;
     text-align: inherit;
     white-space: nowrap;
     background: 0 0;
-    border: 0
+    border: 0;
+    border-bottom: 1px solid #ccc;
 }
 
+.dropdown-item:last-child {
+	border-bottom:none;
+
+	}
 .dropdown-item:focus,
 .dropdown-item:hover {
     color: #16181b;
     text-decoration: none;
-    background-color: #f8f9fa
+    background-color: rgba(255,255,255,1)
 }
 
 .dropdown-item.active,
@@ -2813,7 +2828,8 @@ tbody.collapse.show {
 }
 
 .show>a {
-    outline: 0
+    outline: 0;
+    text-align: left;
 }
 
 .dropdown-menu.show {
@@ -3241,7 +3257,7 @@ tbody.collapse.show {
 .custom-controls-stacked .custom-control+.custom-control {
     margin-left: 0
 }
-
+/* 
 .custom-select {
     display: inline-block;
     max-width: 100%;
@@ -3344,7 +3360,7 @@ tbody.collapse.show {
 .custom-file-control:lang(en)::before {
     content: "Browse"
 }
-
+ */
 .nav {
     display: -ms-flexbox;
     display: flex;
@@ -3909,7 +3925,8 @@ tbody.collapse.show {
 .card-header {
     padding: .75rem 1.25rem;
     margin-bottom: 0;
-    background-color: rgba(0, 0, 0, .03);
+    font-weight : 100;
+   /*  background-color: rgba(0, 0, 0, .03); */
     border-bottom: 1px solid rgba(0, 0, 0, .125)
 }
 
@@ -4870,7 +4887,7 @@ button.close {
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 1050;
+    z-index: 99;
     background-color: #FFF
 }
 
@@ -4890,7 +4907,7 @@ button.close {
     -ms-flex-pack: justify;
     justify-content: space-between;
     padding: 15px;
-    border-bottom: 1px solid #e9ecef
+    /* border-bottom: 1px solid #e9ecef */
 }
 
 .modal-title {
@@ -4913,7 +4930,7 @@ button.close {
     -ms-flex-pack: end;
     justify-content: flex-end;
     padding: 15px;
-    border-top: 1px solid #e9ecef
+    /* border-top: 1px solid #e9ecef */
 }
 
 .modal-footer>:not(:first-child) {
@@ -6528,7 +6545,7 @@ a.bg-dark:hover {
 
 .float-left {
     float: left!important;
-    margin-left: 30px;
+    margin-left: -15px;
 }
 
 .float-right {

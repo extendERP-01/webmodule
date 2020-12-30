@@ -1,59 +1,103 @@
 <html xmlns:th="http://www.thymeleaf.org" th:fragment="sidebar">
-<div
-	class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
-	<div class="nano">
-		<div class="nano-content">
+<head>
+<script type="text/javascript">
+function callfun(activity){
+	window.location.href = activity ;
+}
+/* function modOnclickDefault(funId){
+	 var moduleId = $("#moduleId").val();
+	 
+	    var defaultUrl = $("#"+funId).attr("value"); 
+	    
+	    document.getElementById("side_bar_menu").innerHTML = "";
+	    if (funId) {
+	        $.ajax({
+	            type: "GET",
+	            url: "/index-get-activity-list?funId=" + funId + "&moduleId=" + moduleId,
+	            dataType: 'json',
+	            contentType: 'application/json',
+	            success: function(response) {
+	            	
+	                if (response.body.length > 0) {
+	                    for (var i = 0; i < response.body.length; i++) {
+	                    	var mydiv = document.getElementById("side_bar_menu");
+							var aTag = document.createElement('a');
+							aTag.setAttribute('href',response.body[i].activity);
+							aTag.innerText = response.body[i].name;
+							if(i<1){
+								aTag.className = "active";
+							}
+							mydiv.appendChild(aTag);
 
-			<!-- <ul>
-				<li id="dash" class="active"><a class="sidebar-sub-toggle" href="/index">
-				<i class="ti-home"></i> Dashboard </a></li>
-			</ul> -->
-			<ul>
-				<li id="dash" class="active"><a th:href="${'/'+session.DASHBOARD}"><!-- <i
-						class="ti-home"></i> -->Dashboard</a></li>
-			</ul>
-			<ul>
-				<li class="moDule" th:each="module,abm :  ${session.MENU}"
-					th:id="${#strings.replace(module.name,' ','')}
-					+${abm.count}">
-					<a class="sidebar-sub-toggle pclass"> <!-- <img
-						th:src="${'/document/module/thumb/' + module.moduleLogoName}" /> -->
-						<span class="modList" th:text="${module.name}"></span> <span
-						class="sidebar-collapse-icon ti-angle-down"></span>
-				</a>
+	                    }
+	                   
+	                } 
+	               
+	            },
+	            error: function(data) {
+	                console.log(data)
 
-					<ul>
-						<li class="funTion" th:each="function,func : ${module.module}"
-							th:id="${#strings.replace(module.name,' ','')}
-							+${#strings.replace(function.name,' ','')}
-							+${func.count}">
-							<a class="sidebar-sub-toggle cclass"> <!-- <span
-								class="ti-control-forward"></span> --> <span
-								th:text="${function.name}" class="funclist"></span> <span
-								class="sidebar-collapse-icon ti-angle-down"></span>
-						</a>
+	            }
+	        });
+	    } else {
 
-							<ul>
+	    }	
+} */
 
-								<li class="acTivity"
-									th:each="activity,act : ${function.function}"
-									th:id="${#strings.replace(module.name,' ','')}
-									+${#strings.replace(function.name,' ','')}
-									+${#strings.replace(activity.name,' ','')}
-									+'1'">
-									<!-- +${act.count}"> --> <a class="activityClass"
-									th:href="${activity.activity}"> <span
-										th:text="${activity.name}" class="actlist"></span>
-								</a>
-								</li>
-							</ul>
-						</li>
-					</ul>
-				</li>
-			</ul>
+/* function modOnclick(funId) {
+ 
+    var moduleId = $("#moduleId").val();
+ 
+    var defaultUrl = $("#"+funId).attr("value"); 
+    
+    document.getElementById("side_bar_menu").innerHTML = "";
+    localStorage.setItem('module', moduleId);
+    localStorage.setItem('function', funId);
+    localStorage.setItem('activity', defaultUrl);
+    
+    if (funId) {
+        $.ajax({
+            type: "GET",
+            url: "/index-get-activity-list?funId=" + funId + "&moduleId=" + moduleId,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(response) {
+            	
+                if (response.body.length > 0) {
+                    for (var i = 0; i < response.body.length; i++) {
+                    	var mydiv = document.getElementById("side_bar_menu");
+						var aTag = document.createElement('a');
+						aTag.setAttribute('href',response.body[i].activity);
+						aTag.innerText = response.body[i].name; 
+						if(i<1){
+							aTag.className = "active";
+						}
+						mydiv.appendChild(aTag);
 
-		</div>
-	</div>
+                    }
+                    
+                    window.location.href=
+                   
+                } 
+               
+            },
+            error: function(data) {
+                console.log(data)
+
+            }
+        });
+    } else {
+
+    }
+} */
+
+</script>
+</head>
+<div class="vertical-menu" id="side_bar_menu">
+	<!-- <a href="summary.html" class="active">Summary</a>
+      <a href="requisition.html">Requisition</a>
+      <a href="candidates.html">Candidates</a>
+      <a href="review.html">Review</a>  -->
 </div>
 <!-- /# sidebar -->
 </html>

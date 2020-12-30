@@ -1,165 +1,211 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/master}">
-   <head>
-   <link rel="stylesheet" href="../assets/css/extend/style-extend.css">
-    <title>Extend</title>
-   <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/themify-icons.css">
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.js"></script>
-   <script>
-    $(function() {
-        $(".box,.number,.text").click(function() {
-            $(this).css('background-color', '#0076BA');
-            $(this).css('color', '#FFFFFF');
-            $(this).css('color', '#FFFFFF');
-        });
-    });
-    </script>
+<head>
+
+<script>
+	$(function() {
+		$(".box,.number,.text").click(function() {
+			$(this).css('background-color', '#0076BA');
+			$(this).css('color', '#FFFFFF');
+			$(this).css('color', '#FFFFFF');
+		});
+		$('#example thead tr:eq(0) th')
+				.each(
+						function(i) {
+							$('#example thead tr:eq(0) th:first').html("");
+
+							$('#example thead tr:eq(0) th:first')
+									.html(
+											'<input type="checkbox" onclick="allCheck()" id="check1"><label for="check1"></label>');
+							var title1 = $(this).text();
+							var title = (title1.split(" "))[0];
+
+							var funval = "click212('" + title + "')";
+							$(this)
+									.html(
+											'<div>'
+													+ title1
+													+ '<a type="button" value="" onclick="'+funval+'" class="filtericon" data-toggle="dropdown"><i class="ti-filter filter" ></i></a>'
+													+ '<div class="dropdown-menu"><input type="text" id="'+title+'" class="hideShow" placeholder="Search" /></div></div>');
+
+							$('input', this).on('keyup change', function() {
+								if (table.column(i).search() !== this.value) {
+									table.column(i).search(this.value).draw();
+								}
+							});
+						});
+
+		$('th').on("click", function(event) {
+			if ($(event.target).is("div"))
+				event.stopImmediatePropagation();
+		});
+		$('th').on("click", function(event) {
+			if ($(event.target).is("input"))
+				event.stopImmediatePropagation();
+		});
+		$('th').on("click", function(event) {
+			if ($(event.target).is("a"))
+				event.stopImmediatePropagation();
+		});
+
+	 
+		var table = $('#example').DataTable({
+			paging : false,
+			info : false,
+			columnDefs : [ {
+				targets : 0,
+				sortable : false
+			}, ],
+			order : [ 1, "des" ]
+		})
+		$(".hideShow").hide();
+
+		oTable = $('#example').DataTable();
+		$('#searchBar').keyup(function() {
+			oTable.search($(this).val()).draw();
+		});
+		$('#example_filter').hide();
+
+		$('#closeKey').click(function() {
+			oTable.search("").draw();
+		});
+	});
+
+	function click212(text) {
+
+		$("#" + text).show();
+	}
+
+	var count = 0;
+	function allCheck() {
+		count++;
+
+		if (count == 1) {
+			$('.checkCls').prop("checked", true);
+		} else {
+			count = 0;
+			$('.checkCls').prop("checked", false);
+		}
+	}
+
+	function cancelBar() {
+		var id = document.getElementById("closeKey");
+		id.style.display = "block";
+
+		if ($('#searchBar').val() == null || $('#searchBar').val() == "") {
+			id.style.display = "none";
+		}
+	}
+</script>
 <body>
-    <div layout:fragment="content">
-	<div class="content-wrap">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="maincontentsec">
-                <div class="content_padding">
-                    <div class="row margin_topbot">
-                        <div class="col-md-8">
-                            <div class="input-style row">
-                                <input type="text" placeholder="Software.." name="search" class="searchboxinput">
-                                <div class="searchicon"><a href="#"><span class="close_i">X</span></a> <a href="#"><i class="fa fa-search"></i></a></div>
-                            </div>
-                    </div>
-                </div>
-                <div class="col-md-12">
-                <div class="row">
-                   
-                        <div class="section1_big">
-                            <div class="font-design">CANDIDATE LIST (24)</div>
-                        </div>
-                        <div class="section2_new">
-                            <div class="row">
-                                <button class="btn1">NEW</button>
-                                <button class="btn2">COPY</button>
-                                <button class="btn3">BLACKLIST</button>
-                            </div>
-                        </div>
-                        <div class="section3_new" align="right">
-                            <div class="row">
-                                <button class="btn2">APPLY</button>
-                            </div>   
-                        </div>
-                    
-                </div>
-            </div>
-                    <table class="table table-bordered table-responsive">
-                        <thead>
-                            <tr>
-                                <th align="center"><input type="checkbox" name=""></th>
-                                <th align="center">Candidate ID</th>
-                                <th align="center">Name</th>
-                                <th align="center">Location </th>
-                                <th align="center">BOD</th>
-                                <th align="center">Experience</th>
-                                <th align="center">Source</th>
-                                <th align="center"># of Applications</th>
-                                <th align="center">Candidacy Status </th>
-                                <th align="center">Resume</th>
-                                <th align="center">Last Updated</th>
-                                <th align="center">Create Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td align="center"><input type="checkbox" name=""></td>
-                                <td align="center"><div class="txt-blue">1023</div> </td>
-                                <td align="Left"> <div data-toggle="modal" data-target="#myModal" class="txt-blue"> Kamala Suresh</div></td>
-                                <td align="Left">Cochin, India</td>
-                                <td align="center">14-Jan-99</td>
-                                <td align="center">5</td>
-                                <td align="Left">Interna</td>
-                                <td align="center">2 </td>
-                                <td align="center">Active</td>
-                                <td align="center">VIEW</td>
-                                <td align="center">9-Oct-20</td>
-                                <td align="center">9-Oct-20</td>
-                            </tr>
-                           <tr>
-                               <td align="center"><input type="checkbox" name=""></td>
-                                <td align="center"><div class="txt-blue">1004</div> </td>
-                                <td align="Left"> <div data-toggle="modal" data-target="#myModal" class="txt-blue"> Amal Bhat</div></td>
-                                <td align="Left">Delhi, India</td>
-                                <td align="center">27-Aug-98</td>
-                                <td align="center">6</td>
-                                <td align="Left">Global Tech </td>
-                                <td align="center">0 </td>
-                                <td align="center">No Activity</td>
-                                <td align="center">VIEW</td>
-                                <td align="center">9-Oct-20</td>
-                                <td align="center">9-Oct-20</td>
-                            </tr>
-                        </tbody>
-                    </table>
+	<div layout:fragment="content" class="maincontent">
 
-                   
+		<div class="container-fluid">
+			<div class="row">
+				<div class="maincontentsec">
+					<div class="content_padding">
+						<div class="row margin_topbot">
+							<div class="col-md-8 padding-7">
+								<div class="input-style row">
+									<input type="text" id="searchBar" placeholder="Search.."
+										name="search" class="searchboxinput" onkeyup="cancelBar();">
+									<div class="searchicon">
+										<a href="#"><span style="display: none" id="closeKey"
+											onclick="$('#searchBar').val('');document.getElementById('closeKey').style.display='none';$('.form-control-sm').val('');"
+											class="close_i">X</span></a> <a href="#"><i id="searchQ"
+											class="fa fa-search"></i></a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-12 padding-7">
+							<div class="row mt-20">
 
-<!-- Modal Header -->
+								<div class="section1_big">
+									<div class="font-design">CANDIDATE LIST (24)</div>
+								</div>
+								<div class="section2_new">
+									<div class="row">
+										<button class="btn1">NEW</button>
+										<button class="btn2">COPY</button>
+										<button class="btn3">BLACKLIST</button>
+									</div>
+								</div>
+								<div class="section3_new" align="right">
+									<div class="row">
+										<button class="btn2">APPLY</button>
+									</div>
+								</div>
 
-    <!-- Modal body -->
-<h4 class="modal-title" style="font-size:1.02rem">New Application for REQUISITION: 8 - Software Engineer</h4>
-  <div class="col-md-12">              
-<div class="row">
-    <div class="col-md-6">
-        <hr>
-        <div class="main-div">
-            <div class="section2">
-                <div class="green-box">
-                    <div class="green-box-heading">CREATED</div>
-                    <div class="date">9-oct-2020</div>
-                </div>
-            </div>
-            <div class="section3">
-                <div class="green-box">
-                    <div class="green-box-heading">SHORTLISTED</div>
-                    <div class="date">11-oct-2020</div>
-                </div>
-            </div>
-            <div class="section4">
-                <div class="grey-box">
-                <div>CLOSED</div>   
-                </div>
-            </div>
+							</div>
+						</div>
+						<table class="newtbl" id="example">
+							<thead>
+								<tr>
+									<th align="center" width="20"><input type="checkbox"
+										onclick="allCheck()" id="check1"><label for="check1"></label></th>
+									<th align="center">Candidate ID</th>
+									<th align="center">Name</th>
+									<th align="center">Location</th>
+									<th align="center">BOD</th>
+									<th align="center">Experience</th>
+									<th align="center">Source</th>
+									<th align="center">No of Applications</th>
+									<th align="center">Candidacy Status</th>
+									<th align="center">Resume</th>
+									<th align="center">Last Updated</th>
+									<th align="center">Create Date</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td align="center"><input class="checkCls" type="checkbox"
+										id="check2"><label for="check2"></label></td>
+									<td align="center"><div class="txt-blue">1023</div></td>
+									<td align="Left">
+										<div data-toggle="modal" data-target="#myModal"
+											class="txt-blue">Kamala Suresh</div>
+									</td>
+									<td align="Left">Cochin, India</td>
+									<td align="center">14-Jan-99</td>
+									<td align="center">5</td>
+									<td align="Left">Interna</td>
+									<td align="center">2</td>
+									<td align="center">Active</td>
+									<td align="center">VIEW</td>
+									<td align="center">9-Oct-20</td>
+									<td align="center">9-Oct-20</td>
+								</tr>
+								<tr>
+									<td align="center"><input class="checkCls" type="checkbox"
+										id="check3"><label for="check3"></label></td>
+									<td align="center"><div class="txt-blue">1004</div></td>
+									<td align="Left">
+										<div data-toggle="modal" data-target="#myModal" class="txt-blue">Amal Bhat</div>
+									</td>
+									<td align="Left">Delhi, India</td>
+									<td align="center">27-Aug-98</td>
+									<td align="center">6</td>
+									<td align="Left">Global Tech</td>
+									<td align="center">0</td>
+									<td align="center">No Activity</td>
+									<td align="center">VIEW</td>
+									<td align="center">9-Oct-20</td>
+									<td align="center">9-Oct-20</td>
+								</tr>
+							</tbody>
+						</table>
 
-        </div>
-    </div>
-    <div class="col-md-3">
-        
-    </div>
-    <div class="col-md-3 padding-0">
-         <button class="btn4" type="button" data-dismiss="modal">CANCEL</button>
-         <button class="btn3">DELETE</button>
-         <button class="btn1">SAVE</button>
-    </div>
-</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 
-
-</div>
-</div>
-                </div>
-            </div>
-        </div>
-    </div>
-<!-- The Modal -->
- </div>
 </body>
 
-</html>
 </html>

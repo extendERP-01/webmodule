@@ -12,10 +12,10 @@ public class Activity {
 	
 	private String name;
 	private String activity;
+	private String activityId;
 
 	public Activity() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	
@@ -37,6 +37,16 @@ public class Activity {
 		this.activity = activity;
 	}
 	
+	public String getActivityId() {
+		return activityId;
+	}
+
+
+	public void setActivityId(String activityId) {
+		this.activityId = activityId;
+	}
+
+
 	/**
 	 * Overrides toString method for converting class to string and back 
 	**/

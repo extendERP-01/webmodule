@@ -91,7 +91,7 @@ public class MasterDocumentController {
 		if (docname.endsWith(".png")) {
 			logger.info("Method : getDocument controller function end");
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(bytearr);
-		} else if (docname.endsWith(".jpeg")) {
+		} else if (docname.endsWith(".jpeg") || docname.endsWith(".jpg")) {
 			logger.info("Method : getDocument controller function end");
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(bytearr);
 		} else if (docname.endsWith(".pdf")) {
@@ -114,7 +114,7 @@ public class MasterDocumentController {
 		if (docname.endsWith(".png")) {
 			logger.info("Method : getDocument controller function end");
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(bytearr);
-		} else if (docname.endsWith(".jpeg")) {
+		} else if (docname.endsWith(".jpeg") || docname.endsWith(".jpg")) {
 			logger.info("Method : getDocument controller function end");
 			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(bytearr);
 		} else if (docname.endsWith(".pdf")) {

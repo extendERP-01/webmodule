@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Extend</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="../assets/css/style.css" rel="stylesheet">
+<link href="../assets/css/lib/bootstrap.min.css" rel="stylesheet">
+<link href="../assets/css/lib/menubar/sidebar.css" rel="stylesheet">
+<link href="../assets/css/lib/font-awesome.min.css" rel="stylesheet">
+<link href="../assets/css/extend/themify-icons.css" rel="stylesheet">
+<script src="../assets/js/lib/jquery-3.4.1.min.js"></script>
+<script src="../assets/js/lib/bootstrap.min.js"></script>
+<link rel="stylesheet" href="../assets/css/extend/style-extend.css">
+<link href="../assets/css/lib/bootstrap.min.css" rel="stylesheet">
+<script type="text/javascript">
+function setModule(moduleId) {
+	 localStorage.setItem('module', moduleId);
+	 localStorage.setItem('function',$("#fun_"+moduleId).val());
+	 localStorage.setItem('activity',$("#act_"+moduleId).val());
+	 
+	 window.location.href="/index-get-function-list/"+moduleId ;
+	 
+}
+
+/* $(document).ready(function() {
+	
+	var  module = localStorage.getItem('module');
+	var  fun = localStorage.getItem('function');
+	var  activity = localStorage.getItem('activity');
+	 
+	$.ajax({
+        type: "GET",
+        url: "/index-get-activity-list?funId=" + fun + "&moduleId=" + module,
+        dataType: 'json',
+        contentType: 'application/json',
+        success: function(response) {
+        	
+            if (response.body.length > 0) {
+                for (var i = 0; i < response.body.length; i++) {
+                	var mydiv = document.getElementById("side_bar_menu");
+					var aTag = document.createElement('a');
+					aTag.setAttribute('href',response.body[i].activity);
+					aTag.innerText = response.body[i].name; 
+					aTag.setAttribute('id',response.body[i].name);
+					 
+						if(activity==response.body[i].activity){
+							aTag.className = "active";
+						}
+					 
+					
+					mydiv.appendChild(aTag);
+
+                } 
+               
+            } 
+           
+        },
+        error: function(data) {
+            console.log(data)
+
+        }
+    });
+	
+}); */
+
+</script> 
+</head>
+<body>
+	<div th:replace="layout/header-index :: header"></div>
+	<div class="maincontent_index">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-2" th:each="module,abm :  ${session.MENU}">
+					<div class="box">
+
+						<div class="moduletxt">
+						    <div align="center"><i th:class="${module.moduleLogoName}" style="color:#ccc; font-size:30px;"></i></div>
+							<a href="javascript:void(0)" onClick="setModule(this.id)" th:id="${module.moduleId}"><span
+								class="modList" th:text="${module.name}"></span></a>
+								<input type="hidden" th:id="'act_'+${module.moduleId}" th:value="${module.activityId}">
+								<input type="hidden"  th:id="'fun_'+${module.moduleId}" th:value="${module.functionId}">
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+
+</body>
+</html>

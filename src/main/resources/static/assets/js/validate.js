@@ -269,3 +269,21 @@ function dateValidation(fromDateId, toDateId, name1, name2) {
 		$("#" + toDateId).val("");
 	}
 }
+
+/** Sagar Anchal **/
+/** Check Maximum Length Of String */
+function checkCharLengthOfString(fieldId, maxLength) {
+	var str = $("#"+fieldId).val();
+	var strlen = str.length;
+	
+	if(strlen > maxLength) {
+		$("#msgModal").modal('show');
+		$("#"+fieldId).val("");
+		var message = "Max length can't be greater than "+maxLength;
+		$("#messageParagraph").text(message);
+	}
+}
+
+function hideMsgModal() {
+	$("#msgModal").modal("hide");
+}

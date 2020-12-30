@@ -5,229 +5,474 @@
 	layout:decorate="~{layout/master}">
 <head>
 <link rel="stylesheet" href="../assets/css/extend/style-extend.css">
-<!-- <script src="../assets/js/extend/treed.js"></script> -->
-<style>
-label
-{
-color:#009900;
-font-size:14px;
-}
-input[type=checkbox], input[type=radio] {
-    box-sizing: border-box;
-    padding: 0;
-    height:10px;
-    height:10px;
-}
-</style>
 
 <script>
-	function openNav() {
-		document.getElementById("mySidenav").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
+	function openZoneNav(event) {
+		var zoneNavText = $("#warehouseDetailsId").text();
+		
+		$("#zoneNavText").text("");
+		
+		$("#zoneCode").val("");
+		$("#zoneDBVal").val("");
+		$("#zoneName").val("");
+		$("#zoneSlNoDBVal").val("");
+		
+		$("#zoneNavText").text(zoneNavText);
+		document.getElementById("mySidenavZone").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
 		document.getElementById("main").style.width = "420px";
 	}
+	/* function openNav(event) {
+		
+		document.getElementById("mySidenav").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
+		document.getElementById("main").style.width = "420px";
+		var value = event.currentTarget.value;
+		var currentFldId = event.currentTarget.getAttribute('id');
+		if(currentFldId=='warehouse'){
+			
+			$("#binData").hide()
+		}else{
+			$("#binData").show()
+		}
+		
+	} */
 
-	function closeNav() {
-		document.getElementById("mySidenav").style.width = "0";
+	function closeZoneNav() {
+		/* $("#floorSection").val(""); */
+		$("#zoneCode").val("");
+		$("#zoneDBVal").val("");
+		$("#zoneName").val("");
+		$("#zoneSlNoDBVal").val("");
+		document.getElementById("mySidenavZone").style.width = "0";
 		document.getElementById("main").style.width = "480px";
 	}
 </script>
 
 <script type = "text/javascript" >
-    $(document)
-    .ready(
-        function() {
-            $.fn
-                .extend({
-                    treed: function(o) {
+ $(document).ready(function(){
+	 $("#ranking").click(function(){
+			$('#myModal').modal('show');
+			
+		});
+	 //code for zone details
+	 //zone dataset start
+$("#zoneSave").click(function(){
+		
+		data = {};
+		
+		data.warehouseId = $("#warehouseId").val();
+		data.zoneCode = $("#zoneCode").val();
+		data.zoneName = $("#zoneName").val();
+		data.zoneId = $("#zoneDBVal").val();
+		data.zoneSlNo = $("#zoneSlNoDBVal").val();
+		
+		submitZone(data);
+		
+	})
+	//rack datset start
+$("#rackSave").click(function(){
+		
+		data = {};
+		
+		data.warehouseId = $("#warehouseId").val();
+		data.rackCode	 = $("#rackCode").val();
+		data.rackName 	 = $("#rackName").val();
+		data.rackId 	 = $("#rackDBVal").val();
+		data.rackSlNo    = $("#rackSerialNo").val();
+		data.zoneId    = $("#zoneRack").val();
+		
+		submitRack(data);
+		
+	})
 
-                        /*var openedClass = 'fa-minus-circle';
-                        var closedClass = 'fa-plus-circle';*/
-                        var openedClass = 'fa fa-angle-down';
-                        var closedClass = 'fa fa-angle-right ';
+	//zone dataset end here
+	//get 
+/*  	$.ajax({
+		type : "POST",
+		url : "manage-location-get-loc-floor-details",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : id,
+		success : function(response) {
+			if (response.message == "success") {
+				console.log(response);
+				
+				for(var i = 0; i < response.body.length; i++) {
+					
+					
+        			var tbl = 	'<li id="floorLI_'+response.body[i].floorSlNo+'">'+
+        					'<i class="indicator fa fa-angle-right "></i>'+
+							'<div class="mainclass">'+
+							'<input type="checkbox" id="check1" class="pc1-box">'+response.body[i].locationCode+' - '+response.body[i].locationName+' (0)'+
+							'<label for="check1">&nbsp;<a href="javascript:void(0)"><i class="ti-plus" onclick="openSectionNav();"></i></a>'+
+							'&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" onclick=editFloor('+response.body[i].floorSlNo+',"'+response.body[i].floorId+'");></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" value="'+response.body[i].floorId+'" id="removeFloor_'+response.body[i].floorSlNo+'" onclick=removeFloor('+response.body[i].floorSlNo+',"'+response.body[i].floorId+'");></i></a></label>'+
+							'</div>'+
+							'<ul class="secondstep">'+
+							
+							'</ul>'+
+							'</li>';
+					$("#liFloor").append(tbl);
+        		} 
+			}
+		}, error : function(data) {
+			console.log(data)
+			$("#liFloor").empty();
+		}
+	});  */
+	
+});//code for save a zone
+//code for edit zone
+function editZone(i,id) {
+	$("#zoneDBVal").val("");
+	$("#zoneDBVal").val(id);
+	$("#zoneNavText").text("");
+	
+	var zoneNavText = $("#warehouseDetailsId").text();
+	/* zoneNavText = zoneNavText + "-" + i; */
+	
+	$("#zoneNavText").text(zoneNavText);
+	document.getElementById("mySidenavZone").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
+	document.getElementById("main").style.width = "420px";
+	
+	/* closeSectionNav(); */
+	/* closeNav(); */
+	
+	if(id) {
+		$.ajax({
+			type : "POST",
+			url : "manage-warehouse-zone-edit",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					console.log("edit",response.body)
+					$("#zoneCode").val(response.body.zoneCode);
+					$("#zoneName").val(response.body.zoneName);
+					$("#zoneSlNoDBVal").val(response.body.zoneSlNo);
+				}
+			}, error : function(data) {
+				console.log(data)
+			}
+		});
+	}
+}
+///code for edit zone end
+ function submitZone(dataset) {
+	    console.log(dataset)
+	    $.ajax({
+	        type: "POST",
+	        url: "manage-warehouse-zone-save",
+	        dataType: "json",
+	        contentType: "application/json",
+	        data: JSON.stringify(dataset),
+	        success: function(response) {
+	            if (response.message == "Success") {
+	            	
+	            	console.log("data")
+	            	
+	            	closeZoneNav();
+	            	
+	            		var tbl = 	'<li id="zoneLI_'+response.body.zoneSlNo+'"><span class="caret"></span>'+
+	            					
+									'<input type="checkbox" id="check1" class="pc1-box">'+response.body.zoneCode+' - '+response.body.zoneName+' (0)'+
+									'&nbsp;<label for="check1"><a href="javascript:void(0)"><i class="ti-plus" onclick="openSectionNav();"></i></a>'+
+									'<a href="#"><i class="ti-pencil"onclick=editZone("'+response.body.warehouseId+'","'+response.body.zoneId+'");></i></a> <a href="javascript:void(0)"><i class="ti-close" value="'+response.body.zoneId+'" id="removeZone_'+response.body.zoneSlNo+'" onclick=removeZone("'+response.body.zoneSlNo+'","'+response.body.zoneId+'");></i></a></label>'+
+									
+									'</li>';
+						console.log("function call")
+						/* $("#liFloor").append(tbl); */
+						var zoneDBVal = $("#zoneDBVal").val();
+						
+						if(zoneDBVal) {
+							console.log("edit done")
+							openDetails(response.body.warehouseId);
+							
+						} else {
+							console.log("add done")
+							$("#liFloor").append(tbl);
+						}
+						
+						/* var tbl = '<li id="floorLI_'+response.body[i].floorSlNo+'"><span class="caret"></span> <input type="checkbox" id="check2" class="pc1-box"> '+response.body[i].locationCode+' - '+response.body[i].locationName+' (0) '+
+						'<label for="check2"><a href="javascript:void(0)"><i class="ti-plus" onclick="openSectionNav();"></i></a>'+
+						'<a href="javascript:void(0)"><i class="ti-pencil" onclick=editFloor("'+response.body[i].locationCode+'","'+response.body[i].floorId+'");></i></a> <a href="javascript:void(0)"><i class="ti-close" value="'+response.body[i].floorId+'" id="removeFloor_'+response.body[i].floorSlNo+'" onclick=removeFloor("'+response.body[i].floorSlNo+'","'+response.body[i].floorId+'");></i></a></label>'+
+						'<ul class="nested">'+
+						div +
+						'</ul></li>'; */
 
-                        if (typeof o != 'undefined') {
-                            if (typeof o.openedClass != 'undefined') {
-                                openedClass = o.openedClass;
-                            }
-                            if (typeof o.closedClass != 'undefined') {
-                                closedClass = o.closedClass;
-                            }
-                        };
+	            } else {
+	                swal({
+	                    title: response.code,
+	                    text: response.message,
+	                    type: "warning"
+	                })
+	            }
+	        },
+	        error: function(data) {
+	            console.log(data);
+	        }
+	    })
+	}
+	//code for save zone is end
+//code for zone details end
+   $(document).ready(function() {
+    $.fn.extend({
+        treed: function(o) {
 
-                        //initialize each of the top levels
-                        var tree = $(this);
-                        tree.addClass("tree");
-                        tree
-                            .find('li')
-                            .has("ul")
-                            .each(
-                                function() {
-                                    var branch = $(this); //li with children ul
-                                    branch
-                                        .prepend("<i class='indicator fa " + closedClass + "'></i>");
-                                    branch
-                                        .addClass('branch');
-                                    branch
-                                        .on(
-                                            'click',
-                                            function(
-                                                e) {
-                                                if (this == e.target) {
-                                                    var icon = $(
-                                                            this)
-                                                        .children(
-                                                            'i:first');
-                                                    icon
-                                                        .toggleClass(openedClass +
-                                                            " " +
-                                                            closedClass);
-                                                    $(
-                                                            this)
-                                                        .children()
-                                                        .children()
-                                                        .toggle();
-                                                }
-                                            })
-                                    branch.children()
-                                        .children()
-                                        .toggle();
-                                });
-                        //fire event from the dynamically added icon
-                        tree
-                            .find('.branch .indicator')
-                            .each(
-                                function() {
-                                    $(this)
-                                        .on(
-                                            'click',
-                                            function() {
-                                                $(
-                                                        this)
-                                                    .closest(
-                                                        'li')
-                                                    .click();
-                                            });
-                                });
-                        //fire event to open branch if the li contains an anchor instead of text
-                        tree.find('.branch>a').each(function() {
-                            $(this).on('click', function(e) {
-                                $(this).closest('li').click();
-                                e.preventDefault();
-                            });
-                        });
-                        //fire event to open branch if the li contains a button instead of text
-                        tree
-                            .find('.branch>button')
-                            .each(
-                                function() {
-                                    $(this)
-                                        .on(
-                                            'click',
-                                            function(
-                                                e) {
-                                                $(
-                                                        this)
-                                                    .closest(
-                                                        'li')
-                                                    .click();
-                                                e
-                                                    .preventDefault();
-                                            });
-                                });
+            /*var openedClass = 'fa-minus-circle';
+            var closedClass = 'fa-plus-circle';*/
+            var openedClass = 'fa fa-angle-down';
+            var closedClass = 'fa fa-angle-right ';
+
+            if (typeof o != 'undefined') {
+                if (typeof o.openedClass != 'undefined') {
+                    openedClass = o.openedClass;
+                }
+                if (typeof o.closedClass != 'undefined') {
+                    closedClass = o.closedClass;
+                }
+            };
+
+            //initialize each of the top levels
+            var tree = $(this);
+            tree.addClass("tree");
+            tree.find('li').has("ul").each(function() {
+                var branch = $(this); //li with children ul
+                branch.prepend("<i class='indicator fa " + closedClass + "'></i>");
+                branch.addClass('branch');
+                branch.on('click', function(e) {
+                    if (this == e.target) {
+                        var icon = $(this).children('i:first');
+                        icon.toggleClass(openedClass + " " + closedClass);
+                        $(this).children().children().toggle();
                     }
+                })
+                branch.children().children().toggle();
+            });
+
+            //fire event from the dynamically added icon
+            tree.find('.branch .indicator').each(function() {
+                $(this).on('click', function() {
+                    $(this).closest('li').click();
                 });
-
-            $('#tree1').treed();
-
-            $('#tree2').treed({
-                openedClass: 'glyphicon-folder-open',
-                closedClass: 'glyphicon-folder-close'
             });
 
-            $('#tree3').treed({
-                openedClass: 'glyphicon-chevron-right',
-                closedClass: 'glyphicon-chevron-down'
+            //fire event to open branch if the li contains an anchor instead of text
+            tree.find('.branch>a').each(function() {
+                $(this).on('click', function(e) {
+                    $(this).closest('li').click();
+                    e.preventDefault();
+                });
             });
-        }) 
+
+            //fire event to open branch if the li contains a button instead of text
+            tree.find('.branch>button').each(function() {
+                $(this).on('click', function(e) {
+                    $(this).closest('li').click();
+                    e.preventDefault();
+                });
+            });
+        }
+    });
+
+    $('#tree1').treed();
+
+    $('#tree2').treed({
+        openedClass: 'glyphicon-folder-open',
+        closedClass: 'glyphicon-folder-close'
+    });
+
+    $('#tree3').treed({
+        openedClass: 'glyphicon-chevron-right',
+        closedClass: 'glyphicon-chevron-down'
+    });
+})
     </script>
 <script type="text/javascript">
 $(document).ready(function() {
 
-	$("#locCountry").change(function(){
-		var country = $(this).val();
-		if(country) {
-			$.ajax({
-				type : "POST",
-				url : "manage-location-get-state-list",
-				dataType : 'json',
-				contentType : 'application/json',
-				data : country,
-				success : function(response) {
-					if (response.message == "success") {
-						console.log(response);
-						$("#locState").empty();
-						$("#locState").append("<option value=''>Select</option>");
-						$("#locCity").empty();
-						$("#locCity").append("<option value=''>Select</option>");
-						
-						for (var i = 0; i < response.body.length; i++) {
-							var option = $("<option></option>");
-							$(option).val(response.body[i].key);
-							$(option).html(response.body[i].name);
-							$("#locState").append(option);
-						}
-					}
-				},
-				error : function(data) {
-					console.log(data);
-					$("#locState").empty();
-					$("#locState").append("<option value=''>Select</option>");
-					$("#locCity").empty();
-					$("#locCity").append("<option value=''>Select</option>");
-				}
-			})
-		} else {
-			$("#locState").empty();
-			$("#locState").append("<option value=''>Select</option>");
-			$("#locCity").empty();
-			$("#locCity").append("<option value=''>Select</option>");
-		}
-	})
+	//select all checkbox
+    $(".pc-box").click(function() {
+             if (this.checked) {
+             	$(this).closest("li").find(".pc-box").prop("checked", true);
+             	$(this).closest("li").find(".pc1-box").prop("checked", true);
+             	$(this).closest("li").find(".pc2-box").prop("checked", true);
+                 $(this).closest("li").find(".activityCls").prop("checked", true);
+                 $(this).parent();
+             }  
+         });
+         $(".pc-box").click(function() {
+             if (!this.checked) {
+             	$(this).closest("li").find(".pc1-box").prop("checked", false);
+             	$(this).closest("li").find(".pc2-box").prop("checked", false);
+                 $(this).closest("li").find(".activityCls").prop("checked", false);
+                 $(this).parent();
+             }  
+         });
+         $(".pc1-box").click(function() {
+             if (this.checked) {
+             	$(this).closest("li").find(".pc1-box").prop("checked", true);
+             	$(this).closest("li").find(".pc2-box").prop("checked", true);
+                 $(this).closest("li").find(".activityCls").prop("checked", true);
+                 $(this).parent();
+             }  
+         });
+         $(".pc1-box").click(function() {
+             if (!this.checked) {
+             	 $(this).closest("li").find(".pc2-box").prop("checked", false);
+             	$(this).closest("li").find(".activityCls").prop("checked", false);
+                 $(this).parent();
+             }  
+         });
+         
+         $(".pc2-box").click(function() {
+             if (this.checked) {
+             	$(this).closest("li").find(".pc2-box").prop("checked", true);
+                 $(this).closest("li").find(".activityCls").prop("checked", true);
+                 $(this).parent();
+             }  
+         });
+         $(".pc2-box").click(function() {
+             if (!this.checked) {
+                 $(this).closest("li").find(".activityCls").prop("checked", false);
+                 $(this).parent();
+             }  
+         });
+         
+         $(".activityCls").click(function() {
+             if (!this.checked)
+                 $(this).closest("ul").prev().find(".pc-box").prop("checked", false);
+         });
+         //select all checkbox end
 	
-	$("#locState").change(function(){
-		var state = $(this).val();
-		if(state) {
-			$.ajax({
-				type : "POST",
-				url : "manage-location-get-city-list",
-				dataType : 'json',
-				contentType : 'application/json',
-				data : state,
-				success : function(response) {
-					if (response.message == "success") {
-						console.log(response);
-						$("#locCity").empty();
-						$("#locCity").append("<option value=''>Select</option>");
-						
-						for (var i = 0; i < response.body.length; i++) {
-							var option = $("<option></option>");
-							$(option).val(response.body[i].key);
-							$(option).html(response.body[i].name);
-							$("#locCity").append(option);
-						}
-					}
-				},
-				error : function(data) {
-					console.log(data);
-					$("#locCity").empty();
-					$("#locCity").append("<option value=''>Select</option>");
-				}
-			})
-		} else {
-			$("#locCity").empty();
-			$("#locCity").append("<option value=''>Select</option>");
-		}
-	})
+	
+	//SELECT BOX CUSTOM
+	jQuery(document).delegate('a.add-record', 'click', function(e) {
+     e.preventDefault();    
+     var content = jQuery('#append_table tr'),
+     size = jQuery('#myTbl >tbody >tr').length + 1,
+     element = null,    
+     element = content.clone();
+     element.attr('id', 'rec-'+size);
+     element.find('.delete-record').attr('data-id', size);
+     element.appendTo('#myTbl_body');
+     element.find('.sn').html(size);
+   });
+    jQuery(document).delegate('a.delete-record', 'click', function(e) {
+     e.preventDefault();    
+     var didConfirm = confirm("Are you sure You want to delete");
+     if (didConfirm == true) {
+      var id = jQuery(this).attr('data-id');
+      var targetDiv = jQuery(this).attr('targetDiv');
+      jQuery('#rec-' + id).remove();
+      
+    //regnerate index number on table
+    $('#myTbl_body tr').each(function(index){
+        $(this).find('span.sn').html(index+1);
+    });
+    return true;
+  } else {
+    return false;
+  }
+     
+  $('#closeKey').on('click',function(){
+	 alert() 
+  });
+});
+    
+    
+    $('input,textarea').focus(function(){
+    	   $(this).data('placeholder',$(this).attr('placeholder'))
+    	          .attr('placeholder','');
+    	}).blur(function(){
+    	   $(this).attr('placeholder',$(this).data('placeholder'));
+    	});
+    
+  //New Friday
+    
+    var x, i, j, l, ll, selElmnt, a, b, c;
+   /*look for any elements with the class "custom-select":*/
+   x = document.getElementsByClassName("selectbox");
+   l = x.length;
+   for (i = 0; i < l; i++) {
+   	selElmnt = x[i].getElementsByTagName("select")[0];
+   	ll = selElmnt.length;
+   	/*for each element, create a new DIV that will act as the selected item:*/
+   	a = document.createElement("DIV");
+   	a.setAttribute("class", "select-selected");
+   	a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+   	x[i].appendChild(a);
+   	/*for each element, create a new DIV that will contain the option list:*/
+   	b = document.createElement("DIV");
+   	b.setAttribute("class", "select-items select-hide");
+   	for (j = 1; j < ll; j++) {
+   		/*for each option in the original select element,
+   		create a new DIV that will act as an option item:*/
+   		c = document.createElement("DIV");
+   		c.innerHTML = selElmnt.options[j].innerHTML;
+   		c.addEventListener("click", function(e) {
+   			/*when an item is clicked, update the original select box,
+   			and the selected item:*/
+   			var y, i, k, s, h, sl, yl;
+   			s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+   			sl = s.length;
+   			h = this.parentNode.previousSibling;
+   			for (i = 0; i < sl; i++) {
+   				if (s.options[i].innerHTML == this.innerHTML) {
+   					s.selectedIndex = i;
+   					h.innerHTML = this.innerHTML;
+   					y = this.parentNode.getElementsByClassName("same-as-selected");
+   					yl = y.length;
+   					for (k = 0; k < yl; k++) {
+   						y[k].removeAttribute("class");
+   					}
+   					this.setAttribute("class", "same-as-selected");
+   					break;
+   				}
+   			}
+   			h.click();
+   		});
+   		b.appendChild(c);
+   	}
+   	x[i].appendChild(b);
+   	a.addEventListener("click", function(e) {
+   		/*when the select box is clicked, close any other select boxes,
+   		and open/close the current select box:*/
+   		e.stopPropagation();
+   		closeAllSelect(this);
+   		this.nextSibling.classList.toggle("select-hide");
+   		this.classList.toggle("select-arrow-active");
+   	});
+   }
+
+   function closeAllSelect(elmnt) {
+   	/*a function that will close all select boxes in the document,
+   	except the current select box:*/
+   	var x, y, i, xl, yl, arrNo = [];
+   	x = document.getElementsByClassName("select-items");
+   	y = document.getElementsByClassName("select-selected");
+   	xl = x.length;
+   	yl = y.length;
+   	for (i = 0; i < yl; i++) {
+   		if (elmnt == y[i]) {
+   			arrNo.push(i)
+   		} else {
+   			y[i].classList.remove("select-arrow-active");
+   		}
+   	}
+   	for (i = 0; i < xl; i++) {
+   		if (arrNo.indexOf(i)) {
+   			x[i].classList.add("select-hide");
+   		}
+   	}
+   }
+    /*if the user clicks anywhere outside the select box,
+    then close all select boxes:*/
+    document.addEventListener("click", closeAllSelect);
+    //SELECT BOX CUSTOM ENDS
+
+	
+
+
 
 	$("#newBtn").click(function() {
 		$("#myTbl").hide();
@@ -260,7 +505,7 @@ $(document).ready(function() {
 			$(".checkSubmit").removeClass('active');
 		}
 	});
-	
+
 	$("#saveLocation").click(function(){
 		
 		data = {};
@@ -279,26 +524,240 @@ $(document).ready(function() {
 		submitLocation(data);
 		
 	})
-	
+	//code for delete zone
+		$("#deleteModalBtn").click(function(){
+			
+		var data = $("#deleteModalBtn").attr("value");
+		var slNo = $("#deleteModalBtn").attr("slNo");
+		
+		$("#deleteModalBtn").attr("disabled","disabled");
+		
+		if(data) {
+			$.ajax({
+				type : "POST",
+				url : "manage-warehouse-zone-delete",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : data,
+				success : function(response) {
+					console.log("not sucesssss")
+					if (response.message == "success") {
+						
+						$("#deleteModalBtn").removeAttr("disabled");
+						
+						$("#zoneLI_"+slNo).remove();
+						
+						cancelModalBtn();
+						
+						$("#delete").modal('hide');
+						
+						closeZoneNav();
+					}
+				}, error : function(data) {
+					console.log(data)
+				}
+			});
+		}
+		
+	})
 });
 
-function submitLocation(dataset) {
+
+
+
+
+
+function cancelBar(){
+	  var id = document.getElementById("closeKey");
+	  id.style.display = "block";
+	  if($('#searchBar').val() == null || $('#searchBar').val() == ""){
+		  id.style.display = "none";
+	  }
+}
+</script>
+<script>
+$(document).ready(function() {
+	var toggler = document.getElementsByClassName("caret");
+	var i;
+
+	for (i = 0; i < toggler.length; i++) {
+		toggler[i].addEventListener("click", function() {
+			this.parentElement.querySelector(".nested").classList
+					.toggle("active");
+			this.classList.toggle("caret-down");
+		});
+	}
+	});
+function closeNav() {
+	document.getElementById("mySidenav").style.width = "0";
+	document.getElementById("main").style.width = "480px";
+}
+
+function openDetails(id){
+
+	if(id=="warehouseId"){
+		var warehouseId=$('#'+id).val();
+	}else{
+		var warehouseId=id;
+	}
+	
+	$("#liFloor").empty();
+
+	if(warehouseId) {
+		$.ajax({
+			type : "POST",
+			url : "manage-warehouse-get-location",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : warehouseId,
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#locationId").empty();
+					$("#locationCode").empty();
+					
+						$("#locationId").text(response.body[0].locationId);
+						$("#locationCode").text(response.body[0].locationCode);
+						$("#warehouseDetailsId").text("");
+						var labeltxt = response.body[0].locationCode + " - " + response.body[0].locationName + " (0)";
+						$("#warehouseDetailsId").text(labeltxt);
+			
+				}
+			},
+			error : function(data) {
+				console.log(data);
+				$("#locationId").empty();
+				
+				$("#locationCode").empty();
+			
+			}
+		})
+		$.ajax({
+			type : "POST",
+			url : "manage-warehouse-get-warehouse-zone-details",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : warehouseId,
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					
+					for(var i = 0; i < response.body.length; i++) {
+						
+						
+							
+							var div = "";
+							if(response.body[i].rackList.length > 0) {
+								console.log(response.body[i].rackList)
+								  for(var j = 0; j < response.body[i].rackList.length; j++) {
+									div = div + '<li><span class="caret-remove"></span><input type="checkbox" id="check3" class="pc2-box"> '+response.body[i].rackList[j].rackCode+' - '+response.body[i].rackList[j].rackName+
+									'<label for="check3">&nbsp;<a href="javascript:void(0)"><i class="ti-plus"></i></a>'+
+									'<a href="javascript:void(0)"><i class="ti-pencil"></i></a> <a href="javascript:void(0)"><i class="ti-close"></i></a></label></li>';
+								}  
+							} 
+						
+						
+						var tbl = 	'<li id="zoneLI_'+response.body[i].zoneSlNo+'"><span class="caret"  id="spanRack_'+response.body[i].zoneSlNo+'" onclick=showRack("'+response.body[i].zoneSlNo+'") value="0"></span>'+
+    					
+						'<input type="checkbox" id="check1" class="pc1-box">'+response.body[i].zoneCode+' - '+response.body[i].zoneName+' (0)'+
+						'&nbsp;<label for="check1"><a href="javascript:void(0)"><i class="ti-plus cbicon1 checkIcon2_'+response.body[i].zoneSlNo+'" id=""  onclick=openRackNav("'+response.body[i].zoneCode+'","'+response.body[i].zoneId+'");></i></a>'+
+						'<a href="#"><i class="ti-pencil" onclick=editZone("'+response.body[i].warehouseId+'","'+response.body[i].zoneId+'");></i></a> <a href="javascript:void(0)"><i class="ti-close" value="'+response.body[i].zoneId+'" id="removeZone_'+response.body[i].zoneSlNo+'" onclick=removeZone("'+response.body[i].zoneSlNo+'","'+response.body[i].zoneId+'");></i></a></label>'+
+						 '<ul class="nested" id="lastUl_'+response.body[i].zoneSlNo+'">'+ 
+						  div +
+						  '</ul></li>';
+						$("#liFloor").append(tbl);
+					}
+		
+				}
+			},
+			error : function(data) {
+				console.log(data);
+				$("#locationId").empty();
+				
+				$("#locationCode").empty();
+			
+			}
+		})
+	} else {
+		$("#locationId").empty();
+		
+		$("#locationCode").empty();
+		
+	}
+	
+/* }) */
+
+}
+function removeZone(i,id) { 
+	
+	$("#deleteModalBtn").attr("value","");
+	$("#deleteModalBtn").attr("slNo","");
+	$("#delete").modal('show');
+	$("#deleteModalBtn").attr("value",id);
+	$("#deleteModalBtn").attr("slNo",i);
+	//$("#floorLI_"+i).remove();
+}
+function cancelModalBtn() {
+	$("#deleteModalBtn").attr("value","");
+	$("#deleteModalBtn").attr("slNo","");
+	$("#deleteModalBtn").removeAttr("disabled");
+}
+
+function showRack(i) {
+	var value = $("#spanRack_"+i).attr('value');
+	if(value=="0") {
+		$("#lastUl_"+i).addClass("active");
+		$("#spanRack_"+i).addClass("caret-down");
+		$("#spanRack_"+i).attr('value','1');
+	} else {
+		$("#lastUl_"+i).removeClass("active");
+		$("#spanRack_"+i).removeClass("caret-down");
+		$("#spanRack_"+i).attr('value','0');
+	}
+	
+}
+function openRackNav(code,zone) {
+	
+ 	/* closeNav(); */
+	closeZoneNav();
+	
+	 $("#zoneRack").val("");
+	$("#zoneRack").val(zone);
+	var rackNavText = $("#warehouseDetailsId").text();
+	$("#rackNavText").text("");
+	$("#rackId").val("");
+	$("#rackDBVal").val("");
+	$("#rackName").val("");
+	$("#rackNavText").text(rackNavText+"-"+code);
+	document.getElementById("mySidenavRack").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
+	document.getElementById("main").style.width = "420px";
+}
+function submitRack(dataset) {
     console.log(dataset)
     $.ajax({
         type: "POST",
-        url: "manage-location-save",
+        url: "manage-warehouse-save-rack",
         dataType: "json",
         contentType: "application/json",
         data: JSON.stringify(dataset),
         success: function(response) {
             if (response.message == "Success") {
-                location.reload();
-                /* swal({
-                    title: "Data Saved Successfully.",
-                    type: "success",
-                }).then(function() {
-                	window.location.href = "/inventory/view-items" ;
-                }) */
+            	
+            	console.log(response.body)
+					var tbl = '<li id="sectionLI_'+response.body.floorSlNo+'_'+response.body.secSlNo+'"><span class="caret-remove"></span><input type="checkbox" id="" name="check_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" onchange=checkSec(this,"'+response.body.floorSlNo+'","'+response.body.secSlNo+'") class="pc2-box check_'+response.body.floorSlNo+'" checked="checked"> <span class="leveltxt">'+response.body.sectionCode+' - '+response.body.sectionName+' (0)</span>'+
+								'<label for="check3">&nbsp;<a href="javascript:void(0)"><i id="check_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" class="ti-plus cbicon2 checkIcon_'+response.body.floorSlNo+' sectionCB_'+response.body.floorSlNo+'_'+response.body.secSlNo+'"></i></a>'+
+								'&nbsp;<a href="javascript:void(0)"><i id="check_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" class="ti-pencil cbicon2 checkIcon_'+response.body.floorSlNo+' sectionCB_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" onclick=editSection("'+response.body.sectionCode+'","'+response.body.sectionId+'","'+response.body.floorCode+'");></i></a>&nbsp;<a href="javascript:void(0)"><i id="check_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" class="ti-close cbicon2 checkIcon_'+response.body.floorSlNo+' sectionCB_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" onclick=removeSection("'+response.body.secSlNo+'","'+response.body.sectionId+'","'+response.body.floorSlNo+'");></i></a></label></li>';
+					
+					var sectionDBVal = $("#sectionDBVal").val();
+					
+					if(sectionDBVal) {
+						openDetails(response.body.locationId);
+					} else {
+						$("#lastUl_"+response.body.floorSlNo).append(tbl);
+						$(".sectionCB_"+response.body.floorSlNo+"_"+response.body.secSlNo).addClass("green-cls");
+					}
+					
+					closeSectionNav();
 
             } else {
                 swal({
@@ -308,85 +767,24 @@ function submitLocation(dataset) {
                 })
             }
         },
-        error: function(response) {
-            console.log(response);
+        error: function(data) {
+            console.log(data);
         }
     })
 }
-
-function saveFile() {
-	var uFile = $('#fileUpload')[0].files[0]; 
-	var fileName = $('#fileUpload').val();
-	
-	var lastIndex = fileName.lastIndexOf("\\");
-	if(lastIndex >= 0) {
-		fileName = fileName.substring(lastIndex + 1);
-	}
-	var iURL = URL.createObjectURL(uFile);
-	
-	$('#imgLoc').attr('src', '');
-	$('#imgLoc').attr('src', iURL);
-	
-	var fileData = new FormData();
-	fileData.append('file',uFile);
-	fileData.append('path','none');
-	
-	$.ajax({
-		type        : "POST",
-		url         : "manage-location-upload-file",
-		enctype     : "multipart/form-data",
-		contentType : false,
-		data        : fileData,
-		processData : false,
-		cache       : false,
-		success     : function(response){
-						
-					},			  
-		error       : function(e) {
-			
-			  		}
-	});
-}
-
-function deleteFile() {
-	
-	$('#imgLoc').attr('src', '');
-	$('#imgLoc').attr('src', '../assets/images/noimage.jpg');
-	
-	var fileData = new FormData();
-	
-	fileData.append('file','none');
-	fileData.append('path','none');
-	
-	$.ajax({
-		type        : "POST",
-		url         : "manage-location-delete-file",
-		enctype     : "multipart/form-data",
-		contentType : false,
-		/* data        : fileData, */
-		processData : false,
-		cache       : false,
-		success     : function(response){
-						
-					},			  
-		error       : function(e) {
-			
-			  		}
-	});
-}
-
 </script>
 </head>
 <body>
-	<div layout:fragment="content">
-		<div class="content-wrap">
+	<div layout:fragment="content" class="maincontent">
 
-			<div class="maincontentsec">
-				<div class="content_padding">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="maincontentsec">
+					<div class="content_padding">
 				<div class="row">
 					<div class="col-md-9"></div>
 					<div class="col-md-1">
-					    <button class="btn2">Ranking</button>					
+					    <button class="btn2" id="ranking">Ranking</button>					
 					</div>
 					<div class="col-md-2">
 					    <button class="btn4">Cancel</button>
@@ -397,256 +795,22 @@ function deleteFile() {
 				<div class="col-md-1">
 				<label>Warehouse</label></div>
 				<div class="col-md-3">
-				     <select class="form-control">
-				          <option>Chicago Warehouse</option>
-				          
+				<!-- <div class="selectbox"> -->
+				     <select class="form-control" th:id="warehouseId" style="height:20px" onchange="openDetails(this.id)">
+				          <option>--Select--</option>
+				         <option th:each="c:${locationList}" th:value='${c.key}'
+												th:text="${c.name}" th:name='${c.name}'
+												th:selected="${c.key==locationList}"></option>
 				     </select>
+				     <!-- </div> -->
 				</div>
-				<div class="col-md-2">Location ID: 1023</div>
-				<div class="col-md-2">Code: CW</div>
+				<div class="col-md-3" ><label>Location ID</label>&nbsp;&nbsp;<span th:id="locationId" class="datatxt"></span></div>
+				
+					<div class="col-md-3" ><label>Location Code</label>&nbsp;&nbsp;<span  th:id="locationCode" class="datatxt"></span></div>
+				
 				</div>
 				
-					<div class="row margin_topbot btn-hs">
-						<div class="col-md-8 padding-7">
-							<div class="input-style row">
-								<div class="autocomplete">
-									<input id="myInput" type="text" name="myCountry"
-										class="searchboxinput" placeholder="Software..">
-								</div>
-								<div class="searchicon">
-									<a href="#"><span class="close_i">X</span></a> <a href="#"><i
-										class="fa fa-search"></i></a>
-								</div>
-							</div>
-						</div>
-					</div>
-					<!--  <form enctype="multipart/form-data"> -->
-				<!-- 	<div class="row">
-
-						<div class="col-md-8 padding-7 btn-hs">
-							<div class="font-design">
-								Location LIST <span th:text="${'('+count+')'}"></span>
-							</div>
-						</div>
-						<div class="col-md-2 btn-hs">
-							<div class="row">
-								<button class="btn1" id="newBtn">NEW</button>
-								 <button class="btn2" id="copyBtn">COPY</button>
-								<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-								 <a class="btn2 add-record copy" data-added="0">COPY</a>
-                                 <a class="btn3 delete-record copy">DELETE</a>
-							</div>
-						</div>
-						<div class="col-md-2 btn-hs padding-7" align="right">
-							<button class="btn4">Upload</button>
-							<button class="btn4">Download</button>
-						</div>
-
-					</div>
-
-					<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1" style="background: #fff;">
-						<thead>
-							<tr>
-								<th align="center" width="20"><input type="checkbox"
-									class="allChkBox"></th>
-								<th align="center">ID</th>
-								<th align="center">Code</th>
-								<th align="center">Name</th>
-								<th align="center">Type</th>
-								<th align="center">Virtual</th>
-								<th align="center">Address</th>
-								<th align="center">City</th>
-								<th align="center">State</th>
-								<th align="center">Country</th>
-								<th align="center">Status</th>
-								<th align="center">Create Date</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr th:each="c,iter:${locationList}">
-								<td align="center"><input type="checkbox"
-									class="chkbox" name=""></td>
-								<td align="left">
-									<div class="txt-blue" th:text="${c.locationId}"></div>
-								</td>
-								<td>
-									<div class="txt-blue" data-toggle="collapse"
-										data-target="#demo" id="quarter" th:text="${c.locationCode}"></div>
-								</td>
-								<td align="left" th:text="${c.locationName}"></td>
-								<td th:text="${c.locationType}"></td>
-								<td th:text="${c.locVirtual}"></td>
-								<td th:text="${c.locStreet}"></td>
-								<td align="left" th:text="${c.locCity}"></td>
-								<td align="left" th:text="${c.locState}"></td>
-								<td align="left" th:text="${c.locCountry}"></td>
-								<td align="center" th:text="${c.locStatus}"></td>
-								<td align="center" th:text="${c.createdDate}"></td>
-							</tr>
-							<tr>
-								<td align="center" bgcolor="#FFF"><input type="checkbox"
-									class="chkbox" name=""></td>
-								<td align="center" bgcolor="#FFF">
-									<div class="txt-blue">1004</div>
-								</td>
-								<td bgcolor="#FFF">
-									<div class="txt-blue" data-toggle="collapse"
-										data-target="#demo">BLR-I</div>
-								</td>
-								<td align="left" bgcolor="#FFF">Bangalore Office</td>
-								<td bgcolor="#FFF">Office</td>
-								<td bgcolor="#FFF"></td>
-								<td bgcolor="#FFF">1 Main Street</td>
-								<td bgcolor="#FFF" align="left">Chicago</td>
-								<td bgcolor="#FFF" align="left">Illinois</td>
-								<td bgcolor="#FFF" align="center">USA</td>
-								<td bgcolor="#FFF" align="center">Active</td>
-								<td bgcolor="#FFF" align="center">9-Oct-2020</td>
-							</tr>
-							<tr>
-								<td align="center" bgcolor="#FFF"><input type="checkbox"
-									class="chkbox" name=""></td>
-								<td align="center" bgcolor="#FFF">
-									<div class="txt-blue">972</div>
-								</td>
-								<td bgcolor="#FFF">
-									<div class="txt-blue" data-toggle="collapse"
-										data-target="#demo">WH-B-I</div>
-								</td>
-								<td align="left" bgcolor="#FFF">B-1 Warehouse</td>
-								<td bgcolor="#FFF">Warehouse</td>
-								<td bgcolor="#FFF"></td>
-								<td bgcolor="#FFF">1 Main Street</td>
-								<td bgcolor="#FFF" align="left">Chicago</td>
-								<td bgcolor="#FFF" align="left">Illinois</td>
-								<td bgcolor="#FFF" align="center">USA</td>
-								<td bgcolor="#FFF" align="center">Active</td>
-								<td bgcolor="#FFF" align="center">9-Oct-2020</td>
-							</tr>
-							<tr>
-								<td align="center" bgcolor="#FFF"><input type="checkbox"
-									class="chkbox" name=""></td>
-								<td align="center" bgcolor="#FFF">
-									<div class="txt-blue">471</div>
-								</td>
-								<td bgcolor="#FFF">
-									<div class="txt-blue" data-toggle="collapse"
-										data-target="#demo">Store-123</div>
-								</td>
-								<td align="left" bgcolor="#FFF">Store 123</td>
-								<td bgcolor="#FFF">Store</td>
-								<td bgcolor="#FFF"></td>
-								<td bgcolor="#FFF">1 Main Street</td>
-								<td bgcolor="#FFF" align="left">Chicago</td>
-								<td bgcolor="#FFF" align="left">Illinois</td>
-								<td bgcolor="#FFF" align="center">USA</td>
-								<td bgcolor="#FFF" align="center">Active</td>
-								<td bgcolor="#FFF" align="center">9-Oct-2020</td>
-							</tr>
-						</tbody>
-					</table> -->
-					<!--  </div> -->
-					<!-- HR DETAILS PART START -->
-				<!-- 	<div class="collapse" id="demo">
-						<div class="row">
-							<div class="col-md-4">Location ID: </div>
-							<div class="col-md-8" align="right">
-								<button class="btn3" id="cancelBtn">Cancel</button>
-								<button class="btn1" id="saveLocation">Save</button>
-							</div>
-							<div class="col-md-3">
-								<input type="hidden" id="locationId">
-								<div class="hvrbox">
-									<img src="../assets/images/noimage.jpg" id="imgLoc" alt="Location"
-										class="hvrbox-layer_bottom img-fluid" style="height: 203px; width: 241px;">
-									<img src="../assets/images/noimage.jpg" alt="Location"
-										class="hvrbox-layer_bottom img-fluid">
-									<div class="hvrbox-layer_top">
-										<div class="hvrbox-text">
-											<span><i class="fa fa-pencil-square-o"></i></span>
-											<input type="file" id="fileUpload" hidden  onchange="saveFile();"/> <span><label
-												for="fileUpload"><i class="ti-files" style="cursor:pointer;"></i>
-												<i class="fa fa-pencil-square-o"></i></label></span> <span><i
-												class="fa fa-trash red" onclick="deleteFile();"></i></span>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="col-md-9">
-								<div class="row">
-									<div class="col-md-12">
-										<div class="name-bar">Head Quarter</div>
-										<input type="text" name="code" value=""
-											placeholder="Location Name" class="form-control_big" id="locationName">
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Code</label> <input type="text" name="code" value=""
-												placeholder="Location Code" class="form-control" id="locationCode">
-										</div>
-									</div>
-
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Type</label> <select class="form-control"
-												id="locationType">
-												<option th:each="c,iter:${locationTypeList}" th:value="${c.key}" th:text="${c.name}"></option>
-											</select>
-										</div>
-									</div>
-
-									<div class="col-md-2">
-										<div class="form-group mrt_25">
-											<input type="checkbox" name="isVirtual" id="locVirtual" value="1"> <label>Virtual</label>
-										</div>
-									</div>
-									<div class="col-md-2">
-										<div class="form-group mrt_25">
-											<input type="checkbox" name="isActive" id="locStatus" value="1"> <label>Active</label>
-										</div>
-									</div>
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Country</label> <select class="form-control"
-												id="locCountry">
-												<option value="">Select</option>
-												<option th:each="c,iter:${countryList}" th:value="${c.key}" th:text="${c.name}"></option>
-											</select>
-										</div>
-									</div>
-
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>State</label> <select class="form-control"
-												id="locState">
-												<option value="">Select</option>
-											</select>
-										</div>
-									</div>
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>City</label> <select class="form-control"
-												id="locCity">
-												<option value="">Select</option>
-											</select>
-										</div>
-									</div>
-									<div class="col-md-8">
-										<div class="form-group">
-											<label>Street Address</label> <input type="text" id="locStreet"
-												name="Street" value="" placeholder="Street Name" autocomplete="off"
-												class="form-control">
-
-										</div>
-									</div>
-
-									
-								</div>
-							</div>
-
-						</div> -->
+			
 					 	<div class="row">
 							<div class="col-md-12">
 								<div class="headingbar">
@@ -663,162 +827,179 @@ function deleteFile() {
 								<div class="col-md-4">
 									<div class="flowsection">
 										<div>Location -> Zone -> Rack -> Shelve -> Bin</div>
-										<ul id="tree1">
-											<li style="padding-left: 70px;">CW - Chicago Warehouse (37) <a
-												href="#"><i class="ti-plus"></i></a>
-												<ul>
-													<li>
-														<div class="mainclass">
-															<input type="checkbox" id="check1"> A - Zone A (0)
-															<label for="check1"><a href="#"><i
-																	class="ti-plus"></i></a> <a href="#"><i
-																	class="ti-pencil"></i></a> <a href="#"><i
-																	class="ti-close"></i></a></label>
-														</div>
+										
+										
+									<!-- 	code start for second tree -->
+										<ul id="#myUL" class="level">
+											<li><span class="caret"></span><input type="checkbox" id="checkData" class="pc-box" ><span id="warehouseDetailsId">Warehouse(0)</span>
+															<label for="checkData"><a  href="javascript:void(0)"><i class="ti-plus" onclick="openZoneNav(id);"></i></a>
+															</label>
+												<ul class="nested" id="liFloor">
+													
+													<!-- <li><span class="caret"></span> <input type="checkbox"
+														id="check2"> Tea <label for="check2"><a
+															href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																class="ti-pencil"></i></a> <a href="#"><i
+																class="ti-close"></i></a></label>
+														<ul class="nested">
+															
+															<li><span class="caret"></span> <input
+																type="checkbox" id="check3"> Green Tea <label
+																for="check3"><a href="#"><i class="ti-plus"></i></a>
+																	<a href="#"><i class="ti-pencil"></i></a> <a href="#"><i
+																		class="ti-close"></i></a></label>
+																<ul class="nested">
+																	<li><input type="checkbox" id="check6">
+																		Sencha <label for="check6"><a href="#"><i
+																				class="ti-plus"></i></a> <a href="#"><i
+																				class="ti-pencil"></i></a> <a href="#"><i
+																				class="ti-close"></i></a></label></li>
+																	
+																</ul></li>
+														</ul></li> -->
+												</ul></li>
+										</ul>
+										<!-- code end for second tree -->
+										
+										
+										
+										<!-- <ul id="tree1"  >
+											<li style="padding-left: 70px;">
+												
+												<input type="checkbox" id="checkData" class="pc-box" ><span id="warehouseDetailsId">Warehouse(0)</span>
+															<label for="checkData"><a  href="javascript:void(0)"><i class="ti-plus" onclick="openZoneNav(event);"></i></a>
+															</label>
+												
+												zone start here
+											 <ul id="liFloor"> -->
+											<!-- 		<li>
+													 <div class="mainclass">   
+														<input type="checkbox" id="check1" class="pc1-box">
+															 A - Zone A (0)
+															 <label for="check1"><a href="#"><i class="ti-plus" onclick="openNav(event);"></i></a>
+															
+															 <a href="#"><i class="ti-pencil"></i></a> 
+															 <a href="#"><i class="ti-close"></i> </a></label> 
+												 </div>
 														<ul class="secondstep">
 															<li>
 																<div class="subclass">
-																	<input type="checkbox" id="check2"> 10 -
-																	Rack (10) <label for="check2"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																	<input type="checkbox" id="check2" class="pc2-box"> 10 -
+																	Rack (10) <label for="check2"> 
+																	 <a href="#"><i class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
 																
-																<ul class="secondstep">
+																<ul class="thirdstep">
 															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check2"> 1 -
+																<div class="subsubclass">
+																	<input type="checkbox" id="check2"  class="activityCls"> 1 -
 																	Floor 1(4) <label for="check2"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																		href="#"><i class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
 															</li>
 															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check3"> 2 -
+																<div class="subsubclass">
+																	<input type="checkbox" id="check3"  class="activityCls"> 2 -
 																	Floor 2 (4) <label for="check3"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																		href="#"><i class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
+																
 															</li>
 															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check4"> 3 - Floor 3 (4) <label for="check4"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
+																<div class="subsubclass">
+																	<input type="checkbox" id="check4"  class="activityCls"> 3 - Floor 3 (4) <label for="check4"><a href="#"><i
+																			class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
 															</li>
 														<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check5"> 4 - Floor 4 (4) <label for="check4"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
+																<div class="subsubclass">
+																	<input type="checkbox" id="check5"  class="activityCls"> 4 - Floor 4 (4) <label for="check4"><a href="#"><i
+																			class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
 															</li>
-														</ul>
-															</li>
+														 </ul>
+														</li>
 															<li>
 																<div class="subclass">
-																	<input type="checkbox" id="check3"> 20 -
+																	<input type="checkbox" id="check3" class="pc2-box"> 20 -
 																	Rack 20(12) <label for="check3"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																		href="#"><i class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
 																		<ul class="secondstep">
 															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check2"> 1 -
+																<div class="subsubclass">
+																	<input type="checkbox" id="check2" class="activityCls"> 1 -
 																	Floor 1(4) <label for="check2"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																		href="#"><i class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
 															</li>
 															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check3"> 2 -
+																<div class="subsubclass">
+																	<input type="checkbox" id="check3" class="activityCls"> 2 -
 																	Floor 2 (4) <label for="check3"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																		href="#"><i class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
 															</li>
 															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check4"> 3 - Floor 3 (4) <label for="check4"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
+																<div class="subsubclass">
+																	<input type="checkbox" id="check4" class="activityCls"> 3 - Floor 3 (4) <label for="check4"><a href="#"><i
+																			class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
 															</li>
 														<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check5"> 4 - Floor 4 (4) <label for="check4"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
+																<div class="subsubclass">
+																	<input type="checkbox" id="check5" class="activityCls"> 4 - Floor 4 (4) <label for="check4"><a href="#"><i
+																			class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
 															</li>
 														</ul>
 															</li>
-															<!-- <li>
-																<div class="subclass">
-																	<input type="checkbox" id="check4"> N - North
-																	Section (5) <label for="check4"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check5"> S - South
-																	Section <label for="check5"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check6"> E - East
-																	Section <label for="check6"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li> -->
+														
 														</ul>
 													</li>
 													<li>
 														<div class="mainclass">
-															<input type="checkbox" id="check7"> B - Zone B (28)
+															<input type="checkbox" id="check7" class="pc1-box"> B - Zone B (28)
 															 <label for="check7"><a href="#"><i
-																	class="ti-plus"></i></a> <a href="#"><i
+																	class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																	class="ti-pencil"></i></a> <a href="#"><i
 																	class="ti-close"></i></a></label>
 														</div>
 														<ul class="secondstep">
 															<li>
 																<div class="subclass">
-																	<input type="checkbox" id="check8"> S -
+																	<input type="checkbox" id="check8" class="pc2-box"> S -
 																	Storage (4) <label for="check8"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																		href="#"><i class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
-																<ul class="secondstep">
+																<ul class="thirdstep">
 															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check8"> S -
+																<div class="subsubclass">
+																	<input type="checkbox" id="check8" class="activityCls"> S -
 																	Palette (4) <label for="check8"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																		href="#"><i class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
@@ -832,26 +1013,26 @@ function deleteFile() {
 													</li>
 													<li>
 														<div class="mainclass">
-															<input type="checkbox"> C - Zone C (4) <a
-																href="#"><i class="ti-plus"></i></a> <a href="#"><i
+															<input type="checkbox" id="check8"  class="pc1-box"> C - Zone C (4) <label for="check8"> <a
+																href="#"><i class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																class="ti-pencil"></i></a> <a href="#"><i
-																class="ti-close"></i></a>
+																class="ti-close"></i></a></label>
 														</div>
 														<ul class="secondstep">
 															<li>
 																<div class="subclass">
-																	<input type="checkbox" id="check8"> S -
+																	<input type="checkbox" id="check8" class="pc2-box"> S -
 																	Storage (5) <label for="check8"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																		href="#"><i class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
-																<ul class="secondstep">
+																<ul class="thirdstep">
 															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check8"> S -
+																<div class="subsubclass">
+																	<input type="checkbox" id="check8"  class="activityCls"> S -
 																	Palette (5) <label for="check8"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
+																		href="#"><i class="ti-plus" onclick="openNav(event);"></i></a> <a href="#"><i
 																			class="ti-pencil"></i></a> <a href="#"><i
 																			class="ti-close"></i></a></label>
 																</div>
@@ -863,30 +1044,11 @@ function deleteFile() {
 														
 														</ul>
 													
-													</li>
-												</ul>
+													</li> -->
+												</ul> 
+											<!-- 	zone end here -->
 											</li>
-											<!--   <li>
-                        <div>HRM</div>
-                        <ul>
-                           <li><div>Company Maintenance</div></li>
-                           <li>
-                            <div> Employees</div>
-                              <ul>
-                                 <li>
-                                    <div>Reports</div>
-                                    <ul>
-                                       <li><div>Report1</div></li>
-                                       <li><div>Report2</div></li>
-                                       <li><div>Report3</div></li>
-                                    </ul>
-                                 </li>
-                                 <li><div>Employee Maint.</div></li>
-                              </ul>
-                           </li>
-                           <li><div>Human Resources</div></li>
-                        </ul>
-                     </li> -->
+											
 										</ul>
 									</div>
 								</div>
@@ -948,68 +1110,142 @@ function deleteFile() {
 									</div>
 									<!-- </div>
  <div class="col-md-3">  -->
-									<div class="slidearrow" onclick="openNav()">
+									<div class="slidearrow" onclick="openNav(event)">
 										<i class="ti-arrow-left"></i>
 									</div>
-							<div id="mySidenav" class="sidenav">
+									<!-- code for zone entry -->
+							<div id="mySidenavZone" class="sidenav">
 										<div class="slidebox">
 											<div class="row">
 												<div class="col-md-10">
-													<div class="edit">CW - B - 10 - 1 - 101(Rank 57)</div>
+													<div class="edit" id="zoneNavText">>CW - B - 10 - 1 - 101(Rank 57)</div>
 												</div>
 												<div class="col-md-2">
 													<div class="arrow">
 														<a href="javascript:void(0)" class="closebtn"
-															onclick="closeNav()"><i class="ti-arrow-right"></i></a>
+															onclick="closeZoneNav()"><i class="ti-arrow-right"></i></a>
 													</div>
 												</div>
 
 												<div class="chartbtnsec">
 													<div class="row">
-														<button class="btn4">CANCEL</button>
+														<button class="btn4" onclick="closeZoneNav()">CANCEL</button>
 														<button class="btn3">DELETE</button>
-														<button class="btn1">SAVE</button>
+														<button class="btn1" id="zoneSave">SAVE</button>
 													</div>
 												</div>
 												<div class="col-md-12 mt-15">
 													<div class="form-group">
 														<label>ID</label> <input type="text"
-															class="form-control transparenttxtbox"
+															class="form-control transparenttxtbox" id="zoneCode"
 															placeholder="101">
+															<input type="hidden"
+																id="zoneDBVal"> <input type="hidden"
+																id="zoneSlNoDBVal">
 													</div>
 												</div>
 
 												<div class="col-md-12 mt-15">
 													<div class="form-group">
-														<label>Name</label> <input type="text"
+														<label>Name</label> <input type="text" id="zoneName"
 															class="form-control transparenttxtbox"
 															placeholder="Bin 101">
 													</div>
 												</div>
-
+											<!-- 	<div id="binData">
 												<div class="col-md-12 mt-15">
 													<div class="form-group">
-														<label>Room Type</label> <select
+													<input type="checkbox" id="checkBin"> Bin <label for="checkBin"></label>
+													<input type="checkbox" id="checkBin"> Storage <label for="checkBin"></label>
+													</div>
+												</div>
+											
+												<div class="col-md-12 mt-15">
+													<div class="form-group">
+														<label>Dimension(inches)</label> <select
 															class="form-control transparenttxtbox">
 
-															<option>Cubicle</option>
-															<option>Individual Room</option>
-															<option>Meeting Room</option>
-															<option>Conference Room</option>
-															<option>Executive Room</option>
-															<option>Kitchen</option>
-															<option>Storage</option>
-															<option>Restroom</option>
-															<option>Server Room</option>
-															<option>War Room</option>
-															<option>Hallway</option>
-															<option>Front Desk</option>
+															<option>Damage</option>
+															<option>Exception</option>
+															<option>Hold</option>
+															<option>Inventory</option>
+															<option>Manufacturing</option>
+															<option>Over Stock</option>
+															<option>QA</option>
+															<option>Receiving</option>
+															<option>Wip</option>
+															
 														</select>
+													</div>
+												</div>
+													<div class="col-md-12 mt-15">
+													<div class="form-group">
+														<label>L</label><span>6</span>
+														<label>W</label><span>10</span>
+														<label>H</label><span>18</span>
+													</div>
+												</div>
+												<div class="col-md-12 mt-15">
+													<div class="form-group">
+														<label>Volume(Cubic inches)</label><span>1080</span>
+													
+													</div>
+												</div>
+													<div class="col-md-12 mt-15">
+													<div class="form-group">
+														<label>Max Weight (Ibs)</label><span>300</span>
+													
+													</div>
+												</div>
+												
+												</div> -->
+												
+											</div>
+										</div>
+									</div>
+									<!-- code for zone entry end -->
+									<!-- code for rack entry start -->
+											<!-- Add Rack -->
+										<div id="mySidenavRack" class="sidenav">
+											<div class="slidebox">
+												<div class="row">
+													<div class="col-md-10">
+														<div class="edit" id="rackNavText">Rack</div>
+													</div>
+													<div class="col-md-2">
+														<div class="arrow">
+															<a href="javascript:void(0)" class="closebtn"
+																onclick="closeRackNav()"><i class="ti-arrow-right"></i></a>
+														</div>
+													</div>
+													<div class="chartbtnsec">
+														<div class="row">
+															<button class="btn4" onclick="closeRackNav()">CANCEL</button>
+															<button class="btn3" onclick="deleteRack()">DELETE</button>
+															<button class="btn1" id="rackSave">SAVE</button>
+														</div>
+													</div>
+													<div class="col-md-12">
+														<div class="form-group">
+															<label>Code</label> <input type="text" id="rackCode"
+																class="form-control transparenttxtbox"
+																placeholder="Code"> <input type="hidden"
+																id="rackDBVal">  <input type="hidden" id="zoneRack"> 
+																<input type="hidden" id="zoneSerialNo"> 
+																<input type="hidden" id="rackSerialNo">
+														</div>
+													</div>
+													<div class="col-md-12">
+														<div class="form-group">
+															<label>Name</label> <input type="text"
+																class="form-control transparenttxtbox"
+																placeholder="Rack Name" id="rackName">
+														</div>
 													</div>
 												</div>
 											</div>
 										</div>
-									</div>
+									<!-- code for rack entry  end -->
 								</div>
 
 							</div>
@@ -1019,409 +1255,113 @@ function deleteFile() {
 
 					</div>
 					<!-- HR DETAILS PART END -->
-					<!-- WAREHOUSE DETAILS PART START -->
-					<div class="collapse" id="warehousedemo">
-						<div class="row">
-							<div class="col-md-4">Location ID: </div>
-							<div class="col-md-8" align="right">
-								<button class="btn3" id="cancelBtn">Cancel</button>
-								<button class="btn1" id="saveLocation">Save</button>
-							</div>
-							<div class="col-md-3">
-								<input type="hidden" id="locationId">
-								<div class="hvrbox">
-									<img src="../assets/images/noimage.jpg" id="imgLoc" alt="Location"
-										class="hvrbox-layer_bottom img-fluid" style="height: 203px; width: 241px;">
-									<!-- <img src="../assets/images/noimage.jpg" alt="Location"
-										class="hvrbox-layer_bottom img-fluid"> -->
-									<div class="hvrbox-layer_top">
-										<div class="hvrbox-text">
-											<!-- <span><i class="fa fa-pencil-square-o"></i></span> -->
-											<input type="file" id="fileUpload" hidden  onchange="saveFile();"/> <span><label
-												for="fileUpload"><i class="ti-files" style="cursor:pointer;"></i>
-												<!-- <i class="fa fa-pencil-square-o"></i> --></label></span> <span><i
-												class="fa fa-trash red" onclick="deleteFile();"></i></span>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="col-md-9">
-								<div class="row">
-									<div class="col-md-12">
-										<!-- <div class="name-bar">Head Quarter</div> -->
-										<input type="text" name="code" value=""
-											placeholder="Location Name" class="form-control_big" id="locationName">
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Code</label> <input type="text" name="code" value=""
-												placeholder="Location Code" class="form-control" id="locationCode">
-										</div>
-									</div>
-
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Type</label> <select class="form-control"
-												id="locationType">
-												<option th:each="c,iter:${locationTypeList}" th:value="${c.key}" th:text="${c.name}"></option>
-											</select>
-										</div>
-									</div>
-
-									<div class="col-md-2">
-										<div class="form-group mrt_25">
-											<input type="checkbox" name="isVirtual" id="locVirtual" value="1"> <label>Virtual</label>
-										</div>
-									</div>
-									<div class="col-md-2">
-										<div class="form-group mrt_25">
-											<input type="checkbox" name="isActive" id="locStatus" value="1"> <label>Active</label>
-										</div>
-									</div>
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Country</label> <select class="form-control"
-												id="locCountry">
-												<option value="">Select</option>
-												<option th:each="c,iter:${countryList}" th:value="${c.key}" th:text="${c.name}"></option>
-											</select>
-										</div>
-									</div>
-
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>State</label> <select class="form-control"
-												id="locState">
-												<option value="">Select</option>
-											</select>
-										</div>
-									</div>
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>City</label> <select class="form-control"
-												id="locCity">
-												<option value="">Select</option>
-											</select>
-										</div>
-									</div>
-									<div class="col-md-8">
-										<div class="form-group">
-											<label>Street Address</label> <input type="text" id="locStreet"
-												name="Street" value="" placeholder="Street Name" autocomplete="off"
-												class="form-control">
-
-										</div>
-									</div>
-
-									
-								</div>
-							</div>
-
-						</div>
-						<div class="row">
-							<div class="col-md-12">
-								<div class="headingbar">
-									<a href="#" data-toggle="collapse" data-target="#demo_11"
-										style="color: #333; text-decoration: none;">Layout</a> <a
-										href="#" data-toggle="collapse" data-target="#demo_11"
-										style="float: right; color: #333; text-decoration: none;"><i
-										class="ti-angle-down"></i></a>
-								</div>
-							</div>
-						</div>
-						<div id="demo_11" class="collapse "> <!-- show -->
-							<div class="row">
-								<div class="col-md-4">
-									<div class="flowsection">
-										<div>Location -> Floor -> Section -> Room</div>
-										<ul id="tree1">
-											<li style="padding-left: 70px;">HQ - Headquater (45) <a
-												href="#"><i class="ti-plus"></i></a>
-												<ul>
-													<li>
-														<div class="mainclass">
-															<input type="checkbox" id="check1"> 1 - Floor 1
-															(0) <label for="check1"><a href="#"><i
-																	class="ti-plus"></i></a> <a href="#"><i
-																	class="ti-pencil"></i></a> <a href="#"><i
-																	class="ti-close"></i></a></label>
-														</div>
-														<ul class="secondstep">
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check2"> NW -
-																	Nortwest Section (4) <label for="check2"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check3"> SW -
-																	Southwest Section (4) <label for="check3"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check4"> N - North
-																	Section (5) <label for="check4"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check5"> S - South
-																	Section <label for="check5"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check6"> E - East
-																	Section <label for="check6"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-														</ul>
-													</li>
-													<li>
-														<div class="mainclass">
-															<input type="checkbox" id="check7"> 2 - Floor 2
-															(45) <label for="check7"><a href="#"><i
-																	class="ti-plus"></i></a> <a href="#"><i
-																	class="ti-pencil"></i></a> <a href="#"><i
-																	class="ti-close"></i></a></label>
-														</div>
-														<ul class="secondstep">
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check8"> NW -
-																	Nortwest Section (4) <label for="check8"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check9"> SW -
-																	Southwest Section (4) <label for="check9"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check10"> N - North
-																	Section (5) <label for="check10"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check11"> S - South
-																	Section <label for="check11"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check12"> E - East
-																	Section <label for="check12"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-														</ul>
-													</li>
-													<li>
-														<div class="mainclass">
-															<input type="checkbox"> 3 - Floor 3 (0) <a
-																href="#"><i class="ti-plus"></i></a> <a href="#"><i
-																class="ti-pencil"></i></a> <a href="#"><i
-																class="ti-close"></i></a>
-														</div>
-														<ul class="secondstep">
-															<li>
-																<div class="subclass">Sales</div>
-																<ul class="secondstep">
-																	<li>
-																		<div class="subclass">Report1</div>
-																	</li>
-																	<li>
-																		<div class="subclass">Report2</div>
-																	</li>
-																	<li>
-																		<div class="subclass">Report3</div>
-																	</li>
-																</ul>
-															</li>
-															<li>
-																<div class="subclass">Marketing</div>
-															</li>
-														</ul>
-													</li>
-												</ul>
-											</li>
-											<!--   <li>
-                        <div>HRM</div>
-                        <ul>
-                           <li><div>Company Maintenance</div></li>
-                           <li>
-                            <div> Employees</div>
-                              <ul>
-                                 <li>
-                                    <div>Reports</div>
-                                    <ul>
-                                       <li><div>Report1</div></li>
-                                       <li><div>Report2</div></li>
-                                       <li><div>Report3</div></li>
-                                    </ul>
-                                 </li>
-                                 <li><div>Employee Maint.</div></li>
-                              </ul>
-                           </li>
-                           <li><div>Human Resources</div></li>
-                        </ul>
-                     </li> -->
-										</ul>
-									</div>
-								</div>
-
-								<div class="col-md-8">
-									<div class="roomdetails" id="main">
-										<h3>HQ-2-NW: Floor 2 - NorthWest Section (4)</h3>
-										<div class="row">
-											<div class="col-md-2">
-												<div class="plusbtn">+</div>
-											</div>
-
-											<div class="col-md-10 roomsection">
-												<div class="roombtn roombtnactive">Room 201</div>
-												<div class="roombtn">Room 202</div>
-												<div class="roombtn">Room 203</div>
-												<div class="roombtn">Room 204</div>
-											</div>
-										</div>
-										<h3>HQ-2-SW: Floor 2 - SouthWest Section (3)</h3>
-										<div class="row">
-											<div class="col-md-2">
-												<div class="plusbtn">+</div>
-											</div>
-
-											<div class="col-md-10 roomsection">
-												<div class="roombtn">Cube 1</div>
-												<div class="roombtn">Cube 2</div>
-												<div class="roombtn">Cube 3</div>
-											</div>
-										</div>
-										<h3>HQ-2-E: Floor 2 - East Section (3)</h3>
-										<div class="row">
-											<div class="col-md-2">
-												<div class="plusbtn">+</div>
-											</div>
-
-											<div class="col-md-10 roomsection">
-												<div class="roombtn">201</div>
-												<div class="roombtn">202</div>
-												<div class="roombtn">203</div>
-											</div>
-										</div>
-									</div>
-									<!-- </div>
- <div class="col-md-3">  -->
-									<div class="slidearrow" onclick="openNav()">
-										<i class="ti-arrow-left"></i>
-									</div>
-									<div id="mySidenav" class="sidenav">
-										<div class="slidebox">
-											<div class="row">
-												<div class="col-md-10">
-													<div class="edit">CW - B - 10 - 1 - 101(Rank 57)</div>
-												</div>
-												<div class="col-md-2">
-													<div class="arrow">
-														<a href="javascript:void(0)" class="closebtn"
-															onclick="closeNav()"><i class="ti-arrow-right"></i></a>
-													</div>
-												</div>
-
-												<div class="chartbtnsec">
-													<div class="row">
-														<button class="btn4">CANCEL</button>
-														<button class="btn3">DELETE</button>
-														<button class="btn1">SAVE</button>
-													</div>
-												</div>
-												<div class="col-md-12 mt-15">
-													<div class="form-group">
-														<label>ID</label> <input type="text"
-															class="form-control transparenttxtbox"
-															placeholder="Marketing">
-													</div>
-												</div>
-
-												<div class="col-md-12 mt-15">
-													<div class="form-group">
-														<label>Name</label> <input type="text"
-															class="form-control transparenttxtbox"
-															placeholder="Marketing">
-													</div>
-												</div>
-
-												<div class="col-md-12 mt-15">
-													<div class="form-group">
-														<label>Room Type</label> <select
-															class="form-control transparenttxtbox">
-
-															<option>Cubicle</option>
-															<option>Individual Room</option>
-															<option>Meeting Room</option>
-															<option>Conference Room</option>
-															<option>Executive Room</option>
-															<option>Kitchen</option>
-															<option>Storage</option>
-															<option>Restroom</option>
-															<option>Server Room</option>
-															<option>War Room</option>
-															<option>Hallway</option>
-															<option>Front Desk</option>
-														</select>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-
-							</div>
-
-						</div>
-
-
-					</div>
-					<!-- WAREHOUSE DETAILS PART END -->
+				
 				</div>
 			</div>
+<!-- Modal Start-->
+<!-- 	<div id="myModal" class="modal fade" role="dialog">
+		<div class="modal-dialog">
+			Modal content
+			<div class="modal-content" style="width: 750px;">
+				<div class="modal-header">
+					<h4 class="modal-title">Bin Ranking:Chicago WareHouse</h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+				<div class="modal-body">
+					<table style="width: 100%; border: 0;" id="table1">
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div> -->
+		<div class="modal fade" id="myModal">
+			<div class="modal-dialog modal-lg" style="max-width: 1100px">
+				<div class="modal-content" style="width: 100%">
 
+					<!-- Modal Header -->
+					<div class="modal-header">
+						<h4 class="modal-title" style="font-size: 16px">
+							<b>Bin Ranking:Chicago WareHouse</b>
+						</h4>
+						<button type="button" class="close" data-dismiss="modal"
+							style="font-size: 25px">×</button>
+					</div>
+					<!-- Modal body -->
+					<div class="modal-body" style="height: 600px; overflow-y: scroll;">
+						<div class="row">
+						 <div class="col-md-12 mrt_btm" align="right">
+									<button class="btn3">AutoBank</button>
+									<button class="btn1">Save</button>
+									<button class="btn4">Cancel</button>
+								</div> 
+								</div>
+						<div class="vertical-line">
+
+							
+							<div class="row">
+								<div class="col-md-12">
+									<table class="newtbl">
+										<thead>
+											<tr>
+												<th align="center">Rank</th>
+												<th align="center">Code</th>
+												<th align="center">Name</th>
+												<th align="center">Bin or storage</th>
+												<th align="center">Type</th>
+												<th align="center">Dimensions</th>
+												<th align="center">Volume</th>
+												<th align="center">Max weight</th>
+											
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td align="center">1</td>
+												<td align="left">CW-B-10-1-101</td>
+												<td align="center">Zone A- Rack- 10 Floor- 1 Bin- 101</td>
+												<td align="left">Bin</td>
+												<td align="left">Damage</td>
+												<td align="left">6 * 10 * 18</td>
+												<td align="center">1080</td>
+												<td align="right">300</td>
+											
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							
+						
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal End-->
+		</div>
+				<div id="delete" class="modal fade show" aria-modal="true">
+			<div class="modal-dialog modal-confirm">
+				<div class="modal-content">
+					<div class="modal-header flex-column">
+						<div class="icon-box">
+							<i class="ti-close"></i>
+						</div>
+						<h4 class="modal-title w-100">Are you sure?</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="cancelModalBtn()"><i class="ti-close modal-close"></i></button>
+					</div>
+					<div class="modal-body">
+						<p>Do you really want to delete these records? This process cannot be undone.</p>
+					</div>
+					<div class="modal-footer justify-content-center">
+						<button type="button" class="btn1" data-dismiss="modal" onclick="cancelModalBtn();">Cancel</button>
+						<button type="button" class="btn3" id="deleteModalBtn">Delete</button>
+						<!-- <img src="../assets/gif/loader.gif">  -->
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 

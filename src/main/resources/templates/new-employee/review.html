@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	function autocomplete(inp, arr) {
+		/*the autocomplete function takes two arguments,
+		the text field element and an array of possible autocompleted values:*/
+		var currentFocus;
+		/*execute a function when someone writes in the text field:*/
+		inp
+				.addEventListener(
+						"input",
+						function(e) {
+							var a, b, i, val = this.value;
+							/*close any already open lists of autocompleted values*/
+							closeAllLists();
+							if (!val) {
+								return false;
+							}
+							currentFocus = -1;
+							/*create a DIV element that will contain the items (values):*/
+							a = document.createElement("DIV");
+							a.setAttribute("id", this.id + "autocomplete-list");
+							a.setAttribute("class", "autocomplete-items");
+							/*append the DIV element as a child of the autocomplete container:*/
+							this.parentNode.appendChild(a);
+							/*for each item in the array...*/
+							for (i = 0; i < arr.length; i++) {
+								/*check if the item starts with the same letters as the text field value:*/
+								if (arr[i].substr(0, val.length).toUpperCase() == val
+										.toUpperCase()) {
+									/*create a DIV element for each matching element:*/
+									b = document.createElement("DIV");
+									/*make the matching letters bold:*/
+									b.innerHTML = "<strong>"
+											+ arr[i].substr(0, val.length)
+											+ "</strong>";
+									b.innerHTML += arr[i].substr(val.length);
+									/*insert a input field that will hold the current array item's value:*/
+									b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+									/*execute a function when someone clicks on the item value (DIV element):*/
+									b
+											.addEventListener(
+													"click",
+													function(e) {
+														/*insert the value for the autocomplete text field:*/
+														inp.value = this
+																.getElementsByTagName("input")[0].value;
+														/*close the list of autocompleted values,
+														(or any other open lists of autocompleted values:*/
+														closeAllLists();
+													});
+									a.appendChild(b);
+								}
+							}
+						});
+		/*execute a function presses a key on the keyboard:*/
+		inp.addEventListener("keydown", function(e) {
+			var x = document.getElementById(this.id + "autocomplete-list");
+			if (x)
+				x = x.getElementsByTagName("div");
+			if (e.keyCode == 40) {
+				/*If the arrow DOWN key is pressed,
+				increase the currentFocus variable:*/
+				currentFocus++;
+				/*and and make the current item more visible:*/
+				addActive(x);
+			} else if (e.keyCode == 38) { //up
+				/*If the arrow UP key is pressed,
+				decrease the currentFocus variable:*/
+				currentFocus--;
+				/*and and make the current item more visible:*/
+				addActive(x);
+			} else if (e.keyCode == 13) {
+				/*If the ENTER key is pressed, prevent the form from being submitted,*/
+				e.preventDefault();
+				if (currentFocus > -1) {
+					/*and simulate a click on the "active" item:*/
+					if (x)
+						x[currentFocus].click();
+				}
+			}
+		});
+		function addActive(x) {
+			/*a function to classify an item as "active":*/
+			if (!x)
+				return false;
+			/*start by removing the "active" class on all items:*/
+			removeActive(x);
+			if (currentFocus >= x.length)
+				currentFocus = 0;
+			if (currentFocus < 0)
+				currentFocus = (x.length - 1);
+			/*add class "autocomplete-active":*/
+			x[currentFocus].classList.add("autocomplete-active");
+		}
+		function removeActive(x) {
+			/*a function to remove the "active" class from all autocomplete items:*/
+			for (var i = 0; i < x.length; i++) {
+				x[i].classList.remove("autocomplete-active");
+			}
+		}
+		function closeAllLists(elmnt) {
+			/*close all autocomplete lists in the document,
+			except the one passed as an argument:*/
+			var x = document.getElementsByClassName("autocomplete-items");
+			for (var i = 0; i < x.length; i++) {
+				if (elmnt != x[i] && elmnt != inp) {
+					x[i].parentNode.removeChild(x[i]);
+				}
+			}
+		}
+		/*execute a function when someone clicks in the document:*/
+		document.addEventListener("click", function(e) {
+			closeAllLists(e.target);
+		});
+	}
+
+	/*An array containing all the country names in the world:*/
+	var countries = [ "Amit Jha", "Ashish Dash", "Arun Kar", "Asima Barik",
+			"Aradhya Pal", "Bisakha Senapati", "Bikash Palei", "Bidhan Nath",
+			"Bijayalaxmi Sahoo", "Binita Parida", "Chandan Palei", ,
+			"Chaaya Kar", "Chimayee Rath", "Cabir Singh", "Chinu Dhar",
+			"Deepak Das", "Disha Kar", "DiyaPal", "Dikhya Muduli",
+			"Dhiren Dhar", "Divyanka Tripathy", "Esha Jha", "Eli Jena",
+			"Eshan Barik", "Eyana Kar", "Eilina Sahu" ];
+
+	/*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+	autocomplete(document.getElementById("myInput"), countries);
+</script>
+
+
+<script type="text/javascript">
+	$(document)
+			.ready(
+					function() {
+						for (var n = 1; n <= 25; n++) {
+							$('#box ul')
+									.append(
+											'<li><span>image '
+													+ n
+													+ ' </span><img src="http://unsplash.it/280/180?image='
+													+ n + '"></li>');
+						}
+						$('#box').mCustomScrollbar({
+							theme : "inset",
+							scrollButtons : {
+								enable : true
+							}
+						});
+
+					});
+</script>
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		/*  $("#profile").click(function(){
+		   $("#myTbl").hide();
+		   $(".btn-hs").hide();
+		   $("#profile").show();
+		})  */
+
+		$("#profilecancelbtn").click(function() {
+			$("#newId").show();
+			$(".btn-hs").show();
+			$("#profile").hide();
+		});
+	});
+</script>
+
+
+<script type="text/javascript">
+	$(document)
+			.ready(
+					function() {
+						/* $('#header').load('../header-ads.html');
+						 $('#footer').load('../footer-ads.html');*/
+						jQuery(document)
+								.delegate(
+										'a.add-record',
+										'click',
+										function(e) {
+											e.preventDefault();
+											var content = jQuery('#append_table tr'), size = jQuery('#myTbl >tbody >tr').length + 1, element = null, element = content
+													.clone();
+											element.attr('id', 'rec-' + size);
+											element.find('.delete-record')
+													.attr('data-id', size);
+											element.appendTo('#myTbl_body');
+											element.find('.sn').html(size);
+										});
+						jQuery(document)
+								.delegate(
+										'a.delete-record',
+										'click',
+										function(e) {
+											e.preventDefault();
+											var didConfirm = confirm("Are you sure You want to delete");
+											if (didConfirm == true) {
+												var id = jQuery(this).attr(
+														'data-id');
+												var targetDiv = jQuery(this)
+														.attr('targetDiv');
+												jQuery('#rec-' + id).remove();
+
+												//regnerate index number on table
+												$('#myTbl_body tr')
+														.each(
+																function(index) {
+																	$(this)
+																			.find(
+																					'span.sn')
+																			.html(
+																					index + 1);
+																});
+												return true;
+											} else {
+												return false;
+											}
+
+											$('#closeKey').on('click',
+													function() {
+														alert()
+													});
+										});
+
+						$('input,textarea').focus(
+								function() {
+									$(this).data('placeholder',
+											$(this).attr('placeholder')).attr(
+											'placeholder', '');
+								}).blur(
+								function() {
+									$(this).attr('placeholder',
+											$(this).data('placeholder'));
+								});
+
+						//New Friday
+
+						var x, i, j, l, ll, selElmnt, a, b, c;
+						/*look for any elements with the class "custom-select":*/
+						x = document.getElementsByClassName("selectbox");
+						l = x.length;
+						for (i = 0; i < l; i++) {
+							selElmnt = x[i].getElementsByTagName("select")[0];
+							ll = selElmnt.length;
+							/*for each element, create a new DIV that will act as the selected item:*/
+							a = document.createElement("DIV");
+							a.setAttribute("class", "select-selected");
+							a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+							x[i].appendChild(a);
+							/*for each element, create a new DIV that will contain the option list:*/
+							b = document.createElement("DIV");
+							b.setAttribute("class", "select-items select-hide");
+							for (j = 1; j < ll; j++) {
+								/*for each option in the original select element,
+								create a new DIV that will act as an option item:*/
+								c = document.createElement("DIV");
+								c.innerHTML = selElmnt.options[j].innerHTML;
+								c
+										.addEventListener(
+												"click",
+												function(e) {
+													/*when an item is clicked, update the original select box,
+													and the selected item:*/
+													var y, i, k, s, h, sl, yl;
+													s = this.parentNode.parentNode
+															.getElementsByTagName("select")[0];
+													sl = s.length;
+													h = this.parentNode.previousSibling;
+													for (i = 0; i < sl; i++) {
+														if (s.options[i].innerHTML == this.innerHTML) {
+															s.selectedIndex = i;
+															h.innerHTML = this.innerHTML;
+															y = this.parentNode
+																	.getElementsByClassName("same-as-selected");
+															yl = y.length;
+															for (k = 0; k < yl; k++) {
+																y[k]
+																		.removeAttribute("class");
+															}
+															this
+																	.setAttribute(
+																			"class",
+																			"same-as-selected");
+															break;
+														}
+													}
+													h.click();
+												});
+								b.appendChild(c);
+							}
+							x[i].appendChild(b);
+							a.addEventListener("click", function(e) {
+								/*when the select box is clicked, close any other select boxes,
+								and open/close the current select box:*/
+								e.stopPropagation();
+								closeAllSelect(this);
+								this.nextSibling.classList
+										.toggle("select-hide");
+								this.classList.toggle("select-arrow-active");
+							});
+						}
+						function closeAllSelect(elmnt) {
+							/*a function that will close all select boxes in the document,
+							except the current select box:*/
+							var x, y, i, xl, yl, arrNo = [];
+							x = document.getElementsByClassName("select-items");
+							y = document
+									.getElementsByClassName("select-selected");
+							xl = x.length;
+							yl = y.length;
+							for (i = 0; i < yl; i++) {
+								if (elmnt == y[i]) {
+									arrNo.push(i)
+								} else {
+									y[i].classList
+											.remove("select-arrow-active");
+								}
+							}
+							for (i = 0; i < xl; i++) {
+								if (arrNo.indexOf(i)) {
+									x[i].classList.add("select-hide");
+								}
+							}
+						}
+						 
+						document.addEventListener("click", closeAllSelect);
+
+					});
+
+	var count = 0;
+	function allCheck() {
+		count++;
+
+		if (count == 1) {
+			$('.checkCls').prop("checked", true);
+		} else {
+			count = 0;
+			$('.checkCls').prop("checked", false);
+		}
+	}
+
+	function cancelBar() {
+		var id = document.getElementById("closeKey");
+		id.style.display = "block";
+		if ($('#searchBar').val() == null || $('#searchBar').val() == "") {
+			id.style.display = "none";
+		}
+	}
+
+	function profileSelect() {
+		$('#newId').hide();
+		$("#profile").show();
+	}
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+			<div class="maincontent">
+				<div class="container-fluid">
+
+					<div class="row">
+
+						<div class="maincontentsec">
+							<div class="content_padding">
+								<div id="newId">
+									<div class="row margin_topbot btn-hs">
+										<div class="col-md-8 btn-hs">
+											<div class="input-style row">
+												<input type="text" id="searchBar" placeholder="Search.."
+													name="search" class="searchboxinput" onkeyup="cancelBar()">
+												<div class="searchicon">
+													<a href="#"><span style="display: none" id="closeKey"
+														onclick="$('#searchBar').val('');document.getElementById('closeKey').style.display='none';"
+														class="close_i">X</span></a><a href="#"><i class="fa fa-search"></i></a>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+
+										<div class="col-md-10  btn-hs">
+											<div class="font-design">
+												Employee List <span>(10)</span>
+											</div>
+										</div>
+
+										<div class="col-md-2 btn-hs" align="right">
+
+											<button class="btn4">Upload</button>
+											<button class="btn4">Download</button>
+
+										</div>
+
+									</div>
+
+									<table class="newtbl" id="myTbl">
+										<thead>
+											<tr>
+												<th align="center" width="20"><input id="check1"
+													onclick="allCheck()" type="checkbox"><label
+													for="check1"></label></th>
+												<th>Employee ID</th>
+												<th>Employee Name</th>
+												<th>Location</th>
+												<th>DOB</th>
+												<th>Experience</th>
+												<th>Source</th>
+												<th>No of Application</th>
+												<th>Candidate Status</th>
+												<th>Resume</th>
+												<th>Last Update</th>
+												<th>Create Date</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td align="center"><input class="checkCls"
+													type="checkbox" id="check2"><label for="check2"></label></td>
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" onclick="profileSelect()">Emp0001</div></td>
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" onclick="profileSelect()">Kamala
+														Suresh</div></td>
+												<td align="center">India</td>
+												<td align="center">01/03/1998</td>
+												<td align="center">1yr</td>
+												<td align="center">LinkedIN</td>
+												<td align="center">2</td>
+
+												<td align="center">Active</td>
+
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" data-target="#profile">View</div></td>
+												<td align="center">9-dec-2020</td>
+												<td align="center">9-Oct-2020</td>
+											</tr>
+
+										</tbody>
+										<tbody>
+											<tr>
+												<td align="center"><input class="checkCls"
+													type="checkbox" id="check3"><label for="check3"></label></td>
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" onclick="profileSelect()">Emp0002</div></td>
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" onclick="profileSelect()">Ashis
+														Misra</div></td>
+												<td align="center">India</td>
+												<td align="center">01/04/1997</td>
+												<td align="center">3yr</td>
+												<td align="center">Indeed</td>
+												<td align="center">2</td>
+
+												<td align="center">Active</td>
+
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" data-target="#profile">View</div></td>
+												<td align="center">1-dec-2020</td>
+												<td align="center">9-june-2020</td>
+											</tr>
+
+										</tbody>
+									</table>
+
+								</div>
+
+
+
+
+								<div id="profile" class="collapse">
+									<div class="row">
+										<div class="col-md-6 btn-hs"></div>
+										<div class="col-md-12" align="right">
+											<button class="btn3" id="profilecancelbtn">Cancel</button>
+											<button class="btn1">Save</button>
+										</div>
+										<div class="col-md-4">
+											<div class="hvrbox">
+												<img src="../extend/img/profile.jpg" alt="Mountains"
+													class="hvrbox-layer_bottom img-fluid">
+												<div class="hvrbox-layer_top">
+
+													<div class="hvrbox-text">
+														<span><i class="fa fa-pencil-square-o"></i></span> <span><i class="fa fa-trash"></i></span>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="name">Kamala Suresh</div>
+											<div>
+												<div class="details">Hr Manager</div>
+												<div class="details">Recruitment Adminstrative</div>
+												<div class="details">Odisha,India</div>
+											</div>
+											<div class="mt-20">
+												<div class="details">+91 723 76237</div>
+												<div class="details">Kamala@trend.com</div>
+											</div>
+										</div>
+										<div class="col-md-4 mt-60">
+											<div>
+												<div class="details">
+													Manager: <a href="#">Sailesh Kumar</a>
+												</div>
+											</div>
+											<div class="mt-20">
+												<div class="details">
+													Direct Report - 4 <span> <a type="button"
+														data-toggle="collapse" data-target="#forwardto"
+														href="cursor: pointer;">+</a></span>
+												</div>
+												<div id="forwardto" class="details collapse ml-45">
+													<div>
+														<a href="#">Anil Kapur</a>
+													</div>
+													<div>
+														<a href="#">Shubhnam Saif</a>
+													</div>
+													<div>
+														<a href="#">Krishna Kumar</a>
+													</div>
+													<div>
+														<a href="#">Arun Jetli</a>
+													</div>
+												</div>
+											</div>
+
+
+										</div>
+									</div>
+
+
+									<div class="col-md-12 mt-60">
+										<div class="accordion md-accordion" id="accordionEx"
+											role="tablist" aria-multiselectable="true">
+
+											<!-- Accordion card -->
+
+
+											<!-- Card header -->
+											<div class="card-header" role="tab" id="headingOne1">
+												<a data-toggle="collapse" data-parent="#accordionEx"
+													href="#collapseOne1" aria-expanded="true"
+													aria-controls="collapseOne1"> Internal Journey <i
+													class="fa fa-angle-down rotate-icon"></i>
+
+												</a>
+											</div>
+
+											<!-- Card body -->
+											<div id="collapseOne1" class="collapse show" role="tabpanel"
+												aria-labelledby="headingOne1" data-parent="#accordionEx">
+												<div class="card-body">
+													<div class="col-md-12 col-lg-12">
+														<div id="tracking-pre"></div>
+														<div id="tracking">
+															<div class="tracking-item">
+																<div class="tracking-icon status-intransit">
+																</div>
+																<div class="tracking-content">
+																	<span>9-Oct-17: Onboarded-Marketing Analyst
+																		(Marketing department)</span>
+																</div>
+															</div>
+															<div class="tracking-item">
+																<div class="tracking-icon status-intransit">
+																	<!-- <i class="fas fa-circle"></i> -->
+																</div>
+																<div class="tracking-content">
+																	<span>1-Jan-18: Transitioned from Marketing
+																		Analyst (Marketing department) to AP Analyst (Finance
+																		Department)</span>
+																</div>
+															</div>
+															<div class="tracking-item">
+																<div class="tracking-icon status-intransit">
+																</div>
+																<div class="tracking-content">
+																	<span>20-Dec-18: Promoted from AP Analyst
+																		(Finance Department) to AP Lead (Finance department)</span>
+																</div>
+															</div>
+															<div class="tracking-item">
+																<div class="tracking-icon status-intransit">
+																	<!-- <i class="fas fa-circle"></i> -->
+																</div>
+																<div class="tracking-content">
+																	<span>14-Feb-20: Promoted from AP Lead (Finance
+																		Department) to AP Manager (Finance department)</span>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+
+											<div class="card-header" role="tab" id="collapseOne1">
+												<a data-toggle="collapse" data-parent="#accordionEx"
+													href="#collapseOne" aria-expanded="true"
+													aria-controls="collapseOne1"> Personal Information <i class="fa fa-angle-down rotate-icon"></i>
+
+												</a>
+											</div>
+											<div id="collapseOne" class="collapse show" role="tabpanel"
+												aria-labelledby="headingOne1" data-parent="#accordionEx">
+												<div class="row">
+													<div class="col-md-4">
+														<div class="form-group">
+															<label> First Name</label> <input type="text"
+																class="form-control" placeholder="Kamala ">
+														</div>
+													</div>
+
+													<div class="col-md-4">
+														<div class="form-group">
+															<label>Last Name</label> <input type="text"
+																class="form-control no-border" placeholder="Suresh">
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+															<label>DOB</label> <input type="text"
+																class="form-control no-border" placeholder="01/03/1998">
+
+														</div>
+													</div>
+
+													<div class="col-md-4">
+														<div class="form-group">
+
+															<label>job location</label>
+															<div class="selectbox">
+																<select id="exampleFormControlSelect1">
+																	<option>Chicago,IL</option>
+																	<option>los angeles</option>
+																</select>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+															<label>Gender</label>
+															<div class="selectbox">
+																<select id="exampleFormControlSelect1">
+
+																	<option>Female</option>
+																	<option>Male</option>
+																</select>
+															</div>
+														</div>
+													</div>
+
+
+
+
+													<div class="col-md-4">
+														<div class="form-group">
+															<label>Hiring Manager</label>
+															<div class="selectbox">
+																<select id="exampleFormControlSelect1">
+																	<option>Pradip Singh</option>
+																</select>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+															<label> Education</label>
+															<div class="selectbox">
+																<select id="exampleFormControlSelect1">
+																	<option>B-Tech</option>
+																	<option>MCA</option>
+																</select>
+															</div>
+														</div>
+													</div>
+
+													<div class="col-md-4">
+														<div class="form-group">
+															<label>Source</label>
+															<div class="selectbox">
+																<select id="exampleFormControlSelect1">
+																	<option>linkedIn</option>
+																	<option>Indeed</option>
+																	<option>Monster</option>
+																</select>
+															</div>
+														</div>
+													</div>
+
+													<div class="col-md-4">
+														<div class="form-group">
+															<label>Department</label>
+															<div class="selectbox">
+																<select id="dept">
+																	<option>Select Department</option>
+																	<option>Product Development</option>
+																	<option>Finance Department</option>
+
+																</select>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+															<label>Annual Salary</label> <input type="text"
+																class="form-control no-border" placeholder="20000">
+
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+															<label>Status</label>
+															<div class="selectbox">
+																<select id="exampleFormControlSelect1">
+																	<option>Active</option>
+																	<option>In Active</option>
+
+																</select>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+															<label>Last Update</label> <input type="text"
+																class="form-control no-border" placeholder="20/12/2020">
+														</div>
+													</div>
+													<div class="col-md-4">
+														<div class="form-group">
+															<label>Created Date</label> <input type="text"
+																class="form-control no-border" placeholder="10/12/2020">
+														</div>
+													</div>
+
+												</div>
+											</div>
+
+										</div>
+
+									</div>
+								</div>
+
+
+
+
+
+
+
+							</div>
+
+						</div>
+					</div>
+				</div>
+
+
+
+
+
+			</div>
+		</div>
+
+	</div>
+
+
+
+</body>
+</html>

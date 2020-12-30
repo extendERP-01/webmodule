@@ -6,141 +6,159 @@
 <head>
 <link rel="stylesheet" href="../assets/css/extend/style-extend.css">
 <!-- <script src="../assets/js/extend/treed.js"></script> -->
-
-<!-- commit added  -->
-<script>
-	function openNav() {
-		document.getElementById("mySidenav").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
-		document.getElementById("main").style.width = "420px";
-	}
-
-	function closeNav() {
-		document.getElementById("mySidenav").style.width = "0";
-		document.getElementById("main").style.width = "480px";
-	}
-</script>
 <script type="text/javascript">
-	$(document)
-			.ready(
-					function() {
-						$.fn
-								.extend({
-									treed : function(o) {
+function activeRoom(id,secId,rmId,rmCode,rmType,secCd,flrCd,fNo,sNo) {
+	$(".roombtn").removeClass("roombtnactive");
+	$("#"+id).addClass("roombtnactive");
+	
+	var rmName = $("#"+id).attr("rmname");
+	
+	$("#roomLevelText").text("");
+	var roomLevelText = $("#locationCode").val();
+	$("#roomLevelText").text(roomLevelText+"-"+flrCd+"-"+secCd+"-"+rmCode);
+	
+	$("#roomDBId").val("");
+	$("#roomDBId").val(rmId);
+	
+	$("#sectionRoomId").val("");
+	$("#sectionRoomId").val(secId);
+	
+	$("#roomCode").val("");
+	$("#roomCode").val(rmCode);
+	
+	$("#roomName").val("");
+	$("#roomName").val(rmName);
+	
+	var typeVal = $("#roomType option:first").val();
+	$("#roomType").val(typeVal);
+	$("#roomType").val(rmType);
+	
+	var dltattr = 'deleteRoom("'+rmId+'",'+fNo+','+sNo+')';
+	$("#dltRoom").attr("onclick","");
+	$("#dltRoom").attr("onclick",dltattr);
+	
+	var onclickattr = 'openNav("'+secId+'","'+secCd+'","'+flrCd+'");activeRoom("'+id+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCd+'","'+flrCd+'",'+fNo+','+sNo+');';
+	$(".slidearrow").attr("onclick","");
+	$(".slidearrow").attr("onclick",onclickattr);
+}
 
-										/*var openedClass = 'fa-minus-circle';
-										var closedClass = 'fa-plus-circle';*/
-										var openedClass = 'fa fa-angle-down';
-										var closedClass = 'fa fa-angle-right ';
+function openFloorNav() {
+	
+	closeNav();
+	closeSectionNav();
+	
+	var floorNavText = $("#locationCode").val();
+	$("#floorNavText").text("");
+	$("#floorId").val("");
+	$("#floorDBVal").val("");
+	$("#floorName").val("");
+	$("#floorSlNoDBVal").val("");
+	$("#floorNavText").text(floorNavText);
+	document.getElementById("mySidenavFloor").style.cssText = "width: 270px; position: absolute; right:-45px; overflow: hidden;";
+	document.getElementById("main").style.width = "420px";
+}
 
-										if (typeof o != 'undefined') {
-											if (typeof o.openedClass != 'undefined') {
-												openedClass = o.openedClass;
-											}
-											if (typeof o.closedClass != 'undefined') {
-												closedClass = o.closedClass;
-											}
-										}
-										;
+function openSectionNav(code,floor) {
+	
+	closeNav();
+	closeFloorNav();
+	
+	$("#floorSection").val("");
+	$("#floorSection").val(floor);
+	var sectionNavText = $("#locationCode").val();
+	$("#sectionNavText").text("");
+	$("#sectionId").val("");
+	$("#sectionDBVal").val("");
+	$("#sectionName").val("");
+	$("#sectionNavText").text(sectionNavText+"-"+code);
+	document.getElementById("mySidenavSection").style.cssText = "width: 270px; position: absolute; right:-45px; overflow: hidden;";
+	document.getElementById("main").style.width = "420px";
+}
 
-										//initialize each of the top levels
-										var tree = $(this);
-										tree.addClass("tree");
-										tree
-												.find('li')
-												.has("ul")
-												.each(
-														function() {
-															var branch = $(this); //li with children ul
-															branch
-																	.prepend("<i class='indicator fa " + closedClass + "'></i>");
-															branch
-																	.addClass('branch');
-															branch
-																	.on(
-																			'click',
-																			function(
-																					e) {
-																				if (this == e.target) {
-																					var icon = $(
-																							this)
-																							.children(
-																									'i:first');
-																					icon
-																							.toggleClass(openedClass
-																									+ " "
-																									+ closedClass);
-																					$(
-																							this)
-																							.children()
-																							.children()
-																							.toggle();
-																				}
-																			})
-															branch.children()
-																	.children()
-																	.toggle();
-														});
-										//fire event from the dynamically added icon
-										tree
-												.find('.branch .indicator')
-												.each(
-														function() {
-															$(this)
-																	.on(
-																			'click',
-																			function() {
-																				$(
-																						this)
-																						.closest(
-																								'li')
-																						.click();
-																			});
-														});
-										//fire event to open branch if the li contains an anchor instead of text
-										tree.find('.branch>a').each(function() {
-											$(this).on('click', function(e) {
-												$(this).closest('li').click();
-												e.preventDefault();
-											});
-										});
-										//fire event to open branch if the li contains a button instead of text
-										tree
-												.find('.branch>button')
-												.each(
-														function() {
-															$(this)
-																	.on(
-																			'click',
-																			function(
-																					e) {
-																				$(
-																						this)
-																						.closest(
-																								'li')
-																						.click();
-																				e
-																						.preventDefault();
-																			});
-														});
-									}
-								});
+function openNav(secId,secCode,floorCode) {
+	
+	closeSectionNav();
+	closeFloorNav(); 
+	
+	var roomLevelText = $("#locationCode").val();
+	$("#roomLevelText").text("");
+	$("#roomLevelText").text(roomLevelText+"-"+floorCode+"-"+secCode);
+	
+	$("#sectionRoomId").val("");
+	$("#roomDBId").val("");
+	$("#roomCode").val("");
+	$("#roomName").val("");
+	var typeVal = $("#roomType option:first").val();
+	$("#roomType").val(typeVal);
+	$("#sectionRoomId").val(secId);
+	
+	document.getElementById("mySidenav").style.cssText = "width: 270px; position: absolute; right:-45px; overflow: hidden;";
+	document.getElementById("main").style.width = "420px";
+	
+}
 
-						$('#tree1').treed();
+function closeFloorNav() {
+	$("#floorSection").val("");
+	$("#floorId").val("");
+	$("#floorDBVal").val("");
+	$("#floorName").val("");
+	$("#floorSlNoDBVal").val("");
+	document.getElementById("mySidenavFloor").style.width = "0";
+	document.getElementById("main").style.width = "480px";
+}
 
-						$('#tree2').treed({
-							openedClass : 'glyphicon-folder-open',
-							closedClass : 'glyphicon-folder-close'
-						});
+function closeSectionNav() {
+	$("#sectionId").val("");
+	$("#sectionDBVal").val("");
+	$("#sectionName").val("");
+	document.getElementById("mySidenavSection").style.width = "0";
+	document.getElementById("main").style.width = "480px";
+	$("#floorSection").val("");
+}
 
-						$('#tree3').treed({
-							openedClass : 'glyphicon-chevron-right',
-							closedClass : 'glyphicon-chevron-down'
-						});
-					})
+function closeNav() {
+	$("#floorSection").val("");
+	$("#sectionRoomId").val("");
+	document.getElementById("mySidenav").style.width = "0";
+	document.getElementById("main").style.width = "480px";
+}
 </script>
 <script type="text/javascript">
 $(document).ready(function() {
-
+	
+	listingOfLocation();
+	
+	$(".pc-box").click(function() {
+	    if (this.checked) {
+	    	$(".cbicon").addClass("green-cls");
+	    	$(".cbicon1").addClass("green-cls");
+			$(".cbicon2").addClass("green-cls");
+			$(".cbicon").removeClass("remove-green");
+	    	$(".cbicon1").removeClass("remove-green");
+			$(".cbicon2").removeClass("remove-green");
+	        $(this).closest("li").find(".pc-box").prop("checked", true);
+	        $(this).closest("li").find(".pc1-box").prop("checked", true);
+	        $(this).closest("li").find(".pc2-box").prop("checked", true);
+	        $(this).parent();
+	        $(".roomLoc").show();
+	        
+	        showRoomDetails("ABC");
+	    }
+	    if (!this.checked) {
+	    	$(".cbicon").removeClass("green-cls");
+	    	$(".cbicon1").removeClass("green-cls");
+			$(".cbicon2").removeClass("green-cls");
+			$(".cbicon").addClass("remove-green");
+	    	$(".cbicon1").addClass("remove-green");
+			$(".cbicon2").addClass("remove-green");
+	        $(this).closest("li").find(".pc1-box").prop("checked", false);
+	        $(this).closest("li").find(".pc2-box").prop("checked", false);
+	        $(this).parent();
+	        $(".roomLoc").hide();
+	        //$("#locCount").text(' (0)');
+	    }
+	});
+	
 	$("#locCountry").change(function(){
 		var country = $(this).val();
 		if(country) {
@@ -217,17 +235,7 @@ $(document).ready(function() {
 		}
 	})
 
-	$("#newBtn").click(function() {
-		$("#myTbl").hide();
-		$(".btn-hs").hide();
-		$("#demo").show();
-	})
-
-	$("#cancelBtn").click(function() {
-		$("#myTbl").show();
-		$(".btn-hs").show();
-		$("#demo").hide();
-	});
+	
 	$("#quarter").click(function() {
 		$("#myTbl").hide();
 		$(".btn-hs").hide();
@@ -238,6 +246,15 @@ $(document).ready(function() {
 		$("#myTbl").show();
 		$(".btn-hs").show();
 		$("#demo").hide();
+		
+		listingOfLocation();
+		
+		$(".caret").removeClass("caret-down");
+		$(".nested").removeClass("active");
+		
+		$('input:checkbox').prop('checked',false);
+		
+		$("#searchRowDiv").show();
 	});
 	
 	$("input[class='myCheckbox']").click(function() {
@@ -248,6 +265,47 @@ $(document).ready(function() {
 			$(".checkSubmit").removeClass('active');
 		}
 	});
+	
+	$("#floorSave").click(function(){
+		
+		data = {};
+		
+		data.locationId = $("#locationId").val();
+		data.locationName = $("#floorName").val();
+		data.locationCode = $("#floorId").val();
+		data.floorId = $("#floorDBVal").val();
+		
+		submitFloor(data);
+		
+	})
+	
+	$("#roomSave").click(function(){
+		
+		data = {};
+		
+		data.roomId = $("#roomDBId").val();
+		data.roomCode = $("#roomCode").val();
+		data.roomName = $("#roomName").val();
+		data.roomType = $("#roomType").val();
+		data.sectionId = $("#sectionRoomId").val();
+		
+		submitRoom(data);
+		
+	})
+	
+	$("#sectionSave").click(function(){
+		
+		data = {};
+		
+		data.locationId = $("#locationId").val();
+		data.sectionName = $("#sectionName").val();
+		data.sectionCode = $("#sectionId").val();
+		data.floorId = $("#floorSection").val();
+		data.sectionId = $("#sectionDBVal").val();
+		
+		submitSection(data);
+		
+	})
 	
 	$("#saveLocation").click(function(){
 		
@@ -268,7 +326,647 @@ $(document).ready(function() {
 		
 	})
 	
+	$("#deleteModalBtn").click(function(){
+		var data = $("#deleteModalBtn").attr("value");
+		var slNo = $("#deleteModalBtn").attr("slNo");
+		var deleteData = $("#deleteModalBtn").attr("deleteData");
+		var fSlNo = $("#deleteModalBtn").attr("floorSlNo");
+		
+		$("#deleteModalBtn").attr("disabled","disabled");
+		
+		if(data) {
+			if(deleteData == "1") {
+				$.ajax({
+					type : "POST",
+					url : "manage-location-get-floor-delete",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : data,
+					success : function(response) {
+						if (response.message == "success") {
+							$("#deleteModalBtn").removeAttr("disabled");
+							
+							var floorCount = $("#floorCount_"+slNo).text();
+		                	floorCount = floorCount.trim();
+		                	floorCount = floorCount.replace("(","");
+		                	floorCount = floorCount.replace(")","");
+							
+							var loccount = $("#locCount").text();
+		                	loccount = loccount.trim();
+		                	loccount = loccount.replace("(","");
+		                	loccount = loccount.replace(")","");
+		                	
+		                	loccount = parseFloat(loccount) - parseFloat(floorCount);
+		                	
+		                	$("#locCount").text(" ("+loccount+")");
+		                	
+							$("#floorLI_"+slNo).remove();
+							
+							cancelModalBtn();
+							
+							$("#delete").modal('hide');
+							
+							closeFloorNav();
+							
+							showRoomDetails(data);
+						}
+					}, error : function(data) {
+						console.log(data)
+					}
+				});
+			} else if(deleteData == "2") {
+				
+				$.ajax({
+					type : "POST",
+					url : "manage-location-get-section-delete",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : data,
+					success : function(response) {
+						if (response.message == "success") {
+							$("#deleteModalBtn").removeAttr("disabled");
+							
+							var sectionCount = $("#sectionCount_"+fSlNo+"_"+slNo).text();
+		                	sectionCount = sectionCount.trim();
+		                	sectionCount = sectionCount.replace("(","");
+		                	sectionCount = sectionCount.replace(")","");
+							
+							var loccount = $("#locCount").text();
+		                	loccount = loccount.trim();
+		                	loccount = loccount.replace("(","");
+		                	loccount = loccount.replace(")","");
+		                	
+		                	loccount = parseFloat(loccount) - parseFloat(sectionCount);
+		                	
+		                	$("#locCount").text(" ("+loccount+")");
+		                	
+		                	var floorCount = $("#floorCount_"+fSlNo).text();
+		                	floorCount = floorCount.trim();
+		                	floorCount = floorCount.replace("(","");
+		                	floorCount = floorCount.replace(")","");
+		                	
+		                	floorCount = parseFloat(floorCount) - parseFloat(sectionCount);
+		                	
+		                	$("#floorCount_"+fSlNo).text(" ("+floorCount+")");
+		                	
+							$("#sectionLI_"+fSlNo+"_"+slNo).remove();
+							
+							cancelModalBtn();
+							
+							$("#delete").modal('hide');
+							
+							closeSectionNav();
+							
+							showRoomDetails(data);
+						}
+					}, error : function(data) {
+						console.log(data)
+					}
+				});
+			} else if(deleteData == "3") {
+				
+				$.ajax({
+					type : "POST",
+					url : "manage-location-get-room-delete",
+					dataType : 'json',
+					contentType : 'application/json',
+					data : data,
+					success : function(response) {
+						if (response.message == "success") {
+							$("#deleteModalBtn").removeAttr("disabled");
+							
+							var loccount = $("#locCount").text();
+		                	loccount = loccount.trim();
+		                	loccount = loccount.replace("(","");
+		                	loccount = loccount.replace(")","");
+		                	
+		                	loccount = parseFloat(loccount) - 1;
+		                	
+		                	$("#locCount").text(" ("+loccount+")");
+		                	
+		                	var floorCount = $("#floorCount_"+fSlNo).text();
+		                	floorCount = floorCount.trim();
+		                	floorCount = floorCount.replace("(","");
+		                	floorCount = floorCount.replace(")","");
+		                	
+		                	floorCount = parseFloat(floorCount) - 1;
+		                	
+		                	$("#floorCount_"+fSlNo).text(" ("+floorCount+")");
+		                	
+		                	var sectionCount = $("#sectionCount_"+fSlNo+"_"+slNo).text();
+		                	sectionCount = sectionCount.trim();
+		                	sectionCount = sectionCount.replace("(","");
+		                	sectionCount = sectionCount.replace(")","");
+		                	
+		                	sectionCount = parseFloat(sectionCount) - 1;
+		                	
+		                	$("#sectionCount_"+fSlNo+"_"+slNo).text(" ("+sectionCount+")");
+							
+							cancelModalBtn();
+							
+							$("#delete").modal('hide');
+							
+							closeNav();
+							
+							showRoomDetails(data);
+						}
+					}, error : function(data) {
+						console.log(data)
+					}
+				});
+			} else if(deleteData == "4") {
+				
+				var dataset = [];
+				$(".chkbox:checkbox:checked").each(function(){
+					data = {};
+					
+					data.key = $(this).val();
+					
+					dataset.push(data);
+				})
+				
+				if(dataset.length) {
+					$.ajax({
+						type : "POST",
+						url : "manage-location-get-location-delete",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : JSON.stringify(dataset),
+						success : function(response) {
+							if (response.message == "success") {
+								$("#deleteModalBtn").removeAttr("disabled");
+								
+								cancelModalBtn();
+								
+								$("#delete").modal('hide');
+								
+								for(var i = 0; i < dataset.length; i++) {
+									console.log(dataset[i].key)
+									var locId = dataset[i].key;
+									locId = locId.replaceAll("/","");
+									$("#locationTR_"+locId).remove();
+								}
+								
+							}
+						}, error : function(data) {
+							console.log(data)
+						}
+					});
+				} else {
+					$("#deleteModalBtn").removeAttr("disabled");
+					$("#delete").modal('hide');
+				}
+				
+			}
+		}
+		
+	})
+	
 });
+
+
+
+function listingOfLocation() {
+	$("#listTbody").empty();
+	$.ajax({
+		type : "POST",
+		url : "manage-location-get-location-listing",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : "A",
+		success : function(response) {
+			if (response.message == "success") {
+				console.log(response);
+				
+				for(var i = 0; i < response.body.length; i++) {
+					
+					var locVirtual = "";
+					if(response.body[i].locVirtual == "1") {
+						locVirtual = "Yes";
+					} else {
+						locVirtual = "No";
+					}
+					
+					var locStatus = "";
+					if(response.body[i].locStatus == "1") {
+						locStatus = "Active";
+					} else {
+						locStatus = "Inactive";
+					}
+					
+					var locId = response.body[i].locationId;
+					locId = locId.replaceAll("/","");
+					
+					var tbl = 	'<tr id="locationTR_'+locId+'">' +
+								'<td align="center"><input type="checkbox" class="chkbox" name="listCheck" value="'+response.body[i].locationId+'"></td>' +
+								'<td align="left"><div class="txt-blue" onclick=openDetails("'+response.body[i].locationId+'")>'+response.body[i].locationId+'</div></td>' +
+								'<td><div class="txt-blue" id="quarter" onclick=openDetails("'+response.body[i].locationId+'")>'+response.body[i].locationCode+'</div></td>' +
+								'<td align="left">'+response.body[i].locationName+'</td>' +
+								'<td>'+response.body[i].locationType+'</td>' +
+								'<td>'+locVirtual+'</td>' +
+								'<td>'+response.body[i].locStreet+'</td>' +
+								'<td align="left">'+response.body[i].locCity+'</td>' +
+								'<td align="left">'+response.body[i].locState+'</td>' +
+								'<td align="left">'+response.body[i].locCountry+'</td>' +
+								'<td align="center">'+locStatus+'</td>' +
+								'<td align="center">'+response.body[i].createdDate+'</td>' +
+								'</tr>';
+						
+					$("#listTbody").append(tbl);
+				}
+			}
+		},
+		error : function(data) {
+			console.log(data);
+			$("#listTbody").empty();
+		}
+	})
+	
+}
+
+function openDetails(id) {
+	
+	closeNav();
+	$("#searchRowDiv").hide();
+	$("#liFloor").empty();
+	$("#check1").prop("checked",true);
+	
+	$(".cbicon").addClass("green-cls");
+	
+	if(id) {
+		$("#viewLocDivId").empty();
+		$("#viewLocDivId").text("Location ID: "+id);
+		$("#locationName").val("");
+		$("#locationCode").val("");
+		$("#locationId").val("");
+		
+		$.ajax({
+			type : "POST",
+			url : "manage-location-get-location-details",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					$("#locationName").val(response.body.locationName);
+					$("#locationCode").val(response.body.locationCode);
+					$("#locationType").val(response.body.locationType);
+					$("#locCountry").val(response.body.locCountry);
+					$("#locStreet").val(response.body.locStreet);
+					$("#locationId").val(response.body.locationId);
+					
+					var locVirtual = response.body.locVirtual;
+					
+					if(locVirtual == '1') {
+						$('#locVirtual').prop('checked', true);
+					} else {
+						$('#locVirtual').prop('checked', false);
+					}
+					
+					var locStatus = response.body.locStatus;
+					
+					if(locStatus == '1') {
+						$('#locStatus').prop('checked', true);
+					} else {
+						$('#locStatus').prop('checked', false);
+					}
+					
+					$("#locState").empty();
+					$("#locState").append("<option value=''>Select</option>");
+					for(var i=0; i < response.body.stateList.length; i++) {
+						$("#locState").append("<option value='"+response.body.stateList[i].key+"'>"+response.body.stateList[i].name+"</option>");
+					}
+					
+					$("#locState").val(response.body.locState);
+					
+					$("#locCity").empty();
+					$("#locCity").append("<option value=''>Select</option>");
+					for(var i=0; i < response.body.cityList.length; i++) {
+						$("#locCity").append("<option value='"+response.body.cityList[i].key+"'>"+response.body.cityList[i].name+"</option>");
+					}
+					
+					$("#locCity").val(response.body.locCity);
+					
+					$('#imgLoc').attr('src', '');
+					if(response.body.fileLocation!=null && response.body.fileLocation!="") {
+						$('#imgLoc').attr('src', response.body.fileLocation);
+					} else {
+						$('#imgLoc').attr('src', '../assets/images/noimage.jpg');
+					}
+					
+					$("#myUL").show();
+					
+					$("#locchkboxlabel").text("");
+					var labeltxt = response.body.locationCode + " - " + response.body.locationName;
+					$("#locchkboxlabel").text(labeltxt);
+					$("#locCount").text(' ('+response.body.locCount+')');
+					
+				}
+			},
+			error : function(data) {
+				console.log(data);
+				
+				$("#viewLocDivId").empty();
+				$("#viewLocDivId").text("Location ID: ");
+				$("#locationName").val("");
+				$("#locationCode").val("");
+				$("#locationId").val("");
+				$("#locStreet").val("");
+				var typeVal = $("#locationType option:first").val();
+				$("#locationType").val(typeVal);
+				$("#locCountry").val("");
+				$('#locVirtual').prop('checked', false);
+				$('#locStatus').prop('checked', false);
+				
+				$("#locState").empty();
+				$("#locState").append("<option value=''>Select</option>");
+				$("#locCity").empty();
+				$("#locCity").append("<option value=''>Select</option>");
+				
+				$('#imgLoc').attr('src', '');
+				$('#imgLoc').attr('src', '../assets/images/noimage.jpg');
+				
+				$("#myUL").hide();
+				
+				$("#locCount").text(' (0)');
+			}
+		})
+		
+		$.ajax({
+			type : "POST",
+			url : "manage-location-get-loc-floor-details",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					
+					for(var i = 0; i < response.body.length; i++) {
+						
+						var div = "";
+						if(response.body[i].sectionList.length > 0) {
+							for(var j = 0; j < response.body[i].sectionList.length; j++) {
+								div = div + '<li id="sectionLI_'+response.body[i].floorSlNo+'_'+response.body[i].sectionList[j].secSlNo+'"><span class="caret-remove"></span><input type="checkbox" id="sectionChkBox" name="check_'+response.body[i].floorSlNo+'_'+response.body[i].sectionList[j].secSlNo+'" onchange=checkSec(this,"'+response.body[i].floorSlNo+'","'+response.body[i].sectionList[j].secSlNo+'","'+response.body[i].sectionList[j].sectionCode+'") class="pc2-box check_'+response.body[i].floorSlNo+'" checked="checked" data-sec="'+response.body[i].sectionList[j].sectionId+'" data-floor="'+response.body[i].sectionList[j].floorId+'" data-loc="'+response.body[i].sectionList[j].locationId+'"> <span class="leveltxt">'+response.body[i].sectionList[j].sectionCode+' - '+response.body[i].sectionList[j].sectionName+' </span> <span id="sectionCount_'+response.body[i].floorSlNo+'_'+response.body[i].sectionList[j].secSlNo+'" class="section_counter">('+response.body[i].sectionList[j].sectionCount+')</span>'+
+								'<label for="check3">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Edit Section" id="check_'+response.body[i].floorSlNo+'_'+response.body[i].sectionList[j].secSlNo+'" class="ti-pencil cbicon2 checkIcon_'+response.body[i].floorSlNo+' sectionCB_'+response.body[i].floorSlNo+'_'+response.body[i].sectionList[j].secSlNo+'"  onclick=editSection("'+response.body[i].sectionList[j].sectionCode+'","'+response.body[i].sectionList[j].sectionId+'","'+response.body[i].sectionList[j].floorCode+'");></i></a>&nbsp;<a href="javascript:void(0)"><i title="Delete Section" id="check_'+response.body[i].floorSlNo+'_'+response.body[i].sectionList[j].secSlNo+'" class="ti-close cbicon2 checkIcon_'+response.body[i].floorSlNo+' sectionCB_'+response.body[i].floorSlNo+'_'+response.body[i].sectionList[j].secSlNo+'" onclick=removeSection("'+response.body[i].sectionList[j].secSlNo+'","'+response.body[i].sectionList[j].sectionId+'","'+response.body[i].floorSlNo+'");></i></a></label></li>';
+							}
+						}
+						
+						var tbl = '<li id="floorLI_'+response.body[i].floorSlNo+'"><span class="caret" id="spanSection_'+response.body[i].floorSlNo+'" onclick=showSection("'+response.body[i].floorSlNo+'") value="0"></span> <div class="cfloor" id="cbfloor_'+response.body[i].floorSlNo+'"> <input type="checkbox" id="check2_'+response.body[i].floorSlNo+'" class="pc1-box" onchange=checkSection(this,"'+response.body[i].floorSlNo+'","'+response.body[i].locationCode+'") checked="checked"> </div> <span class="leveltxt">'+response.body[i].locationCode+' - '+response.body[i].locationName+' </span><span id="floorCount_'+response.body[i].floorSlNo+'" class="floor_counter"> ('+response.body[i].floorCount+')</span>'+
+								  '<label for="check2">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Add Section" id="" class="ti-plus cbicon1 checkIcon2_'+response.body[i].floorSlNo+'" onclick=openSectionNav("'+response.body[i].locationCode+'","'+response.body[i].floorId+'");></i></a>'+
+								  '&nbsp;<a href="javascript:void(0)"><i title="Edit Floor" id="" class="ti-pencil cbicon1 checkIcon2_'+response.body[i].floorSlNo+'" onclick=editFloor("'+response.body[i].locationCode+'","'+response.body[i].floorId+'");></i></a>&nbsp;<a href="javascript:void(0)"><i title="Delete Floor" id="" class="ti-close cbicon1 checkIcon2_'+response.body[i].floorSlNo+'" value="'+response.body[i].floorId+'" id="removeFloor_'+response.body[i].floorSlNo+'" onclick=removeFloor("'+response.body[i].floorSlNo+'","'+response.body[i].floorId+'");></i></a></label>'+
+								  '<ul class="nested" id="lastUl_'+response.body[i].floorSlNo+'">'+ 
+								  div +
+								  '</ul></li>';
+						
+						$("#liFloor").append(tbl);
+						
+            		} 
+					
+					$(".cbicon").addClass("green-cls");
+					$(".cbicon1").addClass("green-cls");
+					$(".cbicon2").addClass("green-cls");
+					$(".cbicon").removeClass("remove-green");
+					$(".cbicon1").removeClass("remove-green");
+					$(".cbicon2").removeClass("remove-green");
+					
+					showRoomDetails(id);
+				}
+			}, error : function(data) {
+				console.log(data)
+				$("#liFloor").empty();
+			}
+		});
+		
+		//showRoomDetails(id);
+		
+	} else {
+		$("#viewLocDivId").empty();
+		$("#viewLocDivId").text("Location ID: ");
+		$("#locationName").val("");
+		$("#locationCode").val("");
+		$("#locStreet").val("");
+		$("#locationId").val("");
+		var typeVal = $("#locationType option:first").val();
+		$("#locationType").val(typeVal);
+		$("#locCountry").val("");
+		$('#locVirtual').prop('checked', false);
+		$('#locStatus').prop('checked', false);
+		
+		$("#locState").empty();
+		$("#locState").append("<option value=''>Select</option>");
+		$("#locCity").empty();
+		$("#locCity").append("<option value=''>Select</option>");
+		
+		$('#imgLoc').attr('src', '');
+		$('#imgLoc').attr('src', '../assets/images/noimage.jpg');
+		
+		$("#myUL").hide();
+		
+		$("#liFloor").empty();
+	}
+	
+	$("#myTbl").hide();
+	$(".btn-hs").hide();
+	$("#demo").show();
+	
+}
+
+function showRoomDetails(id) {
+	
+	var dataset = [];
+	$(".pc2-box:checkbox:checked").each(function(){
+		dataset.push($(this).attr("data-sec"));
+	})
+	
+	console.log(dataset)
+	/* $(".floor_counter").text(" (0)");
+	$(".section_counter").text(" (0)"); */
+	if(id) {
+		$.ajax({
+			type : "POST",
+			url : "manage-location-get-loc-room-details",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : JSON.stringify(dataset),
+			success : function(response) {
+				if (response.message == "success") {
+					console.log(response);
+					
+					$(".roomListDiv").empty();
+					var act_cls = 0;
+					$(".roombtn").removeClass("roombtnactive");
+					
+					var locCount = 0;
+					
+					for(var i = 0; i < response.body.length; i++) {
+						
+						locCount = locCount + response.body[i].roomCount;
+						
+						var floorCount = 0;
+						
+						if(response.body[i].floorCount != null) {
+							floorCount = response.body[i].floorCount;
+						}
+						
+						//$("#sectionCount_"+response.body[i].floorSlNo+"_"+response.body[i].sectionSlNO).text(' ('+response.body[i].roomCount+')');
+						//$("#floorCount_"+response.body[i].floorSlNo).text(' ('+floorCount+')');
+						var div = "";
+						if(response.body[i].roomList.length > 0) {
+							for(var j = 0; j < response.body[i].roomList.length; j++) {
+								var sec_room = i+'_'+j;
+								var secId = response.body[i].roomList[j].sectionId;
+								var rmId = response.body[i].roomList[j].roomId;
+								var rmCode = response.body[i].roomList[j].roomCode;
+								var rmName = response.body[i].roomList[j].roomName;
+								var rmType = response.body[i].roomList[j].roomType;
+								var secCode = response.body[i].roomList[j].sectionCode;
+								var floorCode = response.body[i].roomList[j].floorCode;
+								var floorSlNo = response.body[i].roomList[j].floorSlNo;
+								var secSlNo = response.body[i].roomList[j].sectionSlNO;
+								
+								var textLen = response.body[i].roomList[j].roomName.length;
+								
+								var dycls = i+"_"+j;
+								
+								
+								if(j == 0 && act_cls == 0) {
+									if(textLen > 7) {
+										div = div + '<div id="'+i+'_'+j+'" class="roombtn roombtnactive cp fs-12" rmName="'+rmName+'" onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
+									} else {
+										div = div + '<div id="'+i+'_'+j+'" class="roombtn roombtnactive cp " rmName="'+rmName+'" onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
+									}
+									
+									act_cls = 1;
+									var onclickattr = 'openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'");';
+									$(".slidearrow").attr("onclick","");
+									$(".slidearrow").attr("onclick",onclickattr);
+									
+								} else {
+									if(textLen > 7) {
+										div = div + '<div id="'+i+'_'+j+'" rmName="'+rmName+'" class="roombtn cp fs-12" onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
+									} else {
+										div = div + '<div id="'+i+'_'+j+'" rmName="'+rmName+'" class="roombtn cp " onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
+									}
+								}
+								
+							}
+						}
+						
+						var tbl = '<h3 class="roomLoc roomSectionDiv_'+response.body[i].sectionCode+' roomFloorDiv_'+response.body[i].floorCode+'">'+response.body[i].locationCode+'-'+response.body[i].floorCode+'-'+response.body[i].sectionCode+': '+response.body[i].floorName+' - '+response.body[i].sectionName+' ('+response.body[i].roomCount+')</h3>'+
+								'<div class="row btmgap roomLoc roomSectionDiv_'+response.body[i].sectionCode+' roomFloorDiv_'+response.body[i].floorCode+'"><div class="col-md-2"><div class="plusbtn cp" onclick=openNav("'+response.body[i].sectionId+'","'+response.body[i].sectionCode+'","'+response.body[i].floorCode+'")>+</div></div><div class="col-md-10 roomsection rmsec_'+response.body[i].sectionCode+'">'+div+'</div></div>';
+						
+						$(".roomListDiv").append(tbl);
+					}
+					
+					//console.log()
+					
+					//$("#locCount").text(' ('+locCount+')');
+					
+				}
+			}, error : function(data) {
+				console.log(data)
+				$(".roomListDiv").empty();
+				//$("#locCount").text(' (0)');
+				$(".section_counter").text(' (0)');
+			}
+		});
+	} else {
+		$(".roomListDiv").empty();
+	} 
+}
+
+function showSection(i) {
+	var value = $("#spanSection_"+i).attr('value');
+	if(value=="0") {
+		$("#lastUl_"+i).addClass("active");
+		$("#spanSection_"+i).addClass("caret-down");
+		$("#spanSection_"+i).attr('value','1');
+	} else {
+		$("#lastUl_"+i).removeClass("active");
+		$("#spanSection_"+i).removeClass("caret-down");
+		$("#spanSection_"+i).attr('value','0');
+	}
+	
+}
+
+function deleteFloor() {
+	var id = $("#floorDBVal").val();
+	var i = $("#floorSlNoDBVal").val();
+	if(i && id) {
+		removeFloor(i,id);
+	}
+}
+
+function deleteSection() {
+	var id = $("#sectionDBVal").val();
+	var i = $("#sectionSerialNo").val();
+	var fSlNo = $("#floorSerialNo").val();
+	if(i && id && fSlNo) {
+		removeSection(i,id,fSlNo);
+	}
+}
+
+function removeFloor(i,id) { 
+	$("#deleteModalBtn").attr("value","");
+	$("#deleteModalBtn").attr("slNo","");
+	$("#deleteModalBtn").attr("deleteData","");
+	$("#delete").modal('show');
+	$("#deleteModalBtn").attr("value",id);
+	$("#deleteModalBtn").attr("slNo",i);
+	$("#deleteModalBtn").attr("deleteData","1");
+}
+
+function removeSection(i,id,fSlNo) { 
+	$("#deleteModalBtn").attr("value","");
+	$("#deleteModalBtn").attr("slNo","");
+	$("#deleteModalBtn").attr("deleteData","");
+	$("#deleteModalBtn").attr("floorSlNo","");
+	$("#delete").modal('show');
+	$("#deleteModalBtn").attr("value",id);
+	$("#deleteModalBtn").attr("slNo",i);
+	$("#deleteModalBtn").attr("deleteData","2");
+	$("#deleteModalBtn").attr("floorSlNo",fSlNo);
+}
+
+function deleteRoom(id,fNo,sNo) { 
+	$("#deleteModalBtn").attr("value","");
+	$("#deleteModalBtn").attr("slNo","");
+	$("#deleteModalBtn").attr("deleteData","");
+	$("#deleteModalBtn").attr("floorSlNo","");
+	$("#delete").modal('show');
+	$("#deleteModalBtn").attr("value",id);
+	$("#deleteModalBtn").attr("deleteData","3");
+	$("#deleteModalBtn").attr("floorSlNo",fNo);
+	$("#deleteModalBtn").attr("slNo",sNo);
+}
+
+function deleteLocation() {
+	$("#deleteModalBtn").attr("value","");
+	$("#deleteModalBtn").attr("slNo","");
+	$("#deleteModalBtn").attr("deleteData","");
+	$("#deleteModalBtn").attr("floorSlNo","");
+	
+	var c = 0;
+	$(".chkbox:checkbox:checked").each(function(){
+		c = c + 1;
+	})
+	
+	if(c > 0) {
+		$("#delete").modal('show');
+		$("#deleteModalBtn").attr("value","abc");
+		$("#deleteModalBtn").attr("deleteData","4");
+	}
+	
+}
+
+function cancelModalBtn() {
+	$("#deleteModalBtn").attr("value","");
+	$("#deleteModalBtn").attr("slNo","");
+	$("#deleteModalBtn").attr("deleteData","");
+	$("#deleteModalBtn").attr("floorSlNo","");
+	$("#deleteModalBtn").removeAttr("disabled");
+}
 
 function submitLocation(dataset) {
     console.log(dataset)
@@ -280,13 +978,15 @@ function submitLocation(dataset) {
         data: JSON.stringify(dataset),
         success: function(response) {
             if (response.message == "Success") {
-                location.reload();
-                /* swal({
-                    title: "Data Saved Successfully.",
-                    type: "success",
-                }).then(function() {
-                	window.location.href = "/inventory/view-items" ;
-                }) */
+            	
+            	console.log(response.body)
+            	
+            	$("#myUL").show();
+				
+				$("#locchkboxlabel").text("");
+				var labeltxt = response.body.locationCode + " - " + response.body.locationName ;
+				$("#locchkboxlabel").text(labeltxt);
+				$("#locCount").text(' (0)');
 
             } else {
                 swal({
@@ -302,7 +1002,224 @@ function submitLocation(dataset) {
     })
 }
 
+function editFloor(i,id) {
+	$("#floorDBVal").val("");
+	$("#floorDBVal").val(id);
+	var floorNavText = $("#locationCode").val();
+	floorNavText = floorNavText + "-" + i;
+	$("#floorNavText").text("");
+	$("#floorNavText").text(floorNavText);
+	document.getElementById("mySidenavFloor").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
+	document.getElementById("main").style.width = "420px";
+	
+	closeSectionNav();
+	closeNav();
+	
+	if(id) {
+		$.ajax({
+			type : "POST",
+			url : "manage-location-get-floor-edit",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					$("#floorId").val(response.body.locationCode);
+					$("#floorName").val(response.body.locationName);
+					$("#floorSlNoDBVal").val(response.body.floorSlNo);
+				}
+			}, error : function(data) {
+				console.log(data)
+			}
+		});
+	}
+}
+
+function editSection(i,id,fCode) {
+	$("#sectionDBVal").val("");
+	$("#sectionDBVal").val(id);
+	var sectionNavText = $("#locationCode").val();
+	sectionNavText = sectionNavText + "-" +fCode+ "-" + i;
+	$("#sectionNavText").text("");
+	$("#sectionNavText").text(sectionNavText);
+	document.getElementById("mySidenavSection").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
+	document.getElementById("main").style.width = "420px";
+	
+	closeFloorNav();
+	closeNav();
+	
+	if(id) {
+		$.ajax({
+			type : "POST",
+			url : "manage-location-get-section-edit",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+					$("#sectionId").val(response.body.sectionCode);
+					$("#sectionName").val(response.body.sectionName);
+					$("#floorSection").val(response.body.floorId);
+					$("#floorSerialNo").val(response.body.floorSlNo);
+					$("#sectionSerialNo").val(response.body.secSlNo);
+				}
+			}, error : function(data) {
+				console.log(data)
+			}
+		});
+	}
+}
+
+function submitFloor(dataset) {
+    console.log(dataset)
+    $.ajax({
+        type: "POST",
+        url: "manage-location-save-floor",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(dataset),
+        success: function(response) {
+            if (response.message == "Success") {
+            	
+            	console.log(response.body)
+            	
+					var tbl = '<li id="floorLI_'+response.body.floorSlNo+'"><span class="caret" id="spanSection_'+response.body.floorSlNo+'" onclick=showSection("'+response.body.floorSlNo+'") value="0"></span> <div class="cfloor" id="cbfloor_'+response.body.floorSlNo+'"> <input type="checkbox" id="check2_'+response.body.floorSlNo+'" class="pc1-box" onchange=checkSection(this,"'+response.body.floorSlNo+'","'+response.body.locationCode+'") checked="checked"> </div> <span class="leveltxt">'+response.body.locationCode+' - '+response.body.locationName+' </span><span id="floorCount_'+response.body.floorSlNo+'" class="floor_counter"> (0) </span>'+
+								  '<label for="check2">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Add Section" class="ti-plus cbicon1 checkIcon2_'+response.body.floorSlNo+'" id="" onclick=openSectionNav("'+response.body.locationCode+'","'+response.body.floorId+'");></i></a>'+
+								  '&nbsp;<a href="javascript:void(0)"><i title="Edit Floor" class="ti-pencil cbicon1 checkIcon2_'+response.body.floorSlNo+'" id="" onclick=editFloor("'+response.body.locationCode+'","'+response.body.floorId+'");></i></a>&nbsp;<a href="javascript:void(0)"><i title="Delete Floor" class="ti-close cbicon1 checkIcon2_'+response.body.floorSlNo+'" id="" value="'+response.body.floorId+'" id="removeFloor_'+response.body.floorSlNo+'" onclick=removeFloor("'+response.body.floorSlNo+'","'+response.body.floorId+'");></i></a></label><ul class="nested" id="lastUl_'+response.body.floorSlNo+'"></ul></li>';
+					var floorDBVal = $("#floorDBVal").val();
+					
+					if(floorDBVal) {
+						openDetails(response.body.locationId);
+					} else {
+						$("#liFloor").append(tbl);
+						$(".checkIcon2_"+response.body.floorSlNo).addClass("green-cls");
+						$(".checkIcon2_"+response.body.floorSlNo).removeClass("remove-green");
+					}
+					
+					closeFloorNav();
+
+            } else {
+                swal({
+                    title: response.code,
+                    text: response.message,
+                    type: "warning"
+                })
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+
+function submitRoom(dataset) {
+    console.log(dataset)
+    $.ajax({
+        type: "POST",
+        url: "manage-location-save-room",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(dataset),
+        success: function(response) {
+            if (response.message == "Success") {
+            	
+            	var roomDBId = $("#roomDBId").val();
+            	
+            	if(roomDBId == null || roomDBId == "") {
+            		var loccount = $("#locCount").text();
+                	loccount = loccount.trim();
+                	loccount = loccount.replace("(","");
+                	loccount = loccount.replace(")","");
+                	
+                	loccount = parseFloat(loccount) + 1;
+                	
+                	$("#locCount").text(" ("+loccount+")");
+                	
+                	var floorCount = $("#floorCount_"+response.body.floorSlNo).text();
+                	floorCount = floorCount.trim();
+                	floorCount = floorCount.replace("(","");
+                	floorCount = floorCount.replace(")","");
+                	
+                	floorCount = parseFloat(floorCount) + 1;
+                	
+                	$("#floorCount_"+response.body.floorSlNo).text(" ("+floorCount+")");
+                	
+                	var sectionCount = $("#sectionCount_"+response.body.floorSlNo+"_"+response.body.sectionSlNO).text();
+                	sectionCount = sectionCount.trim();
+                	sectionCount = sectionCount.replace("(","");
+                	sectionCount = sectionCount.replace(")","");
+                	
+                	sectionCount = parseFloat(sectionCount) + 1;
+                	
+                	$("#sectionCount_"+response.body.floorSlNo+"_"+response.body.sectionSlNO).text(" ("+sectionCount+")");
+            	}
+            	
+            	showRoomDetails(response.body.locationId);
+				closeNav();
+
+            } else {
+                swal({
+                    title: response.code,
+                    text: response.message,
+                    type: "warning"
+                })
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+
+function submitSection(dataset) {
+    console.log(dataset)
+    $.ajax({
+        type: "POST",
+        url: "manage-location-save-section",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(dataset),
+        success: function(response) {
+            if (response.message == "Success") {
+            	
+            	console.log(response.body)
+					var tbl = '<li id="sectionLI_'+response.body.floorSlNo+'_'+response.body.secSlNo+'"><span class="caret-remove"></span><input type="checkbox" id="sectionChkBox" name="check_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" onchange=checkSec(this,"'+response.body.floorSlNo+'","'+response.body.secSlNo+'","'+response.body.sectionCode+'") class="pc2-box check_'+response.body.floorSlNo+'" checked="checked" data-sec="'+response.body.sectionId+'" data-floor="'+response.body.floorId+'" data-loc="'+response.body.locationId+'"> <span class="leveltxt">'+response.body.sectionCode+' - '+response.body.sectionName+'</span><span id="sectionCount_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" class="section_counter"> (0) </span>'+
+								'<label for="check3">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Edit Section" id="check_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" class="ti-pencil cbicon2 checkIcon_'+response.body.floorSlNo+' sectionCB_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" onclick=editSection("'+response.body.sectionCode+'","'+response.body.sectionId+'","'+response.body.locationCode+'");></i></a>&nbsp;<a href="javascript:void(0)"><i title="Delete Section" id="check_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" class="ti-close cbicon2 checkIcon_'+response.body.floorSlNo+' sectionCB_'+response.body.floorSlNo+'_'+response.body.secSlNo+'" onclick=removeSection("'+response.body.secSlNo+'","'+response.body.sectionId+'","'+response.body.floorSlNo+'");></i></a></label></li>';
+					
+					var sectionDBVal = $("#sectionDBVal").val();
+					
+					if(sectionDBVal) {
+						openDetails(response.body.locationId);
+					} else {
+						$("#lastUl_"+response.body.floorSlNo).append(tbl);
+						$(".sectionCB_"+response.body.floorSlNo+"_"+response.body.secSlNo).addClass("green-cls");
+						$(".sectionCB_"+response.body.floorSlNo+"_"+response.body.secSlNo).removeClass("remove-green");
+						
+						$("#lastUl_"+response.body.floorSlNo).addClass("active");
+						$("#spanSection_"+response.body.floorSlNo).addClass("caret-down");
+						$("#spanSection_"+response.body.floorSlNo).attr('value','1');
+					}
+					
+					closeSectionNav();
+					
+					showRoomDetails(response.body.locationId);
+
+            } else {
+                swal({
+                    title: response.code,
+                    text: response.message,
+                    type: "warning"
+                })
+            }
+        },
+        error: function(data) {
+            console.log(data);
+        }
+    })
+}
+
 function saveFile() {
+	
 	var uFile = $('#fileUpload')[0].files[0]; 
 	var fileName = $('#fileUpload').val();
 	
@@ -337,583 +1254,578 @@ function saveFile() {
 }
 
 function deleteFile() {
-	
-	$('#imgLoc').attr('src', '');
-	$('#imgLoc').attr('src', '../assets/images/noimage.jpg');
-	
-	var fileData = new FormData();
-	
-	fileData.append('file','none');
-	fileData.append('path','none');
-	
-	$.ajax({
-		type        : "POST",
-		url         : "manage-location-delete-file",
-		enctype     : "multipart/form-data",
-		contentType : false,
-		/* data        : fileData, */
-		processData : false,
-		cache       : false,
-		success     : function(response){
-						
-					},			  
-		error       : function(e) {
-			
-			  		}
-	});
+	$("#deleteFile").modal('show');
 }
 
+function deleteLocFile() {
+	
+	var locationId = $("#locationId").val();
+	
+	if(locationId) {
+		$.ajax({
+			type : "POST",
+			url : "manage-location-get-location-file-delete",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : locationId,
+			success : function(response) {
+				if (response.message == "success") {
+					$('#imgLoc').attr('src', '');
+					$('#imgLoc').attr('src', '../assets/images/noimage.jpg');
+					$("#deleteFile").modal('hide');
+				}
+			}, error : function(data) {
+				console.log(data)
+			}
+		});
+	} else {
+		$.ajax({
+			type        : "POST",
+			url         : "manage-location-delete-file",
+			enctype     : "multipart/form-data",
+			contentType : false,
+			processData : false,
+			cache       : false,
+			success     : function(response){
+							console.log("ABC")
+							$('#imgLoc').attr('src', '');
+							$('#imgLoc').attr('src', '../assets/images/noimage.jpg');
+							$("#deleteFile").modal('hide');
+						},			  
+			error       : function(e) {
+				
+				  		}
+		});
+	}
+	
+}
+
+function checkAll(e) {
+	var checkboxes = document.getElementsByName('listCheck');
+	
+	if (e.checked) {
+		for (var i = 0; i < checkboxes.length; i++) { 
+	    	checkboxes[i].checked = true;
+	    }
+	} else {
+		for (var i = 0; i < checkboxes.length; i++) {
+	    	checkboxes[i].checked = false;
+	    }
+	}
+	
+}
+
+function checkSection(e,slNo,fCode) {
+	var checkboxes = document.getElementsByClassName('check_'+slNo);
+	
+	if (e.checked) {
+		
+		for (var i = 0; i < checkboxes.length; i++) { 
+	    	checkboxes[i].checked = true;
+	    }
+		$(".checkIcon2_"+slNo).addClass("green-cls");
+		$(".checkIcon_"+slNo).addClass("green-cls");
+		$(".checkIcon2_"+slNo).removeClass("remove-green");
+		$(".checkIcon_"+slNo).removeClass("remove-green");
+		
+		$(".cfloor").removeClass("checkboxinact");
+		$("#cbLoc").removeClass("checkboxinact"); 
+		
+		//$(".roomFloorDiv_"+fCode).show();
+	} else {
+		for (var i = 0; i < checkboxes.length; i++) {
+	    	checkboxes[i].checked = false;
+	    }
+		$(".checkIcon2_"+slNo).removeClass("green-cls");
+		$(".checkIcon_"+slNo).removeClass("green-cls");
+		$(".checkIcon2_"+slNo).addClass("remove-green");
+		$(".checkIcon_"+slNo).addClass("remove-green");
+		
+		//$(".roomFloorDiv_"+fCode).hide();
+	}
+	
+	var cb = document.getElementsByClassName('pc1-box');
+	var chkLength = cb.length;
+	var c = 0;
+	$(".pc1-box:checkbox:checked").each(function(){
+		c = c + 1;
+	})
+	
+	if(chkLength != c) {
+		$("#cbLoc").addClass("checkboxinact");
+	} else {
+		$("#cbLoc").removeClass("checkboxinact");
+	}
+	
+	showRoomDetails("ABC");
+}
+function checkSec(e,slNo,j,secCode) {
+	var checkboxes = document.getElementsByName('check_'+slNo+'_'+j);
+	
+	var cb = document.getElementsByClassName('check_'+slNo);
+	
+	var chkLength = cb.length;
+	
+	var c = 0;
+	$(".check_"+slNo+":checkbox:checked").each(function(){
+		c = c + 1;
+	})
+	
+	if (e.checked) {
+		$(".sectionCB_"+slNo+"_"+j).addClass("green-cls");
+		$(".sectionCB_"+slNo+"_"+j).removeClass("remove-green");
+	} else {
+		$(".sectionCB_"+slNo+"_"+j).removeClass("green-cls");
+		$(".sectionCB_"+slNo+"_"+j).addClass("remove-green");
+		
+	}
+	
+	if(chkLength != c) {
+		$("#cbfloor_"+slNo).addClass("checkboxinact");
+		$("#cbLoc").addClass("checkboxinact");
+	} else {
+		$("#cbfloor_"+slNo).removeClass("checkboxinact");
+		$("#cbLoc").removeClass("checkboxinact");
+	}
+	
+	showRoomDetails("ABC");
+}
+</script>
+<script>
+$(document).ready(function() {
+    var toggler = document.getElementsByClassName("caret");
+    var i;
+
+    for (i = 0; i < toggler.length; i++) {
+        toggler[i].addEventListener("click", function() {
+            this.parentElement.querySelector(".nested").classList.toggle("active");
+            this.classList.toggle("caret-down");
+        });
+    }
+})
+</script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.collapse').on('show.bs.collapse', function() {
+        $(this).siblings('.panel-heading').addClass('active');
+    });
+
+    $('.collapse').on('hide.bs.collapse', function() {
+        $(this).siblings('.panel-heading').removeClass('active');
+    });
+});
 </script>
 </head>
 <body>
-	<div layout:fragment="content">
-		<div class="content-wrap">
+	<div layout:fragment="content" class="maincontent">
 
-			<div class="maincontentsec">
-				<div class="content_padding">
-					<div class="row margin_topbot btn-hs">
-						<div class="col-md-8 padding-7">
-							<div class="input-style row">
-								<div class="autocomplete">
-									<input id="myInput" type="text" name="myCountry"
-										class="searchboxinput" placeholder="Software..">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="maincontentsec">
+					<div class="content_padding">
+						<div class="row margin_topbot" id="searchRowDiv">
+							<div class="col-md-8">
+								<div class="input-style row">
+									<div class="autocomplete">
+										<input id="myInput" type="text" name="myCountry"
+											class="searchboxinput" placeholder="Software..">
+									</div>
+									<div class="searchicon">
+										<a href="#"><span class="close_i">X</span></a> <a href="#"><i
+											class="fa fa-search"></i></a>
+									</div>
 								</div>
-								<div class="searchicon">
-									<a href="#"><span class="close_i">X</span></a> <a href="#"><i
-										class="fa fa-search"></i></a>
-								</div>
 							</div>
 						</div>
-					</div>
-					<!--  <form enctype="multipart/form-data"> -->
-					<div class="row">
-
-						<div class="col-md-8 padding-7 btn-hs">
-							<div class="font-design">
-								Location LIST <span th:text="${'('+count+')'}"></span>
-							</div>
-						</div>
-						<div class="col-md-2 btn-hs">
-							<div class="row">
-								<button class="btn1" id="newBtn">NEW</button>
-								<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-								<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-								<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
-                                 <a class="btn3 delete-record copy">DELETE</a> -->
-							</div>
-						</div>
-						<div class="col-md-2 btn-hs padding-7" align="right">
-							<button class="btn4">Upload</button>
-							<button class="btn4">Download</button>
-						</div>
-
-					</div>
-
-					<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1" style="background: #fff;">
-						<thead>
-							<tr>
-								<th align="center" width="20"><input type="checkbox"
-									class="allChkBox"></th>
-								<th align="center">ID</th>
-								<th align="center">Code</th>
-								<th align="center">Name</th>
-								<th align="center">Type</th>
-								<th align="center">Virtual</th>
-								<th align="center">Address</th>
-								<th align="center">City</th>
-								<th align="center">State</th>
-								<th align="center">Country</th>
-								<th align="center">Status</th>
-								<th align="center">Create Date</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr th:each="c,iter:${locationList}">
-								<td align="center"><input type="checkbox"
-									class="chkbox" name=""></td>
-								<td align="left">
-									<div class="txt-blue" th:text="${c.locationId}"></div>
-								</td>
-								<td>
-									<div class="txt-blue" data-toggle="collapse"
-										data-target="#demo" id="quarter" th:text="${c.locationCode}"></div>
-								</td>
-								<td align="left" th:text="${c.locationName}"></td>
-								<td th:text="${c.locationType}"></td>
-								<td th:text="${c.locVirtual}"></td>
-								<td th:text="${c.locStreet}"></td>
-								<td align="left" th:text="${c.locCity}"></td>
-								<td align="left" th:text="${c.locState}"></td>
-								<td align="left" th:text="${c.locCountry}"></td>
-								<td align="center" th:text="${c.locStatus}"></td>
-								<td align="center" th:text="${c.createdDate}"></td>
-							</tr>
-							<!-- <tr>
-								<td align="center" bgcolor="#FFF"><input type="checkbox"
-									class="chkbox" name=""></td>
-								<td align="center" bgcolor="#FFF">
-									<div class="txt-blue">1004</div>
-								</td>
-								<td bgcolor="#FFF">
-									<div class="txt-blue" data-toggle="collapse"
-										data-target="#demo">BLR-I</div>
-								</td>
-								<td align="left" bgcolor="#FFF">Bangalore Office</td>
-								<td bgcolor="#FFF">Office</td>
-								<td bgcolor="#FFF"></td>
-								<td bgcolor="#FFF">1 Main Street</td>
-								<td bgcolor="#FFF" align="left">Chicago</td>
-								<td bgcolor="#FFF" align="left">Illinois</td>
-								<td bgcolor="#FFF" align="center">USA</td>
-								<td bgcolor="#FFF" align="center">Active</td>
-								<td bgcolor="#FFF" align="center">9-Oct-2020</td>
-							</tr>
-							<tr>
-								<td align="center" bgcolor="#FFF"><input type="checkbox"
-									class="chkbox" name=""></td>
-								<td align="center" bgcolor="#FFF">
-									<div class="txt-blue">972</div>
-								</td>
-								<td bgcolor="#FFF">
-									<div class="txt-blue" data-toggle="collapse"
-										data-target="#demo">WH-B-I</div>
-								</td>
-								<td align="left" bgcolor="#FFF">B-1 Warehouse</td>
-								<td bgcolor="#FFF">Warehouse</td>
-								<td bgcolor="#FFF"></td>
-								<td bgcolor="#FFF">1 Main Street</td>
-								<td bgcolor="#FFF" align="left">Chicago</td>
-								<td bgcolor="#FFF" align="left">Illinois</td>
-								<td bgcolor="#FFF" align="center">USA</td>
-								<td bgcolor="#FFF" align="center">Active</td>
-								<td bgcolor="#FFF" align="center">9-Oct-2020</td>
-							</tr>
-							<tr>
-								<td align="center" bgcolor="#FFF"><input type="checkbox"
-									class="chkbox" name=""></td>
-								<td align="center" bgcolor="#FFF">
-									<div class="txt-blue">471</div>
-								</td>
-								<td bgcolor="#FFF">
-									<div class="txt-blue" data-toggle="collapse"
-										data-target="#demo">Store-123</div>
-								</td>
-								<td align="left" bgcolor="#FFF">Store 123</td>
-								<td bgcolor="#FFF">Store</td>
-								<td bgcolor="#FFF"></td>
-								<td bgcolor="#FFF">1 Main Street</td>
-								<td bgcolor="#FFF" align="left">Chicago</td>
-								<td bgcolor="#FFF" align="left">Illinois</td>
-								<td bgcolor="#FFF" align="center">USA</td>
-								<td bgcolor="#FFF" align="center">Active</td>
-								<td bgcolor="#FFF" align="center">9-Oct-2020</td>
-							</tr> -->
-						</tbody>
-					</table>
-					<!--  </div> -->
-					<div class="collapse" id="demo">
+						<!--  <form enctype="multipart/form-data"> -->
 						<div class="row">
-							<div class="col-md-4">Location ID: </div>
-							<div class="col-md-8" align="right">
-								<button class="btn3" id="cancelBtn">Cancel</button>
-								<button class="btn1" id="saveLocation">Save</button>
-							</div>
-							<div class="col-md-3">
-								<input type="hidden" id="locationId">
-								<div class="hvrbox">
-									<img src="../assets/images/noimage.jpg" id="imgLoc" alt="Location"
-										class="hvrbox-layer_bottom img-fluid" style="height: 203px; width: 241px;">
-									<!-- <img src="../assets/images/noimage.jpg" alt="Location"
-										class="hvrbox-layer_bottom img-fluid"> -->
-									<div class="hvrbox-layer_top">
-										<div class="hvrbox-text">
-											<!-- <span><i class="fa fa-pencil-square-o"></i></span> -->
-											<input type="file" id="fileUpload" hidden  onchange="saveFile();"/> <span><label
-												for="fileUpload"><i class="ti-files" style="cursor:pointer;"></i>
-												<!-- <i class="fa fa-pencil-square-o"></i> --></label></span> <span><i
-												class="fa fa-trash red" onclick="deleteFile();"></i></span>
-										</div>
-									</div>
+
+							<div class="col-md-8  btn-hs">
+								<div class="font-design">
+									Location LIST <span th:text="${'('+count+')'}"></span>
 								</div>
 							</div>
-							<div class="col-md-9">
+							<div class="col-md-2 btn-hs">
 								<div class="row">
-									<div class="col-md-12">
-										<!-- <div class="name-bar">Head Quarter</div> -->
-										<input type="text" name="code" value=""
-											placeholder="Location Name" class="form-control_big" id="locationName">
-									</div>
+									<button class="btn1" id="newBtn" onclick="openDetails('');">NEW</button>
+									<button class="btn3" id="locdeletebtn" onclick="deleteLocation()" >DELETE</button>
 								</div>
-								<div class="row">
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Code</label> <input type="text" name="code" value=""
-												placeholder="Location Code" class="form-control" id="locationCode">
-										</div>
-									</div>
-
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Type</label> <select class="form-control"
-												id="locationType">
-												<option th:each="c,iter:${locationTypeList}" th:value="${c.key}" th:text="${c.name}"></option>
-											</select>
-										</div>
-									</div>
-
-									<div class="col-md-2">
-										<div class="form-group mrt_25">
-											<input type="checkbox" name="isVirtual" id="locVirtual" value="1"> <label>Virtual</label>
-										</div>
-									</div>
-									<div class="col-md-2">
-										<div class="form-group mrt_25">
-											<input type="checkbox" name="isActive" id="locStatus" value="1"> <label>Active</label>
-										</div>
-									</div>
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Country</label> <select class="form-control"
-												id="locCountry">
-												<option value="">Select</option>
-												<option th:each="c,iter:${countryList}" th:value="${c.key}" th:text="${c.name}"></option>
-											</select>
-										</div>
-									</div>
-
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>State</label> <select class="form-control"
-												id="locState">
-												<option value="">Select</option>
-											</select>
-										</div>
-									</div>
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>City</label> <select class="form-control"
-												id="locCity">
-												<option value="">Select</option>
-											</select>
-										</div>
-									</div>
-									<div class="col-md-8">
-										<div class="form-group">
-											<label>Street Address</label> <input type="text" id="locStreet"
-												name="Street" value="" placeholder="Street Name" autocomplete="off"
-												class="form-control">
-
-										</div>
-									</div>
-
-									
-								</div>
+							</div>
+							<div class="col-md-2 btn-hs " align="right">
+								<button class="btn4">Upload</button>
+								<button class="btn4">Download</button>
 							</div>
 
 						</div>
-						<div class="row">
-							<div class="col-md-12">
-								<div class="headingbar">
-									<a href="#" data-toggle="collapse" data-target="#demo_11"
-										style="color: #333; text-decoration: none;">Layout</a> <a
-										href="#" data-toggle="collapse" data-target="#demo_11"
-										style="float: right; color: #333; text-decoration: none;"><i
-										class="ti-angle-down"></i></a>
-								</div>
-							</div>
-						</div>
-						<div id="demo_11" class="collapse "> <!-- show -->
+
+						<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1"
+							style="background: #fff;">
+							<thead>
+								<tr>
+									<th align="center" width="20"><input type="checkbox"
+										class="allChkBox" onchange="checkAll(this)"></th>
+									<th align="center">ID</th>
+									<th align="center">Code</th>
+									<th align="center">Name</th>
+									<th align="center">Type</th>
+									<th align="center">Virtual</th>
+									<th align="center">Address</th>
+									<th align="center">City</th>
+									<th align="center">State</th>
+									<th align="center">Country</th>
+									<th align="center">Status</th>
+									<th align="center">Create Date</th>
+								</tr>
+							</thead>
+							<tbody id="listTbody">
+							</tbody>
+						</table>
+						<!--  </div> -->
+						<div class="collapse" id="demo">
 							<div class="row">
-								<div class="col-md-4">
-									<div class="flowsection">
-										<div>Location -> Floor -> Section -> Room</div>
-										<ul id="tree1">
-											<li style="padding-left: 70px;">HQ - Headquater (45) <a
-												href="#"><i class="ti-plus"></i></a>
-												<ul>
-													<li>
-														<div class="mainclass">
-															<input type="checkbox" id="check1"> 1 - Floor 1
-															(0) <label for="check1"><a href="#"><i
-																	class="ti-plus"></i></a> <a href="#"><i
-																	class="ti-pencil"></i></a> <a href="#"><i
-																	class="ti-close"></i></a></label>
-														</div>
-														<ul class="secondstep">
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check2"> NW -
-																	Nortwest Section (4) <label for="check2"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check3"> SW -
-																	Southwest Section (4) <label for="check3"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check4"> N - North
-																	Section (5) <label for="check4"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check5"> S - South
-																	Section <label for="check5"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check6"> E - East
-																	Section <label for="check6"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-														</ul>
-													</li>
-													<li>
-														<div class="mainclass">
-															<input type="checkbox" id="check7"> 2 - Floor 2
-															(45) <label for="check7"><a href="#"><i
-																	class="ti-plus"></i></a> <a href="#"><i
-																	class="ti-pencil"></i></a> <a href="#"><i
-																	class="ti-close"></i></a></label>
-														</div>
-														<ul class="secondstep">
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check8"> NW -
-																	Nortwest Section (4) <label for="check8"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check9"> SW -
-																	Southwest Section (4) <label for="check9"><a
-																		href="#"><i class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check10"> N - North
-																	Section (5) <label for="check10"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check11"> S - South
-																	Section <label for="check11"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-															<li>
-																<div class="subclass">
-																	<input type="checkbox" id="check12"> E - East
-																	Section <label for="check12"><a href="#"><i
-																			class="ti-plus"></i></a> <a href="#"><i
-																			class="ti-pencil"></i></a> <a href="#"><i
-																			class="ti-close"></i></a></label>
-																</div>
-															</li>
-														</ul>
-													</li>
-													<li>
-														<div class="mainclass">
-															<input type="checkbox"> 3 - Floor 3 (0) <a
-																href="#"><i class="ti-plus"></i></a> <a href="#"><i
-																class="ti-pencil"></i></a> <a href="#"><i
-																class="ti-close"></i></a>
-														</div>
-														<ul class="secondstep">
-															<li>
-																<div class="subclass">Sales</div>
-																<ul class="secondstep">
-																	<li>
-																		<div class="subclass">Report1</div>
-																	</li>
-																	<li>
-																		<div class="subclass">Report2</div>
-																	</li>
-																	<li>
-																		<div class="subclass">Report3</div>
-																	</li>
-																</ul>
-															</li>
-															<li>
-																<div class="subclass">Marketing</div>
-															</li>
-														</ul>
-													</li>
-												</ul>
-											</li>
-											<!--   <li>
-                        <div>HRM</div>
-                        <ul>
-                           <li><div>Company Maintenance</div></li>
-                           <li>
-                            <div> Employees</div>
-                              <ul>
-                                 <li>
-                                    <div>Reports</div>
-                                    <ul>
-                                       <li><div>Report1</div></li>
-                                       <li><div>Report2</div></li>
-                                       <li><div>Report3</div></li>
-                                    </ul>
-                                 </li>
-                                 <li><div>Employee Maint.</div></li>
-                              </ul>
-                           </li>
-                           <li><div>Human Resources</div></li>
-                        </ul>
-                     </li> -->
-										</ul>
+								<div class="col-md-4 title" id="viewLocDivId">Location ID:</div>
+								<div class="col-md-8" align="right">
+									<button class="btn3" id="cancelBtn">Cancel</button>
+									<button class="btn1" id="saveLocation">Save</button>
+								</div>
+								<div class="col-md-3">
+									<input type="hidden" id="locationId">
+									<div class="hvrbox">
+										<img src="../assets/images/noimage.jpg" id="imgLoc"
+											alt="Location" class="hvrbox-layer_bottom img-fluid"
+											style="height: 203px; width: 241px;">
+										<div class="hvrbox-layer_top">
+											<div class="hvrbox-text">
+												<!-- <span><i class="fa fa-pencil-square-o"></i></span> -->
+												<input type="file" id="fileUpload" hidden
+													onchange="saveFile();" /> <span><label
+													for="fileUpload"><i class="ti-files"
+														style="cursor: pointer;"></i> <!-- <i class="fa fa-pencil-square-o"></i> --></label></span>
+												<span><i class="fa fa-trash red"
+													onclick="deleteFile();"></i></span>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-9">
+									<div class="row">
+										<div class="col-md-12">
+											<!-- <div class="name-bar">Head Quarter</div> -->
+											<input type="text" name="code" value=""
+												placeholder="Location Name" class="form-control_big"
+												id="locationName">
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Code</label> <input type="text" name="code" value=""
+													placeholder="Location Code" class="form-control"
+													id="locationCode">
+											</div>
+										</div>
+
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Type</label> <select class="form-control"
+													id="locationType">
+													<option th:each="c,iter:${locationTypeList}"
+														th:value="${c.key}" th:text="${c.name}"></option>
+												</select>
+											</div>
+										</div>
+
+										<div class="col-md-2">
+											<div class="form-group" style="margin-top: 20px;">
+												<input type="checkbox" class="loc-chb" name="isVirtual"
+													id="locVirtual" value="1"> <label>Virtual</label>
+											</div>
+										</div>
+										<div class="col-md-2">
+											<div class="form-group" style="margin-top: 20px;">
+												<input type="checkbox" class="loc-chb" name="isActive"
+													id="locStatus" value="1"> <label>Active</label>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Country</label> <select class="form-control"
+													id="locCountry">
+													<option value="">Select</option>
+													<option th:each="c,iter:${countryList}" th:value="${c.key}"
+														th:text="${c.name}"></option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>State</label> <select class="form-control"
+													id="locState">
+													<option value="">Select</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>City</label> <select class="form-control"
+													id="locCity">
+													<option value="">Select</option>
+												</select>
+											</div>
+										</div>
+										<div class="col-md-8">
+											<div class="form-group">
+												<label>Street Address</label> <input type="text"
+													id="locStreet" name="Street" value=""
+													placeholder="Street Name" autocomplete="off"
+													class="form-control">
+											</div>
+										</div>
 									</div>
 								</div>
 
-								<div class="col-md-8">
-									<div class="roomdetails" id="main">
-										<h3>HQ-2-NW: Floor 2 - NorthWest Section (4)</h3>
-										<div class="row">
-											<div class="col-md-2">
-												<div class="plusbtn">+</div>
-											</div>
-
-											<div class="col-md-10 roomsection">
-												<div class="roombtn roombtnactive">Room 201</div>
-												<div class="roombtn">Room 202</div>
-												<div class="roombtn">Room 203</div>
-												<div class="roombtn">Room 204</div>
-											</div>
+							</div>
+							<div class="wrapper center-block">
+								<div class="panel-group" id="accordion" role="tablist"
+									aria-multiselectable="true">
+									<div class="panel panel-default">
+										<div class="panel-heading active" role="tab" id="headingOne">
+											<h4 class="panel-title">
+												<a role="button" data-toggle="collapse"
+													data-parent="#accordion" href="#demo_11"
+													aria-expanded="true" aria-controls="demo_11"> Layout </a>
+											</h4>
 										</div>
-										<h3>HQ-2-SW: Floor 2 - SouthWest Section (3)</h3>
-										<div class="row">
-											<div class="col-md-2">
-												<div class="plusbtn">+</div>
-											</div>
-
-											<div class="col-md-10 roomsection">
-												<div class="roombtn">Cube 1</div>
-												<div class="roombtn">Cube 2</div>
-												<div class="roombtn">Cube 3</div>
-											</div>
-										</div>
-										<h3>HQ-2-E: Floor 2 - East Section (3)</h3>
-										<div class="row">
-											<div class="col-md-2">
-												<div class="plusbtn">+</div>
-											</div>
-
-											<div class="col-md-10 roomsection">
-												<div class="roombtn">201</div>
-												<div class="roombtn">202</div>
-												<div class="roombtn">203</div>
-											</div>
-										</div>
-									</div>
-									<!-- </div>
- <div class="col-md-3">  -->
-									<div class="slidearrow" onclick="openNav()">
-										<i class="ti-arrow-left"></i>
-									</div>
-									<div id="mySidenav" class="sidenav">
-										<div class="slidebox">
+										<div id="demo_11" class="panel-collapse collapse show"
+											role="tabpanel" aria-labelledby="headingOne">
+											<!-- show -->
 											<div class="row">
-												<div class="col-md-10">
-													<div class="edit">HQ - 2 - NW - 201</div>
+												<div class="col-md-4 layout-header">
+													<div class="level_breadcrumb">Location -> Floor ->
+														Section -> Room</div>
 												</div>
-												<div class="col-md-2">
-													<div class="arrow">
-														<a href="javascript:void(0)" class="closebtn"
-															onclick="closeNav()"><i class="ti-arrow-right"></i></a>
+											</div>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="flowsection">
+														<!-- <div>Location -> Floor -> Section -> Room</div> -->
+														<!-- code start for second tree -->
+														<ul id="myUL" class="level">
+															<li><span class="caret"></span>
+																<div id="cbLoc">
+																	<input type="checkbox" id="check1" class="pc-box"
+																		checked="checked">
+																</div> <span id="locchkboxlabel" class="leveltxt"></span><span
+																id="locCount" class="level_counter"> (0)</span> <label
+																for="check1">&nbsp;&nbsp;<a
+																	href="javascript:void(0)"><i title="Add Floor"
+																		class="ti-plus cbicon" onclick="openFloorNav();"></i></a></label>
+																<ul class="nested" id="liFloor">
+
+																</ul></li>
+														</ul>
+														<!-- code end for second tree -->
 													</div>
 												</div>
-
-												<div class="chartbtnsec">
-													<div class="row">
-														<button class="btn4">CANCEL</button>
-														<button class="btn3">DELETE</button>
-														<button class="btn1">SAVE</button>
+												<div class="col-md-8">
+													<div class="roomdetails roomListDiv" id="main"></div>
+													<div class="slidearrow" onclick="openNav('','','')">
+														<i class="ti-arrow-left"></i>
 													</div>
-												</div>
-												<div class="col-md-12 mt-15">
-													<div class="form-group">
-														<label>ID</label> <input type="text"
-															class="form-control transparenttxtbox"
-															placeholder="Marketing">
+													<div id="mySidenav" class="sidenav">
+														<div class="slidebox">
+															<div class="row">
+																<div class="col-md-10">
+																	<div class="edit" id="roomLevelText"></div>
+																</div>
+																<div class="col-md-2">
+																	<div class="arrow">
+																		<a href="javascript:void(0)" class="closebtn"
+																			onclick="closeNav()"><i class="ti-arrow-right"></i></a>
+																	</div>
+																</div>
+																<div class="chartbtnsec">
+																	<div class="row">
+																		<button class="btn4" onclick="closeNav()">CANCEL</button>
+																		<button class="btn3" id="dltRoom"
+																			onclick="deleteRoom()">DELETE</button>
+																		<button class="btn1" id="roomSave">SAVE</button>
+																	</div>
+																</div>
+																<div class="col-md-12">
+																	<div class="form-group">
+																		<label>Code</label> <input type="text"
+																			class="form-control transparenttxtbox"
+																			placeholder="Room Code" id="roomCode"> <input
+																			type="hidden" id="sectionRoomId"> <input
+																			type="hidden" id="roomDBId">
+																			<input type="hidden" id="rFloorSlNo">
+																			<input type="hidden" id="rSectionSlNo">
+																	</div>
+																</div>
+																<div class="col-md-12">
+																	<div class="form-group">
+																		<label>Name</label> <input type="text"
+																			class="form-control transparenttxtbox"
+																			placeholder="Room Name" id="roomName" onblur="checkCharLengthOfString('roomName','10');">
+																	</div>
+																</div>
+																<div class="col-md-12">
+																	<div class="form-group">
+																		<label>Room Type</label> <select id="roomType"
+																			class="form-control transparenttxtbox">
+																			<option th:each="c,iter:${roomTypeList}"
+																				th:value="${c.key}" th:text="${c.name}"></option>
+																		</select>
+																	</div>
+																</div>
+															</div>
+														</div>
 													</div>
-												</div>
 
-												<div class="col-md-12 mt-15">
-													<div class="form-group">
-														<label>Name</label> <input type="text"
-															class="form-control transparenttxtbox"
-															placeholder="Marketing">
+													<!-- Add Floor -->
+													<div id="mySidenavFloor" class="sidenav">
+														<div class="slidebox">
+															<div class="row">
+																<div class="col-md-10">
+																	<div class="edit" id="floorNavText">HQ</div>
+																</div>
+																<div class="col-md-2">
+																	<div class="arrow">
+																		<a href="javascript:void(0)" class="closebtn"
+																			onclick="closeFloorNav()"><i
+																			class="ti-arrow-right"></i></a>
+																	</div>
+																</div>
+																<div class="chartbtnsec">
+																	<div class="row">
+																		<button class="btn4" onclick="closeFloorNav()">CANCEL</button>
+																		<button class="btn3" onclick="deleteFloor()">DELETE</button>
+																		<button class="btn1" id="floorSave">SAVE</button>
+																	</div>
+																</div>
+																<div class="col-md-12">
+																	<div class="form-group">
+																		<label>Code</label> <input type="text" id="floorId"
+																			class="form-control transparenttxtbox"
+																			placeholder="Number"> <input type="hidden"
+																			id="floorDBVal"> <input type="hidden"
+																			id="floorSlNoDBVal">
+																	</div>
+																</div>
+																<div class="col-md-12">
+																	<div class="form-group">
+																		<label>Name</label> <input type="text"
+																			class="form-control transparenttxtbox"
+																			placeholder="Floor" id="floorName">
+																	</div>
+																</div>
+															</div>
+														</div>
 													</div>
-												</div>
 
-												<div class="col-md-12 mt-15">
-													<div class="form-group">
-														<label>Room Type</label> <select
-															class="form-control transparenttxtbox">
-
-															<option>Cubicle</option>
-															<option>Individual Room</option>
-															<option>Meeting Room</option>
-															<option>Conference Room</option>
-															<option>Executive Room</option>
-															<option>Kitchen</option>
-															<option>Storage</option>
-															<option>Restroom</option>
-															<option>Server Room</option>
-															<option>War Room</option>
-															<option>Hallway</option>
-															<option>Front Desk</option>
-														</select>
+													<!-- Add Section -->
+													<div id="mySidenavSection" class="sidenav">
+														<div class="slidebox">
+															<div class="row">
+																<div class="col-md-10">
+																	<div class="edit" id="sectionNavText">HQ</div>
+																</div>
+																<div class="col-md-2">
+																	<div class="arrow">
+																		<a href="javascript:void(0)" class="closebtn"
+																			onclick="closeSectionNav()"><i
+																			class="ti-arrow-right"></i></a>
+																	</div>
+																</div>
+																<div class="chartbtnsec">
+																	<div class="row">
+																		<button class="btn4" onclick="closeSectionNav()">CANCEL</button>
+																		<button class="btn3" onclick="deleteSection()">DELETE</button>
+																		<button class="btn1" id="sectionSave">SAVE</button>
+																	</div>
+																</div>
+																<div class="col-md-12">
+																	<div class="form-group">
+																		<label>Code</label> <input type="text" id="sectionId"
+																			class="form-control transparenttxtbox"
+																			placeholder="Code"> <input type="hidden"
+																			id="sectionDBVal"> <input type="hidden"
+																			id="floorSection"> <input type="hidden"
+																			id="floorSerialNo"> <input type="hidden"
+																			id="sectionSerialNo">
+																	</div>
+																</div>
+																<div class="col-md-12">
+																	<div class="form-group">
+																		<label>Name</label> <input type="text"
+																			class="form-control transparenttxtbox"
+																			placeholder="Section" id="sectionName">
+																	</div>
+																</div>
+															</div>
+														</div>
 													</div>
 												</div>
 											</div>
 										</div>
 									</div>
 								</div>
-
 							</div>
-
 						</div>
-
-
 					</div>
 				</div>
 			</div>
-
+		</div>
+		<div id="delete" class="modal fade show" aria-modal="true">
+			<div class="modal-dialog modal-confirm">
+				<div class="modal-content">
+					<div class="modal-header flex-column">
+						<button type="button" class="close" data-dismiss="modal"
+							aria-hidden="true" onclick="cancelModalBtn()">
+							<i class="ti-close modal-close"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p>Do you really want to delete these records? This process
+							cannot be undone.</p>
+					</div>
+					<div class="modal-footer justify-content-center"
+						style="margin-top: -30px;">
+						<button type="button" class="btn1" data-dismiss="modal"
+							onclick="cancelModalBtn();">Cancel</button>
+						<button type="button" class="btn3" id="deleteModalBtn">Delete</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="deleteFile" class="modal fade show" aria-modal="true">
+			<div class="modal-dialog modal-confirm">
+				<div class="modal-content">
+					<div class="modal-header flex-column">
+						<!-- <div class="icon-box">
+							<i class="ti-close"></i>
+						</div> -->
+						<!-- <h4 class="modal-title w-100">Are you sure?</h4> -->
+						<button type="button" class="close" data-dismiss="modal"
+							aria-hidden="true" onclick="cancelModalBtn()">
+							<i class="ti-close modal-close"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p>Do you really want to delete this image? This process
+							cannot be undone.</p>
+					</div>
+					<div class="modal-footer justify-content-center"
+						style="margin-top: -30px;">
+						<button type="button" class="btn1" data-dismiss="modal"
+							onclick="cancelModalBtn();">Cancel</button>
+						<button type="button" class="btn3" onclick="deleteLocFile()">Delete</button>
+						<!-- <img src="../assets/gif/loader.gif">  -->
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
-
 </body>
 </html>

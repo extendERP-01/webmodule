@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<script>
+	function openNav() {
+		document.getElementById("mySidenav").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:370px;";
+
+		document.getElementById("main_content").style.width = "83%";
+	}
+
+	function closeNav() {
+		document.getElementById("mySidenav").style.width = "0";
+		document.getElementById("main_content").style.width = "100%";
+	}
+</script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	$('.collapse').on('show.bs.collapse', function() {
+		$(this).siblings('.panel-heading').addClass('active');
+	});
+
+	$('.collapse').on('hide.bs.collapse', function() {
+		$(this).siblings('.panel-heading').removeClass('active');
+	});
+
+	
+	/* selectbox */
+	var x, i, j, l, ll, selElmnt, a, b, c;
+	/*look for any elements with the class "custom-select":*/
+	x = document.getElementsByClassName("selectbox");
+	l = x.length;
+	for (i = 0; i < l; i++) {
+		selElmnt = x[i].getElementsByTagName("select")[0];
+		ll = selElmnt.length;
+		/*for each element, create a new DIV that will act as the selected item:*/
+		a = document.createElement("DIV");
+		a.setAttribute("class", "select-selected");
+		a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+		x[i].appendChild(a);
+		/*for each element, create a new DIV that will contain the option list:*/
+		b = document.createElement("DIV");
+		b.setAttribute("class", "select-items select-hide");
+		for (j = 1; j < ll; j++) {
+			/*for each option in the original select element,
+			create a new DIV that will act as an option item:*/
+			c = document.createElement("DIV");
+			c.innerHTML = selElmnt.options[j].innerHTML;
+			c
+					.addEventListener(
+							"click",
+							function(e) {
+								/*when an item is clicked, update the original select box,
+								and the selected item:*/
+								var y, i, k, s, h, sl, yl;
+								s = this.parentNode.parentNode
+										.getElementsByTagName("select")[0];
+								sl = s.length;
+								h = this.parentNode.previousSibling;
+								for (i = 0; i < sl; i++) {
+									if (s.options[i].innerHTML == this.innerHTML) {
+										s.selectedIndex = i;
+										h.innerHTML = this.innerHTML;
+										y = this.parentNode
+												.getElementsByClassName("same-as-selected");
+										yl = y.length;
+										for (k = 0; k < yl; k++) {
+											y[k].removeAttribute("class");
+										}
+										this.setAttribute("class",
+												"same-as-selected");
+										break;
+									}
+								}
+								h.click();
+							});
+			b.appendChild(c);
+		}
+		x[i].appendChild(b);
+		a.addEventListener("click", function(e) {
+			/*when the select box is clicked, close any other select boxes,
+			and open/close the current select box:*/
+			e.stopPropagation();
+			closeAllSelect(this);
+			this.nextSibling.classList.toggle("select-hide");
+			this.classList.toggle("select-arrow-active");
+		});
+	}
+	function closeAllSelect(elmnt) {
+		/*a function that will close all select boxes in the document,
+		except the current select box:*/
+		var x, y, i, xl, yl, arrNo = [];
+		x = document.getElementsByClassName("select-items");
+		y = document.getElementsByClassName("select-selected");
+		xl = x.length;
+		yl = y.length;
+		for (i = 0; i < yl; i++) {
+			if (elmnt == y[i]) {
+				arrNo.push(i)
+			} else {
+				y[i].classList.remove("select-arrow-active");
+			}
+		}
+		for (i = 0; i < xl; i++) {
+			if (arrNo.indexOf(i)) {
+				x[i].classList.add("select-hide");
+			}
+		}
+	}
+});
+	/*if the user clicks anywhere outside the select box,
+	 then close all select boxes:*/
+	document.addEventListener("click", closeAllSelect);
+</script>
+
+</head>
+
+<body>
+
+	<div layout:fragment="content">
+		<div class="content-wrap">
+			<div class="container-fluid">
+				<div class="maincontent">
+					<div class="row">
+
+						<div class="maincontentsec">
+							<div class="content_padding">
+
+								<div class="wrapper center-block">
+									<div class="panel-group" id="accordion" role="tablist"
+										aria-multiselectable="true">
+										<div class="panel panel-default">
+											<div class="panel-heading active" role="tab" id="headingOne">
+												<h4 class="panel-title">
+													<a role="button" data-toggle="collapse"
+														data-parent="#accordion" href="#collapseOne"
+														aria-expanded="true" aria-controls="collapseOne">
+														<!-- Select Geo  --></a>
+												</h4>
+											</div>
+											<div id="collapseOne" class="panel-collapse collapse show"
+												role="tabpanel" aria-labelledby="headingOne">
+												<div class="panel-body">
+													<div class="row" id="main_content">
+														<div class="col-md-4">
+															<div class="row">
+																<div class="col-md-10">
+																	<div class="sml_plus">
+																		<i class="ti-plus"></i>
+																	</div>
+																	<div class="sml_edit">
+																		<i class="ti-pencil"></i>
+																	</div>
+																	<div class="sml_action">
+																		<i class="ti-bolt"></i>
+																	</div>
+																</div>
+
+																<div class="sml_hide">
+																	<i class="ti-angle-down"></i>
+																</div>
+
+															</div>
+															<div class="box_reference" align="center">
+																<table class="table table-bordered newtbl">
+																	<tr>
+																		<td align="center">Order</td>
+																		<td align="center">Code</td>
+																		<td align="center">Cost Center Name</td>
+																		<td align="center">Status</td>
+																	</tr>
+																	<tr>
+																		<td>1</td>
+																		<td>CC001</td>
+																		<td>Marketing</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+																	<tr>
+																		<td>2</td>
+																		<td>CC002</td>
+																		<td>Customer Service</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+																	<tr>
+																		<td>3</td>
+																		<td>CC003</td>
+																		<td>Materials Management</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+																	<tr>
+																		<td>4</td>
+																		<td>CC004</td>
+																		<td>Profit Center</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+																	 
+																</table>
+															</div>
+														</div>
+
+
+														<div class="col-md-4">
+															<div class="row">
+																<div class="col-md-10">
+																	<div class="sml_plus">
+																		<i class="ti-plus"></i>
+																	</div>
+																	<div class="sml_edit">
+																		<i class="ti-pencil"></i>
+																	</div>
+																	<div class="sml_action">
+																		<i class="ti-bolt"></i>
+																	</div>
+																</div>
+
+																<div class="sml_hide">
+																	<i class="ti-angle-down"></i>
+																</div>
+
+															</div>
+															<div class="box_reference" align="center">
+																<table class="table table-bordered newtbl">
+
+																	<tr>
+																		<td>Order</td>
+																		<td>Code</td>
+																		<td>Brand Name</td>
+																		<td>Status</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>LG</td>
+																		<td>LG</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>SO</td>
+																		<td>SONY</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>SG</td>
+																		<td>SAMSUNG</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>WP</td>
+																		<td>Wirpool</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+
+																</table>
+															</div>
+														</div>
+
+
+														<div class="col-md-4">
+															<div class="row">
+																<div class="col-md-10">
+																	<div class="sml_plus">
+																		<i class="ti-plus"></i>
+																	</div>
+																	<div class="sml_edit">
+																		<i class="ti-pencil"></i>
+																	</div>
+																	<div class="sml_action">
+																		<i class="ti-bolt"></i>
+																	</div>
+																</div>
+
+																<div class="sml_hide">
+																	<i class="ti-angle-down"></i>
+																</div>
+
+															</div>
+															<div class="box_reference" align="center">
+																<table class="table table-bordered newtbl">
+																	<tr>
+																		<td style="width: 5%">Order</td>
+																		<td style="width: 5%">Code</td>
+																		<td style="width: 20%">Measurement Name</td>
+																		<td style="width: 5%">Status</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>Kg</td>
+																		<td>KiloGram</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>pcs</td>
+																		<td>Pieces</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>KHA</td>
+																		<td>Kharagpur</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>ltr</td>
+																		<td>Liter</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+																</table>
+															</div>
+														</div>
+
+<div class="col-md-4">
+															<div class="row">
+																<div class="col-md-10">
+																	<div class="sml_plus">
+																		<i class="ti-plus"></i>
+																	</div>
+																	<div class="sml_edit">
+																		<i class="ti-pencil"></i>
+																	</div>
+																	<div class="sml_action">
+																		<i class="ti-bolt"></i>
+																	</div>
+																</div>
+
+																<div class="sml_hide">
+																	<i class="ti-angle-down"></i>
+																</div>
+
+															</div>
+															<div class="box_reference" align="center">
+																<table class="table table-bordered newtbl">
+																	<tr>
+																		<td style="width: 5%">Order</td>
+																		<td style="width: 5%">Code</td>
+																		<td style="width: 20%">Size Name</td>
+																		<td style="width: 5%">Status</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>S</td>
+																		<td>Small</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>M</td>
+																		<td>Medium</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>L</td>
+																		<td>Large</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+																	<tr>
+																		<td>1</td>
+																		<td>XL</td>
+																		<td>Extra Large</td>
+																		<td class="active_colotxt">Active</td>
+																	</tr>
+
+																</table>
+															</div>
+														</div>
+
+														<div class="slidearrow_new" onclick="openNav()">
+															<i class="ti-arrow-left"></i>
+														</div>
+														<div id="mySidenav" class="sidenav">
+															<div class="slidebox">
+																<div class="row">
+																	<div class="col-md-9">
+																		<div class="edit">Cost Center</div>
+																	</div>
+																	<div class="col-md-3">
+																		<div class="arrow">
+																			<a href="javascript:void(0)" class="closebtn"
+																				onclick="closeNav()"><i class="ti-arrow-right"></i></a>
+																		</div>
+																	</div>
+
+																	<div class="chartbtnsec">
+																		<div class="row">
+																			<button class="btn4">CANCEL</button>
+																			<button class="btn3">DELETE</button>
+																			<button class="btn1">SAVE</button>
+																		</div>
+																	</div>
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Code</label> <input type="text"
+																				class="form-control transparenttxtbox"
+																				placeholder="CC">
+																		</div>
+																	</div>
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Name</label> <input type="text"
+																				class="form-control transparenttxtbox"
+																				placeholder="Abc">
+																		</div>
+																	</div>
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Status</label> <input type="text"
+																				class="form-control transparenttxtbox"
+																				placeholder="Active">
+																		</div>
+																	</div>
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Order</label> <input type="text"
+																				class="form-control transparenttxtbox"
+																				placeholder="1">
+																		</div>
+																	</div>
+
+
+																</div>
+															</div>
+														</div>
+
+
+													</div>
+												</div>
+											</div>
+											<!-- <div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingTwo">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseTwo"
+															aria-expanded="false" aria-controls="collapseTwo">
+															Select Timezone </a>
+													</h4>
+												</div>
+												<div id="collapseTwo" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingTwo">
+													<div class="panel-body">
+														<div class="row">
+															<div class="col-md-3">
+																<div class="color_greentxt">1. India</div>
+															</div>
+															<div class="col-md-3">
+																<div class="selectbox">
+																	<select>
+																		<option value="0">Indian Standard Time (IST)</option>
+																		<option value="1">Indian Standard Time (IST)</option>
+																		<option value="2">Indian Standard Time (IST)</option>
+																		<option value="3">Indian Standard Time (IST)</option>
+																		<option value="4">Indian Standard Time (IST)</option>
+																	</select>
+																</div>
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-3">
+																<div class="color_greentxt">2. United Sates</div>
+															</div>
+															<div class="col-md-3">
+																<div class="selectbox">
+																	<select>
+																		<option value="0">Central Standard Time (CST)</option>
+																		<option value="1">Central Standard Time (CST)</option>
+																		<option value="2">Central Standard Time (CST)</option>
+																		<option value="3">Central Standard Time (CST)</option>
+																		<option value="4">Central Standard Time (CST)</option>
+																	</select>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div> -->
+											<!-- <div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingThree">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseThree"
+															aria-expanded="false" aria-controls="collapseThree">
+															Select Currency </a>
+													</h4>
+												</div>
+												<div id="collapseThree" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingThree">
+													<div class="panel-body">
+														<div class="row">
+															<div class="col-md-3">
+																<div class="color_greentxt">Primary Currency</div>
+															</div>
+															<div class="col-md-3">
+																<div class="selectbox">
+																	<select>
+																		<option value="0">Uniited State Dollar (USD)</option>
+																		<option value="1">Indian Rupees (IR)</option>
+
+																	</select>
+																</div>
+															</div>
+														</div>
+
+														<div class="row">
+															<div class="col-md-3">
+																<div class="color_greentxt">1. India</div>
+															</div>
+															<div class="col-md-3">
+																<div class="selectbox">
+																	<select>
+																		<option value="0">Indian Standard Time (IST)</option>
+																		<option value="1">Indian Standard Time (IST)</option>
+																		<option value="2">Indian Standard Time (IST)</option>
+																		<option value="3">Indian Standard Time (IST)</option>
+																		<option value="4">Indian Standard Time (IST)</option>
+																	</select>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div> -->
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+</html>

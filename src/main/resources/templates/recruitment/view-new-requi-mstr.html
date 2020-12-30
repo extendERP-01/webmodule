@@ -4,120 +4,17 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/master}">
    <head>
-   <link rel="stylesheet" href="../assets/css/extend/style-extend.css">
+   <!-- <link rel="stylesheet" href="../assets/css/extend/style-extend.css"> -->
     <title>Extend</title>
    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/themify-icons.css">
-    <script src="js/jquery.js"></script>
-    <script src="js/bootstrap.js"></script>
-<script>
-function autocomplete(inp, arr) {
-  /*the autocomplete function takes two arguments,
-  the text field element and an array of possible autocompleted values:*/
-  var currentFocus;
-  /*execute a function when someone writes in the text field:*/
-  inp.addEventListener("input", function(e) {
-      var a, b, i, val = this.value;
-      /*close any already open lists of autocompleted values*/
-      closeAllLists();
-      if (!val) { return false;}
-      currentFocus = -1;
-      /*create a DIV element that will contain the items (values):*/
-      a = document.createElement("DIV");
-      a.setAttribute("id", this.id + "autocomplete-list");
-      a.setAttribute("class", "autocomplete-items");
-      /*append the DIV element as a child of the autocomplete container:*/
-      this.parentNode.appendChild(a);
-      /*for each item in the array...*/
-      for (i = 0; i < arr.length; i++) {
-        /*check if the item starts with the same letters as the text field value:*/
-        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
-          /*create a DIV element for each matching element:*/
-          b = document.createElement("DIV");
-          /*make the matching letters bold:*/
-          b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-          b.innerHTML += arr[i].substr(val.length);
-          /*insert a input field that will hold the current array item's value:*/
-          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-          /*execute a function when someone clicks on the item value (DIV element):*/
-          b.addEventListener("click", function(e) {
-              /*insert the value for the autocomplete text field:*/
-              inp.value = this.getElementsByTagName("input")[0].value;
-              /*close the list of autocompleted values,
-              (or any other open lists of autocompleted values:*/
-              closeAllLists();
-          });
-          a.appendChild(b);
-        }
-      }
-  });
-  /*execute a function presses a key on the keyboard:*/
-  inp.addEventListener("keydown", function(e) {
-      var x = document.getElementById(this.id + "autocomplete-list");
-      if (x) x = x.getElementsByTagName("div");
-      if (e.keyCode == 40) {
-        /*If the arrow DOWN key is pressed,
-        increase the currentFocus variable:*/
-        currentFocus++;
-        /*and and make the current item more visible:*/
-        addActive(x);
-      } else if (e.keyCode == 38) { //up
-        /*If the arrow UP key is pressed,
-        decrease the currentFocus variable:*/
-        currentFocus--;
-        /*and and make the current item more visible:*/
-        addActive(x);
-      } else if (e.keyCode == 13) {
-        /*If the ENTER key is pressed, prevent the form from being submitted,*/
-        e.preventDefault();
-        if (currentFocus > -1) {
-          /*and simulate a click on the "active" item:*/
-          if (x) x[currentFocus].click();
-        }
-      }
-  });
-  function addActive(x) {
-    /*a function to classify an item as "active":*/
-    if (!x) return false;
-    /*start by removing the "active" class on all items:*/
-    removeActive(x);
-    if (currentFocus >= x.length) currentFocus = 0;
-    if (currentFocus < 0) currentFocus = (x.length - 1);
-    /*add class "autocomplete-active":*/
-    x[currentFocus].classList.add("autocomplete-active");
-  }
-  function removeActive(x) {
-    /*a function to remove the "active" class from all autocomplete items:*/
-    for (var i = 0; i < x.length; i++) {
-      x[i].classList.remove("autocomplete-active");
-    }
-  }
-  function closeAllLists(elmnt) {
-    /*close all autocomplete lists in the document,
-    except the one passed as an argument:*/
-    var x = document.getElementsByClassName("autocomplete-items");
-    for (var i = 0; i < x.length; i++) {
-      if (elmnt != x[i] && elmnt != inp) {
-        x[i].parentNode.removeChild(x[i]);
-      }
-    }
-  }
-  /*execute a function when someone clicks in the document:*/
-  document.addEventListener("click", function (e) {
-      closeAllLists(e.target);
-  });
-}
+  
+   
+   <!-- <script src="../assets/css/extend/ag-grid-community.min.js"></script> -->
+   <!-- <script src="../assets/js/extend/grid.js"></script> -->
+  <!-- 	<script src="https://unpkg.com/@ag-grid-community/all-modules@24.1.0/dist/ag-grid-community.min.js"></script>
+   <link rel="stylesheet" href="../assets/css/extend/ag-theme-material.css"> -->
 
-/*An array containing all the country names in the world:*/
-var countries = ["Amit Jha","Ashish Dash","Arun Kar","Asima Barik","Aradhya Pal","Bisakha Senapati","Bikash Palei","Bidhan Nath","Bijayalaxmi Sahoo","Binita Parida","Chandan Palei",,"Chaaya Kar","Chimayee Rath","Cabir Singh","Chinu Dhar","Deepak Das","Disha Kar","DiyaPal","Dikhya Muduli","Dhiren Dhar","Divyanka Tripathy","Esha Jha","Eli Jena","Eshan Barik","Eyana Kar","Eilina Sahu"];
-
-/*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
-autocomplete(document.getElementById("myInput"), countries);
-</script>
 
 
  <script type="text/javascript">
@@ -134,29 +31,38 @@ autocomplete(document.getElementById("myInput"), countries);
 
 </script>
 <script type="text/javascript">
+function newBtn(){
+	 $("#myGrid").hide();
+    $(".btn-hs").hide();
+    $("#hideTbl").hide();
+    $("#btnReset").hide();
+     $("#demo").show();
+}
+
+
     $(document).ready(function(){
-        $("#newBtn").click(function(){
-            $("#myTbl").hide();
+       /*  $("#newBtn").click(function(){
+            $("#myGrid").hide();
             $(".btn-hs").hide();
+            $("#hideTbl").hide();
+            $("#btnReset").hide();
             $("#demo").show();
-        })
+        }) */
         
         $("#cancelBtn").click(function(){
-            $("#myTbl").show();
+            $("#myGrid").show();
             $(".btn-hs").show();
+            $("#hideTbl").show();
+            $("#btnReset").show();
             $("#demo").hide();
         });
 
-         $("#copyBtn").click(function(){
-            $("#myTbl").hide();
-            $(".btn-hs").hide();
-            $("#copy").show();
-        })
-
          $("#copycancelBtn").click(function(){
-            $("#myTbl").show();
-            $(".btn-hs").show();
-            $("#copy").hide();
+        	 $("#myGrid").show();
+             $(".btn-hs").show();
+             $("#hideTbl").show();
+             $("#btnReset").show();
+            $("#demo").hide();
         });
 
          $("#profilebtn").click(function(){
@@ -175,6 +81,9 @@ autocomplete(document.getElementById("myInput"), countries);
 
 <script type="text/javascript">
   $(document).ready(function(){
+	  
+	  $('#approvalName').hide();
+	  
    /* $('#header').load('../header-ads.html');
     $('#footer').load('../footer-ads.html');*/
      jQuery(document).delegate('a.add-record', 'click', function(e) {
@@ -204,7 +113,169 @@ autocomplete(document.getElementById("myInput"), countries);
   } else {
     return false;
   }
+     
+  $('#closeKey').on('click',function(){
+	 alert() 
+  });
 });
+    
+    
+    $('input,textarea').focus(function(){
+    	   $(this).data('placeholder',$(this).attr('placeholder'))
+    	          .attr('placeholder','');
+    	}).blur(function(){
+    	   $(this).attr('placeholder',$(this).data('placeholder'));
+    	});
+    
+  //New Friday
+    
+    var x, i, j, l, ll, selElmnt, a, b, c;
+    /*look for any elements with the class "custom-select":*/
+    x = document.getElementsByClassName("selectbox");
+    l = x.length;
+    for (i = 0; i < l; i++) {
+    selElmnt = x[i].getElementsByTagName("select")[0];
+    ll = selElmnt.length;
+    /*for each element, create a new DIV that will act as the selected item:*/
+    a = document.createElement("DIV");
+    a.setAttribute("class", "select-selected");
+    a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+    x[i].appendChild(a);
+    /*for each element, create a new DIV that will contain the option list:*/
+    b = document.createElement("DIV");
+    b.setAttribute("class", "select-items select-hide");
+    for (j = 1; j < ll; j++) {
+    /*for each option in the original select element,
+    create a new DIV that will act as an option item:*/
+    c = document.createElement("DIV");
+    c.innerHTML = selElmnt.options[j].innerHTML;
+    c.addEventListener("click", function(e) {
+    /*when an item is clicked, update the original select box,
+    and the selected item:*/
+    var y, i, k, s, h, sl, yl;
+    s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+    sl = s.length;
+    h = this.parentNode.previousSibling;
+    for (i = 0; i < sl; i++) {
+    if (s.options[i].innerHTML == this.innerHTML) {
+    s.selectedIndex = i;
+    h.innerHTML = this.innerHTML;
+    y = this.parentNode.getElementsByClassName("same-as-selected");
+    yl = y.length;
+    for (k = 0; k < yl; k++) {
+    y[k].removeAttribute("class");
+    }
+    this.setAttribute("class", "same-as-selected");
+    break;
+    }
+    }
+    h.click();
+    });
+    b.appendChild(c);
+    }
+    x[i].appendChild(b);
+    a.addEventListener("click", function(e) {
+    /*when the select box is clicked, close any other select boxes,
+    and open/close the current select box:*/
+    e.stopPropagation();
+    closeAllSelect(this);
+    this.nextSibling.classList.toggle("select-hide");
+    this.classList.toggle("select-arrow-active");
+    });
+    }
+    function closeAllSelect(elmnt) {
+    /*a function that will close all select boxes in the document,
+    except the current select box:*/
+    var x, y, i, xl, yl, arrNo = [];
+    x = document.getElementsByClassName("select-items");
+    y = document.getElementsByClassName("select-selected");
+    xl = x.length;
+    yl = y.length;
+    for (i = 0; i < yl; i++) {
+    if (elmnt == y[i]) {
+    arrNo.push(i)
+    } else {
+    y[i].classList.remove("select-arrow-active");
+    }
+    }
+    for (i = 0; i < xl; i++) {
+    if (arrNo.indexOf(i)) {
+    x[i].classList.add("select-hide");
+    }
+    }
+    }
+    /*if the user clicks anywhere outside the select box,
+    then close all select boxes:*/
+    document.addEventListener("click", closeAllSelect);
+    
+    //CUSTOM DATATABLE
+   /*  $('#example thead tr:eq(0) th').each( function (i) {
+    	$('#example thead tr:eq(0) th:first').html("");
+   
+    	$('#example thead tr:eq(0) th:first').html('<input type="checkbox" onclick="allCheck()" id="check1"><label for="check1"></label>');
+         var title1 = $(this).text();
+         var title = (title1.split(" "))[0];
+        
+         var funval = "click212('"+title+"')";
+        $(this).html('<div>'+ title1 +'<a type="button" value="" onclick="'+funval+'" class="filtericon" data-toggle="dropdown"><i class="ti-filter filter" ></i></a>'+
+        		'<div class="dropdown-menu"><input type="text" id="'+title+'" class="hideShow" placeholder="Search" /></div></div>' ); 
+ 
+        
+        $( 'input', this ).on( 'keyup change', function () {
+            if ( table.column(i).search() !== this.value ) {
+                table
+                    .column(i)
+                    .search(this.value)
+                    .draw();
+            }
+        } );
+    } );
+   
+   
+    $('th').on("click", function (event) {
+        if($(event.target).is("div"))
+            event.stopImmediatePropagation();
+    });
+    $('th').on("click", function (event) {
+        if($(event.target).is("input"))
+            event.stopImmediatePropagation();
+    });
+    $('th').on("click", function (event) {
+        if($(event.target).is("a"))
+            event.stopImmediatePropagation();
+    });
+  
+    /*var table =  $('#example').DataTable( {
+      
+    	'ordering': false,
+		orderCellsTop: true,
+		fixedHeader: true,
+		paging: false,
+		info: false, 
+		
+		
+		
+    } ); */
+    /*var table =$('#example').DataTable({
+    	paging: false,
+		info: false, 
+        columnDefs : [
+            { targets: 0, sortable: false},
+        ],
+        order: [ 1, "des" ]
+    })  
+    $(".hideShow").hide();
+    
+    oTable = $('#example').DataTable();  
+    $('#quickFilter').keyup(function(){
+        oTable.search($(this).val()).draw() ;
+    });
+    $('#example_filter').hide();
+  
+    $('#closeKey').click(function(){
+    	 oTable.search("").draw() ;
+    }); */
+    
   });
   
   var count = 0;
@@ -218,24 +289,288 @@ autocomplete(document.getElementById("myInput"), countries);
 		  $('.checkCls').prop("checked",false);
 	  }
   }
+  
+  function cancelBar(){
+	  var id = document.getElementById("closeKey");
+	  id.style.display = "block";
+	  if($('#quickFilter').val() == null || $('#quickFilter').val() == ""){
+		  id.style.display = "none";
+	  }
+  }
+  
+  var txtLen = 0;
+  function textCount(event){
+	  
+	  var id = event.target.id;
+	  var pId = $('#'+id).next().attr("id");
+	  $('#'+pId+' span').empty();
+	  txtLen = $('#'+id).val().length;
+	
+	  $('#'+pId+' span').append(txtLen);
+  }
+  
+  
+//AG GRID 
+var columnDefs = [
+	{ headerCheckboxSelection: true,
+        headerCheckboxSelectionFilteredOnly: true, checkboxSelection: true,width: 10, sortable: false,filter: false,resizable: true},
+	    {headerName: "Req ID", field: "requisitionId" },
+	    {headerName: "Title", field: "jobTitle",
+	     cellRenderer: function(params){
+	        return '<a onclick=titlePage("' +  params.data.requisitionId + '") href="#">' + params.data.jobTitle + '</a>';} },
+	    {headerName: "# of positions", field: "noPosition"},
+	    {headerName: "Band", field: "band"},
+	    {headerName: "Department", field: "department"},
+	    {headerName: "Hiring Manager", field: "hiringManager"},
+	    {headerName: "Join Date", field: "joinDate"},
+	    {headerName: "CTC Cap", field: "minSalary"},
+	    {headerName: "Status", field: "status"},
+	    {headerName: "Applicants", field: "applicant"},
+	    {headerName: "Shortlisted", field: "shortList"},
+	    {headerName: "Interviewed", field: "interviewed"},
+	    {headerName: "Offered", field: "offered"},
+	    {headerName: "Create Date", field: "createdOn"}
+	]; 
+	
+     
+ function titlePage(id){
+			  $("#myGrid").hide();
+			     $(".btn-hs").hide();
+			     $("#hideTbl").hide();
+			     $("#btnReset").hide();
+			
+			 $.ajax({
+				type : "GET",
+				url : "view-new-requi-mstr-edit?id=" + id,
+				success : function(response) {
+				if (response.message == "Success") {
+					
+					for(i = 0; i< response.body.length; i++){
+					
+						$('#reqId').val(response.body[i].requisitionId);
+						$('#jobTitle').val(response.body[i].jobTitle);
+						$('#jobType').val(response.body[i].jobType);
+						$('#minSalary').val(response.body[i].minSalary);
+						$('#maxSalary').val(response.body[i].maxSalary);
+						$('#noPos').val(response.body[i].noPosition);
+						$('#dateReq').val(response.body[i].joinDate);
+						$('#txtAreaSumN').val(response.body[i].positionSummary);
+						txtLen = $('#txtAreaSumN').val().length;
+					}
+					$("#demo").show();
+				}
+				},
+				error : function(data) {
+				console.log(data);
+				}
+			})
+ }
+ 
+/* function cellAsLink(){
+	 link = "<a href='#'onclick='titlePage()'>" + rowData[i++].title + "</a>";
+	 i++;
+	 return link;
+ }  */
+
+     
+ // let the grid know which columns and what data to use
+ var gridOptions = {
+   columnDefs: columnDefs,
+  defaultColDef: {
+	  sortable: true, 
+	  filter: true, 
+	  resizable: true, 
+	  width: 149,
+	  height: 10
+   }
+   
+ };
+
+ // setup the grid after the page has finished loading
+ document.addEventListener('DOMContentLoaded', function() {
+     var gridDiv = document.querySelector('#myGrid');
+     new agGrid.Grid(gridDiv, gridOptions);
+ });
+  
+  agGrid.simpleHttpRequest({url: 'view-new-requi-mstr-view-data'}).then(function(data) {
+	var len = data.length;
+	$('#totalReq').find('span').html(len);
+      gridOptions.api.setRowData(data);
+   });
+    
+  /* function resetState() {
+	   gridOptions.columnApi.resetColumnState();
+	   console.log('column state reset');
+	 } */
+    
+    function onQuickFilterChanged() {
+    	  gridOptions.api.setQuickFilter(document.getElementById('quickFilter').value);
+    	}
+    
+    //OTHER THAN AG-GRID
+    var len = 0;
+    var approverName = '';
+    function approval(){
+    	len ++;
+    	if(len == 1){
+    		$('#approvalName').show();
+    	}else{
+    		$('#approvalName').hide();
+    		len=0;
+    	}
+    	approverName = $('#approver').val();
+    }
+    var len1 = 0;
+    var aboutComp = '';
+    function about(){
+    	len1 ++;
+    	var id =  document.getElementById("aboutCompany");
+    	if(len1 == 1){
+    		id.style.display="block";
+    	}else{
+    		id.style.display="none";
+    		len1=0;
+    	}
+    	aboutComp = $('#aboutComp').attr('value');
+    }
+
+   
+var userRole = [];
+	function addNewReq(){
+		$("input:checkbox[name=benefits]:checked").each(function() {
+			userRole.push($(this).val());
+		})
+		
+		var obj = {};
+		obj.requisitionId = $('#reqId').val();
+		obj.benefits = userRole;
+		obj.jobTitle = $('#jobTitle').val();
+		obj.jobType = $('#jobType').find(":selected").val();
+		obj.jobLocation = $('#location').find(":selected").val();
+		obj.minEducation = $('#educationReq').find(":selected").val();
+		obj.minSalary = $('#minSalary').val();
+		obj.maxSalary = $('#maxSalary').val();dept
+		obj.department = $('#dept').find(":selected").val();
+		obj.hiringManager = $('#hiringManager').find(":selected").val();
+		obj.noPosition = $('#noPos').val();
+		obj.workHour = $('#workHour').find(":selected").val();
+		obj.band= $('#band').find(":selected").val();
+		obj.joinDate = $('#dateReq').val();
+		obj.positionSummary = $('#txtAreaSumN').val();
+		obj.positionResponsibility = $('#txtAreaResN').val();
+		obj.requiredSkillExperience = $('#txtAreaExpN').val();
+		obj.approver = approverName;
+		obj.about = aboutComp;
+		
+		$.ajax({
+			type		: "POST",
+			url 		: "view-new-requi-mstr-ajax",
+			
+			contentType	: "application/json",
+			data		: JSON.stringify(obj),
+			success		: function(response){
+				console.log(response);
+				if(response.message=="Success"){
+					
+							window.location.href = "/recruitment/view-new-requi-mstr";
+				}/* else{
+					swal({
+						title:response.code,
+						text: response.message,
+						type:"warning"
+					})
+				} */
+			},error		: function(data){
+				
+				console.log(data);
+			}
+		}) //ajax ends
+	}
+	
+	
+	function deleteReq() {
+
+		var selectedRows = gridOptions.api.getSelectedRows();
+		var selectedRowsString = '';
+		selectedRows.forEach(function(selectedRow, index) {
+		if (index > 0) {
+		selectedRowsString += ',';
+		}
+		selectedRowsString += '"' + selectedRow.requisitionId + '"';
+		});
+		
+		if (selectedRowsString) {
+			
+			$.ajax({
+				type : "POST",
+				url : "view-new-requi-mstr-delete?id="+ selectedRowsString,
+				success : function(response) {
+				if (response.message == "success") {
+					window.location.href = "/recruitment/view-new-requi-mstr";
+				}
+				},
+				error : function(data) {
+				console.log(data);
+				}
+			})
+		} else {
+			swal("Please Select Requisition.");
+		}
+
+		}
+	
+	function copyBtn(){
+   
+     var selectedRows = gridOptions.api.getSelectedRows();
+		var selectedRowsString = '';
+		selectedRows.forEach(function(selectedRow, index) {
+		if (index == 0) {
+			selectedRowsString += '"' + selectedRow.requisitionId + '"';
+		} else{
+			swal("Please Select One Requisition at a Time.");
+			selectedRowsString = "";
+		}
+		
+		});
+		
+		if (selectedRowsString){
+			$("#myGrid").hide();
+		   	$(".btn-hs").hide();
+		   	$("#hideTbl").hide();
+			
+			$.ajax({
+				type : "GET",
+				url : "view-new-requi-mstr-edit?id=" + selectedRowsString,
+				success : function(response) {
+				if (response.message == "success") {
+					$("#demo").show();
+				}
+				},
+				error : function(data) {
+				console.log(data);
+				}
+			})
+		} else {
+			swal("Please Select Requisition.");
+		}
+     
+   }
+	
 </script>
    </head>
    <body>
-   <div layout:fragment="content">
-	<div class="content-wrap">
-	<div class="container-fluid">
-    
-        <div class="row">
-            
-            <div class="maincontentsec">
-                <div class="content_padding">
-                    <div class="row margin_topbot btn-hs">
-                        <div class="col-md-8">
+   <div layout:fragment="content" class="maincontent">
+
+		<div class="container-fluid">
+			<div class="row">
+				<div class="maincontentsec">
+					<div class="content_padding">
+						
+						<div class="row margin_topbot" id="hideTbl">
+                       <div class="col-md-8">
                             <div class="input-style row">
-                                <div class="autocomplete">
-                                <input  id="myInput" type="text" name="myCountry" class="searchboxinput" placeholder="Software..">
-                                </div>
-                                <div class="searchicon"><a href="#"><span class="close_i">X</span></a> <a href="#"><i class="fa fa-search"></i></a></div>
+                                <input type="text"  placeholder="Search.." name="search" class="searchboxinput" onkeyup="cancelBar()" oninput="onQuickFilterChanged()" id="quickFilter" >
+                                <div class="searchicon"><a href="#"><span style="display:none;border-right:1px solid #ccc;padding-right:5px;" id="closeKey" onclick="gridOptions.api.setQuickFilter(null);$('#quickFilter').val('');document.getElementById('closeKey').style.display='none';" class="close_i"><i class="ti-close srchicon"></i></span></a><a href="#"><i class="ti-search srchicon"></i></a></div>
                             </div>
                     </div>
                 </div>
@@ -243,13 +578,13 @@ autocomplete(document.getElementById("myInput"), countries);
                 <div class="row">
                    
                         <div class="col-md-6  btn-hs">
-                            <div class="font-design">REQUISITION LIST <span>(24)</span></div>
+                            <div class="font-design" id="totalReq">REQUISITION LIST (<span></span>)  <!-- <i onclick="resetState()" class="ti-reload tblreset" id="btnReset"></i> --></div>
                         </div>
                         <div class="col-md-3 btn-hs">
                             <div class="row">
-                                <button class="btn1" id="newBtn">NEW</button>
-                                <button class="btn2" id="copyBtn">COPY</button>
-                                <button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+                                <input type="button" class="btn1" value="NEW" onclick="newBtn()" readonly>
+                                <input type="button" class="btn2" value="COPY" onclick="copyBtn()" readonly>
+                                <input type="button" class="btn3" value="DELETE" data-toggle="modal" data-target="#delete" readonly>
                                 <!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
                                  <a class="btn3 delete-record copy">DELETE</a> -->
                             </div>
@@ -262,15 +597,19 @@ autocomplete(document.getElementById("myInput"), countries);
                         </div>
                         <div class="col-md-1 btn-hs">
                             <div class="row">
-                                <button class="btn2" data-toggle="modal" data-target="#myModal1">ALLOCATE VENDOR</button>
+                                <input type="button" value="ALLOCATE VENDOR" class="btn2" data-toggle="modal" data-target="#myModal10">
                             </div>
                         </div>
                   </div>
 
-                    <table class="table table-bordered table-responsive" id="myTbl">
+				<!-- <input type="text" oninput="onQuickFilterChanged()" id="quickFilter" /> -->
+					
+            <div id="myGrid" style="width:100%; height:200px;" class="ag-theme-alpine"></div>
+            
+                    <!-- <table class="newtbl" id="example">
                         <thead>
                             <tr>
-                                <th align="center" width="20"><label for="check1"></label><input id="check1" onclick="allCheck()" type="checkbox" name=""></th>
+                                <th align="center" width="20"><input id="check1" onclick="allCheck()" type="checkbox"><label for="check1"></label></th>
                                 <th>Req ID</th>
                                 <th>Title</th>
                                 <th># of positions </th>
@@ -285,14 +624,13 @@ autocomplete(document.getElementById("myInput"), countries);
                                 <th>Interviewed</th>
                                 <th>Offered</th>
                                 <th>Create Date</th>
-
                             </tr>
                         </thead>
                         <tbody>
                           <tr>
-                                <td align="center" ><input class="checkCls" type="checkbox" name=""></td>
+                                <td align="center" ><input class="checkCls" type="checkbox" id="check2"><label for="check2"></label></td>
                                 <td align="center" ><div class="txt-blue">8</div> </td>
-                                <td > <div data-toggle="collapse" data-target="#profile" class="txt-blue" id="profilebtn"> Software Engineer</div></td>
+                                <td > <div data-toggle="collapse" class="txt-blue" id="titlebtn" onclick="titlePage()"> Software Engineer</div></td>
                                 <td align="center" >2</td>
                                 <td >Band 4</td>
                                 <td >Product development</td>
@@ -307,9 +645,9 @@ autocomplete(document.getElementById("myInput"), countries);
                                 <td  align="center">9-Oct-2020</td>
                             </tr>
                             <tr>
-                                <td align="center" ><input class="checkCls" type="checkbox" name=""></td>
+                                <td align="center" ><input class="checkCls" type="checkbox" id="check3"><label for="check3"></label></td>
                                 <td align="center" > <div class="txt-blue"> 7</div></td>
-                                <td > <div class="txt-blue" data-toggle="collapse" data-target="#profile"> Software Engineer - II </div></td>
+                                <td > <div class="txt-blue" data-toggle="collapse" id="titlebtn" onclick="titlePage()"> Software Engineer - II </div></td>
                                 <td align="center" >1</td>
                                 <td >Band 6</td>
                                 <td >Product development</td>
@@ -324,7 +662,7 @@ autocomplete(document.getElementById("myInput"), countries);
                                 <td  align="center">9-Oct-2020</td>
                             </tr>
                         </tbody>
-                    </table>
+                    </table> -->
                      <!-- </form> -->
                  <!-- </div>  -->
   
@@ -354,8 +692,9 @@ autocomplete(document.getElementById("myInput"), countries);
 
 
 
-<div  class="collapse" id="copy" >
-      <div class="col-md-12">              
+<!-- <div  class="collapse" id="copy" >
+      <div class="col-md-12">
+      <div class="innerstickybg">              
 <div class="row">
     <div class="col-md-6">
         <hr>
@@ -389,6 +728,8 @@ autocomplete(document.getElementById("myInput"), countries);
         <button class="btn1">SAVE</button>
     </div>
 </div>
+</div>
+<div class="innercontent">
 <div class="row">
 
 <div class="col-md-12 padding-0">
@@ -435,249 +776,253 @@ autocomplete(document.getElementById("myInput"), countries);
 <div class="col-md-4">
 <div class="form-group">
     <label>Job Title</label>
-    <input type="text" class="form-control"  placeholder="Software Engineer">
+    <input type="text" class="form-control" id="jobTitle" placeholder="Type Job Title">
   </div>
 </div>
 <div class="col-md-4">
     <div class="form-group">
     <label>Create Date</label>
-    <input type="text" class="form-control no-border"  placeholder="9-oct-2020">
+    <input type="text" id="createDate" class="form-control no-border">
   </div>
 </div>
 <div class="col-md-4">
     <div class="form-group">
     <label>Created By</label>
-    <input type="text" class="form-control no-border"  placeholder="Manoj Sen">
+    <input type="text" id="craetedBy" class="form-control no-border">
   </div>
 </div>
 <div class="col-md-4">
 <div class="form-group">
     <label>Job Type</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>Ii Developer</option>
+     <div class="selectbox">
+    <select id="jobType">
+    <option>Select Job Type</option>
+      <option th:each="c,iter:${jobTypeList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
     </select>
+    </div>
   </div>
 </div>
 <div class="col-md-4">
     <div class="form-group">
-    <label>Band</label>
-    <input type="text" class="form-control no-border"  placeholder="Band4">
+    <label>Job Location</label>
+     <div class="selectbox">
+    <select id="location">
+      <option>Select Location</option>
+      <option th:each="c,iter:${jobLocationList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
+    </select>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Minimum Education Required</label>
+     <div class="selectbox">
+    <select id="educationReq">
+      <option>Select  Education</option>
+      <option th:each="c,iter:${educationList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
+    </select>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Annual Salary Range (Minimum)</label>
+      <input type="text" class="form-control" id="minSalary" placeholder="Annual Salary">
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Annual Salary Range (Maximum)</label>
+     <input type="text" class="form-control" id="maxSalary" placeholder="Annual Salary">
   </div>
 </div>
 <div class="col-md-4">
     <div class="form-group">
     <label>Department</label>
-   <select class="form-control" id="exampleFormControlSelect1">
-      <option>Product Development</option>
+     <div class="selectbox">
+  	 <select  id="dept">
+  	 <option>Select Department</option>
+      <option th:each="c,iter:${DepartmentList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
     </select>
-  </div>
-</div>
-
-<div class="col-md-4">
-    <div class="form-check">
-  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-  <label class="form-check-label" for="defaultCheck1">
-    Include about company
-  </label>
-</div>
-</div>
-<div class="col-md-4">
-    <div class="form-group">
-    <label>job location</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>Chicago,IL</option>
-    </select>
+    </div>
   </div>
 </div>
 
 <div class="col-md-4">
 <div class="form-group">
     <label>Hiring Manager</label>
-   <select class="form-control" id="exampleFormControlSelect1">
-      <option>Pradip Singh</option>
+     <div class="selectbox">
+   <select id="hiringManager">
+      <option>Select Manager</option>
+      <option th:each="c,iter:${managerList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
     </select>
+    </div>
   </div>
 </div>
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Minimum Education Required</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>B-Tech</option>
-    </select>
-  </div>
-</div>
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Excepted Work hours</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>8AM-5PM (Mon-Fri)</option>
-    </select>
-  </div>
-</div>
+
+
 <div class="col-md-4">
 <div class="form-group">
     <label>Number of Position</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>2</option>
-    </select>
+      <input type="text" class="form-control" id="noPos" placeholder="Number of Position">
   </div>
 </div>
+
 <div class="col-md-4">
     <div class="form-group">
-    <label>Annual Salary Range (Minimum)</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>200,000</option>
+    <label>Excepted Work hours</label>
+     <div class="selectbox">
+    <select id="workHour">
+      <option>Select Work Hour</option>
+      <option th:each="c,iter:${workHourList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
     </select>
+    </div>
   </div>
 </div>
+
 <div class="col-md-4">
     <div class="form-group">
-    <label>Annual Salary Range (Maximum)</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>500,000</option>
+    <label>Band</label>
+    <div class="selectbox">
+    <select id="band">
+    <option>Select Band</option>
+      <option th:each="c,iter:${bandList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
     </select>
+    </div>
   </div>
 </div>
+
+<div class="col-md-4">
+	<div class="form-group">
+    	<label>Joining Date</label>
+      	<input type="date" id="dateReq" class="form-control" >
+	</div>
 </div>
+
+</div>
+
 <div class="row">
                 <div class="col-md-12">
                     <div class="modal-inrheading">Position Summary</div>
-                    <div class="position-box">
-                        <div class="position-text">
-                            The Developer’s primary role is to transform business functional requirements into technical solutions as well as provide 2nd and 3rd level tier support for Salesforce applications. The Developer is expected to perform analysis,design, development, and implementation of process and technology within the Salesforce suite of applications.
+                      <div class="position-text">
+                            <textarea rows="4" cols="100" id="txtAreaSumN" onkeyup="textCount(event)"></textarea>
+                            <div id="charNumSN" class="txtcounter" align="right"><span>0</span> characters</div>
                         </div>
-                    </div>
                 </div>
                 <div class="col-md-12">
                     <div class="modal-inrheading">Position Responsibility</div>
-                    <div class="position-box">
-                        <div class="position-text">
-                            Analysis, design, development, and implement new and/or existing business applications and software.
-                           Development will include interface and integration work.Develop customized solutions within the Salesforce platform to support critical business functions and meet projectobjectives, business requirements and goals.
+                      <div class="position-text">
+                            <textarea rows="4" cols="100" id="txtAreaResN" onkeyup="textCount(event)"></textarea>
+                            <div id="charNumRN" class="txtcounter" align="right"><span>0</span> characters</div>
                         </div>
-                    </div>
                 </div>
                 <div class="col-md-12">
                     <div class="modal-inrheading">Required Skills and Experience</div>
-                    <div class="position-box">
-                        <div class="position-text">
-                            Bachelor’s Degree in Computer Science, Management Information Systems or related field. 3+ years working as a Salesforce Developer.
+                     <div class="position-text">
+                            <textarea rows="4" cols="100" id="txtAreaExpN" onkeyup="textCount(event)"></textarea>
+                            <div id="charNumEN" class="txtcounter" align="right"><span>0</span> characters</div>
                         </div>
-                    </div>
                </div>
                <div class="col-md-12">
+               <div class="modal-inrheading">Benefits</div>
                 <div class="row">
-                <div class="col-md-3">
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Bonus</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Disability Insurance</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Paid Time Off</label>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">401(k)</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Health Insurance</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Retirement Plan</label>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">401(k) Match</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Flexible Schedule</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Vision Insurance</label>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Dental Insurance</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Life Insurance</label>
-                    </div>
-                </div>
+                <th:block th:each="c,iter:${benefitsList}">
+	                <div class="col-md-3">
+	                    <div class="checkbox">
+	                      <input type="checkbox" value=""  th:id="'benefits_'+${iter.index}" th:value='${c.key}'
+							name="benefits" ><span th:text="${c.name}"></span>
+	                    </div>
+	               </div>
+              </th:block>
             </div>
         </div>
-         <div class="col-md-12">
+         <div class="col-md-12 mrt_25 gapping">
             <div class="row">
                 <div class="col-4 col-md-4">
                     <div class="checkbox">
-                      <label><input type="checkbox" value=""> Need Approval</label>
+                      <label><input type="checkbox" id="approvalCheck" onclick="approval()">Need Approval</label>
                     </div>
                 </div>
-                <div class="col-4 col-md-4">
+                <div class="col-4 col-md-4" id="approvalName">
                       <div class="form-group">
-                        <label for="exampleFormControlSelect1">Approver</label>
-                        <select class="form-control" id="exampleFormControlSelect1">
+                        <label for="approvalName">Approver</label>
+                         <div class="selectbox">
+                        <select id="approver">
                           <option>Pinaki Datta</option>
                         </select>
+                        </div>
                       </div>
                 </div>
             </div>
      </div>
-     <div class="col-md-12">
-          <div class="modal-inrheading" style="display: block;">Activity History</div>
-                      <table class="table table-bordered">
+     
+	   <div class="col-md-12">
+		   <div class="checkbox">
+			   <label><input type="checkbox" onclick="about()">Include about company</label>
+		</div>
+		</div>
+	<div class="col-md-12" id="aboutCompany" style="display: none;">
+		<div class="position-text">
+			   <textarea rows="4" cols="100" id="aboutComp" th:value="${aboutComapany[0].key}" th:text="${aboutComapany[0].name}"></textarea>
+		  </div>
+	</div>
+	<div class="col-md-12">
+                      <table class="newtbl">
                         <thead>
                           <tr>
-                            <th align="center" width="33%">Date</th>
-                            <th align="center" width="33%">Activity</th>
-                            <th align="center" width="33%">By</th>
+                            <th align="center">Date</th>
+                            <th align="center">Activity</th>
+                            <th align="center">By</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr>
                             <td align="center">10-Oct-20 <span>04:48PM</span></td>
-                            <td align="left">Updated</td>
+                            <td align="left">Alocated: Advanced Tech</td>
                             <td align="center">Pinaki Datta</td>
                           </tr>
                           <tr>
                             <td align="center">08-Nov-20 <span>10:29PM</span></td>
-                            <td align="left">Created</td>
+                            <td align="left">Alocated: Global Tech</td>
                             <td align="center">Manoj Sen</td>
                           </tr>
                         </tbody>
                       </table>
                 </div>
+     
            </div>
         </div>
     </div>
-                </div>
-
-
-
-
-
+    </div>
+   </div> -->
 
 
 <div  class="collapse" id="demo" >
-      <div class="col-md-12">              
+<div class="col-md-12">
+    <div class="innerstickybg">          
 <div class="row">
     <div class="col-md-6">
         <hr>
         <div class="main-div">
             <div class="section2">
-                <div class="green-box">
-                    <div class="green-box-heading">CREATED</div>
-                    <div class="date">9-OCT-20</div>
+                <div class="grey-box">
+                    <div class="">CREATED</div>
+                    <div class="date"></div>
                 </div>
             </div>
             <div class="section3">
-                <div class="green-box">
-                    <div class="green-box-heading">ACTIVE</div>
-                    <div class="date">11-OCT-20</div>
+                <div class="grey-box">
+                    <div class="">ACTIVE</div>
+                    <div class="date"></div>
                 </div>
             </div>
             <div class="section4">
@@ -694,17 +1039,21 @@ autocomplete(document.getElementById("myInput"), countries);
     <div class="col-md-3 padding-0" align="right">
         <button class="btn4" type="button" data-dismiss="modal" id="cancelBtn">CANCEL</button>
         <button class="btn3">DELETE</button>
-        <button class="btn1">SAVE</button>
+        <button class="btn1" onclick="addNewReq()">SAVE</button>
     </div>
 </div>
+</div>
+<div class="innercontent">
 <div class="row">
-
 <div class="col-md-12 padding-0">
     <div class="row">
+    <!-- REQUISITION ID -->
+    <input type="hidden" id="reqId">
+    
         <div class="newgrid">
             <div class="box border-line" align="center">
                 <a href="#" data-toggle="collapse" data-target="#demo">
-                    <div class="number1">8</div>
+                    <div class="number1">0</div>
                     <div class="text1">APPLIED</div>
                 </a>
             </div>
@@ -712,7 +1061,7 @@ autocomplete(document.getElementById("myInput"), countries);
         <div class="newgrid">
             <div class="box border-line" align="center">
                 <a href="hrms_hire.html">
-                    <div class="number1">5</div>
+                    <div class="number1">0</div>
                     <div class="text1">SHORTLISTED</div>
                 </a>
             </div>
@@ -720,7 +1069,7 @@ autocomplete(document.getElementById("myInput"), countries);
         <div class="newgrid">
             <div class="box border-line" align="center">
                 <a href="hrms_hire.html">
-                    <div class="number1">3</div>
+                    <div class="number1">0</div>
                     <div class="text1">INTERVIEWED</div>
                 </a>
             </div>
@@ -743,436 +1092,237 @@ autocomplete(document.getElementById("myInput"), countries);
 <div class="col-md-4">
 <div class="form-group">
     <label>Job Title</label>
-    <input type="text" class="form-control"  placeholder="Type Job Title">
+    <input type="text" class="form-control" id="jobTitle" placeholder="Type Job Title">
   </div>
 </div>
-<div class="col-md-4">
+<!-- <div class="col-md-4">
     <div class="form-group">
     <label>Create Date</label>
-    <input type="date" class="form-control no-border"  placeholder="DD-MM-YYYY">
+    <input type="text" id="createDate" class="form-control no-border">
   </div>
 </div>
 <div class="col-md-4">
     <div class="form-group">
     <label>Created By</label>
-    <input type="text" class="form-control no-border"  placeholder="">
+    <input type="text" id="craetedBy" class="form-control no-border">
   </div>
-</div>
+</div> -->
 <div class="col-md-4">
 <div class="form-group">
     <label>Job Type</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>Ii Developer</option>
+     <div class="selectbox">
+    <select id="jobType">
+    <option>Select Job Type</option>
+      <option th:each="c,iter:${jobTypeList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
     </select>
+    </div>
   </div>
 </div>
 <div class="col-md-4">
     <div class="form-group">
-    <label>Band</label>
-    <input type="text" class="form-control no-border"  placeholder="">
+    <label>Job Location</label>
+     <div class="selectbox">
+    <select id="location">
+      <option>Select Location</option>
+      <option th:each="c,iter:${jobLocationList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
+    </select>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Minimum Education Required</label>
+     <div class="selectbox">
+    <select id="educationReq">
+      <option>Select  Education</option>
+      <option th:each="c,iter:${educationList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
+    </select>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Annual Salary Range (Minimum)</label>
+      <input type="text" class="form-control" id="minSalary" placeholder="Annual Salary">
+  </div>
+</div>
+<div class="col-md-4">
+    <div class="form-group">
+    <label>Annual Salary Range (Maximum)</label>
+     <input type="text" class="form-control" id="maxSalary" placeholder="Annual Salary">
   </div>
 </div>
 <div class="col-md-4">
     <div class="form-group">
     <label>Department</label>
-   <select class="form-control" id="exampleFormControlSelect1">
-      <option>Select Department</option>
-      <option>Product Development</option>
-      <option>Finance Department</option>
-      <option>Marketing Department</option>
-      <option>Admin Development</option>
+     <div class="selectbox">
+  	 <select  id="dept">
+  	 <option>Select Department</option>
+      <option th:each="c,iter:${DepartmentList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
     </select>
-  </div>
-</div>
-
-<div class="col-md-4">
-    <div class="form-check">
-  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-  <label class="form-check-label" for="defaultCheck1">
-    Include about company
-  </label>
-</div>
-</div>
-<div class="col-md-4">
-    <div class="form-group">
-    <label>job location</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>Select Location</option>
-      <option>Chicago,IL</option>
-      <option>Chicago,IL</option>
-    </select>
+    </div>
   </div>
 </div>
 
 <div class="col-md-4">
 <div class="form-group">
     <label>Hiring Manager</label>
-   <select class="form-control" id="exampleFormControlSelect1">
+     <div class="selectbox">
+   <select id="hiringManager">
       <option>Select Manager</option>
-      <option>Pradip Singh</option>
-      <option>Pinaki Dutta</option>
+      <option th:each="c,iter:${managerList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
     </select>
+    </div>
   </div>
 </div>
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Minimum Education Required</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>Select  Education</option>
-      <option>B-Tech</option>
-      <option>M-Tech</option>
-      <option>MCA</option>
-    </select>
-  </div>
-</div>
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Excepted Work hours</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>Select Work Hour</option>
-      <option>8AM-5PM (Mon-Fri)</option>
-    </select>
-  </div>
-</div>
+
+
 <div class="col-md-4">
 <div class="form-group">
     <label>Number of Position</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>Select Position</option>
-      <option>2</option>
-    </select>
+      <input type="text" class="form-control" id="noPos" placeholder="Number of Position">
   </div>
 </div>
+
 <div class="col-md-4">
     <div class="form-group">
-    <label>Annual Salary Range (Minimum)</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>Select Salary Range</option>
-      <option>200,000</option>
+    <label>Excepted Work hours</label>
+     <div class="selectbox">
+    <select id="workHour">
+      <option>Select Work Hour</option>
+      <option th:each="c,iter:${workHourList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
     </select>
+    </div>
   </div>
 </div>
+
 <div class="col-md-4">
     <div class="form-group">
-    <label>Annual Salary Range (Maximum)</label>
-    <select class="form-control" id="exampleFormControlSelect1">
-      <option>500,000</option>
+    <label>Band</label>
+    <div class="selectbox">
+    <select id="band">
+    <option>Select Band</option>
+      <option th:each="c,iter:${bandList}" th:value="${c.key}"
+			th:text="${c.name}"></option>
     </select>
+    </div>
   </div>
 </div>
+
+<div class="col-md-4">
+	<div class="form-group">
+    	<label>Joining Date</label>
+      	<input type="date" id="dateReq" class="form-control" >
+	</div>
 </div>
+
+</div>
+
 <div class="row">
                 <div class="col-md-12">
                     <div class="modal-inrheading">Position Summary</div>
-                    <div class="position-box">
-                        <div class="position-text">
-                            The Developer’s primary role is to transform business functional requirements into technical solutions as well as provide 2nd and 3rd level tier support for Salesforce applications. The Developer is expected to perform analysis,design, development, and implementation of process and technology within the Salesforce suite of applications.
+                      <div class="position-text">
+                            <textarea rows="4" cols="100" id="txtAreaSumN" onkeyup="textCount(event)"></textarea>
+                            <div id="charNumSN" class="txtcounter" align="right"><span>0</span> characters</div>
                         </div>
-                    </div>
                 </div>
                 <div class="col-md-12">
                     <div class="modal-inrheading">Position Responsibility</div>
-                    <div class="position-box">
-                        <div class="position-text">
-                            Analysis, design, development, and implement new and/or existing business applications and software.
-                           Development will include interface and integration work.Develop customized solutions within the Salesforce platform to support critical business functions and meet projectobjectives, business requirements and goals.
+                      <div class="position-text">
+                            <textarea rows="4" cols="100" id="txtAreaResN" onkeyup="textCount(event)"></textarea>
+                            <div id="charNumRN" class="txtcounter" align="right"><span>0</span> characters</div>
                         </div>
-                    </div>
                 </div>
                 <div class="col-md-12">
                     <div class="modal-inrheading">Required Skills and Experience</div>
-                    <div class="position-box">
-                        <div class="position-text">
-                            Bachelor’s Degree in Computer Science, Management Information Systems or related field. 3+ years working as a Salesforce Developer.
+                     <div class="position-text">
+                            <textarea rows="4" cols="100" id="txtAreaExpN" onkeyup="textCount(event)"></textarea>
+                            <div id="charNumEN" class="txtcounter" align="right"><span>0</span> characters</div>
                         </div>
-                    </div>
                </div>
                <div class="col-md-12">
+               <div class="modal-inrheading">Benefits</div>
                 <div class="row">
-                <div class="col-md-3">
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Bonus</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Disability Insurance</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Paid Time Off</label>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">401(k)</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Health Insurance</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Retirement Plan</label>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">401(k) Match</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Flexible Schedule</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Vision Insurance</label>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Dental Insurance</label>
-                    </div>
-                    <div class="checkbox">
-                      <label><input type="checkbox" value="">Life Insurance</label>
-                    </div>
-                </div>
+                <th:block th:each="c,iter:${benefitsList}">
+	                <div class="col-md-3">
+	                    <div class="checkbox">
+	                      <input type="checkbox" value=""  th:id="'benefits_'+${iter.index}" th:value='${c.key}'
+							name="benefits" ><span th:text="${c.name}"></span>
+	                    </div>
+	               </div>
+              </th:block>
             </div>
         </div>
-         <div class="col-md-12">
+         <div class="col-md-12 mrt_25 gapping">
             <div class="row">
                 <div class="col-4 col-md-4">
                     <div class="checkbox">
-                      <label><input type="checkbox" value=""> Need Approval</label>
+                      <label><input type="checkbox" id="approvalCheck" onclick="approval()">Need Approval</label>
                     </div>
                 </div>
-                <div class="col-4 col-md-4">
+                <div class="col-4 col-md-4" id="approvalName">
                       <div class="form-group">
-                        <label for="exampleFormControlSelect1">Approver</label>
-                        <select class="form-control" id="exampleFormControlSelect1">
+                        <label for="approvalName">Approver</label>
+                         <div class="selectbox">
+                        <select id="approver">
                           <option>Pinaki Datta</option>
                         </select>
+                        </div>
                       </div>
                 </div>
             </div>
      </div>
-     <div class="col-md-12">
-          <div class="modal-inrheading" style="display: block;">Activity History</div>
-                      <table class="table table-bordered">
+     
+	   <div class="col-md-12">
+		   <div class="checkbox">
+			   <label><input type="checkbox" onclick="about()">Include about company</label>
+		</div>
+		</div>
+	<div class="col-md-12" id="aboutCompany" style="display: none;">
+		<div class="position-text">
+			   <textarea rows="4" cols="100" id="aboutComp" th:value="${aboutComapany[0].key}" th:text="${aboutComapany[0].name}"></textarea>
+		  </div>
+	</div>
+	
+	<div class="col-md-12">
+                      <table class="newtbl">
                         <thead>
                           <tr>
-                            <th align="center" width="33%">Date</th>
-                            <th align="center" width="33%">Activity</th>
-                            <th align="center" width="33%">By</th>
+                            <th align="center">Date</th>
+                            <th align="center">Activity</th>
+                            <th align="center">By</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr>
                             <td align="center">10-Oct-20 <span>04:48PM</span></td>
-                            <td align="left">Updated</td>
+                            <td align="left">Alocated: Advanced Tech</td>
                             <td align="center">Pinaki Datta</td>
                           </tr>
                           <tr>
                             <td align="center">08-Nov-20 <span>10:29PM</span></td>
-                            <td align="left">Created</td>
+                            <td align="left">Alocated: Global Tech</td>
                             <td align="center">Manoj Sen</td>
                           </tr>
                         </tbody>
                       </table>
                 </div>
+     
            </div>
         </div>
     </div>
-                </div>
-<!-- profile Section -->
-<div class="collapse"  id="profile">
-<div class="row">
-<div class="col-md-12" align="right">
-<button class="btn3" id="profilecancelbtn">Cancel</button>
-<button class="btn1">Save</button>
+   </div>
 </div>
-<div class="col-md-4">
-<div class="hvrbox">
-    <img src="img/profile.jpg" alt="Mountains" class="hvrbox-layer_bottom img-fluid">
-    <div class="hvrbox-layer_top">
-        <div class="hvrbox-text">
-            <span><i class="fa fa-pencil-square-o"></i></span>
-            <span><i class="fa fa-trash"></i></div></span>
-    </div>
-</div>
-        </div>
-        <div class="col-md-4">
-            <div class="name">Kamala Suresh</div>
-            <div>
-            <div class="details">AP Manager</div>
-            <div class="details">Finance Department</div>
-            <div class="details">Chennai,India</div>
-           </div>
-           <div class="mt-20">
-            <div class="details">+91 723 76237</div>
-            <div class="details">Kamala@trend.com</div>
-           </div>
-        </div>
-        <div class="col-md-4 mt-60">
-            <div>
-            <div class="details">Manager: <a href="#">Sailesh Kumar</a></div>
-           </div>
-           <div class="mt-20">
-            <div class="details">Direct Report - 4 <span> <a type="button" data-toggle="collapse" data-target="#forwardto">+</a></span></div>
-            <div id="forwardto" class="details collapse ml-45">
-                <div><a href="#">Anil Kapur</a></div>
-                <div><a href="#">Shubhnam Saif</a></div>
-                <div><a href="#">Krishna Kumar</a></div>
-                <div><a href="#">Arun Jetli</a></div>
-           </div>
-        </div>
-    </div>
 
-
-    <div class="col-md-12 mt-60">
-<div class="accordion md-accordion" id="accordionEx" role="tablist" aria-multiselectable="true">
-
-  <!-- Accordion card -->
- 
-
-    <!-- Card header -->
-    <div class="card-header" role="tab" id="headingOne1">
-      <a data-toggle="collapse" data-parent="#accordionEx" href="#collapseOne1" aria-expanded="true"
-        aria-controls="collapseOne1">
-        <h5 class="mb-0">
-          Internal Journey <i class="fa fa-angle-down rotate-icon"></i>
-        </h5>
-      </a>
-    </div>
-
-    <!-- Card body -->
-    <div id="collapseOne1" class="collapse show" role="tabpanel" aria-labelledby="headingOne1"
-      data-parent="#accordionEx">
-      <div class="card-body">   
-         <div class="col-md-12 col-lg-12">
-         <div id="tracking-pre"></div>
-         <div id="tracking">
-               <div class="tracking-item">
-                  <div class="tracking-icon status-intransit">
-                     <!-- <i class="fas fa-circle"></i> -->
-                  </div>
-                  <div class="tracking-content"><span>9-Oct-17: Onboarded-Marketing Analyst (Marketing department)</span></div>
-               </div>
-               <div class="tracking-item">
-                  <div class="tracking-icon status-intransit">
-                     <!-- <i class="fas fa-circle"></i> -->
-                  </div>
-                  <div class="tracking-content"><span>1-Jan-18: Transitioned from Marketing Analyst (Marketing department) to AP Analyst (Finance Department)</span></div>
-               </div>
-               <div class="tracking-item">
-                  <div class="tracking-icon status-intransit">
-                     <!-- <i class="fas fa-circle"></i> -->
-                  </div>
-                  <div class="tracking-content"><span>20-Dec-18: Promoted from AP Analyst (Finance Department) to AP Lead (Finance department)</span></div>
-               </div>
-               <div class="tracking-item">
-                  <div class="tracking-icon status-intransit">
-                     <!-- <i class="fas fa-circle"></i> -->
-                  </div>
-                  <div class="tracking-content"><span>14-Feb-20: Promoted from AP Lead (Finance Department) to AP Manager (Finance department)</span></div>
-               </div>
-         </div>
-      </div>
-      </div>
-    </div>
-
- 
-  <!-- Accordion card -->
-
-  <!-- Accordion card -->
- 
-
-    <!-- Card header -->
-    <div class="card-header" role="tab" id="headingTwo2">
-      <a class="collapsed" data-toggle="collapse" data-parent="#accordionEx" href="#collapseTwo2"
-        aria-expanded="false" aria-controls="collapseTwo2">
-        <h5 class="mb-0">
-          Personal Information <i class="fa fa-angle-down rotate-icon"></i>
-        </h5>
-      </a>
-    </div>
-
-    <!-- Card body -->
-    <div id="collapseTwo2" class="collapse" role="tabpanel" aria-labelledby="headingTwo2"
-      data-parent="#accordionEx">
-      <div class="card-body">
-        <div class="row">
-            <div class="col-md-3">
-                <div class="form-group">
-                <label>First Name</label>
-                <input type="text" class="form-control" placeholder="Kamala">
-              </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-group">
-                <label>Middle Name</label>
-                <input type="text" class="form-control" placeholder="">
-              </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-group">
-                <label for="email">Last Name</label>
-                <input type="text" class="form-control" placeholder="Kamala">
-              </div>
-            </div>
-            <div class="col-md-3">
-             <div class="form-group">
-                <label>Gender</label>
-                <select class="form-control">
-                  <option>Female</option>
-                  <option>Male</option>
-                  <option>Transgender</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-group">
-                <label>Address</label>
-                <input type="text" class="form-control" placeholder="1 Main Street">
-              </div>
-            </div>
-            <div class="col-md-3">
-             <div class="form-group">
-                <label>State</label>
-                <select class="form-control">
-                  <option>Karnataka</option>
-                  <option>Odisha</option>
-                  <option>Maharastra</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-3">
-             <div class="form-group">
-                <label>City</label>
-                <select class="form-control">
-                  <option>Bangaluru</option>
-                  <option>Bhubaneswar</option>
-                  <option>Mumbai</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-group">
-                <label>Postal Code</label>
-                <input type="text" class="form-control" placeholder="502 092">
-              </div>
-            </div>
-        </div>
-    </div>
-
-  </div>
-  <!-- Accordion card -->
-</div>
-  <!-- profile Section -->
-
-</div>
-    </div>
-
-    </div>
-          <!--   </div>
-        </div>
-    </div> -->
-<!-- The Modal -->
-
-<div class="modal fade" id="myModal1">
+<div class="modal fade" id="myModal10">
 <div class="modal-dialog modal-lg" style="max-width:1100px">
 <div class="modal-content" style="width:100%">
 
@@ -1188,7 +1338,7 @@ autocomplete(document.getElementById("myInput"), countries);
 
  <div class="row">
                 <div class="col-md-12">
-                      <table class="table table-bordered">
+                      <table class="newtbl">
                         <thead>
                           <tr>
                             <th align="center">Req ID</th>
@@ -1224,14 +1374,14 @@ autocomplete(document.getElementById("myInput"), countries);
                 </div>
                 <div class="col-md-3 mrt_btm" align="right">
                     <button class="btn3">Remove</button>
-                    <button class="btn1">Allocate</button>
+                    <button class="btn1" onclick="allocateVendor()">Allocate</button>
                 </div>
                 <div class="col-md-12">
-                      <table class="table table-bordered">
+                      <table class="newtbl" id="example">
                         <thead>
                           <tr>
-                            <th align="center">
-                              <input type="checkbox" value="">
+                            <th align="center" width=20>
+                              <input type="checkbox" id="checkM1" onclick="allCheck()"><label for="checkM1"></label>
                             </th>
                             <th width="100" align="center">ID</th>
                             <th width="300" align="center">Name</th>
@@ -1242,29 +1392,9 @@ autocomplete(document.getElementById("myInput"), countries);
                             <th align="center">Closed<br>(Last 12 Months)</th>
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody id=vendorTable>
                           <tr>
-                            <td><input type="checkbox" value=""></td>
-                            <td align="center" class="activetd">102</td>
-                            <td align="left" class="activetd">Advanced Tech</td>
-                            <td align="left">Chennai.India</td>
-                            <td align="left">IT</td>
-                            <td align="center">12</td>
-                            <td align="center">29</td>
-                            <td align="center">3</td>
-                          </tr>
-                          <tr>
-                            <td><input type="checkbox" value=""></td>
-                            <td align="center" class="activetd">329</td>
-                            <td align="left" class="activetd">Global Tech</td>
-                            <td align="left">Mumbai.India</td>
-                            <td align="left">Software Developer</td>
-                            <td align="center">23</td>
-                            <td align="center">47</td>
-                            <td align="center">12</td>
-                          </tr>
-                          <tr>
-                            <td><input type="checkbox" value=""></td>
+                            <td><input class="checkCls" type="checkbox" id="checkM2"><label for="checkM2"></label></td>
                             <td align="center">102</td>
                             <td align="left">Advanced Tech</td>
                             <td align="left">Chennai.India</td>
@@ -1274,7 +1404,7 @@ autocomplete(document.getElementById("myInput"), countries);
                             <td align="center">3</td>
                           </tr>
                           <tr>
-                            <td><input type="checkbox" value=""></td>
+                            <td><input class="checkCls" type="checkbox" id="checkM3"><label for="checkM3"></label></td>
                             <td align="center">329</td>
                             <td align="left">Global Tech</td>
                             <td align="left">Mumbai.India</td>
@@ -1284,7 +1414,27 @@ autocomplete(document.getElementById("myInput"), countries);
                             <td align="center">12</td>
                           </tr>
                           <tr>
-                            <td><input type="checkbox" value=""></td>
+                            <td><input class="checkCls" type="checkbox" id="checkM4"><label for="checkM4"></label></td>
+                            <td align="center">102</td>
+                            <td align="left">Advanced Tech</td>
+                            <td align="left">Chennai.India</td>
+                            <td align="left">IT</td>
+                            <td align="center">12</td>
+                            <td align="center">29</td>
+                            <td align="center">3</td>
+                          </tr>
+                          <tr>
+                            <td><input class="checkCls" type="checkbox" id="checkM5"><label for="checkM5"></label></td>
+                            <td align="center">329</td>
+                            <td align="left">Global Tech</td>
+                            <td align="left">Mumbai.India</td>
+                            <td align="left">Software Developer</td>
+                            <td align="center">23</td>
+                            <td align="center">47</td>
+                            <td align="center">12</td>
+                          </tr>
+                          <tr>
+                            <td><input class="checkCls" type="checkbox"id="checkM6"><label for="checkM6"></label></td>
                             <td align="center">102</td>
                             <td align="left">Advanced Tech</td>
                             <td align="left">Chennai.India</td>
@@ -1302,7 +1452,7 @@ autocomplete(document.getElementById("myInput"), countries);
                     <div class="modal-inrheading">Activity History</div>
                 </div>
                 <div class="col-md-12">
-                      <table class="table table-bordered">
+                      <table class="newtbl">
                         <thead>
                           <tr>
                             <th align="center">Date</th>
@@ -1341,7 +1491,7 @@ autocomplete(document.getElementById("myInput"), countries);
             <h6>Are you Sure You want to delete the user role !</h6>
           </div>
           <div class="deletepopupbtnsec">
-             <button  class="btn3" data-dismiss="modal">Yes</button><!-- class="close" -->
+             <button  class="btn3" data-dismiss="modal" onclick="deleteReq()" >Yes</button><!-- class="close" -->
              <button  class="btn1" data-dismiss="modal">No</button><!-- class="close" -->
           </div>
         </div>
@@ -1349,13 +1499,13 @@ autocomplete(document.getElementById("myInput"), countries);
       </div>
     </div>
   </div>
+
 </div>
 </div>
 </div>
 </div>
 </div>
-</div>
-</div>
+
 
 </body>
 </html>

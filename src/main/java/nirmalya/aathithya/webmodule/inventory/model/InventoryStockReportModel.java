@@ -26,7 +26,7 @@ public class InventoryStockReportModel {
 	
 	public InventoryStockReportModel() {
 		super();
-		// TODO Auto-generated constructor stub
+		 
 	}
 	public String getItem() {
 		return item;

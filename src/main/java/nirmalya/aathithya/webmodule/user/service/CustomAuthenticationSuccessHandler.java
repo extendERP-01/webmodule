@@ -51,7 +51,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 //		HttpSession session = request.getSession();
 		CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
-				
+
 		User user = userDetails.getUser();
 		session.setAttribute("SESSION_AGENT", request.getHeader("User-Agent"));
 		session.setAttribute("SESSION_ID", session.getId());
@@ -60,12 +60,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 		session.setAttribute("USER_ID", user.getUser());
 		session.setAttribute("USER_NAME", user.getUserName());
 		session.setAttribute("USER_EMAIL", user.getUserEmail());
-		if(user.getUserType().contains("SuperAdmin")) {
+		if (user.getUserType().contains("SuperAdmin")) {
 			session.setAttribute("USER_ROLETYPE", "SuperAdmin");
-		}else {
+		} else {
 			session.setAttribute("USER_ROLETYPE", user.getUserType());
 		}
-		
+
 		session.setAttribute("USER_MOBILE", user.getUserMobile());
 		session.setAttribute("AUTHORITIES", authentication.getAuthorities());
 		session.setAttribute("USER_ROLES", user.getRoles());
@@ -89,13 +89,13 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 			String pMod = "";
 			if (mList != null && mList.size() > 0) {
 				for (Menu m : mList) {
-					
+
 					String mod = m.getModule();
 
 					if (mod.equals(pMod)) {
 
 					} else {
-						
+
 						pMod = mod;
 
 						String pFun = "";
@@ -103,7 +103,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 						Module newMod = new Module();
 						newMod.setName(mod);
 						newMod.setModuleLogoName(m.getModuleLogo());
-
+						newMod.setModuleId(m.getModuleId());
 						List<Menu> fList = mList.stream().filter(s -> s.getModule().equals(mod))
 								.collect(Collectors.toList());
 
@@ -115,34 +115,34 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 							if (fun.equals(pFun)) {
 
 							} else {
-								
+
 								pFun = fun;
 								List<Menu> aList = fList.stream().filter(s -> s.getFunction().equals(fun))
 										.collect(Collectors.toList());
-
 								List<Activity> sList = new ArrayList<Activity>();
 								for (Menu a : aList) {
 									Activity newAct = new Activity();
 									newAct.setName(a.getActivity());
 									newAct.setActivity(a.getUrl());
+									newAct.setActivityId(a.getActivityId());
 
 									uList.add(a.getUrl());
-									//System.out.println("url : "+ a.getUrl());
-									//sList.add(newAct); commented to remove non-viewable function
-									if(a.getActivityStatus()) { //checking only active functions
+									 
+									if (a.getActivityStatus()) { // checking only active functions
 										sList.add(newAct);
 									}
-									
+
 								}
 
 								Function newFun = new Function();
 								newFun.setName(fun);
 								newFun.setFunction(sList);
-
+								newFun.setFunction(sList);
+								newFun.setFunctionId(f.getFunctionId());
 								funList.add(newFun);
-
+								newMod.setFunctionId(fList.get(0).getFunctionId());
+								newMod.setActivityId(fList.get(0).getActivityId());
 							}
-								
 
 						}
 
@@ -151,7 +151,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 						module.add(newMod);
 					}
 				}
-				
+
 			}
 
 			/*
@@ -161,14 +161,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 			String dashboard = (String) session.getAttribute("DASHBOARD");
 			uList.add(dashboard);
 //			uList.add("/sales/sales-dashboard");
-			
+
 			session.setAttribute("MENU", module);
-			//System.out.println("menu :" + module);
 			session.setAttribute("URL_LIST", uList);
 			session.setAttribute("loginMessage", null);
 
 		} catch (RestClientException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -178,7 +176,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 		// since we have created our custom success handler, its up to us to
 		// where
 		// we will redirect the user after successfully login
-		
+
 		String dashboard = (String) session.getAttribute("DASHBOARD");
 		response.sendRedirect(dashboard);
 	}

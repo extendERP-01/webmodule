@@ -12,13 +12,16 @@
 <!-- Styles -->
 <!-- font css -->
 <link href="../assets/css/lib/font-awesome.min.css" rel="stylesheet">
-<link href="../assets/css/lib/themify-icons.css" rel="stylesheet">
+<!-- <link href="../assets/css/lib/themify-icons.css" rel="stylesheet"> -->
+<link href="../assets/css/extend/themify-icons.css" rel="stylesheet">
+
+
 <!-- for sidebar css -->
 <link href="../assets/css/lib/menubar/sidebar.css" rel="stylesheet">
 <!-- bootstrap css -->
 <link href="../assets/css/lib/bootstrap.min.css" rel="stylesheet">
 <!--  <link href="../assets/css/lib/helper.css" rel="stylesheet"> -->
-<link href="../assets/css/style.css" rel="stylesheet">
+<!-- <link href="../assets/css/style.css" rel="stylesheet"> -->
 <!-- bootstrap Datepicker css -->
 <link rel="stylesheet" href="../assets/css/bootstrap-datepicker.css">
 <link rel="stylesheet"
@@ -31,6 +34,8 @@
 <script src="../assets/js/lib/jquery-3.4.1.min.js"></script>
 <script src="../assets/js/lib/bootstrap.min.js"></script>
 
+<!--  for extend  style css -->
+<link rel="stylesheet" href="../assets/css/extend/style-extend.css">
 
 <!-- Validator css Starts -->
 
@@ -48,8 +53,10 @@
 <script src="../assets/highchart/series-label.js"></script>
 <script src="../assets/highchart/exporting.js"></script>
 <script src="../assets/highchart/export-data.js"></script>
+<script src="../assets/highchart/high.js"></script>
+<!-- for ag grid -->
 
-
+<script src="../assets/js/extend/grid.js"></script>  
 
 
 <style type="text/css">
@@ -145,6 +152,27 @@
 	<div class="content-wrap">
 		<!-- Main content -->
 		<div layout:fragment="content"></div>
+		
+		<div id="msgModal" class="modal fade show" aria-modal="true">
+			<div class="modal-dialog modal-confirm">
+				<div class="modal-content">
+					<div class="modal-header flex-column">
+						<button type="button" class="close" data-dismiss="modal"
+							aria-hidden="true" onclick="cancelModalBtn()">
+							<i class="ti-close modal-close"></i>
+						</button>
+					</div>
+					<div class="modal-body">
+						<p id="messageParagraph"></p>
+					</div>
+					<div class="modal-footer justify-content-center"
+						style="margin-top: -30px;">
+						<button type="button" class="btn3" id="msgOkModal" onclick="hideMsgModal()">Ok</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
 		<!-- footer-->
 		<div th:replace="layout/app-footer :: footer"></div>
 		<!-- footer -->

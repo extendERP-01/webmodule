@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head> 
+<style>
+.small-box {
+	border-radius: 10px;
+	position: relative;
+	display: block;
+	margin-bottom: 20px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.bg-aqua {
+	background-color: #a9dce9 !important;
+}
+
+.bg-green {
+	background-color: #78e7b4 !important;
+}
+
+.bg-yellow {
+	background-color: #e7ca74 !important;
+}
+
+.bg-red {
+	background-color: #ed8477 !important;
+}
+
+.bg-blue {
+	background-color: #819bce !important;
+}
+
+.bg-deepgreen {
+	background-color: #7cc0b3 !important;
+}
+
+.bg-white {
+	background-color: #FFFFFF !important;
+}
+
+.bg-new {
+	background-color: #c0957c !important;
+}
+
+.small-box>.small-box-footer {
+	position: relative;
+	text-align: center;
+	padding: 3px 0;
+	color: #fff;
+	color: rgba(255, 255, 255, 0.8);
+	display: block;
+	z-index: 10;
+	background: rgba(0, 0, 0, 0.1);
+	text-decoration: none;
+}
+
+.small-box p {
+	font-size: 15px;
+	color: #929292;
+	font-weight: bold;
+}
+
+.small-box>.inner {
+	padding: 10px;
+}
+
+.small-box>.inner>h3 {
+	/* color: #000; */
+	color: #929292;
+	font-size: 2rem !important;
+	font-weight: 50 !important;
+}
+
+.mt--15 {
+	margin-top: -20px;
+}
+
+.mt {
+	margin-top: 5px;
+}
+
+.dashboardbox {
+	background: #FFF;
+	border-radius: 5px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0
+		rgba(0, 0, 0, 0.19);
+}
+
+.dashboardbox h4 {
+	color: #929292;
+	padding: 10px 15px;
+	font-size: 16px;
+}
+
+text tspan {
+	color: #929292 !important;
+}
+
+.SimpleChart {
+	position: relative;
+}
+
+.SimpleChart #tip {
+	background-color: #f0f0f0;
+	border: 1px solid #d0d0d0;
+	position: absolute;
+	left: -200px;
+	top: 30px;
+}
+
+.down-triangle {
+	width: 0;
+	height: 0;
+	border-top: 10px solid #d0d0d0;
+	border-left: 6px solid transparent;
+	border-right: 6px solid transparent;
+	position: absolute;
+	left: -200px;
+}
+
+.SimpleChart #highlighter {
+	position: absolute;
+	left: -200px;
+}
+
+.-simple-chart-holder {
+	/* float: left;*/
+	position: relative;
+	width: 100%;
+	background-color: #fff;
+	border: 1px solid #cecece;
+	/*padding: 6px;*/
+}
+
+.SimpleChart .legendsli {
+	list-style: none;
+}
+
+.SimpleChart .legendsli span {
+	float: left;
+	vertical-align: middle;
+}
+
+.SimpleChart .legendsli span.legendindicator {
+	position: relative;
+	top: 5px;
+	display: none;
+}
+
+.SimpleChart .legendsli span.legendindicator .line {
+	width: 12px;
+	/*height: 3px;*/
+	display: none;
+}
+
+.SimpleChart .legendsli span.legendindicator .circle {
+	width: 12px;
+	height: 12px;
+	border-radius: 20px;
+	position: relative;
+	top: 3px;
+	right: 0px;
+}
+
+/******Starts::Horizontal Alignment of Legends******/
+.simple-chart-legends {
+	/* background: #E7E7E7;*/
+	border-bottom: 3px solid #d6d7dd;
+	padding: 5px;
+	margin: 2px 0px;
+	font-weight: bold;
+	font-size: 11px;
+	display: none;
+}
+
+.simple-chart-legends ul {
+	
+}
+
+.simple-chart-legends ul li {
+	display: inline;
+	border-right: 1px solid #d6d7dd;
+	float: left;
+	padding: 3px;
+	margin-bottom: 3px;
+}
+
+.simple-chart-legends ul li:last-child {
+	border-right: 0px;
+}
+
+.simple-chart-legends.vertical {
+	margin: 0px 10px;
+}
+
+.simple-chart-legends.vertical ul li {
+	display: none;
+	border: 0px;
+	border-bottom: 1px solid #d6d7dd;
+}
+
+.simple-chart-legends.vertical ul li:last-child {
+	border-bottom: 0px;
+}
+
+.simple-chart-legends .legendvalue {
+	padding-left: 2px;
+	background: #fff;
+}
+
+.highcharts-exporting-group {
+	display: none;
+}
+
+/******Starts::Horizontal Alignment of Legends******/
+.simple-chart-Header {
+	position: absolute;
+	font-size: 16px;
+}
+
+tspan {
+    color: #929292 !important;
+    font-family: 'HelveticaNeue';
+    font-weight: 100;
+}
+</style>
+
+<script type="text/javascript">
+	function openNav() {
+		document.getElementById("mySidenav").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
+		document.getElementById("main").style.width = "420px";
+	}
+
+	function closeNav() {
+		document.getElementById("mySidenav").style.width = "0";
+		document.getElementById("main").style.width = "480px";
+	}
+
+	var count = 0;
+	function allCheck() {
+		count++;
+
+		if (count == 1) {
+			$('.checkCls').prop("checked", true);
+		} else {
+			count = 0;
+			$('.checkCls').prop("checked", false);
+		}
+	}
+
+	function cancelBar() {
+		var id = document.getElementById("closeKey");
+		id.style.display = "block";
+		if ($('#searchBar').val() == null || $('#searchBar').val() == "") {
+			id.style.display = "none";
+		}
+	}
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		changeOpt();
+		$("#lineGraphDiv").hide();
+		$("#newBtn").click(function() {
+			$("#myTbl").hide();
+			$(".btn-hs").hide();
+			$("#demo").show();
+		})
+
+		$("#cancelBtn").click(function() {
+			$("#myTbl").show();
+			$(".btn-hs").show();
+			$("#demo").hide();
+		});
+		$("#quarter").click(function() {
+			$("#myTbl").hide();
+			$(".btn-hs").hide();
+			$("#demo").show();
+		})
+
+		$("#cancelBtn").click(function() {
+			$("#myTbl").show();
+			$(".btn-hs").show();
+			$("#demo").hide();
+		});
+	});
+
+	$("input[class='myCheckbox']").click(function() {
+		if ($("#formID input:checkbox:checked").length > 0) {
+			$(".checkSubmit").addClass('active');
+		} else {
+			$(".checkSubmit").removeClass('active');
+		}
+	});
+
+	function changeOpt() {
+		var Category = $("#Category").val();
+		$("#type").empty();
+		if (Category == 'Product') {
+			var option = "<option id='ProductOpt'>Software</option> <option id='ProductOpt'>Hardware</option> <option id='ProductOpt'>Office</option> <option id='ProductOpt'>Food</option> <option id='ProductOpt'>Parts</option> <option id='ProductOpt'>Raw Material</option>";
+			$("#type").append(option);
+		} else {
+			var option = "<option id='ServicesOpt'>Credit Card</option> <option id='ServicesOpt'>Bank</option> <option id='ServicesOpt'>Insurance</option> <option id='ServicesOpt'>Financial Service</option> <option id='ServicesOpt'>Government Agency</option> <option id='ServicesOpt'>GOffice Maintenance</option> <option id='ServicesOpt'>Consulting</option>";
+			$("#type").append(option);
+		}
+	}
+
+	function cancelBar() {
+		var id = document.getElementById("closeKey");
+		id.style.display = "block";
+		if ($('#quickFilter').val() == null || $('#quickFilter').val() == "") {
+			id.style.display = "none";
+		}
+	}
+</script>
+
+<script>
+	//AG GRID
+
+	var columnDefs = [ {
+		headerCheckboxSelection : true,
+		headerCheckboxSelectionFilteredOnly : true,
+		checkboxSelection : true,
+		sortable : false,
+		filter : false,
+		resizable : true,
+		width: 20
+	},
+		{
+		headerName : "SKU",
+		field : "sku",
+		
+	}, {
+		headerName : "Item Id",
+		field : "itemId",
+		hide : "true"
+	}, {
+		headerName : "Brand",
+		field : "brand"
+	}, {
+		headerName : "Item Name",
+		field : "itemName"
+
+	}, {
+		headerName : "Model",
+		field : "model", 
+
+	}, {
+		headerName : "Mode",
+		field : "mode"
+
+	}, {
+		headerName : "UOM",
+		field : "uom"
+
+	}, {
+		headerName : "Min Stock",
+		field : "minStock",
+		type: 'rightAligned'
+
+	}, {
+		headerName : "Stock In Hand",
+		field : "stockInHand",
+		type: 'rightAligned'
+
+	}, {
+		headerName : "Stock In Transit",
+		field : "stockInTransit",
+		type: 'rightAligned'
+
+	}, {
+		headerName : "Total Stock",
+		field : "totalStock",
+		type: 'rightAligned'
+
+	}, {
+		headerName : "Last Po Qty",
+		field : "lastPoQty",
+		type: 'rightAligned'
+
+	}, {
+		headerName : "Last Po Date",
+		field : "lastPoDate"
+
+	}, {
+		headerName : "Last Receive Qty",
+		field : "lastReceiveQty",
+		type: 'rightAligned'
+
+	}, {
+		headerName : "Last Receive Date",
+		field : "lastReceiceDate"
+
+	} ];
+
+	// let the grid know which columns and what data to use
+	var gridOptions = {
+		columnDefs : columnDefs, 
+		defaultColDef : {
+			sortable : true,
+			filter : true,
+			resizable : true,
+			width : 153
+		}
+
+	};
+
+	// setup the grid after the page has finished loading
+	document.addEventListener('DOMContentLoaded', function() {
+		var gridDiv = document.querySelector('#myGrid');
+		new agGrid.Grid(gridDiv, gridOptions);
+	});
+
+	agGrid.simpleHttpRequest({
+
+		url : 'view-stock-trough-ajax'
+	}).then(function(data) {
+		gridOptions.api.setRowData(data);
+	});
+
+	function resetState() {
+		gridOptions.columnApi.resetColumnState();
+
+	}
+
+	function onQuickFilterChanged() {
+		gridOptions.api
+				.setQuickFilter(document.getElementById('quickFilter').value);
+	}
+</script>
+
+<script type="text/javascript">
+	function stockReport() {
+
+		var selectedRows = gridOptions.api.getSelectedRows();
+		var selectedRowsString = '';
+		selectedRows.forEach(function(selectedRow, index) {
+			if (index > 0) {
+				selectedRowsString += ',';
+			}
+			selectedRowsString += selectedRow.itemId;
+		});
+
+		if (selectedRowsString) {
+			$("#lineGraphDiv").show();
+			$.ajax({
+						type : "GET",
+						url : "/inventory/view-stock-daily-report?id="
+								+ selectedRowsString,
+						dataType : 'json',
+						data : selectedRowsString,
+						success : function(response) {
+							if (response.message == "success") {
+								$("#graphTable").empty();
+								lineGrapg(response.body.dataList,
+										response.body.dates, 'Stock');
+								var tableHeader = '<tr>';
+								for (var i = 0; i < response.body.dates.length; i++) {
+
+									tableHeader = tableHeader + '<td class="txthead" width="30">'
+											+ response.body.dates[i] + '</td>';
+								}
+								tableHeader = tableHeader + '</tr>';
+								$("#graphTable").append(tableHeader);
+
+								for (var i = 0; i < response.body.dataList.length; i++) {
+									var tableBody = '<tr><td class="textamount" width="120">'
+											+ response.body.dataList[i].name
+											+ '</td>';
+									for (var j = 0; j < response.body.dataList[i].data.length; j++) {
+										tableBody = tableBody + '<td class="textamount" width="30">' + response.body.dataList[i].data[j] + '</td>';
+									}
+									tableBody = tableBody + '</tr>';
+									$("#graphTable").append(tableBody);
+								}
+
+							}
+						},
+						error : function(data) {
+							console.log(data);
+						}
+					})
+		} else {
+			swal("Please Select At least One Product.");
+		}
+
+	}
+ 
+function getExcelReport(){
+	var selectedRows = gridOptions.api.getSelectedRows();
+	var selectedRowsString = '';
+	selectedRows.forEach(function(selectedRow, index) {
+		if (index > 0) {
+			selectedRowsString += ',';
+		}
+		selectedRowsString += selectedRow.itemId;
+	});
+	
+	window.location.href="/inventory/view-stock-daily-report-excel?id="+ selectedRowsString ;
+}
+
+function viewReq(){
+	window.location.href="/inventory/view-requisition";
+}
+</script>
+</head>
+<body>
+
+	<div layout:fragment="content" class="maincontent">
+
+		<div class="container-fluid">
+			<div class="row">
+				<div class="maincontentsec">
+					<div class="content_padding">
+						<div class="row" id="lineGraphDiv">
+							<div class="col-md-12">
+								
+								<div id="chart" class="collapse show">
+								<div align="right">
+									<a data-toggle="collapse" data-target="#chart"
+										class="chartclose"> <i class="ti-close"></i>
+									</a>
+								</div>
+									<div style="width: 90%; height: 280px; margin: 0 auto;">
+										<div id="container1" style="width: 100%; height: 280px;"></div>
+									</div>
+									<div style="width: 90%; height:auto; margin: 0 auto;">
+										<div class="row">
+											<div class="col-md-12">
+											
+											<div align="right" class="pdficonsec">
+											 <i class="fa fa-file-pdf-o fa-2x pdf" onclick="downloadChartPdf()"></i> <i class="fa fa-file-excel-o fa-2x excel" onclick="getExcelReport()"></i>
+										</div>
+												<table id="graphTable" class="newtbl">
+												</table>
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>	
+						</div>
+						<div class="row margin_topbot">
+							<div class="col-md-8 btn-hs">
+								<div class="input-style row">
+									<input type="text" placeholder="Search.." name="search"
+										class="searchboxinput" onkeyup="cancelBar()"
+										oninput="onQuickFilterChanged()" id="quickFilter">
+									<div class="searchicon">
+										<a href="#"><span style="display: none" id="closeKey"
+											onclick="gridOptions.api.setQuickFilter(null);$('#quickFilter').val('');document.getElementById('closeKey').style.display='none';"
+											class="close_i">X</span></a><a href="#"><i
+											class="fa fa-search"></i></a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+
+							<div class="col-md-7 btn-hs">
+								<div class="font-design">
+									PRODUCT LIST <span>(10)</span>
+								</div>
+							</div>
+							<div class="col-md-1 btn-hs">
+								<div class="row">
+									<button class="btn1 btn_extend" id="newBtn" onclick="viewReq()">NEW REQUISITION</button>
+
+								</div>
+							</div>
+							<div class="col-md-2 btn-hs">
+								<button class="btn2">View PO</button>
+								<button class="btn2" onclick="stockReport()">STOCK
+									HISTORY</button>
+							</div>
+
+							<div class="col-md-2 btn-hs" align="right">
+								<button class="btn4">Download</button>
+							</div>
+
+						</div>
+						<div id="myGrid" style="width: 100%; height:300px" class="ag-theme-alpine"></div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

@@ -1,36 +1,9 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layout/master}">
-<head>
-<link rel="stylesheet" href="../assets/css/extend/style-extend.css">
-<!-- <script src="../assets/js/extend/treed.js"></script> -->
-<style type="text/css">
-hr {
-    position: relative;
-    top: -5px;
-    left: -45px;
-    width: 60%;
-}
-
-label {
-    display: inline-block;
-    color: #009900;
-    font-size: 14px;
-    font-weight: 500;
-    text-indent: 3px;
-}
-.input-style {
-    width: 43%;
-    border-radius: 34px;
-    border: 1px solid #e8e7e7;
-    font-size: 12px;
-    padding: 4px 10px;
-    background: #FFF;
-}
-</style>
-
+	layout:decorate="~{layout/extend-master}">
+<head>  
 <script>
 	function openNav() {
 		document.getElementById("mySidenav").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
@@ -40,6 +13,162 @@ label {
 	function closeNav() {
 		document.getElementById("mySidenav").style.width = "0";
 		document.getElementById("main").style.width = "480px";
+	}
+
+	var count = 0;
+	function allCheck() {
+		count++;
+
+		if (count == 1) {
+			$('.checkCls').prop("checked", true);
+		} else {
+			count = 0;
+			$('.checkCls').prop("checked", false);
+		}
+	}
+
+	
+	
+	var count1 = 0;
+	function allCheck1() {
+		count1++;
+
+		if (count1 == 1) {
+			$('.checkCls1').prop("checked", true);
+		} else {
+			count1 = 0;
+			$('.checkCls1').prop("checked", false);
+		}
+	}
+
+	
+	
+	
+	var count2 = 0;
+	function allCheck2() {
+		count2++;
+
+		if (count2 == 1) {
+			$('.checkCls2').prop("checked", true);
+		} else {
+			count2 = 0;
+			$('.checkCls2').prop("checked", false);
+		}
+	}
+
+	
+	
+	
+	var count3 = 0;
+	function allCheck3() {
+		count3++;
+
+		if (count3 == 1) {
+			$('.checkCls3').prop("checked", true);
+		} else {
+			count3 = 0;
+			$('.checkCls3').prop("checked", false);
+		}
+	}
+
+	
+	
+	
+	
+	var count4 = 0;
+	function allCheck4() {
+		count4++;
+
+		if (count4 == 1) {
+			$('.checkCls4').prop("checked", true);
+		} else {
+			count4 = 0;
+			$('.checkCls4').prop("checked", false);
+		}
+	}
+
+	
+	
+	
+	
+	var count5 = 0;
+	function allCheck5() {
+		count5++;
+
+		if (count5 == 1) {
+			$('.checkCls5').prop("checked", true);
+		} else {
+			count5 = 0;
+			$('.checkCls5').prop("checked", false);
+		}
+	}
+
+	
+	var count6 = 0;
+	function allCheck6() {
+		count6++;
+
+		if (count6 == 1) {
+			$('.checkCls6').prop("checked", true);
+		} else {
+			count6 = 0;
+			$('.checkCls6').prop("checked", false);
+		}
+	}
+
+	
+	
+	var count7 = 0;
+	function allCheck7() {
+		count7++;
+
+		if (count7 == 1) {
+			$('.checkCls7').prop("checked", true);
+		} else {
+			count7 = 0;
+			$('.checkCls7').prop("checked", false);
+		}
+	}
+
+	
+	
+	
+	
+	var count = 0;
+	function allCheck() {
+		count++;
+
+		if (count == 1) {
+			$('.checkCls').prop("checked", true);
+		} else {
+			count = 0;
+			$('.checkCls').prop("checked", false);
+		}
+	}
+
+	
+	
+	
+	
+	var count = 0;
+	function allCheck() {
+		count++;
+
+		if (count == 1) {
+			$('.checkCls').prop("checked", true);
+		} else {
+			count = 0;
+			$('.checkCls').prop("checked", false);
+		}
+	}
+
+	
+	function cancelBar() {
+		var id = document.getElementById("closeKey");
+		id.style.display = "block";
+		if ($('#searchBar').val() == null || $('#searchBar').val() == "") {
+			id.style.display = "none";
+		}
 	}
 </script>
 <script type="text/javascript">
@@ -209,179 +338,270 @@ label {
 		}
 	}
 </script>
+
+
+<script>
+var x, i, j, l, ll, selElmnt, a, b, c;
+/*look for any elements with the class "custom-select":*/
+x = document.getElementsByClassName("selectbox");
+l = x.length;
+for (i = 0; i < l; i++) {
+  selElmnt = x[i].getElementsByTagName("select")[0];
+  ll = selElmnt.length;
+  /*for each element, create a new DIV that will act as the selected item:*/
+  a = document.createElement("DIV");
+  a.setAttribute("class", "select-selected");
+  a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+  x[i].appendChild(a);
+  /*for each element, create a new DIV that will contain the option list:*/
+  b = document.createElement("DIV");
+  b.setAttribute("class", "select-items select-hide");
+  for (j = 1; j < ll; j++) {
+    /*for each option in the original select element,
+    create a new DIV that will act as an option item:*/
+    c = document.createElement("DIV");
+    c.innerHTML = selElmnt.options[j].innerHTML;
+    c.addEventListener("click", function(e) {
+        /*when an item is clicked, update the original select box,
+        and the selected item:*/
+        var y, i, k, s, h, sl, yl;
+        s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+        sl = s.length;
+        h = this.parentNode.previousSibling;
+        for (i = 0; i < sl; i++) {
+          if (s.options[i].innerHTML == this.innerHTML) {
+            s.selectedIndex = i;
+            h.innerHTML = this.innerHTML;
+            y = this.parentNode.getElementsByClassName("same-as-selected");
+            yl = y.length;
+            for (k = 0; k < yl; k++) {
+              y[k].removeAttribute("class");
+            }
+            this.setAttribute("class", "same-as-selected");
+            break;
+          }
+        }
+        h.click();
+    });
+    b.appendChild(c);
+  }
+  x[i].appendChild(b);
+  a.addEventListener("click", function(e) {
+      /*when the select box is clicked, close any other select boxes,
+      and open/close the current select box:*/
+      e.stopPropagation();
+      closeAllSelect(this);
+      this.nextSibling.classList.toggle("select-hide");
+      this.classList.toggle("select-arrow-active");
+    });
+}
+function closeAllSelect(elmnt) {
+  /*a function that will close all select boxes in the document,
+  except the current select box:*/
+  var x, y, i, xl, yl, arrNo = [];
+  x = document.getElementsByClassName("select-items");
+  y = document.getElementsByClassName("select-selected");
+  xl = x.length;
+  yl = y.length;
+  for (i = 0; i < yl; i++) {
+    if (elmnt == y[i]) {
+      arrNo.push(i)
+    } else {
+      y[i].classList.remove("select-arrow-active");
+    }
+  }
+  for (i = 0; i < xl; i++) {
+    if (arrNo.indexOf(i)) {
+      x[i].classList.add("select-hide");
+    }
+  }
+}
+/*if the user clicks anywhere outside the select box,
+then close all select boxes:*/
+document.addEventListener("click", closeAllSelect);
+</script>
 </head>
 <body>
-	<div layout:fragment="content">
-		<div class="content-wrap">
 
-			<div class="maincontentsec">
-				<div class="content_padding">
-					<div class="row margin_topbot btn-hs">
-						<div class="col-md-8 padding-7 ">
-							<div class="input-style row">
-								<div class="autocomplete">
-									<input id="myInput" type="text" name="myCountry"
-										class="searchboxinput" placeholder="Software..">
+	<div layout:fragment="content" class="maincontent">
+
+		<div class="container-fluid">
+			<div class="row">
+				<div class="maincontentsec">
+					<div class="content_padding">
+						<div class="row margin_topbot">
+							<div class="col-md-8 btn-hs">
+								<div class="input-style row">
+									<input type="text" id="searchBar" placeholder="Search.."
+										name="search" class="searchboxinput" onkeyup="cancelBar()">
+									<div class="searchicon">
+										<a href="#"><span style="display: none" id="closeKey"
+											onclick="$('#searchBar').val('');document.getElementById('closeKey').style.display='none';"
+											class="close_i">X</span></a> <a href="#"><i
+											class="fa fa-search"></i></a>
+									</div>
 								</div>
-								<div class="searchicon">
-									<a href="#"><span class="close_i">X</span></a> <a href="#"><i
-										class="fa fa-search"></i></a>
-								</div>
 							</div>
 						</div>
-					</div>
-					<!--  <form enctype="multipart/form-data"> -->
-					<div class="row">
-
-						<div class="col-md-7 padding-7 btn-hs">
-							<div class="font-design">
-								Vendor LIST <span>(10)</span>
-							</div>
-						</div>
-						<div class="col-md-2 btn-hs">
-							<div class="row">
-								<button class="btn1" id="newBtn">NEW</button>
-								<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-								<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-								<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
-                                 <a class="btn3 delete-record copy">DELETE</a> -->
-							</div>
-						</div>
-						<div class="col-md-1 btn-hs">
-							<button class="btn2">Approve</button>
-						</div>
-
-						<div class="col-md-2 btn-hs padding-7" align="right">
-							<button class="btn4">Upload</button>
-							<button class="btn4">Download</button>
-						</div>
-
-					</div>
-
-					<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
-						<thead>
-							<tr>
-								<th align="center" width="20"><input type="checkbox"
-									name=""></th>
-								<th>ID</th>
-								<th>Code</th>
-								<th>Name</th>
-								<th>Type</th>
-								<th>Address</th>
-								<th>City</th>
-								<th>State</th>
-								<th>Country</th>
-								<th>Phone</th>
-								<th>Email</th>
-								<th>Bank Info</th>
-								<th>Status</th>
-								<th>Create Date</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td align="center"><input type="checkbox" name=""></td>
-								<td align="center">
-									<div class="txt-blue">1023</div>
-								</td>
-								<td>
-									<div class="txt-blue" data-toggle="collapse"
-										data-target="#demo" id="quarter">120001</div>
-								</td>
-								<td align="left">Shree Vendor</td>
-								<td>Office</td>
-
-								<td>1 Main Street</td>
-								<td align="left">Chicago</td>
-								<td align="left">Illinois</td>
-								<td align="center">USA</td>
-								<td align="center">9090123123</td>
-								<td align="center">demo@gmail.com</td>
-								<td align="center">ICICI Bank</td>
-
-								<td align="center">Active</td>
-								<td align="center">9-Oct-2020</td>
-							</tr>
-						</tbody>
-					</table>
-					<!--  </div> -->
-					<div class="collapse" id="demo">
+						<!--  <form enctype="multipart/form-data"> -->
 						<div class="row">
-							<div class="col-md-4">Vendor ID: 1023</div>
-							<div class="col-md-4">
-								<hr>
-								<div class="main-div">
-									<div class="section2">
-										<div class="green-box">
-											<div class="green-box-heading">CREATED</div>
-											<div class="date">9-OCT-20</div>
-										</div>
-									</div>
-									<div class="section3">
-										<div class="green-box">
-											<div class="green-box-heading">ACTIVE</div>
-											<div class="date">11-OCT-20</div>
-										</div>
-									</div>
-									<div class="section4">
-										<div class="grey-box">
-											<div>CLOSED</div>
-										</div>
-									</div>
+
+							<div class="col-md-7 btn-hs">
+								<div class="font-design">
+									Vendor LIST <span>(10)</span>
 								</div>
 							</div>
-							<div class="col-md-4" align="right">
-								<button class="btn3" id="cancelBtn">Cancel</button>
-								<button class="btn1">Save</button>
-							</div>
-							<div class="col-md-3">
-								<div class="hvrbox">
-									<img src="../assets/images/noimage.jpg" alt="Mountains"
-										class="hvrbox-layer_bottom img-fluid">
-									<div class="hvrbox-layer_top">
-										<div class="hvrbox-text">
-											<span><i class="fa fa-pencil-square-o"></i></span> <span><i
-												class="fa fa-trash red"></i></span>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="col-md-9">
+							<div class="col-md-2 btn-hs">
 								<div class="row">
-									<div class="col-md-12">
-										<!-- <div class="name-bar">Head Quarter</div> -->
-										<input type="text" name="code" value=""
-											placeholder="Vendor Name" class="form-control_big">
-									</div>
+									<button class="btn1" id="newBtn">NEW</button>
+									<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
+								</div>
+							</div>
+							<div class="col-md-1 btn-hs">
+								<button class="btn2">Approve</button>
+							</div>
+
+							<div class="col-md-2 btn-hs" align="right">
+								<button class="btn4">Upload</button>
+								<button class="btn4">Download</button>
+							</div>
+
+						</div>
+
+						<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+							<thead>
+								<tr>
+									<th align="center" width="20"><input type="checkbox"
+										name="" id="chk1" onclick="allCheck()"><label for="chk1"></label></th>
+									<th>ID</th>
+									<th>Code</th>
+									<th>Name</th>
+									<th>Type</th>
+									<th>Address</th>
+									<th>City</th>
+									<th>State</th>
+									<th>Country</th>
+									<th>Phone</th>
+									<th>Email</th>
+									<th>Bank Info</th>
+									<th>Status</th>
+									<th>Create Date</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td align="center"><input type="checkbox" name=""
+										id="chk2" class="checkCls" > <label for="chk2"></label></td>
+									<td align="center">
+										<div class="txt-blue">1023</div>
+									</td>
+									<td>
+										<div class="txt-blue" data-toggle="collapse"
+											data-target="#demo" id="quarter">120001</div>
+									</td>
+									<td align="left">Shree Vendor</td>
+									<td>Office</td>
+
+									<td>1 Main Street</td>
+									<td align="left">Chicago</td>
+									<td align="left">Illinois</td>
+									<td align="center">USA</td>
+									<td align="center">9090123123</td>
+									<td align="center">demo@gmail.com</td>
+									<td align="center">ICICI Bank</td>
+									<td align="center">Active</td>
+									<td align="center">9-Oct-2020</td>
+								</tr>
+							</tbody>
+						</table>
+						<!--  </div> -->
+						<div class="collapse" id="demo">
+						<div class="innerstickybg">
+							<div class="row">
+							
+								<div class="col-md-4">Vendor ID: 1023</div>
+								<div class="col-md-4">
+									<hr>
+									<div class="main-div">
+										<div class="section2">
+											<div class="green-box">
+												<div class="green-box-heading">CREATED</div>
+												<div class="date">9-OCT-20</div>
+											</div>
+										</div>
+										<div class="section3">
+											<div class="green-box">
+												<div class="green-box-heading">ACTIVE</div>
+												<div class="date">11-OCT-20</div>
+											</div>
+										</div>
+										<div class="section4">
+											<div class="grey-box">
+												<div>CLOSED</div>
+											</div>
+										</div>
+									
+								</div>
+								</div>
+								<div class="col-md-4" align="right">
+									<button class="btn3" id="cancelBtn">Cancel</button>
+									<button class="btn1">Save</button>
+								</div>
+								</div>
+								
 								</div>
 								<div class="row">
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Code</label> <input type="text" name="code" value=""
-												placeholder="Code" class="form-control">
+								<div class="col-md-3">
+									<div class="hvrbox">
+										<img src="../assets/images/noimage.jpg" alt="Mountains"
+											class="hvrbox-layer_bottom img-fluid">
+										<div class="hvrbox-layer_top">
+											<div class="hvrbox-text">
+												<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+													class="fa fa-trash red"></i></span>
+											</div>
 										</div>
 									</div>
-
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Category</label> <select class="form-control"
-												id="Category" onchange="changeOpt()">
-												<option id='Product'>Product</option>
-												<option id='Services'>Services</option>
-
-											</select>
+								</div>
+								<div class="col-md-9">
+									<div class="row">
+										<div class="col-md-12">
+											<!-- <div class="name-bar">Head Quarter</div> -->
+											<input type="text" name="code" value=""
+												placeholder="Vendor Name" class="form-control_big">
 										</div>
 									</div>
-
-									<div class="col-md-4">
-										<div class="form-group">
-											<label>Type</label> <select class="form-control" id="type">
-
-											</select>
+									<div class="row">
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Code</label> <input type="text" name="code" value=""
+													placeholder="Code" class="form-control">
+											</div>
 										</div>
-									</div>
 
-									<!-- <div class="col-md-4">
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Category</label> <select class="selectbox"
+													id="Category" onchange="changeOpt()">
+													<option id='Product'>Product</option>
+													<option id='Services'>Services</option>
+
+												</select>
+											</div>
+										</div>
+
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Type</label> 
+												<select class="selectbox" id="type">
+														<option>Option 1</option>
+														<option>Option 2</option>
+														<option>Option 3</option>
+												</select>
+											</div>
+										</div>
+
+										<!-- <div class="col-md-4">
 										<div class="form-group mrt_25">
 
 											<input type="checkbox"> <label>Virtual</label>
@@ -390,21 +610,21 @@ label {
 
 
 
-									<div class="col-md-8">
-										<div class="form-group">
-											<label>Company Overview</label>
-											<textarea class="form-control">  Shree Vendor is in business for 10 years. </textarea>
+										<div class="col-md-8">
+											<div class="form-group">
+												<label>Company Overview</label>
+												<textarea class="form-control" placeholder="Shree Vendor is in business for 10 years."></textarea>
+											</div>
 										</div>
-									</div>
 
-									<div class="col-md-4">
-										<div class="form-group mrt_25">
+										<div class="col-md-4">
+											<div class="form-group">
 
-											<input type="checkbox"> <label>Active</label>
+												<input type="checkbox" id="activechk"> <label for="activechk"></label> <span class="spantxt">Active</span>
+											</div>
 										</div>
-									</div>
 
-									<!-- <div class="col-md-4">
+										<!-- <div class="col-md-4">
 										<div class="form-group">
 											<label>City</label> <select class="form-control"
 												id="exampleFormControlSelect1">
@@ -412,7 +632,7 @@ label {
 											</select>
 										</div>
 									</div> -->
-									<!-- <div class="col-md-8">
+										<!-- <div class="col-md-8">
 										<div class="form-group">
 											<label>Street Address</label> <input type="text"
 												name="Street" value="" placeholder="Street Name"
@@ -421,692 +641,695 @@ label {
 										</div>
 									</div> -->
 
-									<!-- <div class="col-md-4">
+										<!-- <div class="col-md-4">
 										<div class="form-group mrt_25">
 
 											<input type="checkbox"> <label>Active</label>
 										</div>
 									</div> -->
-								</div>
-							</div>
-
-						</div>
-						<div class="row">
-							<div class="col-md-12">
-								<div class="headingbar">
-									<a href="#" data-toggle="collapse" data-target="#demo_11"
-										style="color: #333; text-decoration: none;">Locations</a> <a
-										href="#" data-toggle="collapse" data-target="#demo_11"
-										style="float: right; color: #333; text-decoration: none;"><i
-										class="ti-angle-down"></i></a>
-								</div>
-							</div>
-						</div>
-						<div id="demo_11" class="collapse show">
-							<div class="row">
-
-								<div class="col-md-7 padding-7 btn-hs1">
-									<div class="font-design">
-										<!-- Vendor LIST <span>(10)</span> -->
 									</div>
 								</div>
-								<div class="col-md-2 btn-hs1">
-									<div class="row">
-										<button class="btn1" id="newBtn1">NEW</button>
-										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+</div>
+							
+							<div class="row">
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#demo_11"
+											style="color: #333; text-decoration: none;">Locations</a> <a
+											href="#" data-toggle="collapse" data-target="#demo_11"
+											style="float: right; color: #333; text-decoration: none;"><i
+											class="ti-angle-down"></i></a>
+									</div>
+								</div>
+							</div>
+							<div id="demo_11" class="collapse show">
+								<div class="row">
+
+									<div class="col-md-7 padding-7 btn-hs1">
+										<div class="font-design"></div>
+									</div>
+									<div class="col-md-2 btn-hs1">
+										<div class="row">
+											<button class="btn1" id="newBtn1">NEW</button>
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+										</div>
+									</div>
+									<div class="col-md-1 btn-hs1">
+										<button class="btn2">Approve</button>
+									</div>
+
+									<div class="col-md-2 btn-hs1 padding-7" align="right">
+										<button class="btn4">Upload</button>
+										<button class="btn4">Download</button>
+									</div>
+
+								</div>
+
+								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+									<thead>
+										<tr>
+											<th align="center" width="20"><input type="checkbox"
+												name="" id="chk16" onclick="allCheck1()"><label for="chk16" ></label></th>
+											<th>ID</th>
+											<th>Name</th>
+											<th>Type</th>
+											<th>Billing</th>
+											<th>Primary</th>
+											<th>Address</th>
+											<th>City</th>
+											<th>State</th>
+											<th>Country</th>
+											<th>Create Date</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td align="center"><input type="checkbox" name=""
+												id="chk3" class="checkCls1"><label for="chk3"></label></td>
+											<td align="center">
+												<div class="txt-blue">1023</div>
+											</td>
+											<td align="left">Shree Vendor</td>
+											<td>Office</td>
+
+											<td align="center"><i class='ti-check'></i></td>
+											<td align="center"><i class='ti-check'></i></td>
+											<td>1 Main Street</td>
+											<td align="left">Chicago</td>
+											<td align="left">Illinois</td>
+											<td align="center">USA</td>
+
+											<td align="center">9-Oct-2020</td>
+										</tr>
+									</tbody>
+								</table>
+
+							</div>
+
+							<div class="row">
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#demo_12"
+											style="color: #333; text-decoration: none;">Contacts</a> <a
+											href="#" data-toggle="collapse" data-target="#demo_12"
+											style="float: right; color: #333; text-decoration: none;"><i
+											class="ti-angle-down"></i></a>
+									</div>
+								</div>
+							</div>
+
+							<div id="demo_12" class="collapse show">
+								<div class="row">
+
+									<div class="col-md-7 padding-7 btn-hs1">
+										<div class="font-design">
+											<!-- Vendor LIST <span>(10)</span> -->
+										</div>
+									</div>
+									<div class="col-md-2 btn-hs1">
+										<div class="row">
+											<button class="btn1" id="newBtn1">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
                                  <a class="btn3 delete-record copy">DELETE</a> -->
+										</div>
 									</div>
-								</div>
-								<div class="col-md-1 btn-hs1">
-									<button class="btn2">Approve</button>
+									<div class="col-md-1 btn-hs1">
+										<button class="btn2">Approve</button>
+									</div>
+
+									<div class="col-md-2 btn-hs1 padding-7" align="right">
+										<button class="btn4">Upload</button>
+										<button class="btn4">Download</button>
+									</div>
+
 								</div>
 
-								<div class="col-md-2 btn-hs1 padding-7" align="right">
-									<button class="btn4">Upload</button>
-									<button class="btn4">Download</button>
-								</div>
+								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+									<thead>
+										<tr>
+											<th align="center" width="20"><input type="checkbox"
+												name="" id="chk4" onclick="allCheck2()"><label for="chk4"></label></th>
+											<th>ID</th>
+											<th>Name</th>
+											<th>Designation</th>
+											<th>Function</th>
+											<th>Location</th>
+											<th>Phone</th>
+											<th>Email</th>
+											<th>Create Date</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td align="center"><input type="checkbox" name=""
+												id="chk5" class="checkCls2"><label for="chk5"></label></td>
+											<td align="center">
+												<div class="txt-blue">1023</div>
+											</td>
+
+											<td align="left">Pinaki Datta</td>
+											<td align="left">CEO</td>
+
+											<td align="left">Escalation</td>
+											<td align="left">Corporate Office</i></td>
+											<td align="center">+01 7213232304</td>
+											<td align="center">Pinaki@gmail.com</td>
+
+											<td align="center">9-Oct-2020</td>
+										</tr>
+									</tbody>
+								</table>
 
 							</div>
 
-							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
-								<thead>
-									<tr>
-										<th align="center" width="20"><input type="checkbox"
-											name=""></th>
-										<th>ID</th>
-										<th>Name</th>
-										<th>Type</th>
-										<th>Billing</th>
-										<th>Primary</th>
-										<th>Address</th>
-										<th>City</th>
-										<th>State</th>
-										<th>Country</th>
-										<th>Create Date</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td align="center"><input type="checkbox" name=""></td>
-										<td align="center">
-											<div class="txt-blue">1023</div>
-										</td>
-										<!-- <td>
-											<div class="txt-blue" data-toggle="collapse"
-												data-target="#demo" id="quarter">120001</div>
-										</td> -->
-										<td align="left">Shree Vendor</td>
-										<td>Office</td>
 
-										<td align="center"><i class='ti-check'></i></td>
-										<td align="center"><i class='ti-check'></i></td>
-										<td>1 Main Street</td>
-										<td align="left">Chicago</td>
-										<td align="left">Illinois</td>
-										<td align="center">USA</td>
-
-										<td align="center">9-Oct-2020</td>
-									</tr>
-								</tbody>
-							</table>
-
-						</div>
-
-						<div class="row">
-							<div class="col-md-12">
-								<div class="headingbar">
-									<a href="#" data-toggle="collapse" data-target="#demo_12"
-										style="color: #333; text-decoration: none;">Contacts</a> <a
-										href="#" data-toggle="collapse" data-target="#demo_12"
-										style="float: right; color: #333; text-decoration: none;"><i
-										class="ti-angle-down"></i></a>
-								</div>
-							</div>
-						</div>
-
-						<div id="demo_12" class="collapse show">
 							<div class="row">
-
-								<div class="col-md-7 padding-7 btn-hs1">
-									<div class="font-design">
-										<!-- Vendor LIST <span>(10)</span> -->
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#demo_13"
+											style="color: #333; text-decoration: none;">Legal</a> <a
+											href="#" data-toggle="collapse" data-target="#demo_13"
+											style="float: right; color: #333; text-decoration: none;"><i
+											class="ti-angle-down"></i></a>
 									</div>
 								</div>
-								<div class="col-md-2 btn-hs1">
-									<div class="row">
-										<button class="btn1" id="newBtn1">NEW</button>
-										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+							</div>
+
+							<div id="demo_13" class="collapse show">
+								<div class="row">
+								
+
+									<div class="col-md-7 padding-7 btn-hs1">
+										<div class="font-design">
+											<!-- Vendor LIST <span>(10)</span> -->
+										</div>
+									</div>
+									<div class="col-md-2 btn-hs1">
+										<div class="row">
+											<button class="btn1" id="newBtn1">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
                                  <a class="btn3 delete-record copy">DELETE</a> -->
+										</div>
+									</div>
+									<div class="col-md-1 btn-hs1">
+										<button class="btn2">Approve</button>
+									</div>
+
+									<div class="col-md-2 btn-hs1 padding-7" align="right">
+										<button class="btn4">Upload</button>
+										<button class="btn4">Download</button>
+									</div>
+
+								</div>
+								<div class="row">
+
+									<div class="col-md-3">
+										<div class="form-group">
+											<label>Company Registration Number</label> <input type="text"
+												name="code" value="" class="form-control">
+										</div>
+									</div>
+
+									<div class="col-md-3">
+										<div class="form-group">
+											<label>Company License Number</label> <input type="text"
+												name="code" value="" class="form-control">
+										</div>
+									</div>
+
+									<div class="col-md-3">
+										<div class="form-group mrt_25">
+
+											<input type="checkbox"> <label>Insured</label>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group mrt_25">
+
+											<input type="checkbox"> <label>Bonded</label>
+										</div>
+									</div>
+
+								</div>
+
+								<div class="row">
+									<div class="col-md-3">
+										<div class="form-group">
+											<label>GST</label> <input type="text" name="code" value=""
+												class="form-control">
+
+
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<label>PAN</label> <input type="text" name="code" value=""
+												class="form-control">
+
+
+										</div>
 									</div>
 								</div>
-								<div class="col-md-1 btn-hs1">
-									<button class="btn2">Approve</button>
-								</div>
 
-								<div class="col-md-2 btn-hs1 padding-7" align="right">
-									<button class="btn4">Upload</button>
-									<button class="btn4">Download</button>
-								</div>
-
-							</div>
-
-							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
-								<thead>
-									<tr>
-										<th align="center" width="20"><input type="checkbox"
-											name=""></th>
-										<th>ID</th>
-										<th>Name</th>
-										<th>Designation</th>
-										<th>Function</th>
-										<th>Location</th>
-										<th>Phone</th>
-										<th>Email</th>
-										<th>Create Date</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td align="center"><input type="checkbox" name=""></td>
-										<td align="center">
-											<div class="txt-blue">1023</div>
-										</td>
-
-										<td align="left">Pinaki Datta</td>
-										<td align="left">CEO</td>
-
-										<td align="left">Escalation</td>
-										<td align="left">Corporate Office</i></td>
-										<td align="center">+01 7213232304</td>
-										<td align="center">Pinaki@gmail.com</td>
-
-										<td align="center">9-Oct-2020</td>
-									</tr>
-								</tbody>
-							</table>
-
-						</div>
+								<div class="row">
+									<div class="col-md-3">
+										<div class="form-group">
+											<label>VAT</label> <input type="text" name="code" value=""
+												class="form-control">
 
 
-						<div class="row">
-							<div class="col-md-12">
-								<div class="headingbar">
-									<a href="#" data-toggle="collapse" data-target="#demo_13"
-										style="color: #333; text-decoration: none;">Legal</a> <a
-										href="#" data-toggle="collapse" data-target="#demo_13"
-										style="float: right; color: #333; text-decoration: none;"><i
-										class="ti-angle-down"></i></a>
-								</div>
-							</div>
-						</div>
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<label>TIN</label> <input type="text" name="code" value=""
+												class="form-control">
 
-						<div id="demo_13" class="collapse show">
-							<div class="row">
 
-								<div class="col-md-7 padding-7 btn-hs1">
-									<div class="font-design">
-										<!-- Vendor LIST <span>(10)</span> -->
+										</div>
 									</div>
 								</div>
-								<div class="col-md-2 btn-hs1">
-									<div class="row">
-										<button class="btn1" id="newBtn1">NEW</button>
-										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+
+
+
+								<div class="row mrt_10">
+
+									<div class="col-md-7 padding-7 btn-hs1">
+										<div class="font-design">Proof Of Insurance</div>
+									</div>
+									<div class="col-md-2 btn-hs1">
+										<div class="row">
+											<button class="btn1" id="newBtn1">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
                                  <a class="btn3 delete-record copy">DELETE</a> -->
+										</div>
 									</div>
-								</div>
-								<div class="col-md-1 btn-hs1">
-									<button class="btn2">Approve</button>
-								</div>
-
-								<div class="col-md-2 btn-hs1 padding-7" align="right">
-									<button class="btn4">Upload</button>
-									<button class="btn4">Download</button>
-								</div>
-
-							</div>
-							<div class="row">
-
-								<div class="col-md-3">
-									<div class="form-group">
-										<label>Company Registration Number</label> <input type="text"
-											name="code" value="" class="form-control">
+									<div class="col-md-1 btn-hs1">
+										<button class="btn2">Approve</button>
 									</div>
-								</div>
 
-								<div class="col-md-3">
-									<div class="form-group">
-										<label>Company License Number</label> <input type="text"
-											name="code" value="" class="form-control">
+									<div class="col-md-2 btn-hs1 padding-7" align="right">
+										<button class="btn4">Upload</button>
+										<button class="btn4">Download</button>
 									</div>
+
 								</div>
 
-								<div class="col-md-3">
-									<div class="form-group mrt_25">
 
-										<input type="checkbox"> <label>Insured</label>
+								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+									<thead>
+										<tr>
+											<th align="center" width="20"><input type="checkbox"
+												name="" id="chk6"  onclick="allCheck3()"><label for="chk6"></label></th>
+											<th>ID</th>
+											<th>Name</th>
+											<th>Start Date</th>
+											<th>End Date</th>
+											<th>Create Date</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td align="center"><input type="checkbox"
+												name="" id="chk17" class="checkCls3" ><label for="chk17"></label></td>
+											<td align="center">
+												<div class="txt-blue">1023</div>
+											</td>
+
+											<td align="left">Pinaki Datta</td>
+
+											<td align="center">9-Oct-2020</td>
+											<td align="center">9-Oct-2020</td>
+											<td align="center">9-Oct-2020</td>
+										</tr>
+									</tbody>
+								</table>
+
+
+
+
+								<div class="row mrt_10">
+
+									<div class="col-md-7 padding-7 btn-hs1">
+										<div class="font-design">Contacts</div>
 									</div>
-								</div>
-								<div class="col-md-3">
-									<div class="form-group mrt_25">
-
-										<input type="checkbox"> <label>Bonded</label>
-									</div>
-								</div>
-
-							</div>
-
-							<div class="row">
-								<div class="col-md-3">
-									<div class="form-group">
-										<label>GST</label> <input type="text" name="code" value=""
-											class="form-control">
-
-
-									</div>
-								</div>
-								<div class="col-md-3">
-									<div class="form-group">
-										<label>PAN</label> <input type="text" name="code" value=""
-											class="form-control">
-
-
-									</div>
-								</div>
-							</div>
-
-							<div class="row">
-								<div class="col-md-3">
-									<div class="form-group">
-										<label>VAT</label> <input type="text" name="code" value=""
-											class="form-control">
-
-
-									</div>
-								</div>
-								<div class="col-md-3">
-									<div class="form-group">
-										<label>TIN</label> <input type="text" name="code" value=""
-											class="form-control">
-
-
-									</div>
-								</div>
-							</div>
-
-
-
-							<div class="row mrt_10">
-
-								<div class="col-md-7 padding-7 btn-hs1">
-									<div class="font-design">
-										Proof Of Insurance
-									</div>
-								</div>
-								<div class="col-md-2 btn-hs1">
-									<div class="row">
-										<button class="btn1" id="newBtn1">NEW</button>
-										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+									<div class="col-md-2 btn-hs1">
+										<div class="row">
+											<button class="btn1" id="newBtn1">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
                                  <a class="btn3 delete-record copy">DELETE</a> -->
+										</div>
 									</div>
-								</div>
-								<div class="col-md-1 btn-hs1">
-									<button class="btn2">Approve</button>
-								</div>
-
-								<div class="col-md-2 btn-hs1 padding-7" align="right">
-									<button class="btn4">Upload</button>
-									<button class="btn4">Download</button>
-								</div>
-
-							</div>
-
-
-							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
-								<thead>
-									<tr>
-										<th align="center" width="20"><input type="checkbox"
-											name=""></th>
-										<th>ID</th>
-										<th>Name</th>
-										<th>Start Date</th>
-										<th>End Date</th>
-										<th>Create Date</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td align="center"><input type="checkbox" name=""></td>
-										<td align="center">
-											<div class="txt-blue">1023</div>
-										</td>
-
-										<td align="left">Pinaki Datta</td>
-
-										<td align="center">9-Oct-2020</td>
-										<td align="center">9-Oct-2020</td>
-										<td align="center">9-Oct-2020</td>
-									</tr>
-								</tbody>
-							</table>
-
-
-
-
-							<div class="row mrt_10">
-
-								<div class="col-md-7 padding-7 btn-hs1">
-									<div class="font-design">
-										Contacts
+									<div class="col-md-1 btn-hs1">
+										<button class="btn2">Approve</button>
 									</div>
+
+									<div class="col-md-2 btn-hs1 padding-7" align="right">
+										<button class="btn4">Upload</button>
+										<button class="btn4">Download</button>
+									</div>
+
 								</div>
-								<div class="col-md-2 btn-hs1">
-									<div class="row">
-										<button class="btn1" id="newBtn1">NEW</button>
-										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+
+
+								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+									<thead>
+										<tr>
+											<th align="center" width="20"><input type="checkbox"
+												name="" id="chk7" onclick="allCheck4()"><label for="chk7"></label></th>
+											<th>ID</th>
+											<th>Name</th>
+											<th>Start Date</th>
+											<th>End Date</th>
+
+											<th>Create Date</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td align="center"><input type="checkbox" name=""
+												id="chk8" class="checkCls4"><label for="chk8"></label></td>
+											<td align="center">
+												<div class="txt-blue">1023</div>
+											</td>
+
+											<td align="left">Pinaki Datta</td>
+
+											<td align="center">9-Oct-2020</td>
+											<td align="center">9-Oct-2020</td>
+											<td align="center">9-Oct-2020</td>
+										</tr>
+									</tbody>
+								</table>
+
+
+								<div class="row mrt_10">
+
+									<div class="col-md-7 padding-7 btn-hs1">
+										<div class="font-design">Other Document</div>
+									</div>
+									<div class="col-md-2 btn-hs1">
+										<div class="row">
+											<button class="btn1" id="newBtn1">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
                                  <a class="btn3 delete-record copy">DELETE</a> -->
+										</div>
 									</div>
-								</div>
-								<div class="col-md-1 btn-hs1">
-									<button class="btn2">Approve</button>
+									<div class="col-md-1 btn-hs1">
+										<button class="btn2">Approve</button>
+									</div>
+
+									<div class="col-md-2 btn-hs1 padding-7" align="right">
+										<button class="btn4">Upload</button>
+										<button class="btn4">Download</button>
+									</div>
+
 								</div>
 
-								<div class="col-md-2 btn-hs1 padding-7" align="right">
-									<button class="btn4">Upload</button>
-									<button class="btn4">Download</button>
-								</div>
+
+								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+									<thead>
+										<tr>
+											<th align="center" width="20"><input type="checkbox"
+												name="" id="chk9" onclick="allCheck5()"><label for="chk9"></label></th>
+											<th>ID</th>
+											<th>Name</th>
+											<th>Start Date</th>
+											<th>End Date</th>
+
+											<th>Create Date</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td align="center"><input type="checkbox" name=""
+												id="chk10"  class="checkCls5"><label for="chk10"></label></td>
+											<td align="center">
+												<div class="txt-blue">1023</div>
+											</td>
+
+											<td align="left">Pinaki Datta</td>
+
+											<td align="center">9-Oct-2020</td>
+											<td align="center">9-Oct-2020</td>
+											<td align="center">9-Oct-2020</td>
+										</tr>
+									</tbody>
+								</table>
 
 							</div>
 
-
-							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
-								<thead>
-									<tr>
-										<th align="center" width="20"><input type="checkbox"
-											name=""></th>
-										<th>ID</th>
-										<th>Name</th>
-										<th>Start Date</th>
-										<th>End Date</th>
-
-										<th>Create Date</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td align="center"><input type="checkbox" name=""></td>
-										<td align="center">
-											<div class="txt-blue">1023</div>
-										</td>
-
-										<td align="left">Pinaki Datta</td>
-
-										<td align="center">9-Oct-2020</td>
-										<td align="center">9-Oct-2020</td>
-										<td align="center">9-Oct-2020</td>
-									</tr>
-								</tbody>
-							</table>
-
-
-							<div class="row mrt_10">
-
-								<div class="col-md-7 padding-7 btn-hs1">
-									<div class="font-design">
-										Other Document
-									</div>
-								</div>
-								<div class="col-md-2 btn-hs1">
-									<div class="row">
-										<button class="btn1" id="newBtn1">NEW</button>
-										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
-                                 <a class="btn3 delete-record copy">DELETE</a> -->
-									</div>
-								</div>
-								<div class="col-md-1 btn-hs1">
-									<button class="btn2">Approve</button>
-								</div>
-
-								<div class="col-md-2 btn-hs1 padding-7" align="right">
-									<button class="btn4">Upload</button>
-									<button class="btn4">Download</button>
-								</div>
-
-							</div>
-
-
-							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
-								<thead>
-									<tr>
-										<th align="center" width="20"><input type="checkbox"
-											name=""></th>
-										<th>ID</th>
-										<th>Name</th>
-										<th>Start Date</th>
-										<th>End Date</th>
-
-										<th>Create Date</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td align="center"><input type="checkbox" name=""></td>
-										<td align="center">
-											<div class="txt-blue">1023</div>
-										</td>
-
-										<td align="left">Pinaki Datta</td>
-
-										<td align="center">9-Oct-2020</td>
-										<td align="center">9-Oct-2020</td>
-										<td align="center">9-Oct-2020</td>
-									</tr>
-								</tbody>
-							</table>
-
-						</div>
-
-
-						<div class="row">
-							<div class="col-md-12">
-								<div class="headingbar">
-									<a href="#" data-toggle="collapse" data-target="#demo_14"
-										style="color: #333; text-decoration: none;">Bank Details</a> <a
-										href="#" data-toggle="collapse" data-target="#demo_14"
-										style="float: right; color: #333; text-decoration: none;"><i
-										class="ti-angle-down"></i></a>
-								</div>
-							</div>
-						</div>
-
-						<div id="demo_14" class="collapse show">
-							<div class="row">
-
-								<div class="col-md-7 padding-7 btn-hs1">
-									<div class="font-design">
-										<!-- Vendor LIST <span>(10)</span> -->
-									</div>
-								</div>
-								<div class="col-md-2 btn-hs1">
-									<div class="row">
-										<button class="btn1" id="newBtn1">NEW</button>
-										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
-                                 <a class="btn3 delete-record copy">DELETE</a> -->
-									</div>
-								</div>
-								<div class="col-md-1 btn-hs1">
-									<button class="btn2">Approve</button>
-								</div>
-
-								<div class="col-md-2 btn-hs1 padding-7" align="right">
-									<button class="btn4">Upload</button>
-									<button class="btn4">Download</button>
-								</div>
-
-							</div>
-
-							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
-								<thead>
-									<tr>
-										<th align="center" width="20"><input type="checkbox"
-											name=""></th>
-										<th>ID</th>
-										<th>Bank Name</th>
-										<th>Address</th>
-										<th>City</th>
-										<th>State</th>
-										<th>Country</th>
-										<th>Account Details</th>
-										<th>Create Date</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td align="center"><input type="checkbox" name=""></td>
-										<td align="center">
-											<div class="txt-blue">1023</div>
-										</td>
-
-										<td align="left">Bank OF America</td>
-										<td align="left">1 Main Street</td>
-
-										<td align="left">Chicago</td>
-										<td align="left">llins</i></td>
-										<td align="center">USA</td>
-										<td align="center">Account : 1213212121</td>
-
-										<td align="center">9-Oct-2020</td>
-									</tr>
-								</tbody>
-							</table>
-
-						</div>
-
-
-
-						<div class="row">
-							<div class="col-md-12">
-								<div class="headingbar">
-									<a href="#" data-toggle="collapse" data-target="#demo_16"
-										style="color: #333; text-decoration: none;">Company
-										Information</a> <a href="#" data-toggle="collapse"
-										data-target="#demo_16"
-										style="float: right; color: #333; text-decoration: none;"><i
-										class="ti-angle-down"></i></a>
-								</div>
-							</div>
-						</div>
-
-						<div id="demo_16" class="collapse show">
-							<div class="row">
-
-								<div class="col-md-7 padding-7 btn-hs1">
-									<div class="font-design">
-										<!-- Vendor LIST <span>(10)</span> -->
-									</div>
-								</div>
-								<div class="col-md-2 btn-hs1">
-									<div class="row">
-										<button class="btn1" id="newBtn1">NEW</button>
-										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
-                                 <a class="btn3 delete-record copy">DELETE</a> -->
-									</div>
-								</div>
-								<div class="col-md-1 btn-hs1">
-									<button class="btn2">Approve</button>
-								</div>
-
-								<div class="col-md-2 btn-hs1 padding-7" align="right">
-									<button class="btn4">Upload</button>
-									<button class="btn4">Download</button>
-								</div>
-
-							</div>
 
 							<div class="row">
-
-								<div class="col-md-3">
-									<div class="form-group">
-										<label>Date Of Company Established</label> <input type="text"
-											name="code" value="" class="form-control">
-									</div>
-								</div>
-
-								<div class="col-md-3">
-									<div class="form-group">
-										<label>Gross Annual Sale</label> <input type="text"
-											name="code" value="" class="form-control">
-									</div>
-								</div>
-
-								<div class="col-md-3">
-									<div class="form-group">
-										<label>Sales Currency</label> <input type="text" name="code"
-											value="" class="form-control">
-									</div>
-								</div>
-								<div class="col-md-3">
-									<div class="form-group">
-										<label>Total Employee</label> <input type="text" name="code"
-											value="" class="form-control">
-									</div>
-								</div>
-								<div class="col-md-3">
-									<div class="form-group">
-										<label>Website</label> <input type="text" name="code" value=""
-											class="form-control">
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#demo_14"
+											style="color: #333; text-decoration: none;">Bank Details</a>
+										<a href="#" data-toggle="collapse" data-target="#demo_14"
+											style="float: right; color: #333; text-decoration: none;"><i
+											class="ti-angle-down"></i></a>
 									</div>
 								</div>
 							</div>
 
-						</div>
+							<div id="demo_14" class="collapse show">
+								<div class="row">
 
-
-
-						<div class="row">
-							<div class="col-md-12">
-								<div class="headingbar">
-									<a href="#" data-toggle="collapse" data-target="#demo_15"
-										style="color: #333; text-decoration: none;">Activities</a> <a
-										href="#" data-toggle="collapse" data-target="#demo_15"
-										style="float: right; color: #333; text-decoration: none;"><i
-										class="ti-angle-down"></i></a>
-								</div>
-							</div>
-						</div>
-						<div id="demo_15" class="collapse show">
-							<div class="row">
-
-								<div class="col-md-7 padding-7 btn-hs1">
-									<div class="font-design">
-										<!-- Vendor LIST <span>(10)</span> -->
+									<div class="col-md-7 padding-7 btn-hs1">
+										<div class="font-design">
+											<!-- Vendor LIST <span>(10)</span> -->
+										</div>
 									</div>
-								</div>
-								<div class="col-md-2 btn-hs1">
-									<div class="row">
-										<button class="btn1" id="newBtn1">NEW</button>
-										<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-										<button class="btn3" data-toggle="modal" data-target="#delete">DELETE</button>
-										<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+									<div class="col-md-2 btn-hs1">
+										<div class="row">
+											<button class="btn1" id="newBtn1">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
                                  <a class="btn3 delete-record copy">DELETE</a> -->
+										</div>
 									</div>
-								</div>
-								<div class="col-md-1 btn-hs1">
-									<button class="btn2">Approve</button>
+									<div class="col-md-1 btn-hs1">
+										<button class="btn2">Approve</button>
+									</div>
+
+									<div class="col-md-2 btn-hs1 padding-7" align="right">
+										<button class="btn4">Upload</button>
+										<button class="btn4">Download</button>
+									</div>
+
 								</div>
 
-								<div class="col-md-2 btn-hs1 padding-7" align="right">
-									<button class="btn4">Upload</button>
-									<button class="btn4">Download</button>
+								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+									<thead>
+										<tr>
+											<th align="center" width="20"><input type="checkbox"
+												name="" id="chk11" onclick="allCheck6()"><label for="chk11"></label></th>
+											<th>ID</th>
+											<th>Bank Name</th>
+											<th>Address</th>
+											<th>City</th>
+											<th>State</th>
+											<th>Country</th>
+											<th>Account Details</th>
+											<th>Create Date</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td align="center"><input type="checkbox" name=""
+												id="chk12" class="checkCls6"><label for="chk12"></label></td>
+											<td align="center">
+												<div class="txt-blue">1023</div>
+											</td>
+
+											<td align="left">Bank OF America</td>
+											<td align="left">1 Main Street</td>
+
+											<td align="left">Chicago</td>
+											<td align="left">llins</i></td>
+											<td align="center">USA</td>
+											<td align="center">Account : 1213212121</td>
+
+											<td align="center">9-Oct-2020</td>
+										</tr>
+									</tbody>
+								</table>
+
+							</div>
+
+
+
+							<div class="row">
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#demo_16"
+											style="color: #333; text-decoration: none;">Company
+											Information</a> <a href="#" data-toggle="collapse"
+											data-target="#demo_16"
+											style="float: right; color: #333; text-decoration: none;"><i
+											class="ti-angle-down"></i></a>
+									</div>
+								</div>
+							</div>
+
+							<div id="demo_16" class="collapse show">
+								<div class="row">
+
+									<div class="col-md-7 padding-7 btn-hs1">
+										<div class="font-design">
+											<!-- Vendor LIST <span>(10)</span> -->
+										</div>
+									</div>
+									<div class="col-md-2 btn-hs1">
+										<div class="row">
+											<button class="btn1" id="newBtn1">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+										</div>
+									</div>
+									<div class="col-md-1 btn-hs1">
+										<button class="btn2">Approve</button>
+									</div>
+
+									<div class="col-md-2 btn-hs1 padding-7" align="right">
+										<button class="btn4">Upload</button>
+										<button class="btn4">Download</button>
+									</div>
+
+								</div>
+
+								<div class="row">
+
+									<div class="col-md-3">
+										<div class="form-group">
+											<label>Date Of Company Established</label> <input type="text"
+												name="code" value="" class="form-control">
+										</div>
+									</div>
+
+									<div class="col-md-3">
+										<div class="form-group">
+											<label>Gross Annual Sale</label> <input type="text"
+												name="code" value="" class="form-control">
+										</div>
+									</div>
+
+									<div class="col-md-3">
+										<div class="form-group">
+											<label>Sales Currency</label> <input type="text" name="code"
+												value="" class="form-control">
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<label>Total Employee</label> <input type="text" name="code"
+												value="" class="form-control">
+										</div>
+									</div>
+									<div class="col-md-3">
+										<div class="form-group">
+											<label>Website</label> <input type="text" name="code"
+												value="" class="form-control">
+										</div>
+									</div>
 								</div>
 
 							</div>
 
-							<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
-								<thead>
-									<tr>
-										<th align="center" width="20"><input type="checkbox"
-											name=""></th>
-										<th>Activity</th>
-										<th>User Name</th>
-										<th>Create Date</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td align="center"><input type="checkbox" name=""></td>
 
 
-										<td align="left">Vendor Approved</td>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#demo_15"
+											style="color: #333; text-decoration: none;">Activities</a> <a
+											href="#" data-toggle="collapse" data-target="#demo_15"
+											style="float: right; color: #333; text-decoration: none;"><i
+											class="ti-angle-down"></i></a>
+									</div>
+								</div>
+							</div>
+							<div id="demo_15" class="collapse show">
+								<div class="row">
 
-										<td align="left">Pinaki Datta</td>
+									<div class="col-md-7 padding-7 btn-hs1">
+										<div class="font-design">
+											<!-- Vendor LIST <span>(10)</span> -->
+										</div>
+									</div>
+									<div class="col-md-2 btn-hs1">
+										<div class="row">
+											<button class="btn1" id="newBtn1">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+										</div>
+									</div>
+									<div class="col-md-1 btn-hs1">
+										<button class="btn2">Approve</button>
+									</div>
 
-										<td align="center">9-Oct-2020</td>
-									</tr>
-								</tbody>
-							</table>
+									<div class="col-md-2 btn-hs1 padding-7" align="right">
+										<button class="btn4">Upload</button>
+										<button class="btn4">Download</button>
+									</div>
 
+								</div>
+
+								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+									<thead>
+										<tr>
+											<th align="center" width="20"><input type="checkbox"
+												name="" id="chk13" onclick="allCheck7()"><label for="chk13"></label></th>
+											<th>Activity</th>
+											<th>User Name</th>
+											<th>Create Date</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td align="center"><input type="checkbox" name=""
+												id="chk14" class="checkCls7"><label for="chk14"></label></td>
+
+
+											<td align="left">Vendor Approved</td>
+
+											<td align="left">Pinaki Datta</td>
+
+											<td align="center">9-Oct-2020</td>
+										</tr>
+									</tbody>
+								</table>
+
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
 
+			</div>
 		</div>
 	</div>
 

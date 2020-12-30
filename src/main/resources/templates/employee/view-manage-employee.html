@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+
+
+
+<head>
+
+<!-- <link rel="stylesheet" href="../assets/css/extend/style-extend.css"> -->
+<title>Extend</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--  <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/themify-icons.css"> -->
+<!-- <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script> -->
+
+<script>
+
+
+
+
+
+
+
+//Function for adding more Table row
+function addMore(){
+	var lengthOfTableRow = $("#tbodyDataFile").children('tr').length;
+	var cloneHtml = $("#myTable tbody tr:first").clone();
+	$("#myTable tbody tr:last").find('td:last').html('');
+	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
+	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	
+	
+	$("#myTable tbody tr:last").find('td:last').append(addMore);
+	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+		
+	}
+			
+	$("#myTable tbody tr:last").find(".document").val("");
+	$("#myTable tbody tr:last").find(".documentTypeCls").val("");
+	$("#myTable tbody tr:last").find(".uploadedBillCls").empty();
+	$("#myTable tbody tr:last").find(".uploadHidCls").empty();
+			
+	$("#myTable > tbody > tr").each(function(i){
+		var textInput = $(this).find('input');
+		var ankerInput = $(this).find('a');
+		var spanInput = $(this).find('span');
+		var divInput = $(this).find('div');
+		
+		var selectInput = $(this).find('select');
+		selectInput.eq(0).attr('id', "documentType_" + i);
+		textInput.eq(0).attr('id', "ques_" + i);
+		textInput.eq(1).attr('id', "quesId_" + i);
+		textInput.eq(2).attr('id', "uploadDoc_" + i);
+		textInput.eq(3).attr('id', "uploadHidden_" + i);
+		divInput.eq(0).attr('id', "zoom_" + i);
+		divInput.eq(2).attr('id', "uploadedBillDiv_" + i);
+	})
+	
+}
+
+	function autocomplete(inp, arr) {
+		/*the autocomplete function takes two arguments,
+		the text field element and an array of possible autocompleted values:*/
+		var currentFocus;
+		/*execute a function when someone writes in the text field:*/
+		inp
+				.addEventListener(
+						"input",
+						function(e) {
+							var a, b, i, val = this.value;
+							/*close any already open lists of autocompleted values*/
+							closeAllLists();
+							if (!val) {
+								return false;
+							}
+							currentFocus = -1;
+							/*create a DIV element that will contain the items (values):*/
+							a = document.createElement("DIV");
+							a.setAttribute("id", this.id + "autocomplete-list");
+							a.setAttribute("class", "autocomplete-items");
+							/*append the DIV element as a child of the autocomplete container:*/
+							this.parentNode.appendChild(a);
+							/*for each item in the array...*/
+							for (i = 0; i < arr.length; i++) {
+								/*check if the item starts with the same letters as the text field value:*/
+								if (arr[i].substr(0, val.length).toUpperCase() == val
+										.toUpperCase()) {
+									/*create a DIV element for each matching element:*/
+									b = document.createElement("DIV");
+									/*make the matching letters bold:*/
+									b.innerHTML = "<strong>"
+											+ arr[i].substr(0, val.length)
+											+ "</strong>";
+									b.innerHTML += arr[i].substr(val.length);
+									/*insert a input field that will hold the current array item's value:*/
+									b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+									/*execute a function when someone clicks on the item value (DIV element):*/
+									b
+											.addEventListener(
+													"click",
+													function(e) {
+														/*insert the value for the autocomplete text field:*/
+														inp.value = this
+																.getElementsByTagName("input")[0].value;
+														/*close the list of autocompleted values,
+														(or any other open lists of autocompleted values:*/
+														closeAllLists();
+													});
+									a.appendChild(b);
+								}
+							}
+						});
+		/*execute a function presses a key on the keyboard:*/
+		inp.addEventListener("keydown", function(e) {
+			var x = document.getElementById(this.id + "autocomplete-list");
+			if (x)
+				x = x.getElementsByTagName("div");
+			if (e.keyCode == 40) {
+				/*If the arrow DOWN key is pressed,
+				increase the currentFocus variable:*/
+				currentFocus++;
+				/*and and make the current item more visible:*/
+				addActive(x);
+			} else if (e.keyCode == 38) { //up
+				/*If the arrow UP key is pressed,
+				decrease the currentFocus variable:*/
+				currentFocus--;
+				/*and and make the current item more visible:*/
+				addActive(x);
+			} else if (e.keyCode == 13) {
+				/*If the ENTER key is pressed, prevent the form from being submitted,*/
+				e.preventDefault();
+				if (currentFocus > -1) {
+					/*and simulate a click on the "active" item:*/
+					if (x)
+						x[currentFocus].click();
+				}
+			}
+		});
+		function addActive(x) {
+			/*a function to classify an item as "active":*/
+			if (!x)
+				return false;
+			/*start by removing the "active" class on all items:*/
+			removeActive(x);
+			if (currentFocus >= x.length)
+				currentFocus = 0;
+			if (currentFocus < 0)
+				currentFocus = (x.length - 1);
+			/*add class "autocomplete-active":*/
+			x[currentFocus].classList.add("autocomplete-active");
+		}
+		function removeActive(x) {
+			/*a function to remove the "active" class from all autocomplete items:*/
+			for (var i = 0; i < x.length; i++) {
+				x[i].classList.remove("autocomplete-active");
+			}
+		}
+		function closeAllLists(elmnt) {
+			/*close all autocomplete lists in the document,
+			except the one passed as an argument:*/
+			var x = document.getElementsByClassName("autocomplete-items");
+			for (var i = 0; i < x.length; i++) {
+				if (elmnt != x[i] && elmnt != inp) {
+					x[i].parentNode.removeChild(x[i]);
+				}
+			}
+		}
+		/*execute a function when someone clicks in the document:*/
+		document.addEventListener("click", function(e) {
+			closeAllLists(e.target);
+		});
+	}
+
+	/*An array containing all the country names in the world:*/
+	var countries = [ "Amit Jha", "Ashish Dash", "Arun Kar", "Asima Barik",
+			"Aradhya Pal", "Bisakha Senapati", "Bikash Palei", "Bidhan Nath",
+			"Bijayalaxmi Sahoo", "Binita Parida", "Chandan Palei", ,
+			"Chaaya Kar", "Chimayee Rath", "Cabir Singh", "Chinu Dhar",
+			"Deepak Das", "Disha Kar", "DiyaPal", "Dikhya Muduli",
+			"Dhiren Dhar", "Divyanka Tripathy", "Esha Jha", "Eli Jena",
+			"Eshan Barik", "Eyana Kar", "Eilina Sahu" ];
+
+	/*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+	autocomplete(document.getElementById("myInput"), countries);
+</script>
+<script type="text/javascript">
+	//employee image
+
+	var expanded = false;
+	function showCheckboxes() {
+		if (!expanded) {
+			$("#checkboxes").show();
+			expanded = true;
+		} else {
+			$("#checkboxes").hide();
+
+			expanded = false;
+		}
+	}
+	function saveFile() {
+
+		var uFile = $('#fileUpload')[0].files[0];
+		var fileName = $('#fileUpload').val();
+
+		var lastIndex = fileName.lastIndexOf("\\");
+		if (lastIndex >= 0) {
+			fileName = fileName.substring(lastIndex + 1);
+		}
+		var iURL = URL.createObjectURL(uFile);
+
+		$('#imgLoc').attr('src', '');
+		$('#imgLoc').attr('src', iURL);
+
+		var fileData = new FormData();
+		fileData.append('file', uFile);
+		fileData.append('path', 'none');
+
+		$.ajax({
+			type : "POST",
+			url : "manage-employee-upload-file",
+			enctype : "multipart/form-data",
+			contentType : false,
+			data : fileData,
+			processData : false,
+			cache : false,
+			success : function(response) {
+
+			},
+			error : function(e) {
+
+			}
+		});
+	}
+
+	function deleteFile() {
+
+		$('#imgLoc').attr('src', '');
+		$('#imgLoc').attr('src', '../assets/images/noimage.jpg');
+
+		var fileData = new FormData();
+
+		fileData.append('file', 'none');
+		fileData.append('path', 'none');
+
+		$.ajax({
+			type : "POST",
+			url : "manage-employee-delete-file",
+			enctype : "multipart/form-data",
+			contentType : false,
+			/* data        : fileData, */
+			processData : false,
+			cache : false,
+			success : function(response) {
+				console.log("ABC")
+			},
+			error : function(e) {
+
+			}
+		});
+	}
+
+	/* //employee doc
+
+	var expanded = false;
+	function showCheckboxes() {
+		if (!expanded) {
+			$("#checkboxes").show();
+			expanded = true;
+		} else {
+			$("#checkboxes").hide();
+
+			expanded = false;
+		}
+	} */
+	/* function saveFile() {
+
+		var uFile = $('#docUpload')[0].files[0];
+		var fileName = $('#docUpload').val();
+
+		var lastIndex = fileName.lastIndexOf("\\");
+		if (lastIndex >= 0) {
+			fileName = fileName.substring(lastIndex + 1);
+		}
+		var iURL = URL.createObjectURL(uFile);
+
+		$('#imgLoc').attr('src', '');
+		$('#imgLoc').attr('src', iURL);
+
+		var fileData = new FormData();
+		fileData.append('file', uFile);
+		fileData.append('path', 'none');
+
+		$.ajax({
+			type : "POST",
+			url : "manage-employee-upload-doc",
+			enctype : "multipart/form-data",
+			contentType : false,
+			data : fileData,
+			processData : false,
+			cache : false,
+			success : function(response) {
+
+			},
+			error : function(e) {
+
+			}
+		});
+	}
+
+	function deleteFile() {
+
+		$('#imgLoc').attr('src', '');
+		$('#imgLoc').attr('src', '../assets/images/noimage.jpg');
+
+		var fileData = new FormData();
+
+		fileData.append('file', 'none');
+		fileData.append('path', 'none');
+
+		$.ajax({
+			type : "POST",
+			url : "manage-employee-delete-doc",
+			enctype : "multipart/form-data",
+			contentType : false,
+			/* data        : fileData, */
+	/* processData : false,
+	cache : false,
+	success : function(response) {
+		console.log("ABC")
+	},
+	error : function(e) {
+
+	}
+	});
+	} */
+</script>
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		/*  $("#profile").click(function(){
+		   $("#myTbl").hide();
+		   $(".btn-hs").hide();
+		   $("#profile").show();
+		})  */
+
+		$("#profilecancelbtn").click(function() {
+			$("#newId").show();
+			$(".btn-hs").show();
+			$("#profile").hide();
+		
+		});
+		
+		
+		
+		
+		
+		
+	});
+	
+</script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+	
+	$('.collapse').on('show.bs.collapse', function() {
+		$(this).siblings('.panel-heading').addClass('active');
+	});
+
+	$('.collapse').on('hide.bs.collapse', function() {
+		$(this).siblings('.panel-heading').removeClass('active');
+	});
+});
+
+
+
+$('.tbll').on('click', '.rmv', function () {
+	 
+	$(this).closest('tr').remove();
+	$("#myTable tbody tr:last").find(
+		'td:last').html('');
+	var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button> '
+	var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+
+	if ($("#tbodyDataFile").children('tr').length > 1) {
+		$("#myTable tbody tr:last").find('td:last').append(add);
+		$("#myTable tbody tr:last").find('td:last').append(remove);
+	} else {
+		$("#myTable tbody tr:last").find('td:last').append(add);
+	}
+});
+
+</script>
+
+
+<script type="text/javascript">
+	$(document)
+			.ready(
+					function() {
+						/* $('#header').load('../header-ads.html');
+						 $('#footer').load('../footer-ads.html');*/
+						jQuery(document)
+								.delegate(
+										'a.add-record',
+										'click',
+										function(e) {
+											e.preventDefault();
+											var content = jQuery('#append_table tr'), size = jQuery('#myTbl >tbody >tr').length + 1, element = null, element = content
+													.clone();
+											element.attr('id', 'rec-' + size);
+											element.find('.delete-record')
+													.attr('data-id', size);
+											element.appendTo('#myTbl_body');
+											element.find('.sn').html(size);
+										});
+						jQuery(document)
+								.delegate(
+										'a.delete-record',
+										'click',
+										function(e) {
+											e.preventDefault();
+											var didConfirm = confirm("Are you sure You want to delete");
+											if (didConfirm == true) {
+												var id = jQuery(this).attr(
+														'data-id');
+												var targetDiv = jQuery(this)
+														.attr('targetDiv');
+												jQuery('#rec-' + id).remove();
+
+												//regnerate index number on table
+												$('#myTbl_body tr')
+														.each(
+																function(index) {
+																	$(this)
+																			.find(
+																					'span.sn')
+																			.html(
+																					index + 1);
+																});
+												return true;
+											} else {
+												return false;
+											}
+
+											$('#closeKey').on('click',
+													function() {
+														alert()
+													});
+										});
+
+						$('input,textarea').focus(
+								function() {
+									$(this).data('placeholder',
+											$(this).attr('placeholder')).attr(
+											'placeholder', '');
+								}).blur(
+								function() {
+									$(this).attr('placeholder',
+											$(this).data('placeholder'));
+								});
+
+						//New Friday
+
+						var x, i, j, l, ll, selElmnt, a, b, c;
+						/*look for any elements with the class "custom-select":*/
+						x = document.getElementsByClassName("selectbox");
+						l = x.length;
+						for (i = 0; i < l; i++) {
+							selElmnt = x[i].getElementsByTagName("select")[0];
+							ll = selElmnt.length;
+							/*for each element, create a new DIV that will act as the selected item:*/
+							a = document.createElement("DIV");
+							a.setAttribute("class", "select-selected");
+							a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+							x[i].appendChild(a);
+							/*for each element, create a new DIV that will contain the option list:*/
+							b = document.createElement("DIV");
+							b.setAttribute("class", "select-items select-hide");
+							for (j = 1; j < ll; j++) {
+								/*for each option in the original select element,
+								create a new DIV that will act as an option item:*/
+								c = document.createElement("DIV");
+								c.innerHTML = selElmnt.options[j].innerHTML;
+								c
+										.addEventListener(
+												"click",
+												function(e) {
+													/*when an item is clicked, update the original select box,
+													and the selected item:*/
+													var y, i, k, s, h, sl, yl;
+													s = this.parentNode.parentNode
+															.getElementsByTagName("select")[0];
+													sl = s.length;
+													h = this.parentNode.previousSibling;
+													for (i = 0; i < sl; i++) {
+														if (s.options[i].innerHTML == this.innerHTML) {
+															s.selectedIndex = i;
+															h.innerHTML = this.innerHTML;
+															y = this.parentNode
+																	.getElementsByClassName("same-as-selected");
+															yl = y.length;
+															for (k = 0; k < yl; k++) {
+																y[k]
+																		.removeAttribute("class");
+															}
+															this
+																	.setAttribute(
+																			"class",
+																			"same-as-selected");
+															break;
+														}
+													}
+													h.click();
+												});
+								b.appendChild(c);
+							}
+							x[i].appendChild(b);
+							a.addEventListener("click", function(e) {
+								/*when the select box is clicked, close any other select boxes,
+								and open/close the current select box:*/
+								e.stopPropagation();
+								closeAllSelect(this);
+								this.nextSibling.classList
+										.toggle("select-hide");
+								this.classList.toggle("select-arrow-active");
+							});
+						}
+						function closeAllSelect(elmnt) {
+							/*a function that will close all select boxes in the document,
+							except the current select box:*/
+							var x, y, i, xl, yl, arrNo = [];
+							x = document.getElementsByClassName("select-items");
+							y = document
+									.getElementsByClassName("select-selected");
+							xl = x.length;
+							yl = y.length;
+							for (i = 0; i < yl; i++) {
+								if (elmnt == y[i]) {
+									arrNo.push(i)
+								} else {
+									y[i].classList
+											.remove("select-arrow-active");
+								}
+							}
+							for (i = 0; i < xl; i++) {
+								if (arrNo.indexOf(i)) {
+									x[i].classList.add("select-hide");
+								}
+							}
+						}
+						/*if the user clicks anywhere outside the select box,
+						then close all select boxes:*/
+						document.addEventListener("click", closeAllSelect);
+
+					});
+
+	var count = 0;
+	function allCheck() {
+		count++;
+
+		if (count == 1) {
+			$('.checkCls').prop("checked", true);
+		} else {
+			count = 0;
+			$('.checkCls').prop("checked", false);
+		}
+	}
+
+	function cancelBar() {
+		var id = document.getElementById("closeKey");
+		id.style.display = "block";
+		if ($('#searchBar').val() == null || $('#searchBar').val() == "") {
+			id.style.display = "none";
+		}
+	}
+
+	function profileSelect() {
+		$('#newId').hide();
+		$("#profile").show();
+	}
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+			<div class="container-fluid">
+				<div class="maincontent">
+					<div class="row">
+
+						<div class="maincontentsec">
+							<div class="content_padding">
+								<div id="newId">
+									<div class="row margin_topbot btn-hs">
+										<div class="col-md-8 btn-hs">
+											<div class="input-style row">
+												<input type="text" id="searchBar" placeholder="Search.."
+													name="search" class="searchboxinput" onkeyup="cancelBar()">
+												<div class="searchicon">
+													<a href="#"><span style="display: none" id="closeKey"
+														onclick="$('#searchBar').val('');document.getElementById('closeKey').style.display='none';"
+														class="close_i">X</span></a><a href="#"><i
+														class="fa fa-search"></i></a>
+												</div>
+											</div>
+										</div>
+									</div>
+									<!--  <form enctype="multipart/form-data"> -->
+									<div class="row">
+
+										<div class="col-md-10  btn-hs">
+											<div class="font-design">
+												Employee List <span>(10)</span>
+											</div>
+										</div>
+										<div class="col-md-2 btn-hs" align="right">
+											<button class="btn4" onclick="profileSelect()">Upload</button>
+											<button class="btn4">Download</button>
+
+										</div>
+
+									</div>
+
+									<table class="newtbl" id="myTbl">
+										<thead>
+											<tr>
+												<th align="center" width="20"><input id="check1"
+													onclick="allCheck()" type="checkbox"><label
+													for="check1"></label></th>
+												<th>Employee ID</th>
+												<th>Employee Name</th>
+												<th>Location</th>
+												<th>DOB</th>
+												<th>Experience</th>
+												<th>Source</th>
+												<th>No of Application</th>
+												<th>Candidate Status</th>
+												<th>Resume</th>
+												<th>Last Update</th>
+												<th>Create Date</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td align="center"><input class="checkCls"
+													type="checkbox" id="check2"><label for="check2"></label></td>
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" onclick="profileSelect()">Emp0001</div></td>
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" onclick="profileSelect()">Kamala
+														Suresh</div></td>
+												<td align="center">India</td>
+												<td align="center">01/03/1998</td>
+												<td align="center">1yr</td>
+												<td align="center">LinkedIN</td>
+												<td align="center">2</td>
+												<td align="center">Active</td>
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" data-target="#profile">View</div></td>
+												<td align="center">9-dec-2020</td>
+												<td align="center">9-Oct-2020</td>
+											</tr>
+
+										</tbody>
+										<tbody>
+											<tr>
+												<td align="center"><input class="checkCls"
+													type="checkbox" id="check3"><label for="check3"></label></td>
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" onclick="profileSelect()">Emp0002</div></td>
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" onclick="profileSelect()">Ashis
+														Misra</div></td>
+												<td align="center">India</td>
+												<td align="center">01/04/1997</td>
+												<td align="center">3yr</td>
+												<td align="center">Indeed</td>
+												<td align="center">2</td>
+												<td align="center">Active</td>
+												<td align="center"><div data-toggle="collapse"
+														class="txt-blue" data-target="#profile">View</div></td>
+												<td align="center">1-dec-2020</td>
+												<td align="center">9-june-2020</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<div id="profile" class="collapse">
+									<div class="row">
+										<div class="col-md-6 btn-hs"></div>
+										<div class="col-md-12" align="right">
+											<button class="btn4" id="profilecancelbtn">Cancel</button>
+											<button class="btn1">Save</button>
+										</div>
+										<div class="col-md-4">
+											<input type="hidden" id="imageid">
+											<div class="hvrbox">
+												<img src="../assets/images/noimage.jpg" id="imgLoc"
+													alt="Location" class="hvrbox-layer_bottom img-fluid"
+													style="height: 203px; width: 241px;">
+												<!-- <img src="../assets/images/noimage.jpg" alt="Location"
+										class="hvrbox-layer_bottom img-fluid"> -->
+												<div class="hvrbox-layer_top">
+													<div class="hvrbox-text">
+														<!-- <span><i class="fa fa-pencil-square-o"></i></span> -->
+														<input type="file" id="fileUpload" hidden
+															onchange="saveFile();" /> <span><label
+															for="fileUpload"><i class="ti-files"
+																style="cursor: pointer;"></i> <!-- <i class="fa fa-pencil-square-o"></i> --></label></span>
+														<span><i class="fa fa-trash red"
+															onclick="deleteFile();"></i></span>
+													</div>
+												</div>
+											</div>
+										</div>
+
+
+									</div>
+									<!-- <div class="col-md-12 mt-60">
+										<div class="card-header">
+											<a href="#" data-toggle="collapse" data-target="#demo21"
+												style="color: #333; text-decoration: none;"
+												aria-expanded="true" class="">INTERNAL JOURNEY </a> <a
+												data-toggle="collapse" data-target="#demo21"
+												style="float: right; color: #333; text-decoration: none;"
+												aria-expanded="true" class=""><i
+												class="fa fa-angle-down rotate-icon"></i></a>
+										</div>
+										
+										<div id="demo21" class="collapse"> -->
+
+									<div class="wrapper center-block">
+										<div class="panel-group" id="accordion" role="tablist"
+											aria-multiselectable="true">
+											<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingOne">
+													<h4 class="panel-title">
+														<a role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseOne"
+															aria-expanded="true" aria-controls="collapseOne">
+															INTERNAL JOURNEY </a>
+													</h4>
+												</div>
+												<div id="collapseOne" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingOne">
+													<div class="card-body">
+														<div class="col-md-12 col-lg-12">
+															<div id="tracking-pre"></div>
+															<div id="tracking">
+																<div class="tracking-item">
+																	<div class="tracking-icon status-intransit">
+																		<!-- <i class="fas fa-circle"></i> -->
+																	</div>
+																	<div class="tracking-content">
+																		<span>9-Oct-17: Onboarded-Marketing Analyst
+																			(Marketing department)</span>
+																	</div>
+																</div>
+																<div class="tracking-item">
+																	<div class="tracking-icon status-intransit">
+																		<!-- <i class="fas fa-circle"></i> -->
+																	</div>
+																	<div class="tracking-content">
+																		<span>1-Jan-18: Transitioned from Marketing
+																			Analyst (Marketing department) to AP Analyst (Finance
+																			Department)</span>
+																	</div>
+																</div>
+																<div class="tracking-item">
+																	<div class="tracking-icon status-intransit">
+																		<!-- <i class="fas fa-circle"></i> -->
+																	</div>
+																	<div class="tracking-content">
+																		<span>20-Dec-18: Promoted from AP Analyst
+																			(Finance Department) to AP Lead (Finance department)</span>
+																	</div>
+																</div>
+																<div class="tracking-item">
+																	<div class="tracking-icon status-intransit">
+																		<!-- <i class="fas fa-circle"></i> -->
+																	</div>
+																	<div class="tracking-content">
+																		<span>14-Feb-20: Promoted from AP Lead (Finance
+																			Department) to AP Manager (Finance department)</span>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- <div class="card-header" role="tab" id="collapseOne1">
+											<a data-toggle="collapse" data-parent="#accordionEx"
+												href="#collapseOne" aria-expanded="true"
+												aria-controls="collapseOne1"> Personal Information <i
+												class="fa fa-angle-down rotate-icon"></i>
+
+											</a>
+										</div>
+ -->
+											<!-- <div class="card-header">
+											<a href="#" data-toggle="collapse" data-target="#demo22"
+												style="color: #333; text-decoration: none;"
+												aria-expanded="true" class="">PERSONAL INFORMATION</a> <a
+												data-toggle="collapse" data-target="#demo22"
+												style="float: right; color: #333; text-decoration: none;"
+												aria-expanded="true" class=""><i
+												class="fa fa-angle-down rotate-icon"></i></a>
+										</div>
+										<div id="demo22" class="collapse"> -->
+											<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingtwo">
+													<h4 class="panel-title">
+														<a role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapsetwo"
+															aria-expanded="true" aria-controls="collapsetwo">
+															PERSONAL INFORMATION </a>
+													</h4>
+												</div>
+												<div id="collapsetwo" class="panel-collapse collapse "
+													role="tabpanel" aria-labelledby="headingtwo">
+													<div class="row form-box mb-10">
+
+
+														<div class="col-md-4">
+															<div class="form-group">
+																<label>First Name</label> <input type="text"
+																	name="First Name" value="" placeholder="First Name"
+																	class="form-control" id="firstnameid">
+															</div>
+														</div>
+
+
+
+
+														<div class="col-md-4">
+															<div class="form-group">
+																<label>Last Name</label> <input type="text"
+																	name="Last Name" value="" placeholder="Last Name"
+																	class="form-control" id="lastnameid">
+															</div>
+														</div>
+														
+													
+
+
+
+														<div class="col-md-4">
+															<div class="form-group">
+																<label>Gender</label>
+																<div class="selectbox">
+																	<select class="form-control" id="genderid">
+																		<option>Select</option>
+																		<option th:each="c,iter:${genderTypeList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-4">
+															<div class="form-group">
+																<label>DOB</label> <input type="text"
+																	name="Date of birth" value=""
+																	placeholder="Date of birth" class="form-control"
+																	id="dobid">
+															</div>
+														</div>
+														<div class="col-md-4">
+															<div class="form-group">
+																<label>Blood Group</label>
+																<div class="selectbox">
+																	<select class="form-control" id="bloodgroupid">
+																		<option>Select</option>
+																		<option th:each="c,iter:${bloodgroupList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															</div>
+														</div>
+															<div class="col-md-4">
+															<div class="form-group">
+																<label>Marital Status</label>
+																<div class="selectbox">
+																	<select class="form-control" id="maritalstatusid">
+																		<option>Select</option>
+																		<option th:each="c,iter:${maritalstatusList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															</div>
+														</div>
+															<div class="col-md-4">
+															<div class="form-group">
+																<label>Nationality</label>
+																<div class="selectbox">
+																	<select class="form-control" id="nationalityid">
+																		<option>Select</option>
+																		<option th:each="c,iter:${nationalityList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															</div>
+														</div>
+
+															<div class="col-md-4">
+															<div class="form-group">
+																<label>Father Name</label> <input type="text"
+																	name="Father Name" value="" placeholder="Father Name"
+																	class="form-control" id="fatherid">
+															</div>
+														</div>
+                                                         
+                                                         
+                                                         
+														<div class="col-md-4">
+															<div class="form-group">
+																<label>Mother Name</label> <input type="text"
+																	name="Mother Name" value="" placeholder="Mother Name"
+																	class="form-control" id="motherid">
+															</div>
+														</div>
+                                                         
+
+
+
+
+
+													
+
+														
+
+
+													
+														
+
+													
+
+
+
+													
+
+
+												
+
+														
+
+														<div class="col-md-4">
+															<div class="form-group">
+																<label>Mobile No</label> <input type="text"
+																	name="mobileno" value="" placeholder="mobileno"
+																	class="form-control" id="mobilenoid">
+															</div>
+														</div>
+
+														<div class="col-md-4">
+															<div class="form-group">
+																<label>Personal Mail</label> <input type="text"
+																	name="personalmail" value="" placeholder="personalmail"
+																	class="form-control" id="personalmailid">
+															</div>
+														</div>
+
+
+
+														<div class="col-md-4">
+															<div class="form-group">
+																<label>Work Mail</label> <input type="text"
+																	name="workmail" value="" placeholder="workmail"
+																	class="form-control" id="workmailid">
+															</div>
+														</div>
+
+
+
+
+
+
+													</div>
+												</div>
+											</div>
+											
+											
+											<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingtwothree">
+													<h4 class="panel-title">
+														<a role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseaddress"
+															aria-expanded="true" aria-controls="collapsetwothree">
+															ADDRESS </a>
+													</h4>
+												</div>
+												<div id="collapseaddress" class="panel-collapse collapse "
+													role="tabpanel" aria-labelledby="headingtwothree">
+													
+													<div class="row">
+											<div class="col-md-10">
+											<div class="font-design">
+												Present <!-- <span>(10)</span> -->
+											</div>
+										</div>
+										<div class="col-md-2 btn-hs" align="right">
+											<button class="btn4" >New</button>
+											<button class="btn4" >Delete</button>
+											<button class="btn4">Download</button>
+
+										</div>
+										</div>
+
+								
+
+									<table class="newtbl">
+										<thead>
+											<tr>
+												
+												<th width="250">Address</th>
+												<th width="180">City</th>
+												<th width="180"> State</th>
+												<th width="180">Zip Code</th>
+												<th width="180">Country</th>
+												<th width="180">Status</th>
+												
+											</tr>
+										</thead>
+										<tbody>
+										<tr>
+										    <td>
+										    
+						                                 					    
+															<div class="form-group">
+																 <input type="text" name="Address"
+																	value="" placeholder="Address" class="form-control"
+																	id="addressid">
+															</div>
+															
+													</td>
+													
+													<td>
+													
+														<div class="form-group">
+																
+																<div class="selectbox">
+																	<select class="form-control" id="cityid">
+																		<option>Select</option>
+																		<option th:each="c,iter:${cityList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															</div>
+															</td>
+													<td>
+													
+														<div class="form-group">
+														
+														<div class="selectbox">
+															<select class="form-control" id="stateid">
+																<option>Select</option>
+																<option th:each="c,iter:${stateList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+											
+															</td>
+															
+															
+															<td>
+													
+													<div class="form-group">
+															<input type="text"
+																	name="zipcode" value="" placeholder="zipcode"
+																	class="form-control" id="zipcodeid">
+															</div>
+															</td>
+															<td>
+													
+														<div class="form-group">
+																
+																<div class="selectbox">
+																	<select class="form-control" id="countryid">
+																		<option>Select</option>
+																		<option th:each="c,iter:${counntryList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															</div>
+															</td>
+															
+															<td><div class="form-group">
+																 <input type="text"
+																	name="status" value="" placeholder="Status"
+																	class="form-control" id="statusid">
+															</div>
+															</td>
+													
+													
+										</tr>
+										</tbody>
+										</table>
+										
+										
+										<div class="row">
+											<div class="col-md-10">
+											<div class="font-design">
+												Premanent <!-- <span>(10)</span> -->
+											</div>
+										</div>
+										
+										</div>
+										
+									<table class="newtbl">
+										<thead>
+											<tr>
+												
+											<th width="250">Address</th>
+												<th width="180">City</th>
+												<th width="180"> State</th>
+												<th width="180">Zip Code</th>
+												<th width="180">Country</th>
+												<th width="180">Status</th>
+												
+											</tr>
+										</thead>
+										<tbody>
+										<tr>
+										    <td>
+										    
+						                              			    
+															<div class="form-group">
+																 <input type="text" name="Address"
+																	value="" placeholder="Address" class="form-control"
+																	id="addressid">
+															</div>
+															</div>
+													</td>
+													
+													<td>
+													
+														<div class="form-group">
+															
+																<div class="selectbox">
+																	<select class="form-control" id="cityid">
+																		<option>Select</option>
+																		<option th:each="c,iter:${cityList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															</div>
+															</td>
+													<td>
+													
+														<div class="form-group">
+												
+														<div class="selectbox">
+															<select class="form-control" id="stateid">
+																<option>Select</option>
+																<option th:each="c,iter:${stateList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+											
+															</td>
+															
+															
+															<td>
+													
+													<div class="form-group">
+																 <input type="text"
+																	name="zipcode" value="" placeholder="zipcode"
+																	class="form-control" id="zipcodeid">
+															</div>
+															</td>
+															<td>
+													
+														<div class="form-group">
+																
+																<div class="selectbox">
+																	<select class="form-control" id="countryid">
+																		<option>Select</option>
+																		<option th:each="c,iter:${counntryList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															</div>
+															</td>
+															
+															<td><div class="form-group">
+															 <input type="text"
+																	name="status" value="" placeholder="Status"
+																	class="form-control" id="statusid">
+															</div>
+															</td>
+													
+													
+										</tr>
+										</tbody>
+										</table>
+												</div>
+												</div>
+											</div>
+											
+											
+											
+											
+											<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingthree">
+													<h4 class="panel-title">
+														<a role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapsethree"
+															aria-expanded="true" aria-controls="collapsethree">
+															IDENTITY PROOF </a>
+													</h4>
+												</div>
+												<div id="collapsethree" class="panel-collapse collapse "
+													role="tabpanel" aria-labelledby="headingthree">
+													<div class="form-box">
+									<div class="row">
+										<div class="col-lg-12">
+											<!-- id="table-data" -->
+											<table id="myTable" width="100%" border="0" cellspacing="1"
+												cellpadding="5" class="tbll">
+												<thead>
+													<tr>
+														<th width="180">Document Type</th>
+														<th width="180">Document No</th>
+														<th>Document</th>
+														<th>Action</th>
+														
+														
+														
+														
+														
+												
+													</tr>
+												</thead>
+												<tbody id="tbodyDataFile">
+													<tr class="tr_clone" th:unless="${docId}">
+														<td>	
+														<div class="form-group">
+													
+														<div class="selectbox">
+															<select class="form-control" id="documenttypeid">
+																<option>Select</option>
+																<option th:each="c,iter:${documenttypeList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+														</td>
+														
+														
+														
+														
+														<td><div class="form-group">
+															 <input type="text"
+																	name="status" value="" placeholder="Status"
+																	class="form-control" id="statusid">
+															</div>
+															</td>
+														<td><div class="upload-btn-wrapper">
+																<div class="controls">
+																	<input type="file" class="document"
+																		style="display: block;" id="uploadDoc_0"
+																		onchange="saveFile(event)" />
+
+																</div>
+															</div> <!-- <label for="fileUpload" class="custom-file-upload"> <i
+																	class="fa fa-cloud-upload"></i> Upload Document
+																</label> <input type="file" class="document" id="uploadDoc_0"
+																	accept="image/*" 
+																	onchange="saveFile(event)"> --> <input type="hidden"
+															id="uploadHidden_0" class="uploadHidCls">
+															<div id="uploadedBillDiv_0" align="center"
+																class="uploadedBillCls"></div></td>
+														<td><button type="button"
+																class="btn btn-primary tr_clone_add" name="add"
+																onclick="checkEmpty();">
+																<span class="ti-plus"></span>
+															</button>&nbsp;</td>
+													</tr>
+
+
+													<tr class="tr_clone" th:if="${docId}"
+														th:each="a,iter:${documentList}">
+														<td><select class="form-control documentTypeCls"
+															id="documentType_+${iter.index}"
+															onchange="checkForDuplicateEntry(event);">
+																<option th:value=null>--Select--</option>
+																<option th:each="c:${documentTypeList}"
+																	th:value='${c.key}' th:text="${c.name}"
+																	th:selected="${c.key==a.documentType}"></option>
+														</select></td>
+														<td><div class="upload-btn-wrapper">
+																<div class="controls">
+																	<input type="file" class="document"
+																		style="display: block;" id="uploadDoc_+${iter.index}"
+																		onchange="saveFile(event)" /> <input type="hidden"
+																		id="uploadHidden_0" class="uploadHidCls"
+																		th:value="${a.fileName}">
+																</div>
+															</div>
+
+															<div id="uploadedBillDiv_+${iter.index}" align="center"
+																class="uploadedBillCls">
+																<span> <a class="example-image-link"
+																	th:href="${a.documentTypeName}" data-lightbox="hsdjas">Preview
+																		Image</a>
+																</span>
+															</div> <input type="hidden" id="uploadFile_+${iter.index}"></td>
+														<td>
+															<button th:if="${iter.size == iter.index+1}"
+																type="button" class="btn btn-primary tr_clone_add"
+																name="add" onclick="checkEmpty();">
+																<span class="ti-plus"></span>
+															</button>&nbsp;
+															<button th:if="${iter.size != 1}" type="button"
+																class="btn btn-warning rmv" name="Remove">
+																<span class="ti-minus"></span>
+															</button>
+														</td>
+													</tr>
+
+
+												</tbody>
+											</table>
+
+										</div>
+									</div>
+								</div>
+												</div>
+											</div>
+											<!-- <div class="card-header">
+											<a href="#" data-toggle="collapse" data-target="#demo24"
+												style="color: #333; text-decoration: none;"
+												aria-expanded="true" class="">WORK DETAILS</a> <a
+												data-toggle="collapse" data-target="#demo24"
+												style="float: right; color: #333; text-decoration: none;"
+												aria-expanded="true" class=""><i
+												class="fa fa-angle-down rotate-icon"></i></a>
+										</div>
+										<div id="demo24" class="collapse"> -->
+											<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingfour">
+													<h4 class="panel-title">
+														<a role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapsefour"
+															aria-expanded="true" aria-controls="collapsefour">
+															WORK DETAILS </a>
+													</h4>
+												</div>
+												<div id="collapsefour" class="panel-collapse collapse "
+													role="tabpanel" aria-labelledby="headingfour">
+								<div class="row">
+											<div class="col-md-10">
+											<div class="font-design">
+												Present <!-- <span>(10)</span> -->
+											</div>
+										</div>
+										<div class="col-md-2 btn-hs" align="right">
+											<button class="btn4" >New</button>
+											<button class="btn4" >Delete</button>
+											
+
+										</div>
+										</div>
+
+								
+
+									<table class="newtbl">
+										<thead>
+											<tr>
+												
+												<th width="180">Start Date</th>
+												<th width="180">End Date</th>
+												<th width="180"> Job Title</th>
+												<th width="180">Job Type</th>
+												<th width="180">Department</th>
+												<th width="180"> Employment Status</th>
+												<th width="180">Degination</th>
+												<th width="180">Band</th>
+												<th width="180">Manager</th>
+												<th width="180">Annual CTC</th>
+												
+											</tr>
+										</thead>
+										<tbody>
+										<tr>
+										    <td>
+										    
+						                                 					    
+															<div class="form-group">
+																 <input type="text" name="From Date"
+																	value="" placeholder="From Date" class="form-control"
+																	id="fromdateid">
+															</div>
+															
+															
+															
+															
+													</td>
+													 <td>
+										    
+						                                 					    
+															<div class="form-group">
+																 <input type="text" name="to Date"
+																	value="" placeholder="To Date" class="form-control"
+																	id="todateid">
+															</div>
+															
+															
+															
+															
+													</td>
+													 <td>
+										    
+						                                 					    
+															<div class="form-group">
+																 <input type="text" name="job title"
+																	value="" placeholder="Job Title" class="form-control"
+																	id="jobtitleid">
+															</div>
+															
+															
+															
+															
+													</td>
+													
+													
+													
+													
+													
+													<td>
+													<div class="form-group">
+													
+														<div class="selectbox">
+															<select class="form-control" id="jobtypeid">
+																<option>Select</option>
+																<option th:each="c,iter:${jobtypeList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+												</td>
+													<td>
+													
+														<div class="form-group">
+																
+																<div class="selectbox">
+																	<select class="form-control" id="cityid">
+																		<option>Select</option>
+																		<option th:each="c,iter:${cityList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															</div>
+															</td>
+													<td>
+													
+															<div class="form-group">
+													
+														<div class="selectbox">
+															<select class="form-control" id="departmentid">
+																<option>Select</option>
+																<option th:each="c,iter:${DepartmentList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+															</td>
+															
+															
+															<td><div class="form-group">
+														
+														<div class="selectbox">
+															<select class="form-control" id="employmentstatusid">
+																<option>Select</option>
+																<option th:each="c,iter:${employmentstatusList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div></td>
+															
+															
+															<td>
+													
+													<div class="form-group">
+															<input type="text"
+																	name="Degination" value="" placeholder="Degination"
+																	class="form-control" id="deginationid">
+															</div>
+															</td>
+															<td>
+													
+													
+															</td>
+															
+															<td><div class="form-group">
+																 <input type="text"
+																	name="Band" value="" placeholder="Band"
+																	class="form-control" id="bandid">
+															</div>
+															</td>
+															
+															<td><div class="form-group">
+													
+														<div class="selectbox">
+															<select class="form-control" id="managerid">
+																<option>Select</option>
+																<option th:each="c,iter:${ManagerList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div></td>
+													
+													<td><div class="form-group">
+														 <input type="text"
+															name="Annual CTC" value="" placeholder="Annual CTC"
+															class="form-control" id="annualctcid">
+													</div></td>
+													
+													
+										</tr>
+										</tbody>
+										</table>
+
+
+
+												</div>
+											</div>
+											<!-- <div class="card-header">
+											<a href="#" data-toggle="collapse" data-target="#demo25"
+												style="color: #333; text-decoration: none;"
+												aria-expanded="true" class="">BENEFIT STRUCTURE</a> <a
+												data-toggle="collapse" data-target="#demo25"
+												style="float: right; color: #333; text-decoration: none;"
+												aria-expanded="true" class=""><i
+												class="fa fa-angle-down rotate-icon"></i></a>
+										</div>
+
+										<div id="demo25" class="collapse"> -->
+											<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingfive">
+													<h4 class="panel-title">
+														<a role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapsefive"
+															aria-expanded="true" aria-controls="collapsefive">
+															BENEFIT STRUCTURE </a>
+													</h4>
+												</div>
+												<div id="collapsefive" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingfive">
+													<div class="col-md-12">
+														<div class="modal-inrheading">Benefits</div>
+														<div class="row">
+															<th:block th:each="c,iter:${benefitsList}">
+																<div class="col-md-3">
+																	<div class="checkbox">
+																		<input type="checkbox" value=""
+																			th:id="'benefits_'+${iter.index}" th:value='${c.key}'
+																			name="benefits"><span th:text="${c.name}"></span>
+																	</div>
+																</div>
+															</th:block>
+														</div>
+													</div>
+
+
+												</div>
+											</div>
+
+
+											<!-- <div class="card-header">
+											<a href="#" data-toggle="collapse" data-target="#demo26"
+												style="color: #333; text-decoration: none;"
+												aria-expanded="true" class="">BANK DETAILS</a> <a
+												data-toggle="collapse" data-target="#demo26"
+												style="float: right; color: #333; text-decoration: none;"
+												aria-expanded="true" class=""><i
+												class="fa fa-angle-down rotate-icon"></i></a>
+										</div>
+										<div id="demo26" class="collapse"> -->
+											<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingsix">
+													<h4 class="panel-title">
+														<a role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapsesix"
+															aria-expanded="true" aria-controls="collapsesix">
+															BANK DETAILS </a>
+													</h4>
+												</div>
+												<div id="collapsesix" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingsix">
+													<div class="row form-box">
+
+
+
+														<div class="col-md-4">
+															<div class="form-group">
+																<label>Bank Name</label>
+																<div class="selectbox">
+																	<select class="form-control" id="banknameid">
+																		<option>Select</option>
+																		<option th:each="c,iter:${BankNameList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															</div>
+														</div>
+
+
+														<div class="col-md-4">
+															<div class="form-group">
+																<label> Bank Account No</label> <input type="text"
+																	name="BankAccountNo" value=""
+																	placeholder="Bank Account No" class="form-control"
+																	id="bankaccountnoid">
+															</div>
+														</div>
+
+
+														<div class="col-md-4">
+															<div class="form-group">
+																<label> IFSC</label> <input type="text" name="IFSC"
+																	value="" placeholder="IFSC" class="form-control"
+																	id="ifscid">
+															</div>
+														</div>
+
+
+
+
+													</div>
+
+												</div>
+											</div>
+											<!-- <div class="card-header">
+											<a href="#" data-toggle="collapse" data-target="#demo27"
+												style="color: #333; text-decoration: none;"
+												aria-expanded="true" class="">INSURANCE DETAILS</a> <a
+												data-toggle="collapse" data-target="#demo27"
+												style="float: right; color: #333; text-decoration: none;"
+												aria-expanded="true" class=""><i
+												class="fa fa-angle-down rotate-icon"></i></a>
+										</div>
+
+										<div id="demo27" class="collapse"> -->
+											<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingseven">
+													<h4 class="panel-title">
+														<a role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseseven"
+															aria-expanded="true" aria-controls="collapseseven">
+															INSURANCE DETAILS </a>
+													</h4>
+												</div>
+												<div id="collapseseven" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingseven">
+													<div class="row form-box">
+														<div class="col-md-4">
+															<div class="form-group">
+																<label>Have Health Insurance</label>
+																<div class="selectbox">
+																	<select class="form-control" id="healthinsuranceid">
+																		<option>Select</option>
+																		<option th:each="c,iter:${healthinsuranceList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-4">
+															<div class="form-group">
+																<label> From Date</label> <input type="text"
+																	name="From Date" value="" placeholder="From Date"
+																	class="form-control" id="fromdateid">
+															</div>
+														</div>
+
+
+														<div class="col-md-4">
+															<div class="form-group">
+																<label> To Date</label> <input type="text"
+																	name="To Date" value="" placeholder="To Date"
+																	class="form-control" id="todateid">
+															</div>
+														</div>
+
+													</div>
+
+
+												</div>
+											</div>
+										</div>
+
+									</div>
+
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+</body>
+</html>

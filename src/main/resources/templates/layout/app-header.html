@@ -1,21 +1,235 @@
- <html xmlns:th="http://www.thymeleaf.org" th:fragment="header">	
- 	<div class="header">
-		<div class="container-fluid">
-			<div class="row">
-				<div class="col-lg-12">
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="header">
+<head>
+<title>Extend</title>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("ul.tabs li:first").addClass("active").show(); //Activate first tab
+		$(".tab_content:first").show(); //Show first tab content 		
+
+	});
+
+	function modOnclick(funId) {
+
+		var moduleId = $("#moduleId").val();
+
+		var activityUrl = $("#" + funId).attr("value");
+        var activityId = $("#Act_"+funId).val();
+		document.getElementById("side_bar_menu").innerHTML = "";
+		localStorage.setItem('module', moduleId);
+		localStorage.setItem('function', funId);
+		localStorage.setItem('activity', activityId);
+
+		window.location.href = activityUrl;
+	}
+	
+	$(window).click(function() {
+		$("#"+localStorage.getItem('function')).addClass("active");
+		});
+
+				$(document).ready(function() {
+						var module = localStorage.getItem('module');
+						var fun = localStorage.getItem('function');
+						var activity = localStorage.getItem('activity');
+						var defaultFun = "";
+						$.ajax({
+									type : "GET",
+									url : "/index-get-function-list-resp?moduleId="+ module,
+									dataType : 'json',
+									contentType : 'application/json',
+									success : function(response) {
+										console.log(response)
+										if (response.body.length > 0) {
+											var lidiv = "";
+											for (var i = 0; i < response.body.length; i++) {
+												defaultFun = response.body[0].functionId;
+												if (response.body[i].functionId == fun) {
+													lidiv = lidiv
+															+ '<li class="acTivity active"  id="'
+															+ response.body[i].functionId
+															+ '" value="'
+															+ response.body[i].defaultUrl
+															+ '" onclick="modOnclick(this.id)"><input type="hidden" id="Act_'+ response.body[i].functionId+'" value="'+response.body[i].defaultUrlId+ '"><span  class="actlist">'
+															+ response.body[i].name
+															+ '</span>';
+												} else {
+													lidiv = lidiv
+															+ '<li class="acTivity"  id="'
+															+ response.body[i].functionId
+															+ '" value="'
+															+ response.body[i].defaultUrl
+															+ '" onclick="modOnclick(this.id)"><input type="hidden" id="Act_'+ response.body[i].functionId+'" value="'+response.body[i].defaultUrlId+ '"><span  class="actlist">'
+															+ response.body[i].name
+															+ '</span>';
+												}
+											}
+											$("#configuration_sidebar_content")
+													.html(lidiv);
+										}
+
+									},
+									error : function(data) {
+										console.log(data)
+
+									}
+								});
+
+						if (fun) {
+							fun = fun;
+						} else {
+							fun = defaultFun;
+						}
+						$.ajax({
+									type : "GET",
+									url : "/index-get-activity-list?funId="+ fun + "&moduleId=" + module,
+									dataType : 'json',
+									contentType : 'application/json',
+									success : function(response) {
+										if (response.body.length > 0) {
+											var act = "";
+											for (var i = 0; i < response.body.length; i++) {
+												var funval = "callActivity('"
+														+ response.body[i].activityId
+														+ "','"
+														+ response.body[i].activity
+														+ "')";
+												if (activity == response.body[i].activityId) {
+													act = act
+															+ '<a href="javascript:void(0)" class="active"  id="'
+															+ response.body[i].activityId
+															+ '" value="'
+															+ response.body[i].activity
+															+ '"   onclick="'
+															+ funval
+															+ '">'
+															+ response.body[i].name
+															+ '</a>';
+												} else {
+													act = act
+															+ '<a href="javascript:void(0)" id="'
+															+ response.body[i].activityId
+															+ '" value="'
+															+ response.body[i].activity
+															+ '" onclick="'
+															+ funval
+															+ '">'
+															+ response.body[i].name
+															+ '</a>';
+												}
+
+											}
+											$("#side_bar_menu").html(act);
+										}
+
+									},
+									error : function(data) {
+										console.log(data)
+
+									}
+								});
+
+					});
+
+	function callActivity(id, url) {
+		localStorage.setItem('activity', id);
+		window.location.href = url;
+	}
+
+	function setModule(moduleId) {
+		localStorage.setItem('module', moduleId);
+		localStorage.setItem('function', $("#fun_" + moduleId).val());
+		localStorage.setItem('activity', $("#act_" + moduleId).val());
+
+		window.location.href = "/index-get-function-list/" + moduleId;
+
+	}
+</script>
+
+</head>
+
+<div class="header">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-lg-1">
 				<div class="logo">
-					<a th:href="${'/'+session.DASHBOARD}"> <img src="../assets/images/login_img/extend.png" alt="" class="img-fluid" />
+					<a th:href="${'/'+session.DASHBOARD}"> <img
+						src="../assets/images/login_img/extend.png" alt=""
+						class="img-fluid" />
 					</a>
 				</div>
-				
-					<div class="float-left">
-						<div class="hamburger sidebar-toggle">
+
+				<div class="float-left">
+					<div class="dropdown">
+						<div class="hamburger sidebar-toggle" id="dropdownMenuLink"
+							data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							<span class="line"></span> <span class="line"></span> <span
-								class="line"></span>
+								class="line"></span> <input type="hidden" id="menuId"
+								th:value="${session.MENU}" />
+						</div>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+							<a class="dropdown-item" th:each="module,abm :  ${session.MENU}"
+								href="javascript:void(0)" onClick="setModule(this.id)"
+								th:id="${module.moduleId}"><i th:class="${module.moduleLogoName}"></i> <span
+								th:text="${module.name}"></span> <input type="hidden" th:id="'act_'+${module.moduleId}" th:value="${module.activityId}"> <input type="hidden" th:id="'fun_'+${module.moduleId}"
+								th:value="${module.functionId}"> </a>
+
 						</div>
 					</div>
-					
-					<div class="float-right">
+				</div>
+			</div>
+			<div class="col-lg-9">
+				<div class="headermid">
+					<nav class="nav-menu d-none d-lg-block">
+						<input type="hidden" id="moduleId" th:value="${session.moduleId}" />
+						<ul class="tabs" id="configuration_sidebar_content">
+						</ul>
+					</nav>
+				</div>
+			</div>
+			<div class="col-lg-2">
+				<div class="headerright" align="right">
+					<div class="dropdown">
+						<div class="headicon  sidebar-toggle" id="dropdownMenuLink1"
+							data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="ti-email"></i>
+						</div>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
+							<a class="dropdown-item" href="#"><i class="ti-email"></i> 5
+								members joined recently</a> <a class="dropdown-item" href="#"><i
+								class="ti-email"></i> 2 new request</a> <a class="dropdown-item"
+								href="#"><i class="ti-email"></i> Here is the updates</a>
+						</div>
+					</div>
+					<div class="dropdown">
+						<div class="headicon sidebar-toggle" id="dropdownMenuLink2"
+							data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="ti-bell"></i>
+						</div>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+							<a class="dropdown-item" href="#"><i class="ti-bell"></i> 5
+								New Notification</a> <a class="dropdown-item" href="#"><i
+								class="ti-email"></i> 2 new request</a> <a class="dropdown-item"
+								href="#"><i class="ti-email"></i> Here is the updates</a>
+						</div>
+
+					</div>
+					<div class="dropdown">
+						<div class="headicon sidebar-toggle" id="dropdownMenuLink3"
+							data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="ti-user"></i>
+
+						</div>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink3">
+							<a class="dropdown-item" href="#"><i class="ti-lock"></i> Lock
+								Screen</a> <a class="dropdown-item" href="#"><i class="ti-email"></i> Profile</a> <a class="dropdown-item" href="/logout"><i
+								class="ti-power-off"></i> Log Out</a>
+
+						</div>
+
+					</div>
+
+				</div>
+				<!-- <div class="float-right">
 					
 						<ul>
 
@@ -153,16 +367,16 @@
 									</div>
 								</div></li>
 						</ul>
-					</div>
-					<!-- <div class="grandcourtyard_logo"><img src="../assets/images/gocool-header-logo.png" alt="" class="img-fluid" /></div> -->
-					<div class="usrinfo pull-right">
+					</div> -->
+				<!-- <div class="grandcourtyard_logo"><img src="../assets/images/gocool-header-logo.png" alt="" class="img-fluid" /></div> -->
+				<!-- <div class="usrinfo pull-right">
 					    <div class="userinfoheaading">Welcome ! 
 					    	<span th:text="${session.USER_ROLETYPE != ''} ? ${session.USER_ROLETYPE} : 'New User' "></span> 
 					  	</div>
 					    <div class="userinfosubhead">Last Logged On 04-Nov-2020 04.54 PM</div>
-					</div>
-				</div>
+					</div> -->
 			</div>
 		</div>
 	</div>
- </html>   
+</div>
+</html>

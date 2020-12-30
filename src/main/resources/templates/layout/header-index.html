@@ -1,0 +1,231 @@
+
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="header">
+<div class="header">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-lg-2">
+				<div class="logo"  style="width: 80px;"   >
+					<a th:href="${'/'+session.DASHBOARD}"> <img
+						src="../assets/images/login_img/extend.png" alt=""
+						class="img-fluid" />
+					</a>
+				</div>
+
+				<!-- <div class="float-left">
+					<div class="hamburger sidebar-toggle">
+						<span class="line"></span> <span class="line"></span> <span
+							class="line"></span>
+					</div>
+				</div> -->
+			</div>
+			<div class="col-lg-8"></div>
+			<!-- <div class="col-lg-8">
+				<div class="headermid">
+					<nav class="nav-menu d-none d-lg-block">
+						<ul>
+							<li class="active"><a href="summary.html">HIRE</a></li>
+							<li onclick="modOnclick(this.value)" value="1">MANAGE</li>
+							<li onclick="modOnclick(this.value)" value="1">APPRAISE</li>
+							<li><a href="#">SPEND</a></li>
+							<li><a href="location.html">CONFIGURE</a></li>
+						</ul>
+					</nav>
+				</div>
+			</div> -->
+			<div class="col-lg-2">
+
+				<div class="headerright" align="right">
+					<div class="dropdown">
+						<div class="headicon  sidebar-toggle" id="dropdownMenuLink1"
+							data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="ti-email"></i>
+						</div>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
+							<a class="dropdown-item" href="#"><i class="ti-email"></i> 5
+								members joined recently</a> <a class="dropdown-item" href="#"><i
+								class="ti-email"></i> 2 new request</a> <a class="dropdown-item"
+								href="#"><i class="ti-email"></i> Here is the updates</a>
+						</div>
+					</div>
+					<div class="dropdown">
+						<div class="headicon sidebar-toggle" id="dropdownMenuLink2"
+							data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="ti-bell"></i>
+						</div>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+							<a class="dropdown-item" href="#"><i class="ti-bell"></i> 5
+								New Notification</a> <a class="dropdown-item" href="#"><i
+								class="ti-email"></i> 2 new request</a> <a class="dropdown-item"
+								href="#"><i class="ti-email"></i> Here is the updates</a>
+						</div>
+
+					</div>
+					<!--   <div class="headicon"><i class="ti-user"></i></div> -->
+					<div class="dropdown">
+						<div class="headicon sidebar-toggle" id="dropdownMenuLink3"
+							data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="ti-user"></i>
+
+						</div>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuLink3">
+							<a class="dropdown-item" href="#"><i class="ti-lock"></i>Lock
+								Screen</a> <a class="dropdown-item" href="#"><i class="ti-email"></i>
+								Profile</a> <a class="dropdown-item" href="/logout"><i
+								class="ti-power-off"></i> Log Out</a>
+
+						</div>
+
+					</div>
+				</div>
+
+				<!-- <div class="float-right">
+					
+						<ul>
+
+							<li class="header-icon dib"><i class="ti-bell"></i>
+								<div class="drop-down">
+									<div class="dropdown-content-heading">
+										<span class="text-left">Recent Notifications</span>
+									</div>
+									<div class="dropdown-content-body">
+										<ul>
+											<li><a href="#"> <img
+													class="pull-left m-r-10 avatar-img"
+													src="../assets/images/avatar/3.jpg" alt="" />
+													<div class="notification-content">
+														<small class="notification-timestamp pull-right">02:34
+															PM</small>
+														<div class="notification-heading">Admin</div>
+														<div class="notification-text">5 members joined
+															today</div>
+													</div>
+											</a></li>
+											<li><a href="#"> <img
+													class="pull-left m-r-10 avatar-img"
+													src="../assets/images/avatar/3.jpg" alt="" />
+													<div class="notification-content">
+														<small class="notification-timestamp pull-right">02:34
+															PM</small>
+														<div class="notification-heading">Mariam</div>
+														<div class="notification-text">likes a photo of you</div>
+													</div>
+											</a></li>
+											<li><a href="#"> <img
+													class="pull-left m-r-10 avatar-img"
+													src="../assets/images/avatar/3.jpg" alt="" />
+													<div class="notification-content">
+														<small class="notification-timestamp pull-right">02:34
+															PM</small>
+														<div class="notification-heading">Tasnim</div>
+														<div class="notification-text">Hi Teddy, Just wanted
+															to let you ...</div>
+													</div>
+											</a></li>
+											<li><a href="#"> <img
+													class="pull-left m-r-10 avatar-img"
+													src="../assets/images/avatar/3.jpg" alt="" />
+													<div class="notification-content">
+														<small class="notification-timestamp pull-right">02:34
+															PM</small>
+														<div class="notification-heading">Mr. John</div>
+														<div class="notification-text">Hi Teddy, Just wanted
+															to let you ...</div>
+													</div>
+											</a></li>
+											<li class="text-center"><a href="#" class="more-link">See
+													All</a></li>
+										</ul>
+									</div>
+								</div></li>
+							<li class="header-icon dib"><i class="ti-email"></i>
+								<div class="drop-down">
+									<div class="dropdown-content-heading">
+										<span class="text-left">2 New Messages</span> <a
+											href="email.html"><i class="ti-pencil-alt pull-right"></i></a>
+									</div>
+									<div class="dropdown-content-body">
+										<ul>
+											<li class="notification-unread"><a href="#"> <img
+													class="pull-left m-r-10 avatar-img"
+													src="../assets/images/avatar/1.jpg" alt="" />
+													<div class="notification-content">
+														<small class="notification-timestamp pull-right">02:34
+															PM</small>
+														<div class="notification-heading">Michael Qin</div>
+														<div class="notification-text">Hi Teddy, Just wanted
+															to let you ...</div>
+													</div>
+											</a></li>
+											<li class="notification-unread"><a href="#"> <img
+													class="pull-left m-r-10 avatar-img"
+													src="../assets/images/avatar/2.jpg" alt="" />
+													<div class="notification-content">
+														<small class="notification-timestamp pull-right">02:34
+															PM</small>
+														<div class="notification-heading">Mr. John</div>
+														<div class="notification-text">Hi Teddy, Just wanted
+															to let you ...</div>
+													</div>
+											</a></li>
+											<li><a href="#"> <img
+													class="pull-left m-r-10 avatar-img"
+													src="../assets/images/avatar/3.jpg" alt="" />
+													<div class="notification-content">
+														<small class="notification-timestamp pull-right">02:34
+															PM</small>
+														<div class="notification-heading">Michael Qin</div>
+														<div class="notification-text">Hi Teddy, Just wanted
+															to let you ...</div>
+													</div>
+											</a></li>
+											<li><a href="#"> <img
+													class="pull-left m-r-10 avatar-img"
+													src="../assets/images/avatar/2.jpg" alt="" />
+													<div class="notification-content">
+														<small class="notification-timestamp pull-right">02:34
+															PM</small>
+														<div class="notification-heading">Mr. John</div>
+														<div class="notification-text">Hi Teddy, Just wanted
+															to let you ...</div>
+													</div>
+											</a></li>
+											<li class="text-center"><a href="#" class="more-link">See
+													All</a></li>
+										</ul>
+									</div>
+								</div></li>
+							<li class="header-icon dib"><span th:text="${session.USER_NAME}"></span><span class="user-avatar">
+									<i class="ti-angle-down f-s-10"></i>
+							</span>
+								<div class="drop-down dropdown-profile">
+									<div class="dropdown-content-heading">
+										<span class="text-left">Upgrade Now</span>
+										<p class="trial-day">30 Days Trail</p>
+									</div>
+									<div class="dropdown-content-body">
+										<ul>
+											<li><a href="#"><i class="ti-user"></i> <span>Profile</span></a></li>
+
+											<li><a href="#"><i class="ti-email"></i> <span>Inbox</span></a></li>
+											<li><a href="#"><i class="ti-settings"></i> <span>Setting</span></a></li>
+
+											<li><a href="#"><i class="ti-lock"></i> <span>Lock
+														Screen</span></a></li>
+											<li><a href="/logout"><i class="ti-power-off"></i> <span>Logout</span></a></li>
+										</ul>
+									</div>
+								</div></li>
+						</ul>
+					</div> -->
+				<!-- <div class="grandcourtyard_logo"><img src="../assets/images/gocool-header-logo.png" alt="" class="img-fluid" /></div> -->
+				<!-- <div class="usrinfo pull-right">
+					    <div class="userinfoheaading">Welcome ! 
+					    	<span th:text="${session.USER_ROLETYPE != ''} ? ${session.USER_ROLETYPE} : 'New User' "></span> 
+					  	</div>
+					    <div class="userinfosubhead">Last Logged On 04-Nov-2020 04.54 PM</div>
+					</div> -->
+			</div>
+		</div>
+	</div>
+</div>
+</html>

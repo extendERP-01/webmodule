@@ -1,8 +1,9 @@
 package nirmalya.aathithya.webmodule.user.controller;
 
-//import java.util.Arrays;
-//import java.util.Base64;
-//import java.util.List;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 import javax.servlet.http.HttpSession;
 
@@ -15,25 +16,22 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-//import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
-//import com.fasterxml.jackson.core.type.TypeReference;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-
-//import nirmalya.aathithya.webmodule.common.pagination.DataTableRequest;
+ 
+ 
 import nirmalya.aathithya.webmodule.common.utils.EnvironmentVaribles;
 import nirmalya.aathithya.webmodule.common.utils.JsonResponse;
-import nirmalya.aathithya.webmodule.common.utils.MapModel1;
-//import nirmalya.aathithya.webmodule.kitchen.model.KitchenItemDetailsModel;
-//import nirmalya.aathithya.webmodule.kitchen.model.KitchenStaffFoodOrderListModel;
-//import nirmalya.aathithya.webmodule.restaurant.model.DashboardModel;
-//import nirmalya.aathithya.webmodule.restaurant.model.OrderStatusModel;
+import nirmalya.aathithya.webmodule.user.model.Activity;
+import nirmalya.aathithya.webmodule.user.model.Function;
+import nirmalya.aathithya.webmodule.user.model.Module;
 import nirmalya.aathithya.webmodule.user.model.User;
+import nirmalya.aathithya.webmodule.user.model.UserRolesAndModuleIdModel;
 
 /**
  * @author Nirmalya Labs
@@ -53,6 +51,9 @@ public class AccessController {
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
+	@Autowired
+	UserRolesAndModuleIdModel userModel;
+
 	/**
 	 * Function to check connection
 	 *
@@ -64,11 +65,22 @@ public class AccessController {
 		logger.info("Method : welcome ends");
 		return "welcome";
 	}
-	
+	/**
+	 * Function to check connection
+	 *
+	 */
+	@GetMapping("hrms-dashboard")
+	public String hrmsDashboard(Model model, HttpSession session) {
+		logger.info("Method : hrmsDashboard starts");
+		
+		logger.info("Method : hrmsDashboard ends");
+		return "employee/hrms-dashboard";
+	}
+
 	@GetMapping("/hrms-index")
 	public String hrmsIndex(Model model, HttpSession session) {
 		logger.info("Method : hrmsIndex starts");
-		
+
 		logger.info("Method : hrmsIndex ends");
 		return "hrms-index";
 	}
@@ -83,8 +95,8 @@ public class AccessController {
 
 		logger.info("Method : / ends");
 		// return "app_index";
-		 //return "nerp-login";
-		 //return "nerp_home";
+		// return "nerp-login";
+		// return "nerp_home";
 		return "index2";
 	}
 
@@ -137,22 +149,15 @@ public class AccessController {
 		logger.info("Method : login starts");
 		// return "app_index";
 		// return "nerp-login";
-		//return "nerp_home";
-		 return "index2";
+		// return "nerp_home";
+		return "index2";
 	}
 
 	/**
 	 * Function show index page after login
 	 *
 	 */
-
-	/*
-	 * @GetMapping("/index") public String index(Model model, HttpSession session) {
-	 * logger.info("Method : index starts");
-	 * //System.out.println(session.getAttribute("DASHBOARD")); String dashboard =
-	 * (String) session.getAttribute("DASHBOARD");
-	 * logger.info("Method : index endss"); return dashboard; }
-	 */
+ 
 
 	@GetMapping("access-denied")
 	public String accessDenied(Model model, HttpSession session) {
@@ -197,7 +202,6 @@ public class AccessController {
 			jsonResponse = restTemplate.postForObject(env.getUserUrl() + "registerUser", user, JsonResponse.class);
 
 		} catch (RestClientException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -223,34 +227,10 @@ public class AccessController {
 		logger.info("Method : index starts");
 
 		String dashboard = (String) session.getAttribute("DASHBOARD");
-
-//		try {
-//			DashboardModel[] data = restTemplate.getForObject(env.getRestaurantUrl() + "dashboardData",
-//					DashboardModel[].class);
-//			List<DashboardModel> dataList = Arrays.asList(data);
-//
-//			if (dataList.size() > 0) {
-//				model.addAttribute("TodayOrder", dataList.get(0).getTodayOrder());
-//				model.addAttribute("TodayBilling", dataList.get(0).getTodayBilling());
-//				model.addAttribute("TodayDelivered", dataList.get(0).getTodayDelivered());
-//				model.addAttribute("TodayPending", dataList.get(0).getTodayPending());
-//				model.addAttribute("TotalOrder", dataList.get(0).getTotalOrder());
-//				model.addAttribute("TotalBilling", dataList.get(0).getTotalBilling());
-//				model.addAttribute("TodayReadyToDeliver", dataList.get(0).getTodayReadyToDeliver());
-//			} else {
-//				model.addAttribute("TodayOrder", 0);
-//				model.addAttribute("TodayBilling", 0.0);
-//				model.addAttribute("TodayDelivered", 0);
-//				model.addAttribute("TodayPending", 0);
-//				model.addAttribute("TotalOrder", 0);
-//				model.addAttribute("TotalBilling", 0.0);
-//				model.addAttribute("TodayReadyToDeliver", 0.0);
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-		logger.info("Method : index endss");
-		return dashboard;
+ 
+		logger.info("Method : index  extend-index ends");
+		//return dashboard;
+		return "extend-index";
 	}
 
 //	@SuppressWarnings("unchecked")
@@ -471,4 +451,170 @@ public class AccessController {
 		logger.info("Method : summaryModal ends");
 		return res;
 	}
+
+	/**
+	 * for dashboard index page
+	 * 
+	 * @param model
+	 * @param session
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@GetMapping("/index-get-function-list/{id}")
+	public String getMenuDetails(Model model, HttpSession session, @PathVariable String id) {
+		logger.info("Method : index starts");
+
+		List<Module> module = new ArrayList<Module>();
+		List<Function> funDetails = new ArrayList<Function>();
+		String activityUrl = "";
+		try {
+
+			module = (List<Module>) session.getAttribute("MENU");
+			if (module != null && module.size() > 0) {
+				List<Module> fList = module.stream().filter(s -> s.getModuleId().equals(id))
+						.collect(Collectors.toList());
+				if (!fList.isEmpty()) {
+					funDetails = fList.get(0).getModule();
+					for (Function a : funDetails) {
+						if (a.getFunction() != null) {
+							a.setDefaultUrl(a.getFunction().get(0).getActivity());
+						}
+
+					}
+				}
+
+				session.setAttribute("funList", funDetails);
+				session.setAttribute("moduleId", id);
+				if (!funDetails.isEmpty()) {
+					activityUrl = funDetails.get(0).getFunction().get(0).getActivity();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Method : index  extend-index ends");
+
+		// return "extend-index2";
+		return "redirect:" + activityUrl;
+
+	}
+
+	@SuppressWarnings("unchecked")
+	@GetMapping(value = { "/index-get-activity-list" })
+	public @ResponseBody JsonResponse<List<Activity>> getActivityList(@RequestParam String funId,
+			@RequestParam String moduleId, HttpSession session) {
+		logger.info("Method : getActivityList starts");
+
+		JsonResponse<List<Activity>> res = new JsonResponse<List<Activity>>();
+		List<Activity> activityList = new ArrayList<Activity>();
+
+		try {
+			List<Module> module = new ArrayList<Module>();
+			try {
+
+				module = (List<Module>) session.getAttribute("MENU");
+				if (module != null && module.size() > 0) {
+					List<Module> fList = module.stream().filter(s -> s.getModuleId().equals(moduleId))
+							.collect(Collectors.toList());
+					if (fList != null) {
+						List<Function> funDetails = (List<Function>) fList.get(0).getModule().stream()
+								.filter(a -> a.getFunctionId().equals(funId)).collect(Collectors.toList());
+						activityList = funDetails.get(0).getFunction();
+					}
+
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			res.setBody(activityList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (res.getMessage() != null) {
+
+			res.setCode(res.getMessage());
+			res.setMessage("Unsuccess");
+		} else {
+			res.setMessage("success");
+		}
+
+		logger.info("Method : getActivityList ends");
+		return res;
+	}
+
+	/**
+	 * for dashboard index page
+	 * 
+	 * @param model
+	 * @param session
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@GetMapping("/index-get-function-list-resp")
+	public @ResponseBody JsonResponse<List<Function>> getFunctionDetails(Model model, HttpSession session,
+			@RequestParam String moduleId) {
+		logger.info("Method : index starts");
+
+		JsonResponse<List<Function>> res = new JsonResponse<List<Function>>();
+		List<Activity> activityList = new ArrayList<Activity>();
+
+		List<Module> module = new ArrayList<Module>();
+		List<Function> funDetails = new ArrayList<Function>();
+		String activityUrl = "";
+		try {
+
+			module = (List<Module>) session.getAttribute("MENU");
+			if (module != null && module.size() > 0) {
+				List<Module> fList = module.stream().filter(s -> s.getModuleId().equals(moduleId))
+						.collect(Collectors.toList());
+				if (!fList.isEmpty()) {
+					funDetails = fList.get(0).getModule();
+					for (Function a : funDetails) {
+						if (a.getFunction() != null) {
+							a.setDefaultUrl(a.getFunction().get(0).getActivity());
+							a.setDefaultUrlId(a.getFunction().get(0).getActivityId());
+						}
+
+					}
+				}
+
+				session.setAttribute("funList", funDetails);
+				session.setAttribute("moduleId", moduleId);
+				if (!funDetails.isEmpty()) {
+					activityUrl = funDetails.get(0).getFunction().get(0).getActivity();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		res.setBody(funDetails);
+		logger.info("Method : index  extend-index ends");
+
+		// return "extend-index2";
+		return res;
+
+	}
+
+	
+	
+	@SuppressWarnings("unchecked")
+	@GetMapping(value = { "/index-get-module-list" })
+	public @ResponseBody JsonResponse<List<Module>> getModuleDetails(Model model, HttpSession session,
+			@RequestParam String moduleId) {
+		logger.info("Method : getModuleDetails starts");
+
+		JsonResponse<List<Module>> res = new JsonResponse<List<Module>>();
+
+		List<Module> module = (List<Module>) session.getAttribute("MENU");
+
+		res.setBody(module);
+		logger.info("Method : getModuleDetails ends");
+ 
+		return res;
+
+	}
+	
 }

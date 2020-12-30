@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<style type="text/css">
+.highcharts-exporting-group {
+	display: none;
+}
+
+.slidebox {
+	padding: 14px;
+	margin-top: 0px;
+	margin: 0px 10px;
+}
+
+.form-group label {
+	font-size: 13px;
+	position: relative;
+	top: 4px;
+}
+</style>
+<script type="text/javascript">
+	function openNav() {
+		document.getElementById("mySidenav").style.cssText = "width: 350px; position: absolute; right:-30px; overflow: hidden; height:620px; top:200px;";
+
+		document.getElementById("main_content").style.width = "72%";
+	}
+
+	function closeNav() {
+		document.getElementById("mySidenav").style.width = "0";
+		document.getElementById("main_content").style.width = "100%";
+	}
+	var count = 0;
+	function allCheck() {
+		count++;
+
+		if (count == 1) {
+			$('.checkCls').prop("checked", true);
+		} else {
+			count = 0;
+			$('.checkCls').prop("checked", false);
+		}
+	}
+
+	var count1 = 0;
+	function allCheck1() {
+		count1++;
+
+		if (count1 == 1) {
+			$('.checkCls1').prop("checked", true);
+		} else {
+			count1 = 0;
+			$('.checkCls1').prop("checked", false);
+		}
+	}
+
+	function cancelBar() {
+		var id = document.getElementById("closeKey");
+		id.style.display = "block";
+		if ($('#searchBar').val() == null || $('#searchBar').val() == "") {
+			id.style.display = "none";
+		}
+	}
+</script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		changeOpt();
+		/* $("#lineGraphDiv").hide(); */
+
+		/* $("#receiveDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+		 */
+
+		$('.collapse').on('show.bs.collapse', function() {
+			$(this).siblings('.panel-heading').addClass('active');
+		});
+
+		$('.collapse').on('hide.bs.collapse', function() {
+			$(this).siblings('.panel-heading').removeClass('active');
+		});
+		$("#newBtn").click(function() {
+			$("#myGrid").hide();
+			$("#reqTable").hide();
+			$(".btn-hs").hide();
+			$("#demo").show();
+		})
+
+		$("#cancelBtn").click(function() {
+			$("#reqTable").show();
+			$(".btn-hs").show();
+			$("#myGrid").show();
+			$("#demo").hide();
+		});
+
+		$("#quarter").click(function() {
+			$("#myTbl").hide();
+			$(".btn-hs").hide();
+			$("#demo").show();
+		})
+
+	});
+
+	$("input[class='myCheckbox']").click(function() {
+		if ($("#formID input:checkbox:checked").length > 0) {
+			$(".checkSubmit").addClass('active');
+		} else {
+			$(".checkSubmit").removeClass('active');
+		}
+	});
+
+	function changeOpt() {
+		var Category = $("#Category").val();
+		$("#type").empty();
+		if (Category == 'Product') {
+			var option = "<option id='ProductOpt'>Software</option> <option id='ProductOpt'>Hardware</option> <option id='ProductOpt'>Office</option> <option id='ProductOpt'>Food</option> <option id='ProductOpt'>Parts</option> <option id='ProductOpt'>Raw Material</option>";
+			$("#type").append(option);
+		} else {
+			var option = "<option id='ServicesOpt'>Credit Card</option> <option id='ServicesOpt'>Bank</option> <option id='ServicesOpt'>Insurance</option> <option id='ServicesOpt'>Financial Service</option> <option id='ServicesOpt'>Government Agency</option> <option id='ServicesOpt'>GOffice Maintenance</option> <option id='ServicesOpt'>Consulting</option>";
+			$("#type").append(option);
+		}
+	}
+
+	function cancelBar() {
+		var id = document.getElementById("closeKey");
+		id.style.display = "block";
+		if ($('#quickFilter').val() == null || $('#quickFilter').val() == "") {
+			id.style.display = "none";
+		}
+	}
+</script>
+
+<script>
+	var columnDefs = [ {
+		headerCheckboxSelection : true,
+		headerCheckboxSelectionFilteredOnly : true,
+		checkboxSelection : true,
+		sortable : false,
+		filter : false,
+		resizable : true,
+		width : 20
+	}, {
+		headerName : "Req Id",
+		field : "sku"
+
+	}, {
+		headerName : "Description",
+		field : "brand"
+	}, {
+		headerName : "Type",
+		field : "brand"
+	}, {
+		headerName : "Priority",
+		field : "itemName"
+
+	}, {
+		headerName : "Location",
+		field : "model"
+
+	}, {
+		headerName : "Cost Center",
+		field : "mode"
+
+	}, {
+		headerName : "Quantity",
+		field : "uom",
+		type : 'rightAligned'
+
+	}, {
+		headerName : "Estimated Price",
+		field : "minStock",
+		type : 'rightAligned'
+
+	}, {
+		headerName : "Receive By Date",
+		field : "stockInHand"
+
+	}, {
+		headerName : "Status",
+		field : "stockInTransit"
+
+	}, {
+		headerName : "Created By",
+		field : "totalStock"
+
+	}, {
+		headerName : "Created Date",
+		field : "lastReceiceDate"
+
+	} ];
+
+	// for product table
+
+	var productDefs = [ {
+		headerCheckboxSelection : true,
+		headerCheckboxSelectionFilteredOnly : true,
+		checkboxSelection : true,
+		sortable : false,
+		filter : false,
+		resizable : true,
+		width : 20
+	}, {
+		headerName : "SKU",
+		field : "sku"
+	}, {
+		headerName : "Name",
+		field : "itemName",
+
+	}, {
+		headerName : "Brand",
+		field : "brand"
+	}, {
+		headerName : "Location",
+		field : "location"
+
+	}, {
+		headerName : "Cost Center",
+		field : "costCenter"
+
+	}, {
+		headerName : "Quantity",
+		field : "qty"
+
+	}, {
+		headerName : "UOM",
+		field : "uom"
+
+	}, {
+		headerName : "Estimated Price",
+		field : "estimatedPrice",
+		type : 'rightAligned'
+
+	}, {
+		headerName : "Last Purchase Price",
+		field : "lastPurchasePrice",
+		type : 'rightAligned'
+
+	}, {
+		headerName : "Created Date",
+		field : "lastPoDate"
+
+	} ];
+
+	var activityDefs = [ {
+		headerCheckboxSelection : true,
+		headerCheckboxSelectionFilteredOnly : true,
+		checkboxSelection : true,
+		sortable : false,
+		filter : false,
+		resizable : true,
+		width : 20
+	}, {
+		headerName : "Activity Name",
+		field : "operationBy"
+	}, {
+		headerName : "User Name",
+		field : "operationName"
+	}, {
+		headerName : "Created Date",
+		field : "operationOn"
+
+	} ];
+
+	// let the grid know which columns and what data to use product table
+	var activityOptions = {
+		columnDefs : activityDefs,
+
+		defaultColDef : {
+			sortable : true,
+			filter : true,
+			resizable : true,
+			width : 353
+		}
+
+	};
+
+	// let the grid know which columns and what data to use activity table
+	var productOptions = {
+		columnDefs : productDefs,
+		defaultColDef : {
+			sortable : true,
+			filter : true,
+			resizable : true,
+			width : 153
+		}
+
+	};
+
+	// let the grid know which columns and what data to use
+	var gridOptions = {
+		columnDefs : columnDefs,
+		defaultColDef : {
+			sortable : true,
+			filter : true,
+			resizable : true,
+			width : 153
+		}
+
+	};
+
+	// setup the grid after the page has finished loading
+	document.addEventListener('DOMContentLoaded', function() {
+		var gridDiv = document.querySelector('#myGrid');
+		new agGrid.Grid(gridDiv, gridOptions);
+
+		var gridDiv = document.querySelector('#product');
+		new agGrid.Grid(gridDiv, productOptions);
+
+		var gridDiv = document.querySelector('#activity');
+		new agGrid.Grid(gridDiv, activityOptions);
+
+	});
+
+	// for product table
+	agGrid.simpleHttpRequest({
+		url : 'view-requisition-item-trough-ajax'
+	}).then(function(data) {
+		productOptions.api.setRowData(data);
+	});
+
+	agGrid.simpleHttpRequest({
+		url : 'view-stock-trough-ajax'
+	}).then(function(data) {
+		gridOptions.api.setRowData(data);
+	});
+
+	agGrid.simpleHttpRequest({
+		url : 'view-requisition-activity-log?id=' + $("#reqId").html()
+	}).then(function(data) {
+		activityOptions.api.setRowData(data);
+	});
+
+	function resetState() {
+		gridOptions.columnApi.resetColumnState();
+
+	}
+
+	function onQuickFilterChanged() {
+		gridOptions.api
+				.setQuickFilter(document.getElementById('quickFilter').value);
+	}
+</script>
+<script type="text/javascript">
+	function stockReport() {
+
+		var selectedRows = productOptions.api.getSelectedRows();
+		var selectedRowsString = '';
+		selectedRows.forEach(function(selectedRow, index) {
+			if (index > 0) {
+				selectedRowsString += ',';
+			}
+			selectedRowsString += selectedRow.itemId;
+		});
+
+		if (selectedRowsString) {
+			/* $("#lineGraph").show(); */
+			$('#lineGraph').modal('show');
+			$
+					.ajax({
+						type : "GET",
+						url : "/inventory/view-stock-daily-report?id="
+								+ selectedRowsString,
+						dataType : 'json',
+						data : selectedRowsString,
+						success : function(response) {
+							if (response.message == "success") {
+								$("#graphTable").empty();
+								lineGrapg(response.body.dataList,
+										response.body.dates, 'Stock');
+								var tableHeader = '<tr>';
+								for (var i = 0; i < response.body.dates.length; i++) {
+
+									tableHeader = tableHeader + '<td>'
+											+ response.body.dates[i] + '</td>';
+								}
+								tableHeader = tableHeader + '</tr>';
+								$("#graphTable").append(tableHeader);
+
+								for (var i = 0; i < response.body.dataList.length; i++) {
+									var tableBody = '<tr><td>'
+											+ response.body.dataList[i].name
+											+ '</td>';
+									for (var j = 0; j < response.body.dataList[i].data.length; j++) {
+										tableBody = tableBody
+												+ '<td>'
+												+ response.body.dataList[i].data[j]
+												+ '</td>';
+									}
+									tableBody = tableBody + '</tr>';
+									$("#graphTable").append(tableBody);
+								}
+
+							}
+						},
+						error : function(data) {
+							console.log(data);
+						}
+					})
+		} else {
+			swal("Please Select At least One Product.");
+		}
+
+	}
+
+	function getExcelReport() {
+		var selectedRows = productOptions.api.getSelectedRows();
+		var selectedRowsString = '';
+		selectedRows.forEach(function(selectedRow, index) {
+			if (index > 0) {
+				selectedRowsString += ',';
+			}
+			selectedRowsString += selectedRow.itemId;
+		});
+
+		window.location.href = "/inventory/view-stock-daily-report-excel?id="
+				+ selectedRowsString;
+	}
+</script>
+
+
+</head>
+<body>
+
+	<div layout:fragment="content" class="maincontent">
+
+		<div class="container-fluid">
+			<div class="row">
+				<div class="maincontentsec">
+					<div class="content_padding">
+						<div class="row margin_topbot">
+							<div class="col-md-8 btn-hs">
+								<div class="input-style row">
+									<input type="text" placeholder="Search.." name="search"
+										class="searchboxinput" onkeyup="cancelBar()"
+										oninput="onQuickFilterChanged()" id="quickFilter">
+									<div class="searchicon">
+										<a href="#"><span style="display: none" id="closeKey"
+											onclick="gridOptions.api.setQuickFilter(null);$('#quickFilter').val('');document.getElementById('closeKey').style.display='none';"
+											class="close_i">X</span></a><a href="#"><i
+											class="fa fa-search"></i></a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row" id="reqTable">
+
+							<div class="col-md-6 btn-hs">
+								<div class="font-design">
+									REQUISITION LIST <span>(10)</span>
+								</div>
+							</div>
+							<div class="col-md-3 btn-hs">
+								<div class="row">
+									<button class="btn1" id="newBtn">NEW</button>
+									<button class="btn2" id="newBtn">COPY</button>
+									<button class="btn3" id="newBtn">DELETE</button>
+								</div>
+							</div>
+							<div class="col-md-1 btn-hs ">
+								<button class="btn2 centerbtn">APPROVE</button>
+							</div>
+
+							<div class="col-md-2 btn-hs">
+								<button class="btn4">UPLOAD</button>
+								<button class="btn4">DOWNLOAD</button>
+							</div>
+
+						</div>
+						<div id="myGrid" style="width: 100%; height: 200px;"
+							class="ag-theme-alpine"></div>
+
+						<div class="collapse" id="demo">
+							<div class="innerstickybg">
+								<div class="row">
+
+									<div class="col-md-3">
+										Requisition ID:<span id="reqId">1023</span>
+									</div>
+									<div class="col-md-6">
+										<div class="hr4"></div>
+										<div class="main-div">
+											<div class="section2">
+												<div class="green-box">
+													<div class="green-box-heading">CREATED</div>
+													<div class="date">9-OCT-20</div>
+												</div>
+											</div>
+											<div class="section3">
+												<div class="green-box">
+													<div class="green-box-heading">ACTIVE</div>
+													<div class="date">11-OCT-20</div>
+												</div>
+											</div>
+											<div class="section4">
+												<div class="grey-box">
+													<div>COMPLETE</div>
+												</div>
+											</div>
+											<div class="section5">
+												<div class="grey-box">
+													<div>ONHOLD</div>
+												</div>
+											</div>
+
+										</div>
+									</div>
+									<div class="col-md-3" align="right">
+										<button class="btn3" id="cancelBtn">Cancel</button>
+										<button class="btn1">Save</button>
+									</div>
+								</div>
+
+							</div>
+							<div class="row innersticky_contentgap">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Description</label>
+										<textarea class="form-control"></textarea>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group">
+												<label>Type</label> <select class="selectbox" id="reqType">
+													<option th:each="c:${requisitionTypeList}"
+														th:value='${c.key}' th:text="${c.name}"
+														th:selected="${c.key==employeeEmployment}"></option>
+												</select>
+											</div>
+										</div>
+
+										<div class="col-md-6">
+											<div class="form-group">
+												<label>Priority</label> <select class="selectbox"
+													id="reqPrior">
+													<option th:each="c:${requisitionPrioList}"
+														th:value='${c.key}' th:text="${c.name}"
+														th:selected="${c.key==employeeEmployment}"></option>
+												</select>
+											</div>
+										</div>
+
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group">
+												<label>Receive By Date</label> <input type="date"
+													id="receiveDate" class="form-control">
+											</div>
+										</div>
+
+										<div class="col-md-6">
+											<div class="form-group">
+												<button class="btn2 putonhold" id="putOnHold"
+													onclick="putOnHold()">PUT ON HOLD</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div id="main_content">
+
+
+
+								<!-- <div class="row">
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#itemList"
+											style="color: #333; text-decoration: none;">Item List</a> <a
+											href="#" data-toggle="collapse" data-target="#itemList"
+											style="float: right; color: #333; text-decoration: none;">
+											<i class="ti-angle-down"></i>
+										</a>
+									</div>
+								</div>
+							</div>
+
+							<div id="itemList" class="collapse show"> -->
+
+								<div class="wrapper center-block">
+									<div class="panel-group" id="accordion" role="tablist"
+										aria-multiselectable="true">
+										<div class="panel panel-default">
+											<div class="panel-heading active" role="tab" id="headingOne">
+												<h4 class="panel-title">
+													<a role="button" data-toggle="collapse"
+														data-parent="#accordion" href="#itemList"
+														aria-expanded="true" aria-controls="itemList"> Item
+														List </a>
+												</h4>
+											</div>
+											<div id="itemList" class="panel-collapse collapse show"
+												role="tabpanel" aria-labelledby="headingOne">
+												<div class="row">
+
+													<div class="col-md-6 btn-hs1">
+														<div class="font-design"></div>
+													</div>
+													<div class="col-md-2 btn-hs1">
+														<div class="row">
+															<button class="btn1" id="newBtn1" onclick="openNav()">NEW</button>
+
+															<button class="btn3" data-toggle="modal"
+																data-target="#delete">DELETE</button>
+
+														</div>
+													</div>
+													<div class="col-md-3 btn-hs1">
+														<button class="btn2 btn_extend">Purchase History</button>
+														<button class="btn2 btn_extend" onclick="stockReport()">Stock
+															History</button>
+													</div>
+
+													<div class="col-md-1 btn-hs1" align="right">
+
+														<button class="btn4">Download</button>
+													</div>
+
+												</div>
+												<div id="product" style="width: 100%; height: 200px;"
+													class="ag-theme-alpine"></div>
+
+
+											</div>
+										</div>
+
+
+
+
+
+										<!-- <div class="row" id="actId">
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#demo_15"
+											style="color: #333; text-decoration: none;">Activities</a> <a
+											href="#" data-toggle="collapse" data-target="#demo_15"
+											style="float: right; color: #333; text-decoration: none;"><i class="ti-angle-down"></i></a>
+									</div>
+								</div>
+							</div>
+							<div id="demo_15" class="collapse show"> -->
+										<div class="panel panel-default">
+											<div class="panel-heading active" role="tab" id="headingtwo">
+												<h4 class="panel-title">
+													<a role="button" data-toggle="collapse"
+														data-parent="#accordion" href="#activityone"
+														aria-expanded="true" aria-controls="itemList">
+														Activities </a>
+												</h4>
+											</div>
+											<div id="activityone" class="panel-collapse collapse show"
+												role="tabpanel" aria-labelledby="headingtwo">
+												<div class="row">
+
+													<div class="col-md-7 btn-hs1">
+														<div class="font-design"></div>
+													</div>
+													<div class="col-md-2 btn-hs1">
+														<div class="row">
+															<button class="btn1" id="newBtn1">NEW</button>
+
+															<button class="btn3" data-toggle="modal"
+																data-target="#delete">DELETE</button>
+
+														</div>
+													</div>
+													<div class="col-md-1 btn-hs1">
+														<button class="btn2">Approve</button>
+													</div>
+
+													<div class="col-md-2 btn-hs1" align="right">
+														<button class="btn4">Upload</button>
+														<button class="btn4">Download</button>
+													</div>
+
+												</div>
+												<div id="activity" style="width: 100%; height: 200px;"
+													class="ag-theme-alpine"></div>
+
+
+											</div>
+										</div>
+									</div>
+
+ 
+									<div id="mySidenav" class="sidenav">
+										<div class="slidebox">
+											<div class="row">
+												<div class="col-md-9">
+													<div class="edit">SKU : 1234</div>
+												</div>
+												<div class="col-md-3">
+													<div class="arrow">
+														<a href="javascript:void(0)" class="closebtn"
+															onclick="closeNav()"><i class="ti-arrow-right"></i></a>
+													</div>
+												</div>
+
+												<div class="chartbtnsec">
+													<div class="row">
+														<button class="btn4">CANCEL</button>
+														<button class="btn3">DELETE</button>
+														<button class="btn1">SAVE</button>
+													</div>
+												</div>
+
+												<div class="row">
+													<div class="col-lg-10">
+														<div class="form-group">
+															<label>Search</label> <input type="text"
+																class="form-control transparenttxtbox" placeholder="search">
+														</div>
+													</div>
+													<div class="col-lg-2">
+														<div class="form-group">
+															<button class="btn2 ">Browse</button>
+														</div>
+													</div>
+												</div>
+
+												<div class="row">
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>SKU</label> <input type="text"
+																class="form-control transparenttxtbox" placeholder="SKU">
+														</div>
+													</div>
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>Brand</label> <input type="text"
+																class="form-control transparenttxtbox" placeholder="Brand">
+														</div>
+													</div>
+												</div>
+												
+												<div class="row">
+													<div class="col-lg-8">
+														<div class="form-group">
+															<label>Item Name</label> <input type="text"
+																class="form-control transparenttxtbox">
+														</div>
+													</div>
+													<div class="col-lg-8">
+														<div class="form-group">
+															<label>Location</label> <select class="form-control">
+															<option value="Chicogo">Chicogo</option>
+															</select>
+														</div>
+													</div>
+													<div class="col-lg-8">
+														<div class="form-group">
+															<label>Cost Center</label> <select class="form-control">
+															<option value="Manufacturing">Manufacturing</option>
+															</select>
+														</div>
+													</div>
+												</div> 
+												<div class="row">
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>Quantity</label> <input type="text"
+																class="form-control transparenttxtbox"  >
+														</div>
+													</div>
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>UOM</label> <input type="text"
+																class="form-control transparenttxtbox" placeholder="Pcs">
+														</div>
+													</div>
+												</div>
+
+												<div class="row">
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>Estimated Price</label> <input type="text"
+																class="form-control transparenttxtbox"  >
+														</div>
+													</div>
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>Estimated Total Price</label> <input type="text"
+																class="form-control transparenttxtbox" >
+														</div>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>Last Purchase unit Price</label> <input
+																type="text" class="form-control transparenttxtbox"
+																placeholder="IN">
+														</div>
+													</div>
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>Last Purchase Total Price</label> <input
+																type="text" class="form-control transparenttxtbox"
+																placeholder="IN">
+														</div>
+													</div>
+												</div>
+
+											</div>
+										</div>
+									</div>
+
+								</div>
+							</div>
+
+						</div>
+
+
+
+					</div>
+
+
+
+
+
+
+					<div class="modal fade" id="lineGraph">
+						<div class="modal-dialog modal-lg">
+							<div class="modal-content large-model">
+
+								<div align="right">
+									<button type="button" class="close" data-dismiss="modal">
+										<i class="ti-close" style="font-size: 14px;"></i>
+									</button>
+								</div>
+								<!-- Modal body -->
+								<div class="modal-body">
+									<div class="row" id="lineGraphDiv">
+										<div class="col-md-12">
+											<div id="chart" class="collapse show">
+												<div style="width: 90%; height: 280px; margin: 0 auto;">
+													<div id="container1" style="width: 100%; height: 280px;"></div>
+												</div>
+												<div style="width: 90%; height: auto; margin: 0 auto;">
+													<div class="row">
+														<div class="col-md-12">
+
+															<div align="right" class="pdficonsec">
+																<i class="fa fa-file-pdf-o fa-2x pdf"
+																	onclick="downloadChartPdf()"></i> <i
+																	class="fa fa-file-excel-o fa-2x excel"
+																	onclick="getExcelReport()"></i>
+															</div>
+															<table id="graphTable" class="newtbl">
+															</table>
+														</div>
+
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+								</div>
+								<!-- Modal footer -->
+							</div>
+						</div>
+					</div>
+
+
+				</div>
+			</div>
+</body>
+</html>

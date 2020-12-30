@@ -3,6 +3,7 @@
  */
 package nirmalya.aathithya.webmodule.common.security;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,9 +50,11 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
 				
 				List<String> uList = (List<String>)session.getAttribute("URL_LIST");
 				
-				String uri = request.getRequestURI();
-
-				List<String> check = uList.stream().filter(s -> uri.contains(s)).collect(Collectors.toList());
+				String uri = request.getRequestURI(); 
+				List<String> check = new ArrayList<String>();
+				if(uri!= null) {
+					check = uList.stream().filter(s -> uri.contains(s)).collect(Collectors.toList());
+				}
 				if(check.size() == 0 ) {
 					response.sendRedirect("/access-denied");				
 				}

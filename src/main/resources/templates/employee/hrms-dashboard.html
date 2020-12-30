@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/extend-master}">
+<head>
+
+</head>
+<div layout:fragment="content" class="maincontent">
+
+	<div class="container-fluid">
+
+		<div class="row">
+			<div class="maincontentsec">
+				<div class="content_padding">
+					<div class="row">
+						<div class="newgrid">
+							<div class="box" align="center">
+								<a href="#" data-toggle="collapse" data-target="#demo">
+									<div class="number">14</div>
+									<div class="text">AVE REQUISITIONS</div>
+								</a>
+							</div>
+						</div>
+						<div class="newgrid">
+							<div class="box" align="center">
+								<a href="hrms_hire.html">
+									<div class="number">25</div>
+									<div class="text">AVE APPLICATIONS</div>
+								</a>
+							</div>
+						</div>
+						<div class="newgrid">
+							<div class="box" align="center">
+								<a href="hrms_hire.html">
+									<div class="number">15</div>
+									<div class="text">AVE SHORTLISTED</div>
+								</a>
+							</div>
+						</div>
+						<div class="newgrid">
+							<div class="box" align="center">
+								<a href="hrms_hire.html">
+									<div class="number">24</div>
+									<div class="text">AVE INTERVIEWS</div>
+								</a>
+							</div>
+						</div>
+						<div class="newgrid">
+							<div class="box" align="center">
+								<a href="hrms_hire.html">
+									<div class="number">4</div>
+									<div class="text">AVE OFFERS</div>
+								</a>
+							</div>
+						</div>
+
+					</div>
+				</div>
+				<div id="demo" class="collapse">
+					<div class="showhidebox">
+
+						<div class="col-md-12">
+
+							<div class="row">
+								<div class="col-md-2">
+									<div class="reuisitiontext">
+										<strong>REQUISITIONS</strong><br> (Last 12 months)
+									</div>
+								</div>
+								<div class="col-md-10">
+									<div id="container"
+										style="width: 720px; min-width: 300px; height: 300px;"></div>
+
+									<div class="charttablesec">
+										<div align="right" class="pdficonsec">
+											<i class="fa fa-file-pdf-o fa-2x pdf"></i> <i
+												class="fa fa-file-excel-o fa-2x excel"></i>
+										</div>
+										<table class="table table-bordered charttbl">
+											<tr>
+												<td>Jan-20</td>
+												<td>Feb-20</td>
+												<td>Mar-20</td>
+												<td>Apr-20</td>
+												<td>May-20</td>
+												<td>Jun-20</td>
+												<td>Jul-20</td>
+												<td>Aug-20</td>
+												<td>Sep-20</td>
+												<td>Oct-20</td>
+												<td>Nov-20</td>
+												<td>Dec-20</td>
+											</tr>
+											<tr>
+												<td>12</td>
+												<td>2</td>
+												<td>12</td>
+												<td>2</td>
+												<td>12</td>
+												<td>2</td>
+												<td>12</td>
+												<td>2</td>
+												<td>12</td>
+												<td>2</td>
+												<td>12</td>
+												<td>2</td>
+											</tr>
+										</table>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<div class="content_padding">
+					<div class="row">
+						<div class="newgrid">
+							<div class="box" align="center">
+								<a href="hrms_hire.html">
+									<div class="number">4.3</div>
+									<div class="text">APPLICATION /REQ</div>
+								</a>
+							</div>
+						</div>
+						<div class="newgrid">
+							<div class="box" align="center">
+								<a href="hrms_hire.html">
+									<div class="number">43%</div>
+									<div class="text">SHORTLIST : APPLICATION</div>
+								</a>
+							</div>
+						</div>
+						<div class="newgrid">
+							<div class="box" align="center">
+								<a href="hrms_hire.html">
+									<div class="number">78%</div>
+									<div class="text">INTERVIEW : SHORTLIST</div>
+								</a>
+							</div>
+						</div>
+						<div class="newgrid">
+							<div class="box" align="center">
+								<a href="hrms_hire.html">
+									<div class="number">2.6</div>
+									<div class="text">INTERVIEWS /REQ</div>
+								</a>
+							</div>
+						</div>
+						<div class="newgrid">
+							<div class="box" align="center">
+								<a href="hrms_hire.html">
+									<div class="number">72%</div>
+									<div class="text">OFFER : INTERVIEW</div>
+								</a>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<script>
+$(function () {
+    $(".box,.number,.text").click(function () {
+        $(this).css('background-color', '#0076BA');
+        $(this).css('color','#FFFFFF');
+        $(this).css('color','#FFFFFF');
+    });
+});
+</script>
+
+<script type="text/javascript">
+$(function () {
+        $('#container').highcharts({
+            chart: {
+                type: 'column'
+            },
+            /*title: {
+                text: 'Monthly Average Rainfall'
+            },
+            subtitle: {
+                text: 'Source: WorldClimate.com'
+            },*/
+            xAxis: {
+                categories: [
+                    'Jan-20',
+                    'Feb-20',
+                    'Mar-20',
+                    'Apr-20',
+                    'May-20',
+                    'Jun-20',
+                    'Jul-20',
+                    'Aug-20',
+                    'Sep-20',
+                    'Oct-20',
+                    'Nov-20',
+                    'Dec-20'
+                ]
+            },
+
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'REQUISITIONS'
+                },
+                 plotLines: [{
+                color: '#0076BA',
+                value: '5',
+                width: '1',
+                zIndex: 2
+            }]
+            },
+            tooltip: {
+                headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                    '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                footerFormat: '</table>',
+                shared: true,
+                useHTML: true
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
+                }
+            },
+
+            series: [{
+                name: '',
+               /* data: [9, 5, 4, 2, 3, 7, 6, 5, 4, 1, 9, 8]*/
+
+                data: [
+					  { y: 9, color: '#A9A9A9'}, 
+					  { y: 5, color: '#A9A9A9'},
+					  { y: 4, color: '#A9A9A9'},
+					  { y: 2, color: '#A9A9A9'},
+					  { y: 3, color: '#A9A9A9'},
+					  { y: 7, color: '#A9A9A9'},
+					  { y: 6, color: '#A9A9A9'},
+					  { y: 5, color: '#A9A9A9'},
+					  { y: 4, color: '#A9A9A9'},
+					  { y: 9, color: '#A9A9A9'},
+					  { y: 1, color: '#A9A9A9'},
+					  { y: 8, color: '#A9A9A9'}, 
+					                          
+					]      
+    
+            }, ]
+
+        });
+});
+
+
+</script>
+
+</body>
+</html>
