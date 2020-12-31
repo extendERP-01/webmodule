@@ -6,9 +6,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -26,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -317,9 +323,8 @@ public class LocationMasterController {
 	}
 	
 	@SuppressWarnings("unchecked")
-	@PostMapping(value = { "manage-location-get-location-listing" })
-	public @ResponseBody JsonResponse<List<LocationMasterModel>> getLocationListing(Model model, @RequestBody String tCountry,
-			BindingResult result) {
+	@GetMapping(value = { "manage-location-get-location-listing" })
+	public @ResponseBody List<LocationMasterModel> getLocationListing(Model model, HttpServletRequest request) {
 		logger.info("Method : getLocationListing starts");
 		
 		JsonResponse<List<LocationMasterModel>> res = new JsonResponse<List<LocationMasterModel>>();
@@ -327,6 +332,28 @@ public class LocationMasterController {
 		try {
 			res = restClient.getForObject(env.getMasterUrl() + "getLocationListing",
 					JsonResponse.class);
+			
+			ObjectMapper mapper = new ObjectMapper();
+
+			List<LocationMasterModel> location = mapper.convertValue(res.getBody(),
+					new TypeReference<List<LocationMasterModel>>() {
+					});
+			
+			for(LocationMasterModel m : location) {
+				if(m.getLocVirtual().contentEquals("1")) {
+					m.setLocVirtual("Yes");
+				} else {
+					m.setLocVirtual("No");
+				}
+				
+				if(m.getLocStatus().contentEquals("1")) {
+					m.setLocStatus("Active");
+				} else {
+					m.setLocStatus("Inactive");
+				}
+			}
+			
+			res.setBody(location);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -337,9 +364,9 @@ public class LocationMasterController {
 		} else {
 			res.setMessage("success");
 		}
-		
+		System.out.println(res.getBody());
 		logger.info("Method : getLocationListing ends");
-		return res;
+		return res.getBody();
 		
 	}
 	
@@ -832,5 +859,54 @@ public class LocationMasterController {
 		
 		logger.info("Method : deleteLocationFile starts");
 		return resp;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@GetMapping("manage-location-report-excel")
+	public ModelAndView downloadExcelReport(HttpServletResponse servResponse, HttpSession session,
+			@RequestParam("id") String encodedPraram1) {
+		logger.info("Method : downloadExcelReport start");
+		byte[] encodeByte1 = Base64.getDecoder().decode(encodedPraram1.getBytes());
+		
+		String userId = "";
+		
+		try {
+			userId = (String) session.getAttribute("USER_ID");
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+
+		String param1 = (new String(encodeByte1));
+		
+		List<String> locationList = new ArrayList<String>();
+		
+		String data[] = param1.split(",");
+		
+		for(int i = 0; i < data.length; i++) {
+			locationList.add(data[i]);
+		}
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		JsonResponse<Object> jsonResponse = new JsonResponse<Object>();
+		
+		try {
+			jsonResponse = restClient.postForObject(env.getMasterUrl() + "getLocationExcelData", locationList,
+					JsonResponse.class);
+			ObjectMapper mapper = new ObjectMapper();
+			List<LocationMasterModel> location = mapper.convertValue(jsonResponse.getBody(),
+					new TypeReference<List<LocationMasterModel>>() {
+					});
+
+			
+			map.put("location", location);
+			servResponse.setContentType("application/ms-excel");
+			servResponse.setHeader("Content-disposition", "attachment; filename=LocationExcelReport.xls");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("LocationMasterController -> downloadExcelReport GET", e);
+		}
+		logger.info("Method : downloadExcelReport ends");
+		return new ModelAndView(new ExcelLocationReport(), map);
 	}
 }

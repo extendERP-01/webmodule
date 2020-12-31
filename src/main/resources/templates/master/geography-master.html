@@ -18,105 +18,392 @@
 </script>
 
 <script type="text/javascript">
-$(document).ready(function() {
-	
-	$('.collapse').on('show.bs.collapse', function() {
-		$(this).siblings('.panel-heading').addClass('active');
-	});
+	$(document)
+			.ready(
+					function() {
 
-	$('.collapse').on('hide.bs.collapse', function() {
-		$(this).siblings('.panel-heading').removeClass('active');
-	});
+						$('.collapse').on(
+								'show.bs.collapse',
+								function() {
+									$(this).siblings('.panel-heading')
+											.addClass('active');
+								});
 
-	
-	/* selectbox */
-	var x, i, j, l, ll, selElmnt, a, b, c;
-	/*look for any elements with the class "custom-select":*/
-	x = document.getElementsByClassName("selectbox");
-	l = x.length;
-	for (i = 0; i < l; i++) {
-		selElmnt = x[i].getElementsByTagName("select")[0];
-		ll = selElmnt.length;
-		/*for each element, create a new DIV that will act as the selected item:*/
-		a = document.createElement("DIV");
-		a.setAttribute("class", "select-selected");
-		a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
-		x[i].appendChild(a);
-		/*for each element, create a new DIV that will contain the option list:*/
-		b = document.createElement("DIV");
-		b.setAttribute("class", "select-items select-hide");
-		for (j = 1; j < ll; j++) {
-			/*for each option in the original select element,
-			create a new DIV that will act as an option item:*/
-			c = document.createElement("DIV");
-			c.innerHTML = selElmnt.options[j].innerHTML;
-			c
-					.addEventListener(
-							"click",
-							function(e) {
-								/*when an item is clicked, update the original select box,
-								and the selected item:*/
-								var y, i, k, s, h, sl, yl;
-								s = this.parentNode.parentNode
-										.getElementsByTagName("select")[0];
-								sl = s.length;
-								h = this.parentNode.previousSibling;
-								for (i = 0; i < sl; i++) {
-									if (s.options[i].innerHTML == this.innerHTML) {
-										s.selectedIndex = i;
-										h.innerHTML = this.innerHTML;
-										y = this.parentNode
-												.getElementsByClassName("same-as-selected");
-										yl = y.length;
-										for (k = 0; k < yl; k++) {
-											y[k].removeAttribute("class");
-										}
-										this.setAttribute("class",
-												"same-as-selected");
-										break;
-									}
-								}
-								h.click();
+						$('.collapse').on(
+								'hide.bs.collapse',
+								function() {
+									$(this).siblings('.panel-heading')
+											.removeClass('active');
+								});
+
+						/* selectbox */
+						var x, i, j, l, ll, selElmnt, a, b, c;
+						/*look for any elements with the class "custom-select":*/
+						x = document.getElementsByClassName("selectbox");
+						l = x.length;
+						for (i = 0; i < l; i++) {
+							selElmnt = x[i].getElementsByTagName("select")[0];
+							ll = selElmnt.length;
+							/*for each element, create a new DIV that will act as the selected item:*/
+							a = document.createElement("DIV");
+							a.setAttribute("class", "select-selected");
+							a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+							x[i].appendChild(a);
+							/*for each element, create a new DIV that will contain the option list:*/
+							b = document.createElement("DIV");
+							b.setAttribute("class", "select-items select-hide");
+							for (j = 1; j < ll; j++) {
+								/*for each option in the original select element,
+								create a new DIV that will act as an option item:*/
+								c = document.createElement("DIV");
+								c.innerHTML = selElmnt.options[j].innerHTML;
+								c
+										.addEventListener(
+												"click",
+												function(e) {
+													/*when an item is clicked, update the original select box,
+													and the selected item:*/
+													var y, i, k, s, h, sl, yl;
+													s = this.parentNode.parentNode
+															.getElementsByTagName("select")[0];
+													sl = s.length;
+													h = this.parentNode.previousSibling;
+													for (i = 0; i < sl; i++) {
+														if (s.options[i].innerHTML == this.innerHTML) {
+															s.selectedIndex = i;
+															h.innerHTML = this.innerHTML;
+															y = this.parentNode
+																	.getElementsByClassName("same-as-selected");
+															yl = y.length;
+															for (k = 0; k < yl; k++) {
+																y[k]
+																		.removeAttribute("class");
+															}
+															this
+																	.setAttribute(
+																			"class",
+																			"same-as-selected");
+															break;
+														}
+													}
+													h.click();
+												});
+								b.appendChild(c);
+							}
+							x[i].appendChild(b);
+							a.addEventListener("click", function(e) {
+								/*when the select box is clicked, close any other select boxes,
+								and open/close the current select box:*/
+								e.stopPropagation();
+								closeAllSelect(this);
+								this.nextSibling.classList
+										.toggle("select-hide");
+								this.classList.toggle("select-arrow-active");
 							});
-			b.appendChild(c);
-		}
-		x[i].appendChild(b);
-		a.addEventListener("click", function(e) {
-			/*when the select box is clicked, close any other select boxes,
-			and open/close the current select box:*/
-			e.stopPropagation();
-			closeAllSelect(this);
-			this.nextSibling.classList.toggle("select-hide");
-			this.classList.toggle("select-arrow-active");
-		});
-	}
-	function closeAllSelect(elmnt) {
-		/*a function that will close all select boxes in the document,
-		except the current select box:*/
-		var x, y, i, xl, yl, arrNo = [];
-		x = document.getElementsByClassName("select-items");
-		y = document.getElementsByClassName("select-selected");
-		xl = x.length;
-		yl = y.length;
-		for (i = 0; i < yl; i++) {
-			if (elmnt == y[i]) {
-				arrNo.push(i)
-			} else {
-				y[i].classList.remove("select-arrow-active");
-			}
-		}
-		for (i = 0; i < xl; i++) {
-			if (arrNo.indexOf(i)) {
-				x[i].classList.add("select-hide");
-			}
-		}
-	}
-});
+						}
+
+						$("#globalCountry")
+								.change(
+										function() {
+											var country = $(this).val();
+											if (country) {
+												$
+														.ajax({
+															type : "POST",
+															url : "manage-global-get-state-list",
+															dataType : 'json',
+															contentType : 'application/json',
+															data : country,
+															success : function(
+																	response) {
+																if (response.message == "success") {
+																	console
+																			.log(response);
+																	$(
+																			"#globalState")
+																			.empty();
+																	$(
+																			"#globalState")
+																			.append(
+																					"<option value=''>Select</option>");
+																	$(
+																			"#globalCity")
+																			.empty();
+																	$(
+																			"#globalCity")
+																			.append(
+																					"<option value=''>Select</option>");
+
+																	for (var i = 0; i < response.body.length; i++) {
+																		var option = $("<option></option>");
+																		$(
+																				option)
+																				.val(
+																						response.body[i].key);
+																		$(
+																				option)
+																				.html(
+																						response.body[i].name);
+																		$(
+																				"#globalState")
+																				.append(
+																						option);
+																	}
+																}
+															},
+															error : function(
+																	data) {
+																console
+																		.log(data);
+																$(
+																		"#globalState")
+																		.empty();
+																$(
+																		"#globalState")
+																		.append(
+																				"<option value=''>Select</option>");
+																$("#globalCity")
+																		.empty();
+																$("#globalCity")
+																		.append(
+																				"<option value=''>Select</option>");
+															}
+														})
+											} else {
+												$("#globalState").empty();
+												$("#globalState")
+														.append(
+																"<option value=''>Select</option>");
+												$("#globalCity").empty();
+												$("#globalCity")
+														.append(
+																"<option value=''>Select</option>");
+											}
+										})
+
+						$("#globalState")
+								.change(
+										function() {
+											var state = $(this).val();
+											if (state) {
+												$
+														.ajax({
+															type : "POST",
+															url : "manage-global-get-city-list",
+															dataType : 'json',
+															contentType : 'application/json',
+															data : state,
+															success : function(
+																	response) {
+																if (response.message == "success") {
+																	console
+																			.log(response);
+																	$(
+																			"#globalCity")
+																			.empty();
+																	$(
+																			"#globalCity")
+																			.append(
+																					"<option value=''>Select</option>");
+
+																	for (var i = 0; i < response.body.length; i++) {
+																		var option = $("<option></option>");
+																		$(
+																				option)
+																				.val(
+																						response.body[i].key);
+																		$(
+																				option)
+																				.html(
+																						response.body[i].name);
+																		$(
+																				"#globalCity")
+																				.append(
+																						option);
+																	}
+																}
+															},
+															error : function(
+																	data) {
+																console
+																		.log(data);
+																$("#globalCity")
+																		.empty();
+																$("#globalCity")
+																		.append(
+																				"<option value=''>Select</option>");
+															}
+														})
+											} else {
+												$("#globalCity").empty();
+												$("#globalCity")
+														.append(
+																"<option value=''>Select</option>");
+											}
+										})
+
+						function closeAllSelect(elmnt) {
+							/*a function that will close all select boxes in the document,
+							except the current select box:*/
+							var x, y, i, xl, yl, arrNo = [];
+							x = document.getElementsByClassName("select-items");
+							y = document
+									.getElementsByClassName("select-selected");
+							xl = x.length;
+							yl = y.length;
+							for (i = 0; i < yl; i++) {
+								if (elmnt == y[i]) {
+									arrNo.push(i)
+								} else {
+									y[i].classList
+											.remove("select-arrow-active");
+								}
+							}
+							for (i = 0; i < xl; i++) {
+								if (arrNo.indexOf(i)) {
+									x[i].classList.add("select-hide");
+								}
+							}
+						}
+					});
 	/*if the user clicks anywhere outside the select box,
 	 then close all select boxes:*/
 	document.addEventListener("click", closeAllSelect);
 </script>
 
+
+<!-- <script type="text/javascript">
+$(document).ready(function() {			
+	$('#table').DataTable({
+		'processing' : true,
+		'serverSide' : true,
+		'searching' : false,
+		'ordering' : false,
+		"ajax" : {
+			'url' : 'geography-master-through-ajax',
+			}
+		},
+		'dataSrc' : "",
+		'columns' : [
+		
+			{'data' : 'globalId'},
+			
+			{'data' : 'globalCode'},
+			
+			{'data' : 'globalCountry'},
+			
+			{'data' : 'globalState'},
+			
+			{'data' : 'globalCity'},
+			
+			{'data' : 'globalStatus'}
+		]	
+	});
+});
+
+
+</script>
+ -->
+
+
+
+
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		$("#saveCountryType").click(function() {
+			
+			data = {};
+			data.globalId = $("#globalId").val();
+			data.countryOrderId = $("#countryOrderId").val();
+			data.countryCode = $("#countryCode").val();
+			data.countryName = $("#countryName").val();
+			data.countryStatus = $("#countryStatus").val();
+
+			console.log("data", data)
+
+			submitCountryType(data);
+
+		})
+	})
+	function submitCountryType(dataset) {
+		console.log(dataset)
+		$.ajax({
+			type : "POST",
+			url : "geography-master-country-type",
+			dataType : "json",
+			contentType : "application/json",
+			data : JSON.stringify(dataset),
+			success : function(response) {
+				if (response.message == "Success") {
+
+					console.log(response.body)
+
+				} else {
+					swal({
+						title : response.code,
+						text : response.message,
+						type : "warning"
+					})
+				}
+			},
+			error : function(response) {
+				console.log(response);
+			}
+		})
+	}
+</script>
+
+
+
+<!-- <script type="text/javascript">
+	$(document).ready(function() {
+
+		$("#saveCountryType").click(function() {
+			alert("error");
+			data = {};
+			data.globalId = $("#globalId").val();
+			data.globalOrderId = $("#globalOrderId").val();
+			data.globalCode = $("#globalCode").val();
+			data.globalState = $("#globalState").val();
+			data.globalStatus = $("#globalStatus").val();
+
+			console.log("data", data)
+
+			submitCountryType(data);
+
+		})
+	})
+	function submitCountryType(dataset) {
+		console.log(dataset)
+		$.ajax({
+			type : "POST",
+			url : "geography-master-country-type",
+			dataType : "json",
+			contentType : "application/json",
+			data : JSON.stringify(dataset),
+			success : function(response) {
+				if (response.message == "Success") {
+
+					console.log(response.body)
+
+				} else {
+					swal({
+						title : response.code,
+						text : response.message,
+						type : "warning"
+					})
+				}
+			},
+			error : function(response) {
+				console.log(response);
+			}
+		})
+	}
+</script> -->
+</head>
+
+<body>
 </head>
 
 <body>
@@ -139,9 +426,11 @@ $(document).ready(function() {
 													<a role="button" data-toggle="collapse"
 														data-parent="#accordion" href="#collapseOne"
 														aria-expanded="true" aria-controls="collapseOne">
-														Select Geo </a>
+														Select Global </a>
 												</h4>
+												
 											</div>
+
 											<div id="collapseOne" class="panel-collapse collapse show"
 												role="tabpanel" aria-labelledby="headingOne">
 												<div class="panel-body">
@@ -149,24 +438,24 @@ $(document).ready(function() {
 														<div class="col-md-4">
 															<div class="row">
 																<div class="col-md-10">
-																	<div class="sml_plus">
+																	<div class="sml_plus" onclick='openNav()'>
 																		<i class="ti-plus"></i>
 																	</div>
-																	<div class="sml_edit">
+																	<!-- <div class="sml_edit">
 																		<i class="ti-pencil"></i>
-																	</div>
+																	</div> -->
 																	<div class="sml_action">
-																		<i class="ti-bolt"></i>
+																		<i class="ti-bolt-alt"></i>
 																	</div>
 																</div>
 
 																<div class="sml_hide">
-																	<i class="ti-angle-down"></i>
+																	<i class="ti-download"></i>
 																</div>
 
 															</div>
 															<div class="box_reference" align="center">
-																<table class="table table-bordered newtbl">
+																<table id="table" class="table table-bordered newtbl">
 																	<tr>
 																		<td align="center">Order</td>
 																		<td align="center">Code</td>
@@ -205,24 +494,24 @@ $(document).ready(function() {
 														<div class="col-md-4">
 															<div class="row">
 																<div class="col-md-10">
-																	<div class="sml_plus">
+																	<div class="sml_plus" onclick='openNav()'>
 																		<i class="ti-plus"></i>
 																	</div>
-																	<div class="sml_edit">
+																	<!-- <div class="sml_edit">
 																		<i class="ti-pencil"></i>
-																	</div>
+																	</div> -->
 																	<div class="sml_action">
-																		<i class="ti-bolt"></i>
+																		<i class="ti-bolt-alt"></i>
 																	</div>
 																</div>
 
 																<div class="sml_hide">
-																	<i class="ti-angle-down"></i>
+																	<i class="ti-download"></i>
 																</div>
 
 															</div>
 															<div class="box_reference" align="center">
-																<table class="table table-bordered newtbl">
+																<table id="table" class="table table-bordered newtbl">
 
 																	<tr>
 																		<td>Order</td>
@@ -268,24 +557,24 @@ $(document).ready(function() {
 														<div class="col-md-4">
 															<div class="row">
 																<div class="col-md-10">
-																	<div class="sml_plus">
+																	<div class="sml_plus" onclick='openNav()'>
 																		<i class="ti-plus"></i>
 																	</div>
-																	<div class="sml_edit">
+																	<!-- <div class="sml_edit">
 																		<i class="ti-pencil"></i>
-																	</div>
+																	</div> -->
 																	<div class="sml_action">
-																		<i class="ti-bolt"></i>
+																		<i class="ti-bolt-alt"></i>
 																	</div>
 																</div>
 
 																<div class="sml_hide">
-																	<i class="ti-angle-down"></i>
+																	<i class="ti-download"></i>
 																</div>
 
 															</div>
 															<div class="box_reference" align="center">
-																<table class="table table-bordered newtbl">
+																<table id="table" class="table table-bordered newtbl">
 																	<tr>
 																		<td style="width: 5%">Order</td>
 																		<td style="width: 5%">Code</td>
@@ -346,39 +635,49 @@ $(document).ready(function() {
 																		<div class="row">
 																			<button class="btn4">CANCEL</button>
 																			<button class="btn3">DELETE</button>
-																			<button class="btn1">SAVE</button>
+																			<button class="btn1" id="saveCountryType">SAVE</button>
 																		</div>
 																	</div>
 																	<div class="col-md-12">
 																		<div class="form-group">
 																			<label>Code</label> <input type="text"
+																				id="countryCode"
 																				class="form-control transparenttxtbox"
-																				placeholder="IN">
+																				placeholder="IN"><input type="hidden"
+																				id="globalId">
 																		</div>
 																	</div>
 																	<div class="col-md-12">
 																		<div class="form-group">
 																			<label>Name</label> <input type="text"
+																				id="countryName"
 																				class="form-control transparenttxtbox"
 																				placeholder="India">
 																		</div>
 																	</div>
+
+
 																	<div class="col-md-12">
 																		<div class="form-group">
-																			<label>Status</label> <input type="text"
-																				class="form-control transparenttxtbox"
-																				placeholder="Active">
+																			<label>Status</label> <select id="countryStatus"
+																				class="form-control">
+																				<option value="active">Active</option>
+																				<option value="inactive">Inactive</option>
+																			</select>
 																		</div>
 																	</div>
+
+
 																	<div class="col-md-12">
 																		<div class="form-group">
 																			<label>Order</label> <input type="text"
+																				id="countryOrderId"
 																				class="form-control transparenttxtbox"
 																				placeholder="1">
 																		</div>
 																	</div>
 
-																	
+
 																</div>
 															</div>
 														</div>
@@ -395,6 +694,7 @@ $(document).ready(function() {
 															aria-expanded="false" aria-controls="collapseTwo">
 															Select Timezone </a>
 													</h4>
+													<!-- 	<hr style="width: 99%; left: -10px"> -->
 												</div>
 												<div id="collapseTwo" class="panel-collapse collapse"
 													role="tabpanel" aria-labelledby="headingTwo">
@@ -442,6 +742,7 @@ $(document).ready(function() {
 															aria-expanded="false" aria-controls="collapseThree">
 															Select Currency </a>
 													</h4>
+													<!-- <hr style="width: 99%; left: -10px"> -->
 												</div>
 												<div id="collapseThree" class="panel-collapse collapse"
 													role="tabpanel" aria-labelledby="headingThree">
@@ -488,4 +789,6 @@ $(document).ready(function() {
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
 </html>

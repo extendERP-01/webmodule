@@ -278,7 +278,7 @@ function checkCharLengthOfString(fieldId, maxLength) {
 	
 	if(strlen > maxLength) {
 		$("#msgModal").modal('show');
-		$("#"+fieldId).val("");
+		//$("#"+fieldId).val("");
 		var message = "Max length can't be greater than "+maxLength;
 		$("#messageParagraph").text(message);
 	}

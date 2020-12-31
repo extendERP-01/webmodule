@@ -126,7 +126,7 @@ function closeNav() {
 <script type="text/javascript">
 $(document).ready(function() {
 	
-	listingOfLocation();
+	//listingOfLocation();
 	
 	$(".pc-box").click(function() {
 	    if (this.checked) {
@@ -243,11 +243,12 @@ $(document).ready(function() {
 	})
 
 	$("#cancelBtn").click(function() {
-		$("#myTbl").show();
+		$("#myGrid").show();
+		$("#serachRowDiv").show();
 		$(".btn-hs").show();
 		$("#demo").hide();
 		
-		listingOfLocation();
+		//listingOfLocation();
 		
 		$(".caret").removeClass("caret-down");
 		$(".nested").removeClass("active");
@@ -289,7 +290,11 @@ $(document).ready(function() {
 		data.roomType = $("#roomType").val();
 		data.sectionId = $("#sectionRoomId").val();
 		
-		submitRoom(data);
+		if(parseFloat($("#roomName").val().length) > 10) {
+			checkCharLengthOfString("roomName", 10);
+		} else {
+			submitRoom(data);
+		}
 		
 	})
 	
@@ -526,7 +531,7 @@ $(document).ready(function() {
 
 
 
-function listingOfLocation() {
+/* function listingOfLocation() {
 	$("#listTbody").empty();
 	$.ajax({
 		type : "POST",
@@ -582,12 +587,15 @@ function listingOfLocation() {
 		}
 	})
 	
-}
+} */
 
 function openDetails(id) {
 	
+	$("#myGrid").hide();
+	$("#serachRowDiv").hide();
+	
 	closeNav();
-	$("#searchRowDiv").hide();
+	//$("#searchRowDiv").hide();
 	$("#liFloor").empty();
 	$("#check1").prop("checked",true);
 	
@@ -702,7 +710,23 @@ function openDetails(id) {
 			success : function(response) {
 				if (response.message == "success") {
 					
+					if(response.body.length <= 0) {
+						$(".flowsection").css("border-right","0px solid #ccc")
+						$(".slidearrow").hide();
+					} else {
+						$(".flowsection").css("border-right","1px solid #ccc")
+						$(".slidearrow").show();
+					}
+					
 					for(var i = 0; i < response.body.length; i++) {
+						
+						if(response.body[i].sectionList.length <= 0) {
+							$(".flowsection").css("border-right","0px solid #ccc")
+							$(".slidearrow").hide();
+						} else {
+							$(".flowsection").css("border-right","1px solid #ccc")
+							$(".slidearrow").show();
+						}
 						
 						var div = "";
 						if(response.body[i].sectionList.length > 0) {
@@ -764,6 +788,15 @@ function openDetails(id) {
 		$("#myUL").hide();
 		
 		$("#liFloor").empty();
+		
+		$(".flowsection").css("border-right","0px solid #ccc")
+		$(".slidearrow").hide();
+		
+		$(".panel-heading").removeClass("active");
+		$(".panel-collapse").removeClass("show");
+		
+		/* $("#layoutId").addClass("collapsed");
+		$("#layoutId").attr("aria-expanded","false"); */
 	}
 	
 	$("#myTbl").hide();
@@ -782,7 +815,7 @@ function showRoomDetails(id) {
 	console.log(dataset)
 	/* $(".floor_counter").text(" (0)");
 	$(".section_counter").text(" (0)"); */
-	if(id) {
+	if(dataset.length > 0) {
 		$.ajax({
 			type : "POST",
 			url : "manage-location-get-loc-room-details",
@@ -792,6 +825,14 @@ function showRoomDetails(id) {
 			success : function(response) {
 				if (response.message == "success") {
 					console.log(response);
+					
+					if(response.body.length > 0) {
+						$(".flowsection").css("border-right","1px solid #ccc")
+						$(".slidearrow").show();
+					} else {
+						$(".flowsection").css("border-right","0px solid #ccc")
+						$(".slidearrow").hide();
+					}
 					
 					$(".roomListDiv").empty();
 					var act_cls = 0;
@@ -987,6 +1028,9 @@ function submitLocation(dataset) {
 				var labeltxt = response.body.locationCode + " - " + response.body.locationName ;
 				$("#locchkboxlabel").text(labeltxt);
 				$("#locCount").text(' (0)');
+				
+				$(".flowsection").css("border-right","0px solid #ccc")
+				$(".slidearrow").hide();
 
             } else {
                 swal({
@@ -1415,6 +1459,129 @@ $(document).ready(function() {
     });
 });
 </script>
+<script>
+/** AG Grid **/
+
+var columnDefs = [{
+        headerCheckboxSelection: true,
+        headerCheckboxSelectionFilteredOnly: true,
+        checkboxSelection: true,
+        width: 10,
+        sortable: false,
+        filter: false,
+        resizable: true
+    },
+    {
+        headerName: "ID",
+        field: "locationId",
+        cellRenderer: function(params) {
+            return '<a onclick=openDetails("' + params.data.locationId + '") href="javascript:void(0)">' + params.data.locationId + '</a>';
+        }
+    },
+    {
+        headerName: "Code",
+        field: "locationCode",
+        cellRenderer: function(params) {
+            return '<a onclick=openDetails("' + params.data.locationId + '") href="javascript:void(0)">' + params.data.locationCode + '</a>';
+        }
+    },
+    {
+        headerName: "Name",
+        field: "locationName"
+    },
+    {
+        headerName: "Type",
+        field: "locationType"
+    },
+    {
+        headerName: "Virtual",
+        field: "locVirtual"
+    },
+    {
+        headerName: "Address",
+        field: "locStreet"
+    },
+    {
+        headerName: "City",
+        field: "locCity"
+    },
+    {
+        headerName: "State",
+        field: "locState"
+    },
+    {
+        headerName: "Country",
+        field: "locCountry"
+    },
+    {
+        headerName: "Status",
+        field: "locStatus",
+        cellStyle: {textAlign: 'center'}
+    },
+    {
+        headerName: "Create Date",
+        field: "createdDate",
+        cellStyle: {textAlign: 'center'}
+    }
+];
+
+var gridOptions = {
+	columnDefs: columnDefs,
+	defaultColDef: {
+		sortable: true,
+	    filter: true,
+	    resizable: true,
+	    width: 149,
+	    height: 10
+	}
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    var gridDiv = document.querySelector('#myGrid');
+    new agGrid.Grid(gridDiv, gridOptions);
+});
+
+agGrid.simpleHttpRequest({
+	url : 'manage-location-get-location-listing'
+}).then(function(data) {
+	var len = data.length;
+	$('#totalReq').find('span').html(len);
+	gridOptions.api.setRowData(data);
+});
+
+function onQuickFilterChanged() {
+	gridOptions.api.setQuickFilter(document.getElementById('quickFilter').value);
+}
+
+function cancelBar() {
+	var id = document.getElementById("closeKey");
+	id.style.display = "block";
+	
+	if($('#quickFilter').val() == null || $('#quickFilter').val() == "") {
+		id.style.display = "none";
+	}
+}
+
+function getLocationExcelReport() {
+	var dataset = [];
+	
+	gridOptions.api.forEachNodeAfterFilterAndSort(function(rowNode, index) {
+		dataset.push(rowNode.data.locationId);
+	});
+	
+	var textVal = "";
+	for(var i = 0; i < dataset.length; i++) {
+		textVal = textVal + dataset[i] + ",";
+	}
+	
+	if(dataset.length > 0) {
+		textVal = textVal.substring(0, textVal.length - 1);
+	}
+	
+	textVal = window.btoa(textVal);
+	window.location.href="/master/manage-location-report-excel?id="+ textVal ;
+}
+</script>
 </head>
 <body>
 	<div layout:fragment="content" class="maincontent">
@@ -1425,7 +1592,7 @@ $(document).ready(function() {
 					<div class="content_padding">
 						<div class="row margin_topbot" id="searchRowDiv">
 							<div class="col-md-8">
-								<div class="input-style row">
+								<!-- <div class="input-style row">
 									<div class="autocomplete">
 										<input id="myInput" type="text" name="myCountry"
 											class="searchboxinput" placeholder="Software..">
@@ -1434,6 +1601,19 @@ $(document).ready(function() {
 										<a href="#"><span class="close_i">X</span></a> <a href="#"><i
 											class="fa fa-search"></i></a>
 									</div>
+								</div> -->
+								<div class="input-style row" id="serachRowDiv">
+									<input type="text" placeholder="Search.." name="search"
+										class="searchboxinput" onkeyup="cancelBar()"
+										oninput="onQuickFilterChanged()" id="quickFilter">
+									<div class="searchicon">
+										<a href="javascript:void(0)"><span
+											style="display: none; border-right: 1px solid #ccc; padding-right: 5px;"
+											id="closeKey"
+											onclick="gridOptions.api.setQuickFilter(null);$('#quickFilter').val('');document.getElementById('closeKey').style.display='none';"
+											class="close_i"><i class="ti-close srchicon"></i></span></a><a
+											href="javascript:void(0)"><i class="ti-search srchicon"></i></a>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -1441,8 +1621,8 @@ $(document).ready(function() {
 						<div class="row">
 
 							<div class="col-md-8  btn-hs">
-								<div class="font-design">
-									Location LIST <span th:text="${'('+count+')'}"></span>
+								<div class="font-design" id="totalReq">
+									Location LIST (<span></span>)
 								</div>
 							</div>
 							<div class="col-md-2 btn-hs">
@@ -1452,13 +1632,13 @@ $(document).ready(function() {
 								</div>
 							</div>
 							<div class="col-md-2 btn-hs " align="right">
+								<button class="btn4" onclick="getLocationExcelReport();">Download</button>
 								<button class="btn4">Upload</button>
-								<button class="btn4">Download</button>
 							</div>
 
 						</div>
 
-						<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1"
+						<!-- <table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1"
 							style="background: #fff;">
 							<thead>
 								<tr>
@@ -1479,7 +1659,8 @@ $(document).ready(function() {
 							</thead>
 							<tbody id="listTbody">
 							</tbody>
-						</table>
+						</table> -->
+						<div id="myGrid" style="width:100%; height:200px;" class="ag-theme-alpine"></div>
 						<!--  </div> -->
 						<div class="collapse" id="demo">
 							<div class="row">
@@ -1527,50 +1708,50 @@ $(document).ready(function() {
 
 										<div class="col-md-4">
 											<div class="form-group">
-												<label>Type</label> <select class="form-control"
+												<label>Type</label> <div class="select"> <select class=""
 													id="locationType">
 													<option th:each="c,iter:${locationTypeList}"
 														th:value="${c.key}" th:text="${c.name}"></option>
-												</select>
+												</select> </div>
 											</div>
 										</div>
 
 										<div class="col-md-2">
-											<div class="form-group" style="margin-top: 20px;">
+											<div class="form-group" style="margin-top: 36px;">
 												<input type="checkbox" class="loc-chb" name="isVirtual"
 													id="locVirtual" value="1"> <label>Virtual</label>
 											</div>
 										</div>
 										<div class="col-md-2">
-											<div class="form-group" style="margin-top: 20px;">
+											<div class="form-group" style="margin-top: 36px;">
 												<input type="checkbox" class="loc-chb" name="isActive"
 													id="locStatus" value="1"> <label>Active</label>
 											</div>
 										</div>
 										<div class="col-md-4">
 											<div class="form-group">
-												<label>Country</label> <select class="form-control"
+												<label>Country</label> <div class="select"> <select class=""
 													id="locCountry">
 													<option value="">Select</option>
 													<option th:each="c,iter:${countryList}" th:value="${c.key}"
 														th:text="${c.name}"></option>
-												</select>
+												</select> </div>
 											</div>
 										</div>
 										<div class="col-md-4">
 											<div class="form-group">
-												<label>State</label> <select class="form-control"
+												<label>State</label> <div class="select"> <select class=""
 													id="locState">
 													<option value="">Select</option>
 												</select>
-											</div>
+											</div> </div>
 										</div>
 										<div class="col-md-4">
 											<div class="form-group">
-												<label>City</label> <select class="form-control"
+												<label>City</label> <div class="select"> <select class=""
 													id="locCity">
 													<option value="">Select</option>
-												</select>
+												</select> </div>
 											</div>
 										</div>
 										<div class="col-md-8">
@@ -1591,7 +1772,7 @@ $(document).ready(function() {
 									<div class="panel panel-default">
 										<div class="panel-heading active" role="tab" id="headingOne">
 											<h4 class="panel-title">
-												<a role="button" data-toggle="collapse"
+												<a role="button" id="layoutId" data-toggle="collapse"
 													data-parent="#accordion" href="#demo_11"
 													aria-expanded="true" aria-controls="demo_11"> Layout </a>
 											</h4>
@@ -1672,11 +1853,11 @@ $(document).ready(function() {
 																</div>
 																<div class="col-md-12">
 																	<div class="form-group">
-																		<label>Room Type</label> <select id="roomType"
-																			class="form-control transparenttxtbox">
+																		<label>Room Type</label> <div class="select"> <select id="roomType"
+																			class="transparenttxtbox">
 																			<option th:each="c,iter:${roomTypeList}"
 																				th:value="${c.key}" th:text="${c.name}"></option>
-																		</select>
+																		</select> </div>
 																	</div>
 																</div>
 															</div>

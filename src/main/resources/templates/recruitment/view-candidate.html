@@ -12,93 +12,82 @@
 			$(this).css('color', '#FFFFFF');
 			$(this).css('color', '#FFFFFF');
 		});
-		$('#example thead tr:eq(0) th')
-				.each(
-						function(i) {
-							$('#example thead tr:eq(0) th:first').html("");
-
-							$('#example thead tr:eq(0) th:first')
-									.html(
-											'<input type="checkbox" onclick="allCheck()" id="check1"><label for="check1"></label>');
-							var title1 = $(this).text();
-							var title = (title1.split(" "))[0];
-
-							var funval = "click212('" + title + "')";
-							$(this)
-									.html(
-											'<div>'
-													+ title1
-													+ '<a type="button" value="" onclick="'+funval+'" class="filtericon" data-toggle="dropdown"><i class="ti-filter filter" ></i></a>'
-													+ '<div class="dropdown-menu"><input type="text" id="'+title+'" class="hideShow" placeholder="Search" /></div></div>');
-
-							$('input', this).on('keyup change', function() {
-								if (table.column(i).search() !== this.value) {
-									table.column(i).search(this.value).draw();
-								}
-							});
-						});
-
-		$('th').on("click", function(event) {
-			if ($(event.target).is("div"))
-				event.stopImmediatePropagation();
-		});
-		$('th').on("click", function(event) {
-			if ($(event.target).is("input"))
-				event.stopImmediatePropagation();
-		});
-		$('th').on("click", function(event) {
-			if ($(event.target).is("a"))
-				event.stopImmediatePropagation();
-		});
-
-	 
-		var table = $('#example').DataTable({
-			paging : false,
-			info : false,
-			columnDefs : [ {
-				targets : 0,
-				sortable : false
-			}, ],
-			order : [ 1, "des" ]
-		})
-		$(".hideShow").hide();
-
-		oTable = $('#example').DataTable();
-		$('#searchBar').keyup(function() {
-			oTable.search($(this).val()).draw();
-		});
-		$('#example_filter').hide();
-
-		$('#closeKey').click(function() {
-			oTable.search("").draw();
-		});
+		
 	});
+	  
+	  function cancelBar(){
+		  var id = document.getElementById("closeKey");
+		  id.style.display = "block";
+		  if($('#quickFilter').val() == null || $('#quickFilter').val() == ""){
+			  id.style.display = "none";
+		  }
+	  }
+	  
+	  
+	  var columnDefs = [
+			{ headerCheckboxSelection: true,
+		        headerCheckboxSelectionFilteredOnly: true, checkboxSelection: true,width: 10, sortable: false,filter: false,resizable: true},
+			    {headerName: "Req ID", field: "requisitionId" },
+			    {headerName: "Title", field: "jobTitle",
+			     cellRenderer: function(params){
+			        return '<a onclick=titlePage("' +  params.data.requisitionId + '") href="javascript:void(0)">' + params.data.jobTitle + '</a>';} },
+			    {headerName: "# of positions", field: "noPosition",type:"rightAligned"},
+			    {headerName: "Band", field: "band"},
+			    {headerName: "Department", field: "department"},
+			    {headerName: "Hiring Manager", field: "hiringManager"},
+			    {headerName: "Join Date", field: "joinDate",cellStyle: {textAlign: 'center'}},
+			    {headerName: "CTC Cap", field: "minSalary",type:"rightAligned"},
+			    {headerName: "Status", field: "activityStatus"},
+			    {headerName: "Applicants", field: "applicant"},
+			    {headerName: "Shortlisted", field: "shortList"},
+			    {headerName: "Interviewed", field: "interviewed"},
+			    {headerName: "Offered", field: "offered"},
+			    {headerName: "Create Date", field: "createdOn",cellStyle: {textAlign: 'center'}}
+			]; 
+	  
+	 /*  var rowData = [
+			{requisitionId: "8", jobTitle: 'Software Engineer', noPosition: "2", band: "Band 4", department: "Product development", hiringManager: "Pradip Singh", joinDate: "8-Nov-2020",
+				minSalary: "400000", activityStatus: "Active"}
+			]; */
+	  
+	  var gridOptions = {
+			   columnDefs: columnDefs,
+			  defaultColDef: {
+				  sortable: true, 
+				  filter: true, 
+				  resizable: true, 
+				  width: 149,
+				  height: 10
+			   }
+			   
+			 };
+			 
 
-	function click212(text) {
-
-		$("#" + text).show();
-	}
-
-	var count = 0;
-	function allCheck() {
-		count++;
-
-		if (count == 1) {
-			$('.checkCls').prop("checked", true);
-		} else {
-			count = 0;
-			$('.checkCls').prop("checked", false);
-		}
-	}
-
-	function cancelBar() {
-		var id = document.getElementById("closeKey");
-		id.style.display = "block";
-
-		if ($('#searchBar').val() == null || $('#searchBar').val() == "") {
-			id.style.display = "none";
-		}
-	}
+			 // setup the grid after the page has finished loading
+			 document.addEventListener('DOMContentLoaded', function() {
+			     var gridDiv = document.querySelector('#myGrid');
+			     new agGrid.Grid(gridDiv, gridOptions);
+			     
+			     
+			     var myVendor = document.querySelector('#myVendor');
+			     new agGrid.Grid(myVendor, gridOptionsChild);
+			     
+			 });
+			  
+			  agGrid.simpleHttpRequest({url: 'view-new-requi-mstr-view-data'}).then(function(data) {
+				var len = data.length;
+				$('#totalReq').find('span').html(len);
+			      gridOptions.api.setRowData(data);
+			   });
+			    
+			  /* function resetState() {
+				   gridOptions.columnApi.resetColumnState();
+				   console.log('column state reset');
+				 } */
+			    
+			    function onQuickFilterChanged() {
+			    	  gridOptions.api.setQuickFilter(document.getElementById('quickFilter').value);
+			    	}
 </script>
 <body>
 	<div layout:fragment="content" class="maincontent">
@@ -110,22 +99,16 @@
 						<div class="row margin_topbot">
 							<div class="col-md-8 padding-7">
 								<div class="input-style row">
-									<input type="text" id="searchBar" placeholder="Search.."
-										name="search" class="searchboxinput" onkeyup="cancelBar();">
-									<div class="searchicon">
-										<a href="#"><span style="display: none" id="closeKey"
-											onclick="$('#searchBar').val('');document.getElementById('closeKey').style.display='none';$('.form-control-sm').val('');"
-											class="close_i">X</span></a> <a href="#"><i id="searchQ"
-											class="fa fa-search"></i></a>
-									</div>
-								</div>
+                                <input type="text"  placeholder="Search.." name="search" class="searchboxinput" onkeyup="cancelBar()" oninput="onQuickFilterChanged()" id="quickFilter" >
+                                <div class="searchicon"><a href="javascript: void(0)"><span style="display:none;border-right:1px solid #ccc;padding-right:5px;" id="closeKey" onclick="gridOptions.api.setQuickFilter(null);$('#quickFilter').val('');document.getElementById('closeKey').style.display='none';" class="close_i"><i class="ti-close srchicon"></i></span></a><a href="javascript: void(0)"><i class="ti-search srchicon"></i></a></div>
+                            </div>
 							</div>
 						</div>
 						<div class="col-md-12 padding-7">
 							<div class="row mt-20">
 
 								<div class="section1_big">
-									<div class="font-design">CANDIDATE LIST (24)</div>
+									<div class="font-design" id="totalReq">CANDIDATE LIST (<span></span>)</div>
 								</div>
 								<div class="section2_new">
 									<div class="row">
@@ -142,7 +125,10 @@
 
 							</div>
 						</div>
-						<table class="newtbl" id="example">
+						
+						<div id="myGrid" style="width:100%; height:200px;" class="ag-theme-alpine"></div>
+						
+						<!-- <table class="newtbl" id="example">
 							<thead>
 								<tr>
 									<th align="center" width="20"><input type="checkbox"
@@ -197,7 +183,7 @@
 									<td align="center">9-Oct-20</td>
 								</tr>
 							</tbody>
-						</table>
+						</table> -->
 
 					</div>
 				</div>

@@ -5,7 +5,96 @@
 	layout:decorate="~{layout/extend-master}">
 <head>  
 <script>
+
 $(document).ready(function() {
+	$('.collapse').on('show.bs.collapse', function() {
+		$(this).siblings('.panel-heading').addClass('active');
+	});
+
+	$('.collapse').on('hide.bs.collapse', function() {
+		$(this).siblings('.panel-heading').removeClass('active');
+	});
+	//onchange of state and city
+	
+	$("#vendorCountry").change(function(){
+		var country = $(this).val();
+		if(country) {
+			$.ajax({
+				type : "POST",
+				url : "manage-vendor-master-get-state-list",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : country,
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						$("#vendorState").empty();
+						$("#vendorState").append("<option value=''>Select</option>");
+						$("#vendorCity").empty();
+						$("#vendorCity").append("<option value=''>Select</option>");
+						
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#vendorState").append(option);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+					$("#vendorState").empty();
+					$("#vendorState").append("<option value=''>Select</option>");
+					$("#vendorCity").empty();
+					$("#vendorCity").append("<option value=''>Select</option>");
+				}
+			})
+		} else {
+			$("#vendorState").empty();
+			$("#vendorState").append("<option value=''>Select</option>");
+			$("#vendorCity").empty();
+			$("#vendorCity").append("<option value=''>Select</option>");
+		}
+	})
+	
+	$("#vendorState").change(function(){
+		var state = $(this).val();
+		if(state) {
+			$.ajax({
+				type : "POST",
+				url : "manage-location-get-city-list",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : state,
+				success : function(response) {
+					if (response.message == "success") {
+						console.log(response);
+						$("#vendorCity").empty();
+						$("#vendorCity").append("<option value=''>Select</option>");
+						
+						for (var i = 0; i < response.body.length; i++) {
+							var option = $("<option></option>");
+							$(option).val(response.body[i].key);
+							$(option).html(response.body[i].name);
+							$("#vendorCity").append(option);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+					$("#vendorCity").empty();
+					$("#vendorCity").append("<option value=''>Select</option>");
+				}
+			})
+		} else {
+			$("#vendorCity").empty();
+			$("#vendorCity").append("<option value=''>Select</option>");
+		}
+	})
+
+	
+	
+	//onchange of state and city end
 	$("#saveVendor").click(function(){
 		
 		data = {};
@@ -23,15 +112,15 @@ $(document).ready(function() {
 	})
 });
 function openNav() {
-		document.getElementById("mySidenav").style.cssText = "width: 270px; position: absolute; right:-37px; overflow: hidden;";
-		document.getElementById("main").style.width = "420px";
-	}
+	document.getElementById("mySidenav").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:850px;";
 
-	function closeNav() {
-		document.getElementById("mySidenav").style.width = "0";
-		document.getElementById("main").style.width = "480px";
-	}
+	document.getElementById("main").style.width = "82%";
+}
 
+function closeNav() {
+	document.getElementById("mySidenav").style.width = "0";
+	document.getElementById("main").style.width = "100%";
+}
 	var count = 0;
 	function allCheck() {
 		count++;
@@ -396,7 +485,8 @@ function submitVendor(dataset) {
             	
             	/* $("#myUL").show(); */
             	$("#vendorId").text("");
-				$("#vendorId").text("Vendor Id :"+response.body.vendorId); 
+				$("#vendorId").text("Vendor Id :"+response.body.vendorId);
+/* 				var labeltxt = response.body.code + " - " + response.body.vendorName + " (0)"; */
 				$("#vendorId").text(labeltxt);
 
             } else {
@@ -566,36 +656,52 @@ function submitVendor(dataset) {
 										<div class="col-md-12">
 											<!-- <div class="name-bar">Head Quarter</div> -->
 											<input type="text" name="code" value="" id="vendorName"
-												placeholder="Vendor Name" class="form-control_big">
+												placeholder="Vendor Name" class="form-control_big" >
 										</div>
 									</div>
 									<div class="row">
 										<div class="col-md-4">
 											<div class="form-group">
 												<label>Code</label> <input type="text" name="code" value="" id="vendorCode"
-													placeholder="Code" class="form-control">
+													placeholder="Code" class="form-control" style="height:49px;">
 											</div>
 										</div>
 
 										<div class="col-md-4">
 											<div class="form-group">
-												<label>Category</label> <select class="selectbox"
+												<label>Category</label> <!-- <select class="selectbox"
 													id="Category" onchange="changeOpt()">
 													<option id='Product'>Product</option>
 													<option id='Services'>Services</option>
-
-												</select>
+													  <option th:value="NULL">Select</option>
+													    <option th:each="c:${categoryTypeList}" th:value='${c.key}'
+														 th:text="${c.name}"></option>
+												</select> -->
+												<div class="select">
+													<select id="Category" onchange="changeOpt()">
+														  <option th:value="NULL">Select</option>
+													    <option th:each="c:${categoryTypeList}" th:value='${c.key}'
+														 th:text="${c.name}"></option>
+													</select> 
+												</div>
 											</div>
 										</div>
 
 										<div class="col-md-4">
 											<div class="form-group">
 												<label>Type</label> 
-												<select class="selectbox" id="type">
+												<!-- <select class="selectbox" id="type">
 														<option>Option 1</option>
 														<option>Option 2</option>
 														<option>Option 3</option>
-												</select>
+												</select> -->
+												<div class="select">
+													<select id="type">
+														 <option>Option 1</option>
+														<option>Option 2</option>
+														<option>Option 3</option>
+													</select> <span class="focus"></span>
+												</div>
 											</div>
 										</div>
 
@@ -619,7 +725,7 @@ function submitVendor(dataset) {
 											<div class="form-group">
 
 											<input type="checkbox" name="isActive" id="vendorStatus"
-													value="1"> <label>Active</label>
+													value="1"> <label style="position: relative;top: 1px;">Active</label>
 											</div>
 										</div>
 
@@ -649,8 +755,12 @@ function submitVendor(dataset) {
 									</div>
 								</div>
 </div>
+
+
+ 
+									
 							
-							<div class="row">
+							<!-- <div class="row">
 								<div class="col-md-12">
 									<div class="headingbar">
 										<a href="#" data-toggle="collapse" data-target="#demo_11"
@@ -661,15 +771,146 @@ function submitVendor(dataset) {
 									</div>
 								</div>
 							</div>
-							<div id="demo_11" class="collapse show">
+							<div id="demo_11" class="collapse show"> -->
+							<div id="main">
+							
+							<!-- <div class="slidearrow" onclick="openNav(event)">
+											<i class="ti-arrow-left"></i>
+										</div> -->
+										<div id="mySidenav" class="sidenav">
+											<div class="slidebox">
+												<div class="row">
+													<div class="col-md-10">
+														<div class="edit">Location</div>
+													</div>
+													<div class="col-md-2">
+														<div class="arrow">
+															<a href="javascript:void(0)" class="closebtn"
+																onclick="closeNav()"><i class="ti-arrow-right"></i></a>
+														</div>
+													</div>
+													</div>
+													<div class="chartbtnsec">
+														<div class="row">
+															<button class="btn4">CANCEL</button>
+															<button class="btn3">DELETE</button>
+															<button class="btn1">SAVE</button>
+														</div>
+													</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>ID :</label> <!-- <input type="text"
+																class="form-control transparenttxtbox"
+																placeholder="Marketing" id="vendorLocationId"> -->
+														</div>
+													</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>Name</label> <input type="text"
+																class="form-control transparenttxtbox"
+																placeholder="Marketing" id="vendorLocationName">
+														</div>
+													</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>Type</label> <input type="text"
+																class="form-control transparenttxtbox"
+																placeholder="Marketing" id="vendorLocationType">
+														</div>
+													</div>
+													<div class="row  mt-15" style="padding:0px 15px;">
+													<div class="col-md-6">
+														<div class="form-group">
+															<label  style="position: relative;top: 1px;">Billing</label> <input type="checkbox" name="isBillingActive" id="billingStatus"
+													value="1">
+														</div>
+													</div>
+													<div class="col-md-6"> 
+														<div class="form-group">
+															<label  style="position: relative;top: 1px;">Primary</label>  <input type="checkbox" name="isBillingActive" id="primaryStatus"
+													value="1">
+														</div>
+													</div>
+													</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>Address</label> <input type="text"
+																class="form-control transparenttxtbox"
+																placeholder="Marketing">
+														</div>
+													</div>
+													
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>Country</label>
+															<div class="select">
+												<select id="vendorCountry">
+													  <option th:value="NULL">Select</option>
+													    <option th:each="c:${countryList}" th:value='${c.key}'
+														 th:text="${c.name}"></option>
+													
+
+												</select> <span class="focus"></span>
+											</div> 
+														</div>
+											
+										</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>State</label> 	<div class="select">
+															<select id="vendorState">
+													  <option th:value="NULL">Select</option>
+												</select> <span class="focus"></span>
+														</div>
+														</div>
+													</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>City</label><div class="select"><select id="vendorCity">
+													  <option th:value="NULL">Select</option>
+												</select> <span class="focus"></span>
+														</div>
+														</div>
+													</div>
+											
+												
+												<!-- </div> -->
+											</div>
+										</div>
+							<div class="wrapper center-block">
+									<div class="panel-group" id="accordion" role="tablist"
+										aria-multiselectable="true">
+										<!-- <div class="panel panel-default">
+											<div class="panel-heading active" role="tab" id="headingOne">
+												<h4 class="panel-title">
+													<a role="button" data-toggle="collapse"
+														data-parent="#accordion" href="#collapseOne"
+														aria-expanded="true" aria-controls="collapseOne" class="collapsed">
+														Locations </a>
+												</h4>
+											</div>
+											<div id="collapseOne" class="panel-collapse collapse"
+												role="tabpanel" aria-labelledby="headingOne">
+								<div class="row"> -->
+									<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingOne">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseOne"
+															aria-expanded="false" aria-controls="collapseOne">
+															Location </a>
+													</h4>
+												</div>
+												<div id="collapseOne" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingThree">
 								<div class="row">
 
-									<div class="col-md-7 padding-7 btn-hs1">
+									<div class="col-md-5 btn-hs1">
 										<div class="font-design"></div>
 									</div>
-									<div class="col-md-2 btn-hs1">
+									<div class="col-md-3 btn-hs1">
 										<div class="row">
-											<button class="btn1" id="newBtn1">NEW</button>
+											<button class="btn1" id="newLocation" onclick="openNav();" >NEW</button>
 											<button class="btn3" data-toggle="modal"
 												data-target="#delete">DELETE</button>
 										</div>
@@ -678,7 +919,7 @@ function submitVendor(dataset) {
 										<button class="btn2">Approve</button>
 									</div>
 
-									<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<div class="col-md-3 btn-hs1" align="right">
 										<button class="btn4">Upload</button>
 										<button class="btn4">Download</button>
 									</div>
@@ -725,8 +966,10 @@ function submitVendor(dataset) {
 								</table>
 
 							</div>
+							</div>
+							
 
-							<div class="row">
+							<!-- <div class="row">
 								<div class="col-md-12">
 									<div class="headingbar">
 										<a href="#" data-toggle="collapse" data-target="#demo_12"
@@ -738,15 +981,26 @@ function submitVendor(dataset) {
 								</div>
 							</div>
 
-							<div id="demo_12" class="collapse show">
+							<div id="demo_12" class="collapse show"> -->
+							<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingThree">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseThree"
+															aria-expanded="false" aria-controls="collapseTwo">
+															Contacts </a>
+													</h4>
+												</div>
+												<div id="collapseThree" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingThree">
 								<div class="row">
 
-									<div class="col-md-7 padding-7 btn-hs1">
+									<div class="col-md-5 btn-hs1">
 										<div class="font-design">
 											<!-- Vendor LIST <span>(10)</span> -->
 										</div>
 									</div>
-									<div class="col-md-2 btn-hs1">
+									<div class="col-md-3 btn-hs1">
 										<div class="row">
 											<button class="btn1" id="newBtn1">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
@@ -760,7 +1014,7 @@ function submitVendor(dataset) {
 										<button class="btn2">Approve</button>
 									</div>
 
-									<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<div class="col-md-3 btn-hs1 padding-7" align="right">
 										<button class="btn4">Upload</button>
 										<button class="btn4">Download</button>
 									</div>
@@ -804,9 +1058,10 @@ function submitVendor(dataset) {
 								</table>
 
 							</div>
+							</div>
 
 
-							<div class="row">
+						<!-- 	<div class="row">
 								<div class="col-md-12">
 									<div class="headingbar">
 										<a href="#" data-toggle="collapse" data-target="#demo_13"
@@ -819,15 +1074,27 @@ function submitVendor(dataset) {
 							</div>
 
 							<div id="demo_13" class="collapse show">
+								<div class="row"> -->
+								<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingFour">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseFour"
+															aria-expanded="false" aria-controls="collapseFour">
+															Legal Information</a>
+													</h4>
+												</div>
+												<div id="collapseFour" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingFour">
 								<div class="row">
 								
 
-									<div class="col-md-7 padding-7 btn-hs1">
+									<div class="col-md-5 padding-7 btn-hs1">
 										<div class="font-design">
 											<!-- Vendor LIST <span>(10)</span> -->
 										</div>
 									</div>
-									<div class="col-md-2 btn-hs1">
+									<div class="col-md-3 btn-hs1">
 										<div class="row">
 											<button class="btn1" id="newBtn1">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
@@ -841,7 +1108,7 @@ function submitVendor(dataset) {
 										<button class="btn2">Approve</button>
 									</div>
 
-									<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<div class="col-md-3 btn-hs1 padding-7" align="right">
 										<button class="btn4">Upload</button>
 										<button class="btn4">Download</button>
 									</div>
@@ -920,10 +1187,10 @@ function submitVendor(dataset) {
 
 								<div class="row mrt_10">
 
-									<div class="col-md-7 padding-7 btn-hs1">
+									<div class="col-md-5 btn-hs1">
 										<div class="font-design">Proof Of Insurance</div>
 									</div>
-									<div class="col-md-2 btn-hs1">
+									<div class="col-md-3 btn-hs1">
 										<div class="row">
 											<button class="btn1" id="newBtn1">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
@@ -937,7 +1204,7 @@ function submitVendor(dataset) {
 										<button class="btn2">Approve</button>
 									</div>
 
-									<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<div class="col-md-3 btn-hs1 padding-7" align="right">
 										<button class="btn4">Upload</button>
 										<button class="btn4">Download</button>
 									</div>
@@ -979,10 +1246,10 @@ function submitVendor(dataset) {
 
 								<div class="row mrt_10">
 
-									<div class="col-md-7 padding-7 btn-hs1">
+									<div class="col-md-5 padding-7 btn-hs1">
 										<div class="font-design">Contacts</div>
 									</div>
-									<div class="col-md-2 btn-hs1">
+									<div class="col-md-3 btn-hs1">
 										<div class="row">
 											<button class="btn1" id="newBtn1">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
@@ -996,7 +1263,7 @@ function submitVendor(dataset) {
 										<button class="btn2">Approve</button>
 									</div>
 
-									<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<div class="col-md-3 btn-hs1 padding-7" align="right">
 										<button class="btn4">Upload</button>
 										<button class="btn4">Download</button>
 									</div>
@@ -1037,10 +1304,10 @@ function submitVendor(dataset) {
 
 								<div class="row mrt_10">
 
-									<div class="col-md-7 padding-7 btn-hs1">
+									<div class="col-md-5 btn-hs1">
 										<div class="font-design">Other Document</div>
 									</div>
-									<div class="col-md-2 btn-hs1">
+									<div class="col-md-3 btn-hs1">
 										<div class="row">
 											<button class="btn1" id="newBtn1">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
@@ -1054,7 +1321,7 @@ function submitVendor(dataset) {
 										<button class="btn2">Approve</button>
 									</div>
 
-									<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<div class="col-md-3 btn-hs1 padding-7" align="right">
 										<button class="btn4">Upload</button>
 										<button class="btn4">Download</button>
 									</div>
@@ -1093,9 +1360,10 @@ function submitVendor(dataset) {
 								</table>
 
 							</div>
+							</div>
 
 
-							<div class="row">
+							<!-- <div class="row">
 								<div class="col-md-12">
 									<div class="headingbar">
 										<a href="#" data-toggle="collapse" data-target="#demo_14"
@@ -1108,14 +1376,27 @@ function submitVendor(dataset) {
 							</div>
 
 							<div id="demo_14" class="collapse show">
+								<div class="row"> -->
+								<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingFive">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseFive"
+															aria-expanded="false" aria-controls="collapseFive">
+															Bank Details </a>
+													</h4>
+												</div>
+												<div id="collapseFive" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingFive">
 								<div class="row">
+								
 
-									<div class="col-md-7 padding-7 btn-hs1">
+									<div class="col-md-5  btn-hs1">
 										<div class="font-design">
 											<!-- Vendor LIST <span>(10)</span> -->
 										</div>
 									</div>
-									<div class="col-md-2 btn-hs1">
+									<div class="col-md-3 btn-hs1">
 										<div class="row">
 											<button class="btn1" id="newBtn1">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
@@ -1129,7 +1410,7 @@ function submitVendor(dataset) {
 										<button class="btn2">Approve</button>
 									</div>
 
-									<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<div class="col-md-3 btn-hs1 padding-7" align="right">
 										<button class="btn4">Upload</button>
 										<button class="btn4">Download</button>
 									</div>
@@ -1173,10 +1454,11 @@ function submitVendor(dataset) {
 								</table>
 
 							</div>
+							</div>
 
 
 
-							<div class="row">
+							<!-- <div class="row">
 								<div class="col-md-12">
 									<div class="headingbar">
 										<a href="#" data-toggle="collapse" data-target="#demo_16"
@@ -1190,14 +1472,27 @@ function submitVendor(dataset) {
 							</div>
 
 							<div id="demo_16" class="collapse show">
+								<div class="row"> -->
+								<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingSix">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseSix"
+															aria-expanded="false" aria-controls="collapseSix">
+															Company Information </a>
+													</h4>
+												</div>
+												<div id="collapseSix" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingSix">
 								<div class="row">
+								
 
-									<div class="col-md-7 padding-7 btn-hs1">
+									<div class="col-md-5  btn-hs1">
 										<div class="font-design">
 											<!-- Vendor LIST <span>(10)</span> -->
 										</div>
 									</div>
-									<div class="col-md-2 btn-hs1">
+									<div class="col-md-3 btn-hs1">
 										<div class="row">
 											<button class="btn1" id="newBtn1">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
@@ -1211,7 +1506,7 @@ function submitVendor(dataset) {
 										<button class="btn2">Approve</button>
 									</div>
 
-									<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<div class="col-md-3 btn-hs1 padding-7" align="right">
 										<button class="btn4">Upload</button>
 										<button class="btn4">Download</button>
 									</div>
@@ -1255,10 +1550,11 @@ function submitVendor(dataset) {
 								</div>
 
 							</div>
+							</div>
 
 
 
-							<div class="row">
+							<!-- <div class="row">
 								<div class="col-md-12">
 									<div class="headingbar">
 										<a href="#" data-toggle="collapse" data-target="#demo_15"
@@ -1270,14 +1566,26 @@ function submitVendor(dataset) {
 								</div>
 							</div>
 							<div id="demo_15" class="collapse show">
+								<div class="row"> -->
+								<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingSeven">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseSeven"
+															aria-expanded="false" aria-controls="collapseSeven">
+															Activity</a>
+													</h4>
+												</div>
+												<div id="collapseSeven" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingFour">
 								<div class="row">
-
-									<div class="col-md-7 padding-7 btn-hs1">
+								
+									<div class="col-md-5  btn-hs1">
 										<div class="font-design">
 											<!-- Vendor LIST <span>(10)</span> -->
 										</div>
 									</div>
-									<div class="col-md-2 btn-hs1">
+									<div class="col-md-3 btn-hs1">
 										<div class="row">
 											<button class="btn1" id="newBtn1">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
@@ -1291,7 +1599,7 @@ function submitVendor(dataset) {
 										<button class="btn2">Approve</button>
 									</div>
 
-									<div class="col-md-2 btn-hs1 padding-7" align="right">
+									<div class="col-md-3 btn-hs1 padding-7" align="right">
 										<button class="btn4">Upload</button>
 										<button class="btn4">Download</button>
 									</div>
@@ -1325,7 +1633,18 @@ function submitVendor(dataset) {
 
 							</div>
 						</div>
+					
 					</div>
+				</div>
+				
+			</div>
+			
+			
+		</div>
+
+</div>
+					
+					
 				</div>
 
 			</div>

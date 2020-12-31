@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class InventoryRequisitionModel {
 
-	private String utemList;
+	private String reqId;
 	private String desc;
 	private String reqType;
 	private String reqPrior;
@@ -20,25 +20,31 @@ public class InventoryRequisitionModel {
 	private String model;
 	private String itemCategoryId;
 	private String itemCategoryName;
-	private String uom;  
-	private Double qty; 
-	private String lastPoDate;  
+	private String uom;
+	private Double qty;
+	private String lastPoDate;
 	private Double estimatedPrice;
-	private Double lastPurchasePrice;
-    private Double quantity;
-    private String location;
-    private String costCenter;
+	private Double estimatedTotalPrice;
+	private Double lastPurchaseUnitPrice;
+	private Double lastPurchaseTotalPrice;
+	private Double quantity;
+	private String location;
+	private String costCenter;
+	private String createdBy;
+	private String createdOn;
+	private String updatedon;
+	private String updatedBy;
 
 	public InventoryRequisitionModel() {
 		super();
 	}
 
-	public String getUtemList() {
-		return utemList;
+	public String getReqId() {
+		return reqId;
 	}
 
-	public void setUtemList(String utemList) {
-		this.utemList = utemList;
+	public void setReqId(String reqId) {
+		this.reqId = reqId;
 	}
 
 	public String getDesc() {
@@ -169,12 +175,28 @@ public class InventoryRequisitionModel {
 		this.estimatedPrice = estimatedPrice;
 	}
 
-	public Double getLastPurchasePrice() {
-		return lastPurchasePrice;
+	public Double getEstimatedTotalPrice() {
+		return estimatedTotalPrice;
 	}
 
-	public void setLastPurchasePrice(Double lastPurchasePrice) {
-		this.lastPurchasePrice = lastPurchasePrice;
+	public void setEstimatedTotalPrice(Double estimatedTotalPrice) {
+		this.estimatedTotalPrice = estimatedTotalPrice;
+	}
+
+	public Double getLastPurchaseUnitPrice() {
+		return lastPurchaseUnitPrice;
+	}
+
+	public void setLastPurchaseUnitPrice(Double lastPurchaseUnitPrice) {
+		this.lastPurchaseUnitPrice = lastPurchaseUnitPrice;
+	}
+
+	public Double getLastPurchaseTotalPrice() {
+		return lastPurchaseTotalPrice;
+	}
+
+	public void setLastPurchaseTotalPrice(Double lastPurchaseTotalPrice) {
+		this.lastPurchaseTotalPrice = lastPurchaseTotalPrice;
 	}
 
 	public Double getQuantity() {
@@ -199,6 +221,38 @@ public class InventoryRequisitionModel {
 
 	public void setCostCenter(String costCenter) {
 		this.costCenter = costCenter;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(String createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public String getUpdatedon() {
+		return updatedon;
+	}
+
+	public void setUpdatedon(String updatedon) {
+		this.updatedon = updatedon;
+	}
+
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
 	}
 
 	@Override

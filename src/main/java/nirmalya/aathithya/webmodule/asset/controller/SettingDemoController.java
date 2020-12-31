@@ -48,6 +48,15 @@ public class SettingDemoController {
 		return "recruitment/view-action";
 
 	}
+	@GetMapping("view-geography")
+	public String viewGeoGraphy(Model model, HttpSession session) {
+
+		logger.info("Method : viewGeoGraphy starts");
+		model.addAttribute("pageName", "Geography Coming Soon");
+		logger.info("Method : viewGeoGraphy ends");
+		return "master/geography-master";
+
+	}
 
 	@GetMapping("view-hr")
 	public String viewHr(Model model, HttpSession session) {
@@ -55,7 +64,7 @@ public class SettingDemoController {
 		logger.info("Method : viewHr starts");
 		model.addAttribute("pageName", "Hr Page Coming Soon");
 		logger.info("Method : viewHr ends");
-		return "recruitment/view-action";
+		return "master/referenceHr";
 
 	}
 

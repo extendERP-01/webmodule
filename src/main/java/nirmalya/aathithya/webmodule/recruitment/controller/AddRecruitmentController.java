@@ -211,7 +211,7 @@ public class AddRecruitmentController {
 		logger.info("Method : requisition starts");
 
 		try {
-			System.out.println(env.getRecruitment() + "jobTypeList");
+			
 			DropDownModel[] jobType = restTemplate.getForObject(env.getRecruitment() + "jobTypeList",
 					DropDownModel[].class);
 			List<DropDownModel> jobTypeList = Arrays.asList(jobType);
@@ -221,7 +221,7 @@ public class AddRecruitmentController {
 		}
 		
 		try {
-			System.out.println(env.getRecruitment() + "jobLocationList");
+			
 			DropDownModel[] location = restTemplate.getForObject(env.getRecruitment() + "jobLocationList",
 					DropDownModel[].class);
 			List<DropDownModel> jobLocationList = Arrays.asList(location);
@@ -231,7 +231,7 @@ public class AddRecruitmentController {
 		}
 		
 		try {
-			System.out.println(env.getRecruitment() + "DepartmentList");
+			
 			DropDownModel[] department = restTemplate.getForObject(env.getRecruitment() + "DepartmentList",
 					DropDownModel[].class);
 			List<DropDownModel> DepartmentList = Arrays.asList(department);
@@ -241,7 +241,7 @@ public class AddRecruitmentController {
 		}
 		
 		try {
-			System.out.println(env.getRecruitment() + "managerList");
+			
 			DropDownModel[] manager = restTemplate.getForObject(env.getRecruitment() + "managerList",
 					DropDownModel[].class);
 			List<DropDownModel> managerList = Arrays.asList(manager);
@@ -251,7 +251,7 @@ public class AddRecruitmentController {
 		}
 		
 		try {
-			System.out.println(env.getRecruitment() + "bandList");
+			
 			DropDownModel[] band = restTemplate.getForObject(env.getRecruitment() + "bandList",
 					DropDownModel[].class);
 			List<DropDownModel> bandList = Arrays.asList(band);
@@ -261,7 +261,7 @@ public class AddRecruitmentController {
 		}
 		
 		try {
-			System.out.println(env.getRecruitment() + "educationList");
+			
 			DropDownModel[] education = restTemplate.getForObject(env.getRecruitment() + "educationList",
 					DropDownModel[].class);
 			List<DropDownModel> educationList = Arrays.asList(education);
@@ -271,7 +271,7 @@ public class AddRecruitmentController {
 		}
 		
 		try {
-			System.out.println(env.getRecruitment() + "workHourList");
+			
 			DropDownModel[] workHour = restTemplate.getForObject(env.getRecruitment() + "workHourList",
 					DropDownModel[].class);
 			List<DropDownModel> workHourList = Arrays.asList(workHour);
@@ -281,7 +281,7 @@ public class AddRecruitmentController {
 		}
 		
 		try {
-			System.out.println(env.getRecruitment() + "benefitsList");
+			
 			DropDownModel[] benefits = restTemplate.getForObject(env.getRecruitment() + "benefitsList",
 					DropDownModel[].class);
 			List<DropDownModel> benefitsList = Arrays.asList(benefits);
@@ -291,7 +291,7 @@ public class AddRecruitmentController {
 		}
 		
 		try {
-			System.out.println(env.getRecruitment() + "aboutCompany");
+			
 			DropDownModel[] aboutCompany = restTemplate.getForObject(env.getRecruitment() + "aboutCompany",
 					DropDownModel[].class);
 			List<DropDownModel> aboutCompanyData = Arrays.asList(aboutCompany);
@@ -380,20 +380,22 @@ public class AddRecruitmentController {
 			for(AddRecruitentModel m : addreq) {
 				count++;
 				m.setCount(count);
-				if(m.getActivityStatus() == "1") {
+				if(m.getActivityStatus().equals("1")) {
+					
 					m.setActivityStatus("Created");
-				} else if(m.getActivityStatus() == "2") {
+				} else if(m.getActivityStatus().equals("2")) {
 					m.setActivityStatus("Active");
-				} else if(m.getActivityStatus() == "3") {
+				} else if(m.getActivityStatus().equals("3")) {
 					m.setActivityStatus("Closed");
 				}
 			}
+			
 			jsonResponse.setBody(addreq);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println(jsonResponse.getBody());
+		
 		logger.info("Method ; viewRequisitionThroughAjax ends");
 
 		return jsonResponse.getBody();

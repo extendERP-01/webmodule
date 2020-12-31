@@ -1,3 +1,4 @@
+
 @font-face {
 	font-family: 'HelveticaNeue';
 	src: url('../../fonts1/HelveticaNeueMedium.woff2') format('woff2'),
@@ -318,6 +319,7 @@ select>.form-control {
 	float: left;
 	padding: 10px 0px;
 	width: 100%;
+	margin-bottom: 100px;
 }
 
 .maincontentsec_inner {
@@ -328,7 +330,7 @@ select>.form-control {
 
 .content_padding {
 	padding: 0px 40px 0px 40px;
-}
+	}
 
 .green-box-heading {
 	font-size: 10px;
@@ -482,6 +484,7 @@ button:focus {
 	float: right;
 	text-transform: uppercase;
 	cursor: pointer;
+	white-space: normal;
 }
 
 .btn3 {
@@ -498,6 +501,7 @@ button:focus {
 	float: right;
 	text-transform: uppercase;
 	cursor: pointer;
+	white-space: normal;
 }
 
 .btn4 {
@@ -514,6 +518,7 @@ button:focus {
 	float: right;
 	text-transform: uppercase;
 	cursor: pointer;
+	white-space: normal;
 }
 
 .section1 {
@@ -1513,7 +1518,7 @@ h5>i {
 	font-size: 24px;
 	font-weight: 300;
 	color: #000;
-	background-color: #f6f8f8;
+	background-color: transparent; 
 	background-clip: padding-box;
 	border-top: none;
 	border-left: none;
@@ -2284,7 +2289,7 @@ textarea:focus {
 .form-group label {
 	font-size: 16px;
 	position: relative;
-	top: 4px;
+	top: 8px;
 }
 
 .slidebox {
@@ -2329,6 +2334,13 @@ hr {
 	top: -2px;
 	left: -20px;
 	width: 60%;
+}
+.hr2 {
+	position: relative;
+    top: 12px;
+    left: -10px;
+    width: 60%;
+    border: 1px solid #e5e5e5;
 }
 
 .hr3 {
@@ -2643,7 +2655,11 @@ input[type=checkbox] {
 	float: right;
 	transition: all 0.5s;
 }
-
+.panel-title>a:hover
+{
+	underline:none;
+	color: #555;
+}
 .panel-heading.active a:before {
 	-webkit-transform: rotate(180deg);
 	-moz-transform: rotate(180deg);
@@ -2657,40 +2673,44 @@ input[type=checkbox] {
 
 .sml_plus {
 	border: 1px solid #128d15;
-	padding: 1px 7px;
-	float: left;
-	margin-right: 5px;
-	border-radius: 3px;
-	cursor: pointer;
+	padding: 1px 4px;
+    float: left;
+    margin-right: 5px;
+    border-radius: 3px;
+    cursor: pointer;
+    line-height: 15px;
 }
 
 .sml_edit {
 	border: 1px solid #1177b8;
-	padding: 1px 7px;
-	float: left;
-	margin-right: 5px;
-	border-radius: 3px;
-	cursor: pointer;
+	padding: 1px 4px;
+    float: left;
+    margin-right: 5px;
+    border-radius: 3px;
+    cursor: pointer;
+    line-height: 15px;
 }
 
 .sml_action {
 	border: 1px solid #1177b8;
-	padding: 1px 7px;
-	float: left;
-	margin-right: 5px;
-	border-radius: 3px;
-	cursor: pointer;
+	padding: 1px 4px;
+    float: left;
+    margin-right: 5px;
+    border-radius: 3px;
+    cursor: pointer;
+    line-height: 15px;
 }
 
 .sml_hide {
 	border: 1px solid #d5d5d5;
-	padding: 1px 7px;
+	padding: 1px 4px;
 	float: right;
 	margin-right: 5px;
 	border-radius: 3px;
 	position: absolute;
 	right: 10px;
 	cursor: pointer;
+	line-height: 15px;
 }
 
 .sidenav a {
@@ -2765,7 +2785,7 @@ input[type=checkbox] {
     font-size: 16px;
     font-weight: 100;
     color: #929292;
-    background-color: #f6f8f8;
+  	background-color: transparent;
     background-clip: padding-box;
     border-top: none;
     border-left: none;
@@ -2773,6 +2793,8 @@ input[type=checkbox] {
     border-bottom: 1px solid #d5d5d5;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     padding: 7px 0px;
+    line-height: 24px;
+    /* height:49px; */
 }
 
 
@@ -2801,3 +2823,141 @@ tspan {
 }
 
 /* JB 29/12 ENDS */
+
+/* Sagar 30/12 */
+
+.fs-12 {
+	font-size : 12px !important;
+	padding : 1px !important;
+	line-height: 30px !important;
+}
+
+select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	-ms-appearance: none;
+	appearance: none;
+	outline: 0;
+	background-color: transparent;
+	background-image: none;
+	border: none;
+	border-bottom: 1px solid #d5d5d5
+}
+
+.select {
+	position: relative;
+	display: block;
+	line-height: 3;
+	background-color: transparent;
+	overflow: hidden;
+	border-radius: .25em
+}
+
+select {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0 0 0 0;
+	font-family: 'HelveticaNeue';
+	color: #333;
+	font-weight: 100;
+	cursor: pointer;
+	font-weight: 100;
+	line-height: 28px;
+	font-size: 16px;
+}
+
+select::-ms-expand {
+	display: none
+}
+
+.select::after {
+	content: '\e64b';
+	font-family: 'themify';
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	padding: 0 ;
+	pointer-events: none
+}
+
+/* .select:hover::after {
+	color: #F39C12
+} */
+
+.select::after {
+	-webkit-transition: .25s all ease;
+	-o-transition: .25s all ease;
+	transition: .25s all ease
+}
+
+.select option {
+	font-weight: 100;
+	font-family: 'HelveticaNeue';
+	color: #333;
+	font-weight: 100;
+	border-bottom: 1px solid #ccc;
+	padding: 10px 0px;
+}
+
+/* Shradha */
+
+.btn1:focus {
+	border: none;
+	outline: none;
+}
+
+.btn2:focus {
+	border: none;
+	outline: none;
+}
+
+.btn3:focus {
+	border: none;
+	outline: none;
+}
+
+.btn4:focus {
+	border: none;
+	outline: none;
+}
+
+.mrt_6
+{
+	margin-top:6px;
+}
+.inner_search{
+	border-bottom: 1px solid #ccc;
+}
+
+.input-style1 {
+	width:250px;
+	font-size: 12px;
+	padding: 4px 10px;
+	background: #FFF;
+}
+.inner_searchboxinput {
+    border: none;
+    outline: none;
+    font-size: 10px;
+    width:180px;
+    float: left;
+    background: none;
+    height: 18px !important;
+}
+.searchicon1 {
+    float: right;
+    width: 47px;
+    text-align: right;
+}
+.searchicon1 a
+{
+	font-size:12px!important;
+}
+
+.panel-title>a:hover
+{
+text-decoration:none;
+color: #555;
+}

@@ -27,175 +27,215 @@
 
 
 
-//Function for adding more Table row
 function addMore(){
-	var lengthOfTableRow = $("#tbodyDataFile").children('tr').length;
-	var cloneHtml = $("#myTable tbody tr:first").clone();
-	$("#myTable tbody tr:last").find('td:last').html('');
-	$("#myTable tbody").append($("#myTable tbody tr:first").clone());
+	
+	var lengthOfTableRow = $("#addtbodyData").children('tr').length;
+	var cloneHtml = $("#addTbl tbody tr:first").clone();
+	
+	$("#addTbl tbody").append($("#addTbl tbody tr:first").clone());
 	$("#myTable tbody tr td:last").html("");
-	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="checkEmpty();"><span class="ti-plus"></span></button>&nbsp;'
-	var removeMore = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button>&nbsp;'
 	
 	
-	$("#myTable tbody tr:last").find('td:last').append(addMore);
-	$("#myTable tbody tr:last").find('td:last').append(removeMore);
+		
+	
+	 $("#addTbl tbody tr:last").find(".checkClsadd").val("");
+	$("#addTbl tbody tr:last").find(".typecls").val("");
+	$("#addTbl tbody tr:last").find(".adresscls").val("");
+	$("#addTbl tbody tr:last").find(".cityclsss").val("");
+	$("#addTbl tbody tr:last").find(".stateclss").val("");
+	$("#addTbl tbody tr:last").find(".zipclss").val("");
+	$("#addTbl tbody tr:last").find(".countryclss").val("");
+	$("#addTbl tbody tr:last").find(".statusaddclss").val("");
 	
 	var editTr = 0;
 	
 	if(lengthOfTableRow>editTr){
-		$("#myTable tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
-		
+	
+		$("#addTbl tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
 	}
-			
-	$("#myTable tbody tr:last").find(".document").val("");
-	$("#myTable tbody tr:last").find(".documentTypeCls").val("");
-	$("#myTable tbody tr:last").find(".uploadedBillCls").empty();
-	$("#myTable tbody tr:last").find(".uploadHidCls").empty();
-			
-	$("#myTable > tbody > tr").each(function(i){
-		var textInput = $(this).find('input');
-		var ankerInput = $(this).find('a');
-		var spanInput = $(this).find('span');
-		var divInput = $(this).find('div');
-		
+	$("#addTbl > tbody > tr").each(function(i){
 		var selectInput = $(this).find('select');
-		selectInput.eq(0).attr('id', "documentType_" + i);
-		textInput.eq(0).attr('id', "ques_" + i);
-		textInput.eq(1).attr('id', "quesId_" + i);
-		textInput.eq(2).attr('id', "uploadDoc_" + i);
-		textInput.eq(3).attr('id', "uploadHidden_" + i);
-		divInput.eq(0).attr('id', "zoom_" + i);
-		divInput.eq(2).attr('id', "uploadedBillDiv_" + i);
+		var textInput = $(this).find('input');
+		var fileInput = $(this).find('file');
+		var divInput = $(this).find('div');
+		selectInput.eq(0).attr('id', "cityid_" + i);
+		selectInput.eq(1).attr('id', "stateid_" + i);
+		selectInput.eq(2).attr('id', "countryid_" + i);
+		
+		textInput.eq(0).attr('id',"checkAdd2"+i);
+		textInput.eq(1).attr('id',"typeid_"+i);
+		textInput.eq(2).attr('id',"addressid_"+i);
+		textInput.eq(3).attr('id',"zipcodeid_"+i);
+		textInput.eq(4).attr('id',"statusid_"+i);
+		
+		
 	})
 	
 }
 
-	function autocomplete(inp, arr) {
-		/*the autocomplete function takes two arguments,
-		the text field element and an array of possible autocompleted values:*/
-		var currentFocus;
-		/*execute a function when someone writes in the text field:*/
-		inp
-				.addEventListener(
-						"input",
-						function(e) {
-							var a, b, i, val = this.value;
-							/*close any already open lists of autocompleted values*/
-							closeAllLists();
-							if (!val) {
-								return false;
-							}
-							currentFocus = -1;
-							/*create a DIV element that will contain the items (values):*/
-							a = document.createElement("DIV");
-							a.setAttribute("id", this.id + "autocomplete-list");
-							a.setAttribute("class", "autocomplete-items");
-							/*append the DIV element as a child of the autocomplete container:*/
-							this.parentNode.appendChild(a);
-							/*for each item in the array...*/
-							for (i = 0; i < arr.length; i++) {
-								/*check if the item starts with the same letters as the text field value:*/
-								if (arr[i].substr(0, val.length).toUpperCase() == val
-										.toUpperCase()) {
-									/*create a DIV element for each matching element:*/
-									b = document.createElement("DIV");
-									/*make the matching letters bold:*/
-									b.innerHTML = "<strong>"
-											+ arr[i].substr(0, val.length)
-											+ "</strong>";
-									b.innerHTML += arr[i].substr(val.length);
-									/*insert a input field that will hold the current array item's value:*/
-									b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-									/*execute a function when someone clicks on the item value (DIV element):*/
-									b
-											.addEventListener(
-													"click",
-													function(e) {
-														/*insert the value for the autocomplete text field:*/
-														inp.value = this
-																.getElementsByTagName("input")[0].value;
-														/*close the list of autocompleted values,
-														(or any other open lists of autocompleted values:*/
-														closeAllLists();
-													});
-									a.appendChild(b);
-								}
-							}
-						});
-		/*execute a function presses a key on the keyboard:*/
-		inp.addEventListener("keydown", function(e) {
-			var x = document.getElementById(this.id + "autocomplete-list");
-			if (x)
-				x = x.getElementsByTagName("div");
-			if (e.keyCode == 40) {
-				/*If the arrow DOWN key is pressed,
-				increase the currentFocus variable:*/
-				currentFocus++;
-				/*and and make the current item more visible:*/
-				addActive(x);
-			} else if (e.keyCode == 38) { //up
-				/*If the arrow UP key is pressed,
-				decrease the currentFocus variable:*/
-				currentFocus--;
-				/*and and make the current item more visible:*/
-				addActive(x);
-			} else if (e.keyCode == 13) {
-				/*If the ENTER key is pressed, prevent the form from being submitted,*/
-				e.preventDefault();
-				if (currentFocus > -1) {
-					/*and simulate a click on the "active" item:*/
-					if (x)
-						x[currentFocus].click();
-				}
-			}
-		});
-		function addActive(x) {
-			/*a function to classify an item as "active":*/
-			if (!x)
-				return false;
-			/*start by removing the "active" class on all items:*/
-			removeActive(x);
-			if (currentFocus >= x.length)
-				currentFocus = 0;
-			if (currentFocus < 0)
-				currentFocus = (x.length - 1);
-			/*add class "autocomplete-active":*/
-			x[currentFocus].classList.add("autocomplete-active");
-		}
-		function removeActive(x) {
-			/*a function to remove the "active" class from all autocomplete items:*/
-			for (var i = 0; i < x.length; i++) {
-				x[i].classList.remove("autocomplete-active");
-			}
-		}
-		function closeAllLists(elmnt) {
-			/*close all autocomplete lists in the document,
-			except the one passed as an argument:*/
-			var x = document.getElementsByClassName("autocomplete-items");
-			for (var i = 0; i < x.length; i++) {
-				if (elmnt != x[i] && elmnt != inp) {
-					x[i].parentNode.removeChild(x[i]);
-				}
-			}
-		}
-		/*execute a function when someone clicks in the document:*/
-		document.addEventListener("click", function(e) {
-			closeAllLists(e.target);
-		});
+
+
+
+
+function addMore1(){
+	
+	var lengthOfTableRow = $("#doctbodyData").children('tr').length;
+	var cloneHtml = $("#docTbl tbody tr:first").clone();
+	
+	$("#docTbl tbody").append($("#docTbl tbody tr:first").clone());
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore1();"><span class="ti-plus"></span></button>&nbsp;'
+	
+	
+		
+	
+	 $("#docTbl tbody tr:last").find(".documentclss").val("");
+	$("#docTbl tbody tr:last").find(".docNoclss").val("");
+	$("#docTbl tbody tr:last").find(".documentclssup").val("");
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+	
+		$("#docTbl tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
 	}
+	$("#docTbl > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		var fileInput = $(this).find('file');
+		var divInput = $(this).find('div');
+		selectInput.eq(0).attr('id', "docid_" + i);
+		
+		
+		textInput.eq(0).attr('id',"docnoid_"+i);
+		textInput.eq(1).attr('id',"uploadDoc_"+i);
+	
+		
+		
+	})
+	
+}
+   
+   
+   
+   
+   
+function addMore3(){
+	
+	var lengthOfTableRow = $("#workdetailstbodyData").children('tr').length;
+	var cloneHtml = $("#docTbl tbody tr:first").clone();
+	
+	$("#workdetailsTbl tbody").append($("#workdetailsTbl tbody tr:first").clone());
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore3();"><span class="ti-plus"></span></button>&nbsp;'
+	
+	
+		
+	
+	 $("#workdetailsTbl tbody tr:last").find(".fromdatecls").val("");
+	$("#workdetailsTbl tbody tr:last").find(".todateclss").val("");
+	$("#workdetailsTbl tbody tr:last").find(".jobtitlecls").val("");
+	 $("#workdetailsTbl tbody tr:last").find(".jobtypecls").val("");
+	$("#workdetailsTbl tbody tr:last").find(".deptcls").val("");
+	$("#workdetailsTbl tbody tr:last").find(".empstatuscls").val("");
+		 $("#workdetailsTbl tbody tr:last").find(".deginationcls").val("");
+	$("#workdetailsTbl tbody tr:last").find(".bandcls").val("");
+	$("#workdetailsTbl tbody tr:last").find(".managerclss").val("");
+	$("#workdetailsTbl tbody tr:last").find(".annualctccls").val("");
+	
+	
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+	
+		$("#workdetailsTbl tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#workdetailsTbl > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		var fileInput = $(this).find('file');
+		var divInput = $(this).find('div');
+		selectInput.eq(0).attr('id', "jobtypeid_" + i);
+			selectInput.eq(1).attr('id', "departmentid_" + i);
+			selectInput.eq(2).attr('id', "employmentstatusid_" + i);
+			selectInput.eq(3).attr('id', "deginationid_" + i);
+			selectInput.eq(4).attr('id', "managerid_" + i);
+			
+		
+		
+		
+		
+		textInput.eq(0).attr('id',"fromdateid_"+i);
+		textInput.eq(1).attr('id',"todateid_"+i);
+		textInput.eq(0).attr('id',"jobtitleid_"+i);
+		textInput.eq(1).attr('id',"deginationid_"+i);
+			textInput.eq(0).attr('id',"bandid_"+i);
+		textInput.eq(1).attr('id',"annualctcid_"+i);
+	
+		
+		
+	})
+	
+}
+function addMore4(){
+	
+	var lengthOfTableRow = $("#dependenttbodyData").children('tr').length;
+	var cloneHtml = $("#docTbl tbody tr:first").clone();
+	
+	$("#fdependenttbl tbody").append($("#fdependenttbl tbody tr:first").clone());
+	$("#myTable tbody tr td:last").html("");
+	var addMore='<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore4();"><span class="ti-plus"></span></button>&nbsp;'
+	
+	
+		
+	
+	 $("#fdependenttbl tbody tr:last").find(".ftypecls").val("");
+	$("#fdependenttbl tbody tr:last").find(".dfirstnamecls").val("");
+	$("#fdependenttbl tbody tr:last").find(".dlastnmaecls").val("");
+	 $("#fdependenttbl tbody tr:last").find(".ddobcls").val("");
+	$("#fdependenttbl tbody tr:last").find(".dgendercls").val("");
+	$("#fdependenttbl tbody tr:last").find(".drelationcls").val("");
+	
+	
+	
+	
+	var editTr = 0;
+	
+	if(lengthOfTableRow>editTr){
+	
+		$("#fdependenttbl tbody tr").eq(lengthOfTableRow-1).find('td:last').append(removeMore);
+	}
+	$("#fdependenttbl > tbody > tr").each(function(i){
+		var selectInput = $(this).find('select');
+		var textInput = $(this).find('input');
+		var fileInput = $(this).find('file');
+		var divInput = $(this).find('div');
+	
+			selectInput.eq(0).attr('id', "genderidd_" + i);
+		
+		
+		
+		
+		
+		textInput.eq(0).attr('id',"typedid_"+i);
+		textInput.eq(1).attr('id',"typednmaeid_"+i);
+		textInput.eq(2).attr('id',"typenameid"+i);
+		textInput.eq(3).attr('id',"typeDOBidd_"+i);
+			textInput.eq(4).attr('id',"relationshipid_"+i);
+		
+		
+		
+	})
+	
+}
+   
 
-	/*An array containing all the country names in the world:*/
-	var countries = [ "Amit Jha", "Ashish Dash", "Arun Kar", "Asima Barik",
-			"Aradhya Pal", "Bisakha Senapati", "Bikash Palei", "Bidhan Nath",
-			"Bijayalaxmi Sahoo", "Binita Parida", "Chandan Palei", ,
-			"Chaaya Kar", "Chimayee Rath", "Cabir Singh", "Chinu Dhar",
-			"Deepak Das", "Disha Kar", "DiyaPal", "Dikhya Muduli",
-			"Dhiren Dhar", "Divyanka Tripathy", "Esha Jha", "Eli Jena",
-			"Eshan Barik", "Eyana Kar", "Eilina Sahu" ];
 
-	/*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
-	autocomplete(document.getElementById("myInput"), countries);
+	
+
+	
 </script>
 <script type="text/javascript">
 	//employee image
@@ -390,21 +430,7 @@ $(document).ready(function() {
 
 
 
-$('.tbll').on('click', '.rmv', function () {
-	 
-	$(this).closest('tr').remove();
-	$("#myTable tbody tr:last").find(
-		'td:last').html('');
-	var add = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore();"><span class="ti-plus"></span></button> '
-	var remove = '<button type="button" class="btn btn-warning rmv" name="Remove"><span class="ti-minus"></span></button>';
 
-	if ($("#tbodyDataFile").children('tr').length > 1) {
-		$("#myTable tbody tr:last").find('td:last').append(add);
-		$("#myTable tbody tr:last").find('td:last').append(remove);
-	} else {
-		$("#myTable tbody tr:last").find('td:last').append(add);
-	}
-});
 
 </script>
 
@@ -1008,26 +1034,32 @@ $('.tbll').on('click', '.rmv', function () {
 													role="tabpanel" aria-labelledby="headingtwothree">
 													
 													<div class="row">
-											<div class="col-md-10">
+											<div class="col-md-9">
 											<div class="font-design">
-												Present <!-- <span>(10)</span> -->
+											
 											</div>
 										</div>
-										<div class="col-md-2 btn-hs" align="right">
-											<button class="btn4" >New</button>
-											<button class="btn4" >Delete</button>
+										<div class="col-md-3 btn-hs" align="right">
+											
+											
 											<button class="btn4">Download</button>
-
+											<button class="btn3" >Delete</button>
+											<button class="btn1"  onclick="addMore();">New</button>
+											
 										</div>
 										</div>
 
 								
 
-									<table class="newtbl">
+									<table class="newtbl" id="addTbl">
 										<thead>
-											<tr>
-												
+											  <tr class="tr_clone">
+												<th align="center" width="20"><input id="checkAdd1"
+													onclick="allCheck()" type="checkbox"><label
+													for="checkAdd1"></label></th>
+												<th width="180">Type</th>
 												<th width="250">Address</th>
+												
 												<th width="180">City</th>
 												<th width="180"> State</th>
 												<th width="180">Zip Code</th>
@@ -1036,15 +1068,30 @@ $('.tbll').on('click', '.rmv', function () {
 												
 											</tr>
 										</thead>
-										<tbody>
+										<tbody id="addtbodyData">
 										<tr>
+										
+										
+							
+										<td align="center"><input class="checkClsadd"
+													type="checkbox" id="checkAdd2"><label for="checkAdd2"></label></td>
+										  <td>
+										    
+						                                 					    
+															<div class="form-group">
+																 <input type="text" name="type"
+																	value="" placeholder="Type" class="form-control typecls"
+																	id="typeid_">
+															</div>
+															
+													</td>
 										    <td>
 										    
 						                                 					    
 															<div class="form-group">
 																 <input type="text" name="Address"
-																	value="" placeholder="Address" class="form-control"
-																	id="addressid">
+																	value="" placeholder="Address" class="form-control adresscls"
+																	id="addressid_">
 															</div>
 															
 													</td>
@@ -1053,26 +1100,26 @@ $('.tbll').on('click', '.rmv', function () {
 													
 														<div class="form-group">
 																
-																<div class="selectbox">
-																	<select class="form-control" id="cityid">
-																		<option>Select</option>
+																
+																	<select class="form-control   cityclsss" id="cityid_">
+																		<option value="">Select</option>
 																		<option th:each="c,iter:${cityList}"
 																			th:value="${c.key}" th:text="${c.name}"></option>
 																	</select>
-																</div>
+																
 															</div>
 															</td>
 													<td>
 													
 														<div class="form-group">
 														
-														<div class="selectbox">
-															<select class="form-control" id="stateid">
-																<option>Select</option>
+														
+															<select class="form-control stateclss" id="stateid_">
+																<option value="">Select</option>
 																<option th:each="c,iter:${stateList}"
 																	th:value="${c.key}" th:text="${c.name}"></option>
 															</select>
-														</div>
+														
 													</div>
 											
 															</td>
@@ -1083,27 +1130,27 @@ $('.tbll').on('click', '.rmv', function () {
 													<div class="form-group">
 															<input type="text"
 																	name="zipcode" value="" placeholder="zipcode"
-																	class="form-control" id="zipcodeid">
+																	class="form-control   zipclss" id="zipcodeid_">
 															</div>
 															</td>
 															<td>
 													
 														<div class="form-group">
 																
-																<div class="selectbox">
-																	<select class="form-control" id="countryid">
-																		<option>Select</option>
+																
+																	<select class="form-control  countryclss" id="countryid_">
+																		<option value="">Select</option>
 																		<option th:each="c,iter:${counntryList}"
 																			th:value="${c.key}" th:text="${c.name}"></option>
 																	</select>
 																</div>
-															</div>
+													
 															</td>
 															
 															<td><div class="form-group">
 																 <input type="text"
 																	name="status" value="" placeholder="Status"
-																	class="form-control" id="statusid">
+																	class="form-control  statusaddclss" id="statusid_">
 															</div>
 															</td>
 													
@@ -1113,106 +1160,12 @@ $('.tbll').on('click', '.rmv', function () {
 										</table>
 										
 										
-										<div class="row">
-											<div class="col-md-10">
-											<div class="font-design">
-												Premanent <!-- <span>(10)</span> -->
-											</div>
-										</div>
 										
-										</div>
 										
-									<table class="newtbl">
-										<thead>
-											<tr>
-												
-											<th width="250">Address</th>
-												<th width="180">City</th>
-												<th width="180"> State</th>
-												<th width="180">Zip Code</th>
-												<th width="180">Country</th>
-												<th width="180">Status</th>
-												
-											</tr>
-										</thead>
-										<tbody>
-										<tr>
-										    <td>
-										    
-						                              			    
-															<div class="form-group">
-																 <input type="text" name="Address"
-																	value="" placeholder="Address" class="form-control"
-																	id="addressid">
-															</div>
-															</div>
-													</td>
-													
-													<td>
-													
-														<div class="form-group">
-															
-																<div class="selectbox">
-																	<select class="form-control" id="cityid">
-																		<option>Select</option>
-																		<option th:each="c,iter:${cityList}"
-																			th:value="${c.key}" th:text="${c.name}"></option>
-																	</select>
-																</div>
-															</div>
-															</td>
-													<td>
-													
-														<div class="form-group">
-												
-														<div class="selectbox">
-															<select class="form-control" id="stateid">
-																<option>Select</option>
-																<option th:each="c,iter:${stateList}"
-																	th:value="${c.key}" th:text="${c.name}"></option>
-															</select>
-														</div>
-													</div>
-											
-															</td>
-															
-															
-															<td>
-													
-													<div class="form-group">
-																 <input type="text"
-																	name="zipcode" value="" placeholder="zipcode"
-																	class="form-control" id="zipcodeid">
-															</div>
-															</td>
-															<td>
-													
-														<div class="form-group">
-																
-																<div class="selectbox">
-																	<select class="form-control" id="countryid">
-																		<option>Select</option>
-																		<option th:each="c,iter:${counntryList}"
-																			th:value="${c.key}" th:text="${c.name}"></option>
-																	</select>
-																</div>
-															</div>
-															</td>
-															
-															<td><div class="form-group">
-															 <input type="text"
-																	name="status" value="" placeholder="Status"
-																	class="form-control" id="statusid">
-															</div>
-															</td>
-													
-													
-										</tr>
-										</tbody>
-										</table>
+								
 												</div>
 												</div>
-											</div>
+										
 											
 											
 											
@@ -1228,120 +1181,78 @@ $('.tbll').on('click', '.rmv', function () {
 												</div>
 												<div id="collapsethree" class="panel-collapse collapse "
 													role="tabpanel" aria-labelledby="headingthree">
-													<div class="form-box">
-									<div class="row">
-										<div class="col-lg-12">
-											<!-- id="table-data" -->
-											<table id="myTable" width="100%" border="0" cellspacing="1"
-												cellpadding="5" class="tbll">
-												<thead>
-													<tr>
-														<th width="180">Document Type</th>
-														<th width="180">Document No</th>
-														<th>Document</th>
-														<th>Action</th>
-														
-														
-														
-														
-														
+											<div class="row">
+											<div class="col-md-9">
+											
+										</div>
+										<div class="col-md-3 btn-hs" align="right">
+											
+											
+											<button class="btn4">Download</button>
+											<button class="btn3" >Delete</button>
+											<button class="btn1"  onclick="addMore1();">New</button>
+										</div>
+										</div>
+
+								
+
+									<table class="docutbl" id="docTbl">
+										<thead>
+											  <tr class="tr_clone">
 												
-													</tr>
-												</thead>
-												<tbody id="tbodyDataFile">
-													<tr class="tr_clone" th:unless="${docId}">
-														<td>	
-														<div class="form-group">
-													
-														<div class="selectbox">
-															<select class="form-control" id="documenttypeid">
-																<option>Select</option>
-																<option th:each="c,iter:${documenttypeList}"
-																	th:value="${c.key}" th:text="${c.name}"></option>
-															</select>
-														</div>
-													</div>
-														</td>
-														
-														
-														
-														
-														<td><div class="form-group">
-															 <input type="text"
+												<th width="180"> Document Type</th>
+												<th width="180">Document No</th>
+												
+												<th width="180">Attachment</th>
+												
+												
+											</tr>
+										</thead>
+										<tbody id="doctbodyData">
+										<tr>
+										
+										
+							
+										<td><div class="form-group">
+																
+																
+																	<select class="form-control  documentclss" id="docid_0">
+																		<option value="">Select</option>
+																		<option th:each="c,iter:${documenttypeList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+															
+															</td>
+										    
+						                                 		<td><div class="form-group">
+																 <input type="text"
 																	name="status" value="" placeholder="Status"
-																	class="form-control" id="statusid">
+																	class="form-control  docNoclss" id="docnoid_">
 															</div>
 															</td>
-														<td><div class="upload-btn-wrapper">
+										    		<td><div class="upload-btn-wrapper">
 																<div class="controls">
-																	<input type="file" class="document"
+																	<input type="file" class="documentclssup"
 																		style="display: block;" id="uploadDoc_0"
 																		onchange="saveFile(event)" />
 
 																</div>
-															</div> <!-- <label for="fileUpload" class="custom-file-upload"> <i
-																	class="fa fa-cloud-upload"></i> Upload Document
-																</label> <input type="file" class="document" id="uploadDoc_0"
-																	accept="image/*" 
-																	onchange="saveFile(event)"> --> <input type="hidden"
+															</div>  <input type="hidden"
 															id="uploadHidden_0" class="uploadHidCls">
 															<div id="uploadedBillDiv_0" align="center"
 																class="uploadedBillCls"></div></td>
-														<td><button type="button"
-																class="btn btn-primary tr_clone_add" name="add"
-																onclick="checkEmpty();">
-																<span class="ti-plus"></span>
-															</button>&nbsp;</td>
-													</tr>
-
-
-													<tr class="tr_clone" th:if="${docId}"
-														th:each="a,iter:${documentList}">
-														<td><select class="form-control documentTypeCls"
-															id="documentType_+${iter.index}"
-															onchange="checkForDuplicateEntry(event);">
-																<option th:value=null>--Select--</option>
-																<option th:each="c:${documentTypeList}"
-																	th:value='${c.key}' th:text="${c.name}"
-																	th:selected="${c.key==a.documentType}"></option>
-														</select></td>
-														<td><div class="upload-btn-wrapper">
-																<div class="controls">
-																	<input type="file" class="document"
-																		style="display: block;" id="uploadDoc_+${iter.index}"
-																		onchange="saveFile(event)" /> <input type="hidden"
-																		id="uploadHidden_0" class="uploadHidCls"
-																		th:value="${a.fileName}">
-																</div>
-															</div>
-
-															<div id="uploadedBillDiv_+${iter.index}" align="center"
-																class="uploadedBillCls">
-																<span> <a class="example-image-link"
-																	th:href="${a.documentTypeName}" data-lightbox="hsdjas">Preview
-																		Image</a>
-																</span>
-															</div> <input type="hidden" id="uploadFile_+${iter.index}"></td>
-														<td>
-															<button th:if="${iter.size == iter.index+1}"
-																type="button" class="btn btn-primary tr_clone_add"
-																name="add" onclick="checkEmpty();">
-																<span class="ti-plus"></span>
-															</button>&nbsp;
-															<button th:if="${iter.size != 1}" type="button"
-																class="btn btn-warning rmv" name="Remove">
-																<span class="ti-minus"></span>
-															</button>
-														</td>
-													</tr>
-
-
-												</tbody>
-											</table>
-
-										</div>
-									</div>
-								</div>
+												
+															
+												
+												
+														
+													
+										</tr>
+										</tbody>
+										</table>
+										
+										
 												</div>
 											</div>
 											<!-- <div class="card-header">
@@ -1366,14 +1277,15 @@ $('.tbll').on('click', '.rmv', function () {
 												<div id="collapsefour" class="panel-collapse collapse "
 													role="tabpanel" aria-labelledby="headingfour">
 								<div class="row">
-											<div class="col-md-10">
-											<div class="font-design">
-												Present <!-- <span>(10)</span> -->
-											</div>
+											<div class="col-md-9">
+											
 										</div>
-										<div class="col-md-2 btn-hs" align="right">
-											<button class="btn4" >New</button>
-											<button class="btn4" >Delete</button>
+										<div class="col-md-3 btn-hs" align="right">
+										<button class="btn4">Download</button>
+										<button class="btn3" >Delete</button>
+										
+											<button class="btn1" onclick="addMore3();" >New</button>
+											
 											
 
 										</div>
@@ -1381,32 +1293,33 @@ $('.tbll').on('click', '.rmv', function () {
 
 								
 
-									<table class="newtbl">
+									<table class="workdetailscls" id="workdetailsTbl">
 										<thead>
-											<tr>
+											  <tr class="tr_clone">
+										
 												
-												<th width="180">Start Date</th>
-												<th width="180">End Date</th>
-												<th width="180"> Job Title</th>
-												<th width="180">Job Type</th>
-												<th width="180">Department</th>
-												<th width="180"> Employment Status</th>
-												<th width="180">Degination</th>
-												<th width="180">Band</th>
-												<th width="180">Manager</th>
-												<th width="180">Annual CTC</th>
+												<th   align="center" width="150">Start Date</th>
+												<th width="150">End Date</th>
+												<th width="150"> Job Title</th>
+												<th width="150">Job Type</th>
+												<th width="150">Department</th>
+												<th width="150"> Employment Status</th>
+												<th width="150">Degination</th>
+												<th width="150">Band</th>
+												<th width="150">Manager</th>
+												<th width="150">Annual CTC</th>
 												
 											</tr>
 										</thead>
-										<tbody>
+										<tbody id="workdetailstbodyData">
 										<tr>
 										    <td>
 										    
 						                                 					    
 															<div class="form-group">
 																 <input type="text" name="From Date"
-																	value="" placeholder="From Date" class="form-control"
-																	id="fromdateid">
+																	value="" placeholder="From Date" class="form-control   fromdatecls"
+																	id="fromdateid_">
 															</div>
 															
 															
@@ -1416,10 +1329,10 @@ $('.tbll').on('click', '.rmv', function () {
 													 <td>
 										    
 						                                 					    
-															<div class="form-group">
+															<div class="form-group" >
 																 <input type="text" name="to Date"
-																	value="" placeholder="To Date" class="form-control"
-																	id="todateid">
+																	value="" placeholder="To Date" class="form-control  todateclss"
+																	id="todateid_">
 															</div>
 															
 															
@@ -1431,8 +1344,8 @@ $('.tbll').on('click', '.rmv', function () {
 						                                 					    
 															<div class="form-group">
 																 <input type="text" name="job title"
-																	value="" placeholder="Job Title" class="form-control"
-																	id="jobtitleid">
+																	value="" placeholder="Job Title" class="form-control  jobtitlecls"
+																	id="jobtitleid_">
 															</div>
 															
 															
@@ -1447,52 +1360,40 @@ $('.tbll').on('click', '.rmv', function () {
 													<td>
 													<div class="form-group">
 													
-														<div class="selectbox">
-															<select class="form-control" id="jobtypeid">
-																<option>Select</option>
+														
+															<select class="form-control   jobtypecls" id="jobtypeid_">
+																<option value="">Select</option>
 																<option th:each="c,iter:${jobtypeList}"
 																	th:value="${c.key}" th:text="${c.name}"></option>
 															</select>
 														</div>
-													</div>
-												</td>
-													<td>
 													
-														<div class="form-group">
-																
-																<div class="selectbox">
-																	<select class="form-control" id="cityid">
-																		<option>Select</option>
-																		<option th:each="c,iter:${cityList}"
-																			th:value="${c.key}" th:text="${c.name}"></option>
-																	</select>
-																</div>
-															</div>
-															</td>
+												</td>
+													
 													<td>
 													
 															<div class="form-group">
 													
-														<div class="selectbox">
-															<select class="form-control" id="departmentid">
-																<option>Select</option>
+														
+															<select class="form-control deptcls" id="departmentid_">
+																<option value="">Select</option>
 																<option th:each="c,iter:${DepartmentList}"
 																	th:value="${c.key}" th:text="${c.name}"></option>
 															</select>
 														</div>
-													</div>
+												
 															</td>
 															
 															
 															<td><div class="form-group">
 														
-														<div class="selectbox">
-															<select class="form-control" id="employmentstatusid">
-																<option>Select</option>
+														
+															<select class="form-control   empstatuscls" id="employmentstatusid_">
+																<option value="">Select</option>
 																<option th:each="c,iter:${employmentstatusList}"
 																	th:value="${c.key}" th:text="${c.name}"></option>
 															</select>
-														</div>
+														
 													</div></td>
 															
 															
@@ -1501,36 +1402,33 @@ $('.tbll').on('click', '.rmv', function () {
 													<div class="form-group">
 															<input type="text"
 																	name="Degination" value="" placeholder="Degination"
-																	class="form-control" id="deginationid">
+																	class="form-control deginationcls" id="deginationid_">
 															</div>
 															</td>
-															<td>
-													
-													
-															</td>
+															
 															
 															<td><div class="form-group">
 																 <input type="text"
 																	name="Band" value="" placeholder="Band"
-																	class="form-control" id="bandid">
+																	class="form-control bandcls" id="bandid_">
 															</div>
 															</td>
 															
 															<td><div class="form-group">
 													
-														<div class="selectbox">
-															<select class="form-control" id="managerid">
-																<option>Select</option>
+													
+															<select class="form-control managerclss" id="managerid_">
+																<option value="">Select</option>
 																<option th:each="c,iter:${ManagerList}"
 																	th:value="${c.key}" th:text="${c.name}"></option>
 															</select>
-														</div>
+														
 													</div></td>
 													
 													<td><div class="form-group">
 														 <input type="text"
 															name="Annual CTC" value="" placeholder="Annual CTC"
-															class="form-control" id="annualctcid">
+															class="form-control annualctccls" id="annualctcid_">
 													</div></td>
 													
 													
@@ -1582,6 +1480,171 @@ $('.tbll').on('click', '.rmv', function () {
 
 												</div>
 											</div>
+											
+											<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingten">
+													<h4 class="panel-title">
+														<a role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseten"
+															aria-expanded="true" aria-controls="collapseten">
+															DEPENDENTS </a>
+													</h4>
+												</div>
+												<div id="collapseten" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingten">
+											
+											
+											<div class="row">
+											<div class="col-md-9">
+											
+										</div>
+										<div class="col-md-3 btn-hs" align="right">
+											
+											
+											<button class="btn4">Download</button>
+											<button class="btn3" >Delete</button>
+											<button class="btn1" onclick="addMore4();" >New</button>
+
+										</div>
+										</div>
+
+								
+
+									<table class="famtbl"  id="fdependenttbl" >
+										<thead>
+											<tr>
+												
+												<th   align="center" width="180">Type</th>
+												<th width="180">First Name</th>
+												<th width="180"> Last Name</th>
+												<th width="180">DOB</th>
+												<th width="180">Gender</th>
+												<th width="180"> Relationnship</th>
+												
+												
+											</tr>
+										</thead>
+									<tbody id="dependenttbodyData">
+										<tr>
+										    <td>
+										    
+						                                 					    
+															<div class="form-group">
+																 <input type="text" name="Type"
+																	value="" placeholder="Type" class="form-control ftypecls"
+																	id="typedid_">
+															</div>
+															
+															
+															
+															
+													</td>
+													 <td>
+										    
+						                                 					    
+															<div class="form-group" >
+																 <input type="text" name="First Name"
+																	value="" placeholder="First Name" class="form-control dfirstnamecls"
+																	id="typednmaeid_">
+															</div>
+															
+															
+															
+															
+													</td>
+													 <td>
+										    
+						                                 					    
+															<div class="form-group">
+																 <input type="text" name="Last Name"
+																	value="" placeholder="Last Name" class="form-control dlastnmaecls"
+																	id="typenameid">
+															</div>
+															
+															
+															
+															
+													</td>
+													
+													
+													<td>
+										    
+						                                 					    
+															<div class="form-group">
+																 <input type="text" name="DOB"
+																	value="" placeholder="DOB" class="form-control  ddobcls"
+																	id="typeDOBidd_">
+															</div>
+															
+															
+															
+															
+													</td>
+													
+													
+													<td>
+													<div class="form-group">
+																
+																
+																	<select class="form-control  dgendercls" id="genderidd_">
+																		<option>Select</option>
+																		<option th:each="c,iter:${genderTypeList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div>
+														
+												</td>
+													
+															
+															
+															<td>
+													
+													<div class="form-group">
+															<input type="text"
+																	name="Relationship" value="" placeholder="Relationship"
+																	class="form-control  drelationcls" id="relationshipid_">
+															</div>
+															</td>
+															
+															
+														
+													
+													
+										</tr>
+										</tbody>
+										</table>
+
+
+
+												</div>
+											</div>
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
 
 
 											<!-- <div class="card-header">

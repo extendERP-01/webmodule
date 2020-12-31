@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestClientException;
@@ -24,7 +24,6 @@ import nirmalya.aathithya.webmodule.common.utils.ActivitylogModel;
 import nirmalya.aathithya.webmodule.common.utils.DropDownModel;
 import nirmalya.aathithya.webmodule.common.utils.EnvironmentVaribles;
 import nirmalya.aathithya.webmodule.common.utils.JsonResponse;
-import nirmalya.aathithya.webmodule.inventory.model.InventoryItemRequisitionModel;
 import nirmalya.aathithya.webmodule.inventory.model.InventoryRequisitionModel;
 
 /*
@@ -76,11 +75,39 @@ public class InventoryRequisitionController {
 					env.getInventoryUrl() + "get-requisition-item-list", InventoryRequisitionModel[].class);
 			List<InventoryRequisitionModel> productList = Arrays.asList(inventoryStockModel);
 			model.addAttribute("productList", productList);
-			System.out.println("productList " + productList);
 		} catch (RestClientException e) {
 			e.printStackTrace();
 		}
 
+		/**
+		 * get DropDown value for Requisition Type
+		 *
+		 */
+
+		try {
+			DropDownModel[] dropDownModel = restTemplate.getForObject(env.getInventoryUrl() + "get-cost-center",
+					DropDownModel[].class);
+			List<DropDownModel> costCenterList = Arrays.asList(dropDownModel);
+			model.addAttribute("costCenterList", costCenterList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		
+		/**
+		 * get DropDown value for Requisition Type
+		 *
+		 */
+
+		try {
+			DropDownModel[] dropDownModel = restTemplate.getForObject(env.getInventoryUrl() + "get-location",
+					DropDownModel[].class);
+			List<DropDownModel> locationList = Arrays.asList(dropDownModel);
+			model.addAttribute("locationList", locationList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		
+		
 		logger.info("Method : generateInventoryStockReport ends");
 		return "inventory/view-requisition";
 
@@ -146,7 +173,7 @@ public class InventoryRequisitionController {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "view-requisition-save-th-ajax", method = { RequestMethod.POST })
+	@PostMapping(value = "view-requisition-save-th-ajax")
 	public @ResponseBody JsonResponse<Object> saveItemRequisition(
 			@RequestBody List<InventoryRequisitionModel> inventoryItemRequisitionModel,  
 			HttpSession session) {
@@ -158,10 +185,9 @@ public class InventoryRequisitionController {
 		} catch (Exception e) {
 
 		} 
-		/*
-		 * for (InventoryRequisitionModel m : inventoryItemRequisitionModel) {
-		 * m.setCreatedBy(userId); }
-		 */
+		for (InventoryRequisitionModel m : inventoryItemRequisitionModel) {
+			m.setCreatedBy(userId);
+		}
 		try {
 
 			res = restTemplate.postForObject(env.getInventoryUrl() + "rest-requisition",

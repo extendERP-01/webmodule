@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,7 +29,9 @@ import nirmalya.aathithya.webmodule.common.utils.DropDownModel;
 import nirmalya.aathithya.webmodule.common.utils.EnvironmentVaribles;
 import nirmalya.aathithya.webmodule.common.utils.JsonResponse;
 import nirmalya.aathithya.webmodule.master.model.LocationMasterModel;
+import nirmalya.aathithya.webmodule.master.model.VendorLocationMasterModel;
 import nirmalya.aathithya.webmodule.master.model.VendorMasterModel;
+import nirmalya.aathithya.webmodule.master.model.ZoneMasterModel;
 
 /**
  * @author NirmalyaLabs
@@ -47,12 +50,20 @@ public class VendorMasterController {
 	@GetMapping(value = { "manage-vendor-master" })
 	public String manageVendor(Model model, HttpSession session) {
 		logger.info("Method : manageVenor starts");
-		
 		try {
 			DropDownModel[] locationType = restClient.getForObject(env.getMasterUrl() + "getLocationTypeList", DropDownModel[].class);
 			List<DropDownModel> locationTypeList = Arrays.asList(locationType);
 			
 			model.addAttribute("locationTypeList", locationTypeList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			DropDownModel[] category = restClient.getForObject(env.getMasterUrl() + "getCategoryList", DropDownModel[].class);
+			List<DropDownModel> categoryTypeList = Arrays.asList(category);
+			
+			model.addAttribute("categoryTypeList", categoryTypeList);
 		} catch (RestClientException e) {
 			e.printStackTrace();
 		}
@@ -152,6 +163,33 @@ public class VendorMasterController {
 		logger.info("Method : saveVendorMaster starts");
 		return resp;
 	}
+	
+	@SuppressWarnings("unchecked")
+	@PostMapping(value = { "manage-vendor-master-get-state-list" })
+	public @ResponseBody JsonResponse<Object> getStateNameForLocation(Model model, @RequestBody String tCountry,
+			BindingResult result) {
+		logger.info("Method : getStateNameForLocation starts");
+		
+		JsonResponse<Object> res = new JsonResponse<Object>();
+		
+		try {
+			res = restClient.getForObject(env.getMasterUrl() + "getStateListForLoc?id=" + tCountry,
+					JsonResponse.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (res.getMessage() != null) {
+			res.setCode(res.getMessage());
+			res.setMessage("Unsuccess");
+		} else {
+			res.setMessage("success");
+		}
+		
+		logger.info("Method : getStateNameForLocation ends");
+		return res;
+
+	}
+	
 	public String saveAllImage(byte[] imageBytes, String ext) {
 		logger.info("Method : saveAllImage starts");
 		
@@ -179,5 +217,44 @@ public class VendorMasterController {
 		}
 		logger.info("Method : saveAllImage ends");
 		return imageName;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@PostMapping("/manage-vendor-master-location-save")
+	public @ResponseBody JsonResponse<Object> saveVendorLocationMaster(@RequestBody VendorLocationMasterModel vendorLocationMasterModel, HttpSession session) {
+		logger.info("Method : saveVendorLocationMaster starts");
+		
+		JsonResponse<Object> resp = new JsonResponse<Object>();
+		
+		String userId = "";
+		
+		try {
+			userId = (String) session.getAttribute("USER_ID");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		vendorLocationMasterModel.setCreatedBy(userId);
+		
+		
+		
+		try {
+			resp = restClient.postForObject(env.getMasterUrl() + "saveVendorLocationMaster", vendorLocationMasterModel,
+					JsonResponse.class);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		
+		String message = resp.getMessage();
+
+		if (message != null && message != "") {
+
+		} else {
+			session.removeAttribute("quotationPFile");
+			resp.setMessage("Success");
+		}
+		
+		logger.info("Method : saveVendorLocationMaster starts");
+		return resp;
 	}
 }

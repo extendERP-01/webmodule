@@ -16,14 +16,14 @@
 }
 
 .form-group label {
-	font-size: 13px;
+	font-size: 12px;
 	position: relative;
 	top: 4px;
 }
 </style>
 <script type="text/javascript">
 	function openNav() {
-		document.getElementById("mySidenav").style.cssText = "width: 350px; position: absolute; right:-30px; overflow: hidden; height:620px; top:200px;";
+		document.getElementById("mySidenav").style.cssText = "width: 350px; position: absolute; right:-30px; overflow: hidden; height:770px; top:200px;";
 
 		document.getElementById("main_content").style.width = "72%";
 	}
@@ -209,8 +209,12 @@
 		field : "sku"
 	}, {
 		headerName : "Name",
-		field : "itemName",
+		field : "itemName"
 
+	}, {
+		headerName : "itemId",
+		field : "itemId",
+		hide : "true"
 	}, {
 		headerName : "Brand",
 		field : "brand"
@@ -219,9 +223,18 @@
 		field : "location"
 
 	}, {
+		headerName : "locationId",
+		field : "locationId",
+		hide : "true"
+
+	}, {
 		headerName : "Cost Center",
 		field : "costCenter"
 
+	}, {
+		headerName : "costCenterId",
+		field : "costCenterId",
+		hide : "true"
 	}, {
 		headerName : "Quantity",
 		field : "qty"
@@ -231,13 +244,17 @@
 		field : "uom"
 
 	}, {
+		headerName : "uomId",
+		field : "uomId",
+		hide : "true"
+	}, {
 		headerName : "Estimated Price",
 		field : "estimatedPrice",
 		type : 'rightAligned'
 
 	}, {
 		headerName : "Last Purchase Price",
-		field : "lastPurchasePrice",
+		field : "lastPurchaseUnitPrice",
 		type : 'rightAligned'
 
 	}, {
@@ -422,6 +439,85 @@
 	}
 </script>
 
+<script>
+	function saveTableData() {
+		var item = {};
+		item.sku = $("#skuId").val();
+		item.brand = $("#brandId").val();
+		item.itemId = $("#itemId").val();
+		item.itemName = $("#itemId").find('option:selected').text();
+		item.locationId = $("#locationId").val();
+		item.location = $("#locationId").find('option:selected').text();
+		item.costCenterId = $("#costCenterId").val();
+		item.costCenter = $("#costCenterId").find('option:selected').text();
+		item.qty = $("#quantity").val();
+		item.uomId = $("#uom").val();
+		item.uom = $("#uom").find('option:selected').text();
+		item.estimatedPrice = $("#estimatedPrice").val();
+		item.estimatedTotalPrice = $("#totalEstPrc").val();
+		item.lastPurchaseUnitPrice = $("#lastPurchaseUnitPrice").val();
+		item.lastPurchaseTotalPrice = $("#lastPurchaseTotalPrice").val();
+		var datas = [];
+		productOptions.api.forEachNode(function(rowNode, index) {
+			datas.push(rowNode.data);
+		});
+		datas.push(item)
+		productOptions.api.setRowData(datas);
+
+	}
+
+	function saveData() {
+
+		var datas = [];
+		productOptions.api.forEachNode(function(rowNode, index) {
+			var item = rowNode.data;
+			item.desc = $("#desc").val();
+			item.reqType = $("#reqType").val();
+			item.reqPrior = $("#reqPrior").val();
+			item.receiveDate = $("#receiveDate").val();
+			item.holdStatus = $("#isHold").val();
+			datas.push(item);
+		});
+		console.log(datas);
+		saveRequisition(datas);
+	}
+
+	function saveRequisition(datas) {
+
+		$.ajax({
+			type : "POST",
+			url : "view-requisition-save-th-ajax",
+			dataType : "json",
+			contentType : "application/json",
+			data : JSON.stringify(dataset),
+			success : function(response) {
+
+				if (response.message == "Success") {
+
+				} else {
+					swal({
+						title : response.code,
+						text : response.message,
+						type : "warning"
+					})
+				}
+			},
+			error : function(data) {
+				console.log(data)
+			}
+		}) //ajax ends
+
+	}
+	
+	  
+	  function cancelBar(){
+		  var id = document.getElementById("closeKey");
+		  id.style.display = "block";
+		  if($('#quickFilter').val() == null || $('#quickFilter').val() == ""){
+			  id.style.display = "none";
+		  }
+	  }
+</script>
 
 </head>
 <body>
@@ -511,7 +607,7 @@
 									</div>
 									<div class="col-md-3" align="right">
 										<button class="btn3" id="cancelBtn">Cancel</button>
-										<button class="btn1">Save</button>
+										<button class="btn1" onclick="saveData()">Save</button>
 									</div>
 								</div>
 
@@ -520,29 +616,35 @@
 								<div class="col-md-6">
 									<div class="form-group">
 										<label>Description</label>
-										<textarea class="form-control"></textarea>
+										<textarea class="form-control" id="desc"></textarea>
+										<input type="hidden" id="reqId" />
 									</div>
 								</div>
 								<div class="col-md-6">
 									<div class="row">
 										<div class="col-md-6">
 											<div class="form-group">
-												<label>Type</label> <select class="selectbox" id="reqType">
-													<option th:each="c:${requisitionTypeList}"
-														th:value='${c.key}' th:text="${c.name}"
-														th:selected="${c.key==employeeEmployment}"></option>
-												</select>
+												<label>Type</label>
+												<div class="select">
+													<select id="reqType">
+														<option th:each="c:${requisitionTypeList}"
+															th:value='${c.key}' th:text="${c.name}"
+															th:selected="${c.key==employeeEmployment}"></option>
+													</select>
+												</div>
 											</div>
 										</div>
 
 										<div class="col-md-6">
 											<div class="form-group">
-												<label>Priority</label> <select class="selectbox"
-													id="reqPrior">
-													<option th:each="c:${requisitionPrioList}"
-														th:value='${c.key}' th:text="${c.name}"
-														th:selected="${c.key==employeeEmployment}"></option>
-												</select>
+												<label>Priority</label>
+												<div class="select">
+													<select id="reqPrior">
+														<option th:each="c:${requisitionPrioList}"
+															th:value='${c.key}' th:text="${c.name}"
+															th:selected="${c.key==employeeEmployment}"></option>
+													</select>
+												</div>
 											</div>
 										</div>
 
@@ -559,6 +661,7 @@
 											<div class="form-group">
 												<button class="btn2 putonhold" id="putOnHold"
 													onclick="putOnHold()">PUT ON HOLD</button>
+												<input type="hidden" id="isHold" />
 											</div>
 										</div>
 									</div>
@@ -566,22 +669,6 @@
 							</div>
 							<div id="main_content">
 
-
-
-								<!-- <div class="row">
-								<div class="col-md-12">
-									<div class="headingbar">
-										<a href="#" data-toggle="collapse" data-target="#itemList"
-											style="color: #333; text-decoration: none;">Item List</a> <a
-											href="#" data-toggle="collapse" data-target="#itemList"
-											style="float: right; color: #333; text-decoration: none;">
-											<i class="ti-angle-down"></i>
-										</a>
-									</div>
-								</div>
-							</div>
-
-							<div id="itemList" class="collapse show"> -->
 
 								<div class="wrapper center-block">
 									<div class="panel-group" id="accordion" role="tablist"
@@ -599,10 +686,10 @@
 												role="tabpanel" aria-labelledby="headingOne">
 												<div class="row">
 
-													<div class="col-md-6 btn-hs1">
+													<div class="col-md-4 btn-hs1">
 														<div class="font-design"></div>
 													</div>
-													<div class="col-md-2 btn-hs1">
+													<div class="col-md-3 btn-hs1">
 														<div class="row">
 															<button class="btn1" id="newBtn1" onclick="openNav()">NEW</button>
 
@@ -617,7 +704,7 @@
 															History</button>
 													</div>
 
-													<div class="col-md-1 btn-hs1" align="right">
+													<div class="col-md-2 btn-hs1" align="right">
 
 														<button class="btn4">Download</button>
 													</div>
@@ -630,21 +717,6 @@
 											</div>
 										</div>
 
-
-
-
-
-										<!-- <div class="row" id="actId">
-								<div class="col-md-12">
-									<div class="headingbar">
-										<a href="#" data-toggle="collapse" data-target="#demo_15"
-											style="color: #333; text-decoration: none;">Activities</a> <a
-											href="#" data-toggle="collapse" data-target="#demo_15"
-											style="float: right; color: #333; text-decoration: none;"><i class="ti-angle-down"></i></a>
-									</div>
-								</div>
-							</div>
-							<div id="demo_15" class="collapse show"> -->
 										<div class="panel panel-default">
 											<div class="panel-heading active" role="tab" id="headingtwo">
 												<h4 class="panel-title">
@@ -658,10 +730,10 @@
 												role="tabpanel" aria-labelledby="headingtwo">
 												<div class="row">
 
-													<div class="col-md-7 btn-hs1">
+													<div class="col-md-4 btn-hs1">
 														<div class="font-design"></div>
 													</div>
-													<div class="col-md-2 btn-hs1">
+													<div class="col-md-3 btn-hs1">
 														<div class="row">
 															<button class="btn1" id="newBtn1">NEW</button>
 
@@ -670,11 +742,11 @@
 
 														</div>
 													</div>
-													<div class="col-md-1 btn-hs1">
+													<div class="col-md-2 btn-hs1">
 														<button class="btn2">Approve</button>
 													</div>
 
-													<div class="col-md-2 btn-hs1" align="right">
+													<div class="col-md-3 btn-hs1" align="right">
 														<button class="btn4">Upload</button>
 														<button class="btn4">Download</button>
 													</div>
@@ -688,12 +760,14 @@
 										</div>
 									</div>
 
- 
+
 									<div id="mySidenav" class="sidenav">
 										<div class="slidebox">
 											<div class="row">
 												<div class="col-md-9">
-													<div class="edit">SKU : 1234</div>
+													<div class="edit">
+														SKU :<span id="skuEditId"></span>
+													</div>
 												</div>
 												<div class="col-md-3">
 													<div class="arrow">
@@ -701,130 +775,163 @@
 															onclick="closeNav()"><i class="ti-arrow-right"></i></a>
 													</div>
 												</div>
-
-												<div class="chartbtnsec">
-													<div class="row">
-														<button class="btn4">CANCEL</button>
-														<button class="btn3">DELETE</button>
-														<button class="btn1">SAVE</button>
-													</div>
-												</div>
-
-												<div class="row">
-													<div class="col-lg-10">
-														<div class="form-group">
-															<label>Search</label> <input type="text"
-																class="form-control transparenttxtbox" placeholder="search">
-														</div>
-													</div>
-													<div class="col-lg-2">
-														<div class="form-group">
-															<button class="btn2 ">Browse</button>
-														</div>
-													</div>
-												</div>
-
-												<div class="row">
-													<div class="col-lg-6">
-														<div class="form-group">
-															<label>SKU</label> <input type="text"
-																class="form-control transparenttxtbox" placeholder="SKU">
-														</div>
-													</div>
-													<div class="col-lg-6">
-														<div class="form-group">
-															<label>Brand</label> <input type="text"
-																class="form-control transparenttxtbox" placeholder="Brand">
-														</div>
-													</div>
-												</div>
-												
-												<div class="row">
-													<div class="col-lg-8">
-														<div class="form-group">
-															<label>Item Name</label> <input type="text"
-																class="form-control transparenttxtbox">
-														</div>
-													</div>
-													<div class="col-lg-8">
-														<div class="form-group">
-															<label>Location</label> <select class="form-control">
-															<option value="Chicogo">Chicogo</option>
-															</select>
-														</div>
-													</div>
-													<div class="col-lg-8">
-														<div class="form-group">
-															<label>Cost Center</label> <select class="form-control">
-															<option value="Manufacturing">Manufacturing</option>
-															</select>
-														</div>
-													</div>
-												</div> 
-												<div class="row">
-													<div class="col-lg-6">
-														<div class="form-group">
-															<label>Quantity</label> <input type="text"
-																class="form-control transparenttxtbox"  >
-														</div>
-													</div>
-													<div class="col-lg-6">
-														<div class="form-group">
-															<label>UOM</label> <input type="text"
-																class="form-control transparenttxtbox" placeholder="Pcs">
-														</div>
-													</div>
-												</div>
-
-												<div class="row">
-													<div class="col-lg-6">
-														<div class="form-group">
-															<label>Estimated Price</label> <input type="text"
-																class="form-control transparenttxtbox"  >
-														</div>
-													</div>
-													<div class="col-lg-6">
-														<div class="form-group">
-															<label>Estimated Total Price</label> <input type="text"
-																class="form-control transparenttxtbox" >
-														</div>
-													</div>
-												</div>
-												<div class="row">
-													<div class="col-lg-6">
-														<div class="form-group">
-															<label>Last Purchase unit Price</label> <input
-																type="text" class="form-control transparenttxtbox"
-																placeholder="IN">
-														</div>
-													</div>
-													<div class="col-lg-6">
-														<div class="form-group">
-															<label>Last Purchase Total Price</label> <input
-																type="text" class="form-control transparenttxtbox"
-																placeholder="IN">
-														</div>
-													</div>
-												</div>
-
 											</div>
+											<div class="chartbtnsec">
+												<div class="row">
+													<button class="btn4">CANCEL</button>
+													<button class="btn3">DELETE</button>
+													<button class="btn1" onclick="saveTableData()">SAVE</button>
+												</div>
+											</div>
+
+											<div class="row">
+												<div class="col-lg-9">
+													<div class="form-group">
+														<!-- <label>Search</label> <input type="text"
+															class="form-control transparenttxtbox"
+															placeholder="search"> -->
+														<div class="inner_search">
+															<div class="input-style1 row">
+																<input type="text" placeholder="Search.." name="search"
+																	class="inner_searchboxinput" onkeyup="cancelBar()"
+																	oninput="onQuickFilterChanged()" id="quickFilter">
+																<div class="searchicon1">
+																	<a href="#"><span
+																		style="display: block; border-right: 1px solid rgb(204, 204, 204); padding-right: 5px;"
+																		id="closeKey"
+																		onclick="gridOptions.api.setQuickFilter(null);$('#quickFilter').val('');document.getElementById('closeKey').style.display='none';"
+																		class="close_i"><i class="ti-close srchicon"></i></span></a><a
+																		href="#" style="color:#ccc;margin-top: -5px;"><i class="ti-search srchicon"></i></a>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="col-lg-3 mrt_6">
+													<div class="form-group">
+														<button class="btn2 ">Browse</button>
+													</div>
+												</div>
+											</div>
+
+											<div class="row">
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>SKU</label> <input type="text"
+															class="form-control transparenttxtbox" id="skuId"
+															placeholder="SKU">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Brand</label> <input type="text"
+															class="form-control transparenttxtbox"
+															placeholder="Brand" id="brandId"> <input
+															type="hidden" placeholder="Brand" id="brandId">
+													</div>
+												</div>
+											</div>
+
+											<div class="row">
+												<div class="col-lg-8">
+													<div class="form-group">
+														<label>Item Name</label>
+														<div class="select">
+															<select id="itemId">
+																<option th:each="c:${productList}"
+																	th:value='${c.itemId}' th:text="${c.itemName}"></option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<div class="col-lg-8">
+													<div class="form-group">
+														<label>Location</label>
+														<div class="select">
+															<select id="locationId">
+																<option th:each="c:${locationList}" th:value='${c.key}'
+																	th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<div class="col-lg-8">
+													<div class="form-group">
+														<label>Cost Center</label>
+														<div class="select">
+															<select id="costCenterId">
+																<option th:each="c:${costCenterList}"
+																	th:value='${c.key}' th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Quantity</label> <input type="text"
+															class="form-control transparenttxtbox" id="quantity">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>UOM</label>
+														<div class="select">
+															<select id="uom">
+																<option th:each="c:${costCenterList}"
+																	th:value='${c.key}' th:text="${c.name}"></option>
+															</select>
+														</div>
+
+													</div>
+												</div>
+											</div>
+
+											<div class="row">
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Estimated Price</label> <input type="text"
+															class="form-control transparenttxtbox"
+															id="estimatedPrice">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Estimated Total Price</label> <input type="text"
+															class="form-control transparenttxtbox" id="totalEstPrc">
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Last Purchase unit Price</label> <input type="text"
+															class="form-control transparenttxtbox"
+															id="lastPurchaseUnitPrice">
+													</div>
+												</div>
+												<div class="col-lg-6">
+													<div class="form-group">
+														<label>Last Purchase Total Price</label> <input
+															type="text" class="form-control transparenttxtbox"
+															id="lastPurchaseTotalPrice">
+													</div>
+												</div>
+											</div>
+
 										</div>
 									</div>
-
 								</div>
-							</div>
 
+							</div>
 						</div>
 
 
 
+
+
 					</div>
-
-
-
-
-
-
 					<div class="modal fade" id="lineGraph">
 						<div class="modal-dialog modal-lg">
 							<div class="modal-content large-model">
@@ -868,8 +975,9 @@
 						</div>
 					</div>
 
-
 				</div>
 			</div>
+		</div>
+	</div>
 </body>
 </html>

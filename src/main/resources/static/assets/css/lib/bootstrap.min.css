@@ -211,9 +211,10 @@ a {
     -webkit-text-decoration-skip: objects
 }
 
+
 a:hover {
     color: #0056b3;
-    text-decoration: underline
+    text-decoration: none;
 }
 
 a:not([href]):not([tabindex]) {
@@ -2712,7 +2713,8 @@ input[type=submit].btn-block {
 }
 
 .collapse.show {
-    display: block
+    display: block;
+    padding-bottom: 50px;
 }
 
 tr.collapse.show {
@@ -4913,13 +4915,6 @@ button.close {
 .modal-title {
     margin-bottom: 0;
     line-height: 1.5
-}
-
-.modal-body {
-    position: relative;
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto;
-    padding: 15px
 }
 
 .modal-footer {
@@ -8487,5 +8482,13 @@ a.text-dark:hover {
     visibility: hidden!important
 }
 
+/* AKM 31/12/2020 */
+
+.modal-body {
+position: relative;
+-ms-flex: 1 1 auto;
+flex: 1 1 auto;
+padding: 0px 15px;
+}
 
 /*# sourceMappingURL=bootstrap.min.css.map */

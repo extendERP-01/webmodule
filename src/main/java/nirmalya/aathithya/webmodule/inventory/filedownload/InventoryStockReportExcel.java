@@ -24,7 +24,7 @@ public class InventoryStockReportExcel extends AbstractXlsView {
 
 		InventoryStockDailyReportFinalModel stockReportData = (InventoryStockDailyReportFinalModel) model
 				.get("excelData");
-		HSSFSheet realSheet = ((HSSFWorkbook) workbook).createSheet("Employee Attendance Report");
+		HSSFSheet realSheet = ((HSSFWorkbook) workbook).createSheet("Stock Report Report");
 		CellStyle style = workbook.createCellStyle();
 		Font font = workbook.createFont();
 

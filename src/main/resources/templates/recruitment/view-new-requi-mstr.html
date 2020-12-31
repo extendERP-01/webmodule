@@ -12,8 +12,8 @@
    
    <!-- <script src="../assets/css/extend/ag-grid-community.min.js"></script> -->
    <!-- <script src="../assets/js/extend/grid.js"></script> -->
-  <!-- 	<script src="https://unpkg.com/@ag-grid-community/all-modules@24.1.0/dist/ag-grid-community.min.js"></script>
-   <link rel="stylesheet" href="../assets/css/extend/ag-theme-material.css"> -->
+  <!-- <script src="https://unpkg.com/@ag-grid-community/all-modules@24.1.0/dist/ag-grid-community.min.js"></script>
+   <link rel="stylesheet" href="../assets/css/extend/ag-theme-material.css">  -->
 
 
 
@@ -32,11 +32,54 @@
 </script>
 <script type="text/javascript">
 function newBtn(){
-	 $("#myGrid").hide();
+	$('#createDate').html('');
+	$("#myGrid").hide();
     $(".btn-hs").hide();
     $("#hideTbl").hide();
     $("#btnReset").hide();
-     $("#demo").show();
+    $("#demo").show();
+    
+    $('#reqId').val("");
+	$('#jobTitle').val("");
+	$('#jobType').val("");
+	$('#location').val("");
+	$('#educationReq').val("");
+	$('#dept').val("");
+	$('#hiringManager').val("");
+	$('#workHour').val("");
+	$('#band').val("");
+	$('#minSalary').val("");
+	$('#maxSalary').val("");
+	$('#noPos').val("");
+	$('#dateReq').val("");
+	$('#txtAreaSumN').val("");
+		txtLen = $('#txtAreaSumN').val().length;
+	 	var pId1 = $('#txtAreaSumN').next().attr("id");
+	 	 $('#'+pId1+' span').empty();
+	 	 $('#'+pId1+' span').append(txtLen);
+	$('#txtAreaResN').val("");
+		txtLen = $('#txtAreaResN').val().length;
+	 	var pId2 = $('#txtAreaResN').next().attr("id");
+	 	 $('#'+pId2+' span').empty();
+	 	 $('#'+pId2+' span').append(txtLen);
+	$('#txtAreaExpN').val("");
+		txtLen = $('#txtAreaExpN').val().length;
+	 	var pId3 = $('#txtAreaExpN').next().attr("id");
+	 	 $('#'+pId3+' span').empty();
+	 	 $('#'+pId3+' span').append(txtLen);
+	
+	if($('#approvalCheck').is("checked")){
+		approval();
+	}
+	if($('.about').is("checked")){
+		about();
+	}
+	document.getElementById("approvalCheck").checked = false;
+	$(".about").attr("checked",false);
+	$(".benefitChk").attr("checked",false);
+	
+	$('#createdDiv').attr("class","grey-box");
+	$('#divCreate').attr("class","");
 }
 
 
@@ -114,9 +157,6 @@ function newBtn(){
     return false;
   }
      
-  $('#closeKey').on('click',function(){
-	 alert() 
-  });
 });
     
     
@@ -126,155 +166,9 @@ function newBtn(){
     	}).blur(function(){
     	   $(this).attr('placeholder',$(this).data('placeholder'));
     	});
-    
-  //New Friday
-    
-    var x, i, j, l, ll, selElmnt, a, b, c;
-    /*look for any elements with the class "custom-select":*/
-    x = document.getElementsByClassName("selectbox");
-    l = x.length;
-    for (i = 0; i < l; i++) {
-    selElmnt = x[i].getElementsByTagName("select")[0];
-    ll = selElmnt.length;
-    /*for each element, create a new DIV that will act as the selected item:*/
-    a = document.createElement("DIV");
-    a.setAttribute("class", "select-selected");
-    a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
-    x[i].appendChild(a);
-    /*for each element, create a new DIV that will contain the option list:*/
-    b = document.createElement("DIV");
-    b.setAttribute("class", "select-items select-hide");
-    for (j = 1; j < ll; j++) {
-    /*for each option in the original select element,
-    create a new DIV that will act as an option item:*/
-    c = document.createElement("DIV");
-    c.innerHTML = selElmnt.options[j].innerHTML;
-    c.addEventListener("click", function(e) {
-    /*when an item is clicked, update the original select box,
-    and the selected item:*/
-    var y, i, k, s, h, sl, yl;
-    s = this.parentNode.parentNode.getElementsByTagName("select")[0];
-    sl = s.length;
-    h = this.parentNode.previousSibling;
-    for (i = 0; i < sl; i++) {
-    if (s.options[i].innerHTML == this.innerHTML) {
-    s.selectedIndex = i;
-    h.innerHTML = this.innerHTML;
-    y = this.parentNode.getElementsByClassName("same-as-selected");
-    yl = y.length;
-    for (k = 0; k < yl; k++) {
-    y[k].removeAttribute("class");
-    }
-    this.setAttribute("class", "same-as-selected");
-    break;
-    }
-    }
-    h.click();
-    });
-    b.appendChild(c);
-    }
-    x[i].appendChild(b);
-    a.addEventListener("click", function(e) {
-    /*when the select box is clicked, close any other select boxes,
-    and open/close the current select box:*/
-    e.stopPropagation();
-    closeAllSelect(this);
-    this.nextSibling.classList.toggle("select-hide");
-    this.classList.toggle("select-arrow-active");
-    });
-    }
-    function closeAllSelect(elmnt) {
-    /*a function that will close all select boxes in the document,
-    except the current select box:*/
-    var x, y, i, xl, yl, arrNo = [];
-    x = document.getElementsByClassName("select-items");
-    y = document.getElementsByClassName("select-selected");
-    xl = x.length;
-    yl = y.length;
-    for (i = 0; i < yl; i++) {
-    if (elmnt == y[i]) {
-    arrNo.push(i)
-    } else {
-    y[i].classList.remove("select-arrow-active");
-    }
-    }
-    for (i = 0; i < xl; i++) {
-    if (arrNo.indexOf(i)) {
-    x[i].classList.add("select-hide");
-    }
-    }
-    }
-    /*if the user clicks anywhere outside the select box,
-    then close all select boxes:*/
-    document.addEventListener("click", closeAllSelect);
-    
-    //CUSTOM DATATABLE
-   /*  $('#example thead tr:eq(0) th').each( function (i) {
-    	$('#example thead tr:eq(0) th:first').html("");
    
-    	$('#example thead tr:eq(0) th:first').html('<input type="checkbox" onclick="allCheck()" id="check1"><label for="check1"></label>');
-         var title1 = $(this).text();
-         var title = (title1.split(" "))[0];
-        
-         var funval = "click212('"+title+"')";
-        $(this).html('<div>'+ title1 +'<a type="button" value="" onclick="'+funval+'" class="filtericon" data-toggle="dropdown"><i class="ti-filter filter" ></i></a>'+
-        		'<div class="dropdown-menu"><input type="text" id="'+title+'" class="hideShow" placeholder="Search" /></div></div>' ); 
- 
-        
-        $( 'input', this ).on( 'keyup change', function () {
-            if ( table.column(i).search() !== this.value ) {
-                table
-                    .column(i)
-                    .search(this.value)
-                    .draw();
-            }
-        } );
-    } );
-   
-   
-    $('th').on("click", function (event) {
-        if($(event.target).is("div"))
-            event.stopImmediatePropagation();
-    });
-    $('th').on("click", function (event) {
-        if($(event.target).is("input"))
-            event.stopImmediatePropagation();
-    });
-    $('th').on("click", function (event) {
-        if($(event.target).is("a"))
-            event.stopImmediatePropagation();
-    });
   
-    /*var table =  $('#example').DataTable( {
-      
-    	'ordering': false,
-		orderCellsTop: true,
-		fixedHeader: true,
-		paging: false,
-		info: false, 
-		
-		
-		
-    } ); */
-    /*var table =$('#example').DataTable({
-    	paging: false,
-		info: false, 
-        columnDefs : [
-            { targets: 0, sortable: false},
-        ],
-        order: [ 1, "des" ]
-    })  
-    $(".hideShow").hide();
     
-    oTable = $('#example').DataTable();  
-    $('#quickFilter').keyup(function(){
-        oTable.search($(this).val()).draw() ;
-    });
-    $('#example_filter').hide();
-  
-    $('#closeKey').click(function(){
-    	 oTable.search("").draw() ;
-    }); */
     
   });
   
@@ -305,7 +199,6 @@ function newBtn(){
 	  var pId = $('#'+id).next().attr("id");
 	  $('#'+pId+' span').empty();
 	  txtLen = $('#'+id).val().length;
-	
 	  $('#'+pId+' span').append(txtLen);
   }
   
@@ -317,21 +210,86 @@ var columnDefs = [
 	    {headerName: "Req ID", field: "requisitionId" },
 	    {headerName: "Title", field: "jobTitle",
 	     cellRenderer: function(params){
-	        return '<a onclick=titlePage("' +  params.data.requisitionId + '") href="#">' + params.data.jobTitle + '</a>';} },
+	        return '<a onclick=titlePage("' +  params.data.requisitionId + '") href="javascript:void(0)">' + params.data.jobTitle + '</a>';} },
+	    {headerName: "# of positions", field: "noPosition",type:"rightAligned"},
+	    {headerName: "Band", field: "band"},
+	    {headerName: "Department", field: "department"},
+	    {headerName: "Hiring Manager", field: "hiringManager"},
+	    {headerName: "Join Date", field: "joinDate",cellStyle: {textAlign: 'center'}},
+	    {headerName: "CTC Cap", field: "minSalary",type:"rightAligned"},
+	    {headerName: "Status", field: "activityStatus"},
+	    {headerName: "Applicants", field: "applicant"},
+	    {headerName: "Shortlisted", field: "shortList"},
+	    {headerName: "Interviewed", field: "interviewed"},
+	    {headerName: "Offered", field: "offered"},
+	    {headerName: "Create Date", field: "createdOn",cellStyle: {textAlign: 'center'}}
+	]; 
+	
+var rowData = [];
+function vendorAllocate(){
+	 var selectedRows = gridOptions.api.getSelectedRows();
+		var selectedRowsString = '';
+		selectedRows.forEach(function(selectedRow, index) {
+		if (index == 0) {
+			selectedRowsString += selectedRow.requisitionId;
+		} selectedRowsString += '"' + selectedRow.requisitionId + '"';
+		
+		});
+		$('#myModal10').modal('show');
+		
+		rowData = [
+			{requisitionId: "8", jobTitle: 'Software Engineer', noPosition: "2", band: "Band 4", department: "Product development", hiringManager: "Pradip Singh", joinDate: "8-Nov-2020",
+				minSalary: "400000", activityStatus: "Active"}
+			];
+		
+		
+		/* if(selectedRowsString){
+			$('#myModal10').modal('show');
+		} else{
+			swal("Please Select Requisition.");
+		} */
+		
+}
+	
+var columnDefsChild = [
+	{headerName: "Req ID", field: "requisitionId" },
+	    {headerName: "Title", field: "jobTitle"},
 	    {headerName: "# of positions", field: "noPosition"},
 	    {headerName: "Band", field: "band"},
 	    {headerName: "Department", field: "department"},
 	    {headerName: "Hiring Manager", field: "hiringManager"},
 	    {headerName: "Join Date", field: "joinDate"},
 	    {headerName: "CTC Cap", field: "minSalary"},
-	    {headerName: "Status", field: "status"},
-	    {headerName: "Applicants", field: "applicant"},
-	    {headerName: "Shortlisted", field: "shortList"},
-	    {headerName: "Interviewed", field: "interviewed"},
-	    {headerName: "Offered", field: "offered"},
-	    {headerName: "Create Date", field: "createdOn"}
+	    {headerName: "Status", field: "activityStatus"}
 	]; 
+
+
+var gridOptionsChild = {
+		   columnDefs: columnDefsChild,
+		   rowData: rowData,
+		  defaultColDef: {
+			  sortable: true, 
+			  filter: true, 
+			  resizable: true, 
+			  width: 149,
+			  height: 10
+		   }
+		   
+		 };
 	
+/* Date Formatter */
+function dateFormat(getDate){
+	
+	var date1 = (getDate).split("-");
+	var date = date1[2] + "-" + date1[1] + "-" + date1[0];
+	return date;
+}
+
+//Comma separated ctc
+/* function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+} */
+
      
  function titlePage(id){
 			  $("#myGrid").hide();
@@ -344,19 +302,68 @@ var columnDefs = [
 				url : "view-new-requi-mstr-edit?id=" + id,
 				success : function(response) {
 				if (response.message == "Success") {
-					
+					var s1 = 0;
+					var s2 = 0;
 					for(i = 0; i< response.body.length; i++){
 					
 						$('#reqId').val(response.body[i].requisitionId);
 						$('#jobTitle').val(response.body[i].jobTitle);
 						$('#jobType').val(response.body[i].jobType);
+						$('#location').val(response.body[i].jobLocation);
+						$('#educationReq').val(response.body[i].minEducation);
+						$('#dept').val(response.body[i].department);
+						$('#hiringManager').val(response.body[i].hiringManager);
+						$('#workHour').val(response.body[i].workHour);
+						$('#band').val(response.body[i].band);
 						$('#minSalary').val(response.body[i].minSalary);
 						$('#maxSalary').val(response.body[i].maxSalary);
 						$('#noPos').val(response.body[i].noPosition);
-						$('#dateReq').val(response.body[i].joinDate);
+						//$('#dateReq').val(new Date(response.body[i].joinDate));
+						var date = dateFormat(response.body[i].joinDate);
+						document.getElementById("dateReq").value = date;
+						 
 						$('#txtAreaSumN').val(response.body[i].positionSummary);
-						txtLen = $('#txtAreaSumN').val().length;
+							txtLen = $('#txtAreaSumN').val().length;
+						 	var pId1 = $('#txtAreaSumN').next().attr("id");
+						 	 $('#'+pId1+' span').empty();
+						 	 $('#'+pId1+' span').append(txtLen);
+						$('#txtAreaResN').val(response.body[i].positionResponsibility);
+							txtLen = $('#txtAreaResN').val().length;
+						 	var pId2 = $('#txtAreaResN').next().attr("id");
+						 	 $('#'+pId2+' span').empty();
+						 	 $('#'+pId2+' span').append(txtLen);
+						$('#txtAreaExpN').val(response.body[i].requiredSkillExperience);
+							txtLen = $('#txtAreaExpN').val().length;
+						 	var pId3 = $('#txtAreaExpN').next().attr("id");
+						 	 $('#'+pId3+' span').empty();
+						 	 $('#'+pId3+' span').append(txtLen);
+						$("#" + response.body[i].reqBenefits).attr("checked","checked");
+						if(response.body[i].approver != null && response.body[i].approver != ""){
+							$("#approvalCheck").attr("checked","checked");
+							s1 = 1;
+						}
+						if(response.body[i].about != null && response.body[i].about != ""){
+							$(".about").attr("checked","checked");
+							s2 = 1;
+						}
+						if(response.body[i].activityStatus == "1"){
+							$('#createDate').html(response.body[i].createdOn);
+							$('#createdDiv').attr("class","green-box");
+							$('#divCreate').attr("class","green-box-heading");
+							
+							} else if(response.body[i].activityStatus == "2"){
+							
+						} else if(response.body[i].activityStatus == "3"){
+							
+						}
 					}
+					if(s1 == 1){
+						approval();
+					}
+					if(s2 == 1){
+						about();
+					}
+				
 					$("#demo").show();
 				}
 				},
@@ -385,11 +392,17 @@ var columnDefs = [
    }
    
  };
+ 
 
  // setup the grid after the page has finished loading
  document.addEventListener('DOMContentLoaded', function() {
      var gridDiv = document.querySelector('#myGrid');
      new agGrid.Grid(gridDiv, gridOptions);
+     
+     
+     var myVendor = document.querySelector('#myVendor');
+     new agGrid.Grid(myVendor, gridOptionsChild);
+     
  });
   
   agGrid.simpleHttpRequest({url: 'view-new-requi-mstr-view-data'}).then(function(data) {
@@ -412,13 +425,16 @@ var columnDefs = [
     var approverName = '';
     function approval(){
     	len ++;
+    	
     	if(len == 1){
     		$('#approvalName').show();
+    		approverName = $('#approver').val();
     	}else{
     		$('#approvalName').hide();
     		len=0;
+    		
     	}
-    	approverName = $('#approver').val();
+    	
     }
     var len1 = 0;
     var aboutComp = '';
@@ -427,16 +443,19 @@ var columnDefs = [
     	var id =  document.getElementById("aboutCompany");
     	if(len1 == 1){
     		id.style.display="block";
+    		aboutComp = $('#aboutComp').attr('value');
     	}else{
     		id.style.display="none";
+    		
     		len1=0;
     	}
-    	aboutComp = $('#aboutComp').attr('value');
+    	
     }
 
    
 var userRole = [];
 	function addNewReq(){
+		
 		$("input:checkbox[name=benefits]:checked").each(function() {
 			userRole.push($(this).val());
 		})
@@ -462,12 +481,13 @@ var userRole = [];
 		obj.approver = approverName;
 		obj.about = aboutComp;
 		
+		console.log(obj)
 		$.ajax({
 			type		: "POST",
 			url 		: "view-new-requi-mstr-ajax",
-			
 			contentType	: "application/json",
 			data		: JSON.stringify(obj),
+			/* async 		: false, */
 			success		: function(response){
 				console.log(response);
 				if(response.message=="Success"){
@@ -514,36 +534,99 @@ var userRole = [];
 				}
 			})
 		} else {
-			swal("Please Select Requisition.");
+			$('#reqValid').modal('toggle');
 		}
 
 		}
 	
-	function copyBtn(){
-   
+function copyBtn(){
+   var status = 1;
      var selectedRows = gridOptions.api.getSelectedRows();
 		var selectedRowsString = '';
 		selectedRows.forEach(function(selectedRow, index) {
 		if (index == 0) {
-			selectedRowsString += '"' + selectedRow.requisitionId + '"';
+			selectedRowsString += selectedRow.requisitionId;
+			status = 1;
 		} else{
-			swal("Please Select One Requisition at a Time.");
+			$('#modalMsg').text("");
+			$('#reqValid').modal('toggle');
+			$('#modalMsg').text("Select only one Requisition.");
 			selectedRowsString = "";
+			status = 0;
 		}
 		
 		});
+		if(status){
+			copyData(selectedRowsString);
+		}
 		
+   }
+	
+	function copyData(selectedRowsString){
 		if (selectedRowsString){
 			$("#myGrid").hide();
 		   	$(".btn-hs").hide();
 		   	$("#hideTbl").hide();
-			
+		    $('#reqId').val("");
+		    $('#createDate').html('');
+		    
 			$.ajax({
 				type : "GET",
 				url : "view-new-requi-mstr-edit?id=" + selectedRowsString,
 				success : function(response) {
-				if (response.message == "success") {
-					$("#demo").show();
+				if (response.message == "Success") {
+					var s1 = 0;
+					var s2 = 0;
+					for(i = 0; i< response.body.length; i++){
+					
+						$('#jobTitle').val(response.body[i].jobTitle);
+						$('#jobType').val(response.body[i].jobType);
+						$('#location').val(response.body[i].jobLocation);
+						$('#educationReq').val(response.body[i].minEducation);
+						$('#dept').val(response.body[i].department);
+						$('#hiringManager').val(response.body[i].hiringManager);
+						$('#workHour').val(response.body[i].workHour);
+						$('#band').val(response.body[i].band);
+						$('#minSalary').val(response.body[i].minSalary);
+						$('#maxSalary').val(response.body[i].maxSalary);
+						$('#noPos').val(response.body[i].noPosition);
+						
+						var date = dateFormat(response.body[i].joinDate);
+						document.getElementById("dateReq").value = date;
+						
+						$('#txtAreaSumN').val(response.body[i].positionSummary);
+							txtLen = $('#txtAreaSumN').val().length;
+						 	var pId1 = $('#txtAreaSumN').next().attr("id");
+						 	 $('#'+pId1+' span').empty();
+						 	 $('#'+pId1+' span').append(txtLen);
+						$('#txtAreaResN').val(response.body[i].positionResponsibility);
+							txtLen = $('#txtAreaResN').val().length;
+						 	var pId2 = $('#txtAreaResN').next().attr("id");
+						 	 $('#'+pId2+' span').empty();
+						 	 $('#'+pId2+' span').append(txtLen);
+						$('#txtAreaExpN').val(response.body[i].requiredSkillExperience);
+							txtLen = $('#txtAreaExpN').val().length;
+						 	var pId3 = $('#txtAreaExpN').next().attr("id");
+						 	 $('#'+pId3+' span').empty();
+						 	 $('#'+pId3+' span').append(txtLen);
+						$("#" + response.body[i].reqBenefits).attr("checked","checked");
+						if(response.body[i].approver != null && response.body[i].approver != ""){
+							$("#approvalCheck").attr("checked","checked");
+							s1 = 1;
+						}
+						if(response.body[i].about != null && response.body[i].about != ""){
+							$(".about").attr("checked","checked");
+							s2 = 1;
+						}
+					}
+					if(s1 == 1){
+						approval();
+					}
+					if(s2 == 1){
+						about();
+					}
+				
+					$("#demo").show()
 				}
 				},
 				error : function(data) {
@@ -551,10 +634,14 @@ var userRole = [];
 				}
 			})
 		} else {
-			swal("Please Select Requisition.");
+			$('#reqValid').modal('toggle');
+			$('#modalMsg').text("");
+			$('#modalMsg').text("Select an Requisition.");
 		}
-     
-   }
+	}
+	
+	//var gridOptions1 = {};
+	
 	
 </script>
    </head>
@@ -570,7 +657,7 @@ var userRole = [];
                        <div class="col-md-8">
                             <div class="input-style row">
                                 <input type="text"  placeholder="Search.." name="search" class="searchboxinput" onkeyup="cancelBar()" oninput="onQuickFilterChanged()" id="quickFilter" >
-                                <div class="searchicon"><a href="#"><span style="display:none;border-right:1px solid #ccc;padding-right:5px;" id="closeKey" onclick="gridOptions.api.setQuickFilter(null);$('#quickFilter').val('');document.getElementById('closeKey').style.display='none';" class="close_i"><i class="ti-close srchicon"></i></span></a><a href="#"><i class="ti-search srchicon"></i></a></div>
+                                <div class="searchicon"><a href="javascript: void(0)"><span style="display:none;border-right:1px solid #ccc;padding-right:5px;" id="closeKey" onclick="gridOptions.api.setQuickFilter(null);$('#quickFilter').val('');document.getElementById('closeKey').style.display='none';" class="close_i"><i class="ti-close srchicon"></i></span></a><a href="javascript: void(0)"><i class="ti-search srchicon"></i></a></div>
                             </div>
                     </div>
                 </div>
@@ -597,426 +684,24 @@ var userRole = [];
                         </div>
                         <div class="col-md-1 btn-hs">
                             <div class="row">
-                                <input type="button" value="ALLOCATE VENDOR" class="btn2" data-toggle="modal" data-target="#myModal10">
+                                <input type="button" value="ALLOCATE VENDOR" class="btn2" onclick="vendorAllocate()">
                             </div>
                         </div>
                   </div>
-
-				<!-- <input type="text" oninput="onQuickFilterChanged()" id="quickFilter" /> -->
 					
             <div id="myGrid" style="width:100%; height:200px;" class="ag-theme-alpine"></div>
             
-                    <!-- <table class="newtbl" id="example">
-                        <thead>
-                            <tr>
-                                <th align="center" width="20"><input id="check1" onclick="allCheck()" type="checkbox"><label for="check1"></label></th>
-                                <th>Req ID</th>
-                                <th>Title</th>
-                                <th># of positions </th>
-                                <th>Band</th>
-                                <th>Department</th>
-                                <th>Hiring Manager </th>
-                                <th>Join Date</th>
-                                <th>CTC Cap </th>
-                                <th>Status</th>
-                                <th>Applicants</th>
-                                <th>Shortlisted</th>
-                                <th>Interviewed</th>
-                                <th>Offered</th>
-                                <th>Create Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                                <td align="center" ><input class="checkCls" type="checkbox" id="check2"><label for="check2"></label></td>
-                                <td align="center" ><div class="txt-blue">8</div> </td>
-                                <td > <div data-toggle="collapse" class="txt-blue" id="titlebtn" onclick="titlePage()"> Software Engineer</div></td>
-                                <td align="center" >2</td>
-                                <td >Band 4</td>
-                                <td >Product development</td>
-                                <td >Pradip Singh</td>
-                                <td  align="center">8-Nov-2020</td>
-                                <td  align="right">600.00</td>
-                                <td  align="center">Active</td>
-                                <td  align="right">8</td>
-                                <td  align="right">5</td>
-                                <td  align="right">3</td>
-                                <td  align="right">0</td>
-                                <td  align="center">9-Oct-2020</td>
-                            </tr>
-                            <tr>
-                                <td align="center" ><input class="checkCls" type="checkbox" id="check3"><label for="check3"></label></td>
-                                <td align="center" > <div class="txt-blue"> 7</div></td>
-                                <td > <div class="txt-blue" data-toggle="collapse" id="titlebtn" onclick="titlePage()"> Software Engineer - II </div></td>
-                                <td align="center" >1</td>
-                                <td >Band 6</td>
-                                <td >Product development</td>
-                                <td >Pradip Singh</td>
-                                <td  align="center">10-Oct-20</td>
-                                <td  align="right">600.00</td>
-                                <td  align="center">Active</td>
-                                <td  align="right">20</td>
-                                <td  align="right">9</td>
-                                <td  align="right">8</td>
-                                <td  align="right">1</td>
-                                <td  align="center">9-Oct-2020</td>
-                            </tr>
-                        </tbody>
-                    </table> -->
-                     <!-- </form> -->
-                 <!-- </div>  -->
-  
-  <!-- <div style="display:none;">
-    <table id="append_table">
-      <tbody><tr id="">
-       <td align="center" ><input type="checkbox" name=""></td>
-        <td align="center" > <div class="txt-blue"> 7</div></td>
-        <td > <div class="txt-blue" data-toggle="collapse" data-target="#profile" class="txt-blue"> Software Engineer - II </div></td>
-        <td align="center" >1</td>
-        <td >Band 6</td>
-        <td >Product development</td>
-        <td >Pradip Singh</td>
-        <td  align="center">10-Oct-20</td>
-        <td  align="right">600.00</td>
-        <td  align="center">Active</td>
-        <td  align="right">20</td>
-        <td  align="right">9</td>
-        <td  align="right">8</td>
-        <td  align="right">1</td>
-        <td  align="center">9-Oct-2020</td>
-     </tr>
-   </tbody></table>
- </div> -->
-
-
-
-
-
-<!-- <div  class="collapse" id="copy" >
-      <div class="col-md-12">
-      <div class="innerstickybg">              
-<div class="row">
-    <div class="col-md-6">
-        <hr>
-        <div class="main-div">
-            <div class="section2">
-                <div class="green-box">
-                    <div class="green-box-heading">CREATED</div>
-                    <div class="date">9-OCT-20</div>
-                </div>
-            </div>
-            <div class="section3">
-                <div class="green-box">
-                    <div class="green-box-heading">ACTIVE</div>
-                    <div class="date">11-OCT-20</div>
-                </div>
-            </div>
-            <div class="section4">
-                <div class="grey-box">
-                <div>CLOSED</div>   
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-       <button class="btn2">Approve</button>
-       <button class="btn2">Post</button>
-    </div>
-    <div class="col-md-3 padding-0" align="right">
-        <button class="btn4" type="button" data-dismiss="modal" id="copycancelBtn">CANCEL</button>
-        <button class="btn3">DELETE</button>
-        <button class="btn1">SAVE</button>
-    </div>
-</div>
-</div>
-<div class="innercontent">
-<div class="row">
-
-<div class="col-md-12 padding-0">
-    <div class="row">
-        <div class="newgrid">
-            <div class="box border-line" align="center">
-                <a href="#" data-toggle="collapse" data-target="#demo">
-                    <div class="number1">8</div>
-                    <div class="text1">APPLIED</div>
-                </a>
-            </div>
-        </div>
-        <div class="newgrid">
-            <div class="box border-line" align="center">
-                <a href="hrms_hire.html">
-                    <div class="number1">5</div>
-                    <div class="text1">SHORTLISTED</div>
-                </a>
-            </div>
-        </div>
-        <div class="newgrid">
-            <div class="box border-line" align="center">
-                <a href="hrms_hire.html">
-                    <div class="number1">3</div>
-                    <div class="text1">INTERVIEWED</div>
-                </a>
-            </div>
-        </div>
-        <div class="newgrid">
-            <div class="box border-line" align="center">
-                <a href="hrms_hire.html">
-                    <div class="number1">0</div>
-                    <div class="text1">OFFERED</div>
-                </a>
-            </div>
-        </div>
-        
-        
-    </div>
-</div>
-</div>
-<div class="row">
-<div class="row">
-<div class="col-md-4">
-<div class="form-group">
-    <label>Job Title</label>
-    <input type="text" class="form-control" id="jobTitle" placeholder="Type Job Title">
-  </div>
-</div>
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Create Date</label>
-    <input type="text" id="createDate" class="form-control no-border">
-  </div>
-</div>
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Created By</label>
-    <input type="text" id="craetedBy" class="form-control no-border">
-  </div>
-</div>
-<div class="col-md-4">
-<div class="form-group">
-    <label>Job Type</label>
-     <div class="selectbox">
-    <select id="jobType">
-    <option>Select Job Type</option>
-      <option th:each="c,iter:${jobTypeList}" th:value="${c.key}"
-			th:text="${c.name}"></option>
-    </select>
-    </div>
-  </div>
-</div>
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Job Location</label>
-     <div class="selectbox">
-    <select id="location">
-      <option>Select Location</option>
-      <option th:each="c,iter:${jobLocationList}" th:value="${c.key}"
-			th:text="${c.name}"></option>
-    </select>
-    </div>
-  </div>
-</div>
-
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Minimum Education Required</label>
-     <div class="selectbox">
-    <select id="educationReq">
-      <option>Select  Education</option>
-      <option th:each="c,iter:${educationList}" th:value="${c.key}"
-			th:text="${c.name}"></option>
-    </select>
-    </div>
-  </div>
-</div>
-
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Annual Salary Range (Minimum)</label>
-      <input type="text" class="form-control" id="minSalary" placeholder="Annual Salary">
-  </div>
-</div>
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Annual Salary Range (Maximum)</label>
-     <input type="text" class="form-control" id="maxSalary" placeholder="Annual Salary">
-  </div>
-</div>
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Department</label>
-     <div class="selectbox">
-  	 <select  id="dept">
-  	 <option>Select Department</option>
-      <option th:each="c,iter:${DepartmentList}" th:value="${c.key}"
-			th:text="${c.name}"></option>
-    </select>
-    </div>
-  </div>
-</div>
-
-<div class="col-md-4">
-<div class="form-group">
-    <label>Hiring Manager</label>
-     <div class="selectbox">
-   <select id="hiringManager">
-      <option>Select Manager</option>
-      <option th:each="c,iter:${managerList}" th:value="${c.key}"
-			th:text="${c.name}"></option>
-    </select>
-    </div>
-  </div>
-</div>
-
-
-<div class="col-md-4">
-<div class="form-group">
-    <label>Number of Position</label>
-      <input type="text" class="form-control" id="noPos" placeholder="Number of Position">
-  </div>
-</div>
-
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Excepted Work hours</label>
-     <div class="selectbox">
-    <select id="workHour">
-      <option>Select Work Hour</option>
-      <option th:each="c,iter:${workHourList}" th:value="${c.key}"
-			th:text="${c.name}"></option>
-    </select>
-    </div>
-  </div>
-</div>
-
-<div class="col-md-4">
-    <div class="form-group">
-    <label>Band</label>
-    <div class="selectbox">
-    <select id="band">
-    <option>Select Band</option>
-      <option th:each="c,iter:${bandList}" th:value="${c.key}"
-			th:text="${c.name}"></option>
-    </select>
-    </div>
-  </div>
-</div>
-
-<div class="col-md-4">
-	<div class="form-group">
-    	<label>Joining Date</label>
-      	<input type="date" id="dateReq" class="form-control" >
-	</div>
-</div>
-
-</div>
-
-<div class="row">
-                <div class="col-md-12">
-                    <div class="modal-inrheading">Position Summary</div>
-                      <div class="position-text">
-                            <textarea rows="4" cols="100" id="txtAreaSumN" onkeyup="textCount(event)"></textarea>
-                            <div id="charNumSN" class="txtcounter" align="right"><span>0</span> characters</div>
-                        </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="modal-inrheading">Position Responsibility</div>
-                      <div class="position-text">
-                            <textarea rows="4" cols="100" id="txtAreaResN" onkeyup="textCount(event)"></textarea>
-                            <div id="charNumRN" class="txtcounter" align="right"><span>0</span> characters</div>
-                        </div>
-                </div>
-                <div class="col-md-12">
-                    <div class="modal-inrheading">Required Skills and Experience</div>
-                     <div class="position-text">
-                            <textarea rows="4" cols="100" id="txtAreaExpN" onkeyup="textCount(event)"></textarea>
-                            <div id="charNumEN" class="txtcounter" align="right"><span>0</span> characters</div>
-                        </div>
-               </div>
-               <div class="col-md-12">
-               <div class="modal-inrheading">Benefits</div>
-                <div class="row">
-                <th:block th:each="c,iter:${benefitsList}">
-	                <div class="col-md-3">
-	                    <div class="checkbox">
-	                      <input type="checkbox" value=""  th:id="'benefits_'+${iter.index}" th:value='${c.key}'
-							name="benefits" ><span th:text="${c.name}"></span>
-	                    </div>
-	               </div>
-              </th:block>
-            </div>
-        </div>
-         <div class="col-md-12 mrt_25 gapping">
-            <div class="row">
-                <div class="col-4 col-md-4">
-                    <div class="checkbox">
-                      <label><input type="checkbox" id="approvalCheck" onclick="approval()">Need Approval</label>
-                    </div>
-                </div>
-                <div class="col-4 col-md-4" id="approvalName">
-                      <div class="form-group">
-                        <label for="approvalName">Approver</label>
-                         <div class="selectbox">
-                        <select id="approver">
-                          <option>Pinaki Datta</option>
-                        </select>
-                        </div>
-                      </div>
-                </div>
-            </div>
-     </div>
-     
-	   <div class="col-md-12">
-		   <div class="checkbox">
-			   <label><input type="checkbox" onclick="about()">Include about company</label>
-		</div>
-		</div>
-	<div class="col-md-12" id="aboutCompany" style="display: none;">
-		<div class="position-text">
-			   <textarea rows="4" cols="100" id="aboutComp" th:value="${aboutComapany[0].key}" th:text="${aboutComapany[0].name}"></textarea>
-		  </div>
-	</div>
-	<div class="col-md-12">
-                      <table class="newtbl">
-                        <thead>
-                          <tr>
-                            <th align="center">Date</th>
-                            <th align="center">Activity</th>
-                            <th align="center">By</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td align="center">10-Oct-20 <span>04:48PM</span></td>
-                            <td align="left">Alocated: Advanced Tech</td>
-                            <td align="center">Pinaki Datta</td>
-                          </tr>
-                          <tr>
-                            <td align="center">08-Nov-20 <span>10:29PM</span></td>
-                            <td align="left">Alocated: Global Tech</td>
-                            <td align="center">Manoj Sen</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                </div>
-     
-           </div>
-        </div>
-    </div>
-    </div>
-   </div> -->
-
-
 <div  class="collapse" id="demo" >
 <div class="col-md-12">
     <div class="innerstickybg">          
 <div class="row">
     <div class="col-md-6">
-        <hr>
+        <div class="hr2"></div>
         <div class="main-div">
             <div class="section2">
-                <div class="grey-box">
-                    <div class="">CREATED</div>
-                    <div class="date"></div>
+                <div class="grey-box" id="createdDiv">
+                    <div class="" id="divCreate">CREATED</div>
+                    <div class="date" id="createDate"></div>
                 </div>
             </div>
             <div class="section3">
@@ -1052,7 +737,7 @@ var userRole = [];
     
         <div class="newgrid">
             <div class="box border-line" align="center">
-                <a href="#" data-toggle="collapse" data-target="#demo">
+                <a href="javascript: void(0)" data-toggle="collapse" data-target="#demo">
                     <div class="number1">0</div>
                     <div class="text1">APPLIED</div>
                 </a>
@@ -1110,9 +795,9 @@ var userRole = [];
 <div class="col-md-4">
 <div class="form-group">
     <label>Job Type</label>
-     <div class="selectbox">
+    <div class="select">
     <select id="jobType">
-    <option>Select Job Type</option>
+    <option value="">Select Job Type</option>
       <option th:each="c,iter:${jobTypeList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
     </select>
@@ -1122,33 +807,33 @@ var userRole = [];
 <div class="col-md-4">
     <div class="form-group">
     <label>Job Location</label>
-     <div class="selectbox">
+     <div class="select">
     <select id="location">
-      <option>Select Location</option>
+      <option value="">Select Location</option>
       <option th:each="c,iter:${jobLocationList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
     </select>
-    </div>
+ </div>
   </div>
 </div>
 
 <div class="col-md-4">
     <div class="form-group">
     <label>Minimum Education Required</label>
-     <div class="selectbox">
-    <select id="educationReq">
-      <option>Select  Education</option>
+    <div class="select">
+    <select id="educationReq" >
+      <option value="">Select  Education</option>
       <option th:each="c,iter:${educationList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
     </select>
-    </div>
+   </div>
   </div>
 </div>
 
 <div class="col-md-4">
     <div class="form-group">
     <label>Annual Salary Range (Minimum)</label>
-      <input type="text" class="form-control" id="minSalary" placeholder="Annual Salary">
+      <input type="text" data-type="currency" class="form-control" id="minSalary" placeholder="Annual Salary">
   </div>
 </div>
 <div class="col-md-4">
@@ -1160,9 +845,9 @@ var userRole = [];
 <div class="col-md-4">
     <div class="form-group">
     <label>Department</label>
-     <div class="selectbox">
-  	 <select  id="dept">
-  	 <option>Select Department</option>
+     <div class="select">
+  	 <select  id="dept" >
+  	 <option value="">Select Department</option>
       <option th:each="c,iter:${DepartmentList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
     </select>
@@ -1173,9 +858,9 @@ var userRole = [];
 <div class="col-md-4">
 <div class="form-group">
     <label>Hiring Manager</label>
-     <div class="selectbox">
-   <select id="hiringManager">
-      <option>Select Manager</option>
+     <div class="select">
+   <select id="hiringManager" >
+      <option value="">Select Manager</option>
       <option th:each="c,iter:${managerList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
     </select>
@@ -1194,9 +879,9 @@ var userRole = [];
 <div class="col-md-4">
     <div class="form-group">
     <label>Excepted Work hours</label>
-     <div class="selectbox">
-    <select id="workHour">
-      <option>Select Work Hour</option>
+    <div class="select">
+    <select id="workHour" >
+      <option value="">Select Work Hour</option>
       <option th:each="c,iter:${workHourList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
     </select>
@@ -1207,13 +892,13 @@ var userRole = [];
 <div class="col-md-4">
     <div class="form-group">
     <label>Band</label>
-    <div class="selectbox">
-    <select id="band">
-    <option>Select Band</option>
+    <div class="select">
+    <select id="band" >
+    <option value="">Select Band</option>
       <option th:each="c,iter:${bandList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
     </select>
-    </div>
+   </div>
   </div>
 </div>
 
@@ -1254,7 +939,7 @@ var userRole = [];
                 <th:block th:each="c,iter:${benefitsList}">
 	                <div class="col-md-3">
 	                    <div class="checkbox">
-	                      <input type="checkbox" value=""  th:id="'benefits_'+${iter.index}" th:value='${c.key}'
+	                      <input type="checkbox" class="benefitChk" value=""  th:id="${c.key}" th:value='${c.key}'
 							name="benefits" ><span th:text="${c.name}"></span>
 	                    </div>
 	               </div>
@@ -1271,8 +956,8 @@ var userRole = [];
                 <div class="col-4 col-md-4" id="approvalName">
                       <div class="form-group">
                         <label for="approvalName">Approver</label>
-                         <div class="selectbox">
-                        <select id="approver">
+                         <div class="select">
+                        <select id="approver" >
                           <option>Pinaki Datta</option>
                         </select>
                         </div>
@@ -1283,39 +968,14 @@ var userRole = [];
      
 	   <div class="col-md-12">
 		   <div class="checkbox">
-			   <label><input type="checkbox" onclick="about()">Include about company</label>
+			   <label><input type="checkbox" class="about" onclick="about()">Include about company</label>
 		</div>
 		</div>
 	<div class="col-md-12" id="aboutCompany" style="display: none;">
 		<div class="position-text">
 			   <textarea rows="4" cols="100" id="aboutComp" th:value="${aboutComapany[0].key}" th:text="${aboutComapany[0].name}"></textarea>
 		  </div>
-	</div>
-	
-	<div class="col-md-12">
-                      <table class="newtbl">
-                        <thead>
-                          <tr>
-                            <th align="center">Date</th>
-                            <th align="center">Activity</th>
-                            <th align="center">By</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td align="center">10-Oct-20 <span>04:48PM</span></td>
-                            <td align="left">Alocated: Advanced Tech</td>
-                            <td align="center">Pinaki Datta</td>
-                          </tr>
-                          <tr>
-                            <td align="center">08-Nov-20 <span>10:29PM</span></td>
-                            <td align="left">Alocated: Global Tech</td>
-                            <td align="center">Manoj Sen</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                </div>
-     
+	</div>     
            </div>
         </div>
     </div>
@@ -1328,45 +988,15 @@ var userRole = [];
 
 <!-- Modal Header -->
 <div class="modal-header">
-<h4 class="modal-title" style="font-size:16px"><b>Allocate Vendor for Requisition: 8 - Software Engineer</b></h4>
+<h4 class="modal-title" style="font-size:16px"><b>Allocate Vendor for Requisition: <span></span></b></h4>
 <button type="button" class="close" data-dismiss="modal" style="font-size:25px">×</button>
 </div>
     <!-- Modal body -->
 <div class="modal-body" style="height: 600px; overflow-y:scroll; ">
 <div class="vertical-line">
 
-
- <div class="row">
-                <div class="col-md-12">
-                      <table class="newtbl">
-                        <thead>
-                          <tr>
-                            <th align="center">Req ID</th>
-                            <th align="center">Title</th>
-                            <th align="center"># Ofposition</th>
-                            <th align="center">Band</th>
-                            <th align="center">Department</th>
-                            <th align="center">Hiring Manger</th>
-                            <th align="center">Join Date</th>
-                            <th align="center">CTC CAp</th>
-                            <th align="center">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td align="center">8</td>
-                            <td align="left">Software Engineer</td>
-                            <td align="center">2</td>
-                            <td align="left">Brand 4</td>
-                            <td align="left">Product Development</td>
-                            <td align="left">Pradp Singh</td>
-                            <td align="center">8-Nov-20</td>
-                            <td align="right">600.000</td>
-                            <td align="center">Active</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                </div>
+<div class="row">
+               <div id="myVendor" style="width:100%; height:100px;" class="ag-theme-alpine"></div>
             </div>
             <div class="row mt-20">
                 <div class="col-md-9">
@@ -1447,58 +1077,54 @@ var userRole = [];
                       </table>
                 </div>
             </div>         
-             <div class="row mt-20">
-                <div class="col-md-12">
-                    <div class="modal-inrheading">Activity History</div>
-                </div>
-                <div class="col-md-12">
-                      <table class="newtbl">
-                        <thead>
-                          <tr>
-                            <th align="center">Date</th>
-                            <th align="center">Activity</th>
-                            <th align="center">By</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td align="center">10-Oct-20 <span>04:48PM</span></td>
-                            <td align="left">Alocated: Advanced Tech</td>
-                            <td align="center">Pinaki Datta</td>
-                          </tr>
-                          <tr>
-                            <td align="center">08-Nov-20 <span>10:29PM</span></td>
-                            <td align="left">Alocated: Global Tech</td>
-                            <td align="center">Manoj Sen</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                </div>
-            </div>
+           
        </div>
   </div>
 </div>
 </div>
 </div>
 
- <!-- The Modal -->
+ <!-- The Modal For Delete-->
   <div class="modal fade" id="delete">
-    <div class="modal-dialog modal-sm">
-      <div class="modal-content">
-       <!-- Modal body -->
-        <div class="modal-body">
-          <div align="center">
-            <h6>Are you Sure You want to delete the user role !</h6>
-          </div>
-          <div class="deletepopupbtnsec">
-             <button  class="btn3" data-dismiss="modal" onclick="deleteReq()" >Yes</button><!-- class="close" -->
-             <button  class="btn1" data-dismiss="modal">No</button><!-- class="close" -->
-          </div>
-        </div>
-       <!-- Modal footer -->
-      </div>
-    </div>
+    <div class="modal-dialog modal-confirm">
+	<div class="modal-content">
+	<div class="modal-header flex-column">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+	<i class="ti-close modal-close"></i>
+	</button>
+	</div>
+	<div class="modal-body">
+	<p>Do you really want to delete these records? This process
+			cannot be undone.</p>
+		</div>
+	<div class="modal-footer justify-content-center">
+	<button type="button" class="btn1" data-dismiss="modal" aria-hidden="true">Cancel</button>
+	<button type="button" class="btn3" id="deleteModalBtn" onclick="deleteReq()" >Delete</button>
+	</div>
+	</div>
+	</div>
   </div>
+  
+<!-- The Modal For Validation-->
+  <div class="modal fade" id="reqValid">
+    <div class="modal-dialog modal-confirm">
+	<div class="modal-content">
+	<div class="modal-header flex-column">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+	<i class="ti-close modal-close"></i>
+	</button>
+	</div>
+	<div class="modal-body">
+	<p id="modalMsg"></p>
+	</div>
+	<div class="modal-footer justify-content-center">
+	<button type="button" class="btn1" data-dismiss="modal" aria-hidden="true">Ok</button>
+	</div>
+	</div>
+	</div>
+  </div>
+
+
 
 </div>
 </div>
