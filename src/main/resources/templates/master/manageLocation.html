@@ -5,7 +5,130 @@
 	layout:decorate="~{layout/master}">
 <head>
 <link rel="stylesheet" href="../assets/css/extend/style-extend.css">
-<!-- <script src="../assets/js/extend/treed.js"></script> -->
+<script>
+/** AG Grid **/
+
+var columnDefs = [{
+        headerCheckboxSelection: true,
+        headerCheckboxSelectionFilteredOnly: true,
+        checkboxSelection: true,
+        width: 10,
+        sortable: false,
+        filter: false,
+        resizable: true
+    },
+    {
+        headerName: "ID",
+        field: "locationId",
+        cellRenderer: function(params) {
+            return '<a onclick=openDetails("' + params.data.locationId + '") href="javascript:void(0)">' + params.data.locationId + '</a>';
+        }
+    },
+    {
+        headerName: "Code",
+        field: "locationCode",
+        cellRenderer: function(params) {
+            return '<a onclick=openDetails("' + params.data.locationId + '") href="javascript:void(0)">' + params.data.locationCode + '</a>';
+        }
+    },
+    {
+        headerName: "Name",
+        field: "locationName"
+    },
+    {
+        headerName: "Type",
+        field: "locationType"
+    },
+    {
+        headerName: "Virtual",
+        field: "locVirtual"
+    },
+    {
+        headerName: "Address",
+        field: "locStreet"
+    },
+    {
+        headerName: "City",
+        field: "locCity"
+    },
+    {
+        headerName: "State",
+        field: "locState"
+    },
+    {
+        headerName: "Country",
+        field: "locCountry"
+    },
+    {
+        headerName: "Status",
+        field: "locStatus",
+        cellStyle: {textAlign: 'center'}
+    },
+    {
+        headerName: "Create Date",
+        field: "createdDate",
+        cellStyle: {textAlign: 'center'}
+    }
+];
+
+var gridOptions = {
+	columnDefs: columnDefs,
+	defaultColDef: {
+		sortable: true,
+	    filter: true,
+	    resizable: true,
+	    width: 149,
+	    height: 10
+	}
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    var gridDiv = document.querySelector('#myGrid');
+    new agGrid.Grid(gridDiv, gridOptions);
+});
+
+agGrid.simpleHttpRequest({
+	url : 'manage-location-get-location-listing'
+}).then(function(data) {
+	var len = data.length;
+	$('#totalReq').find('span').html(len);
+	console.log(data)
+	gridOptions.api.setRowData(data);
+});
+
+function onQuickFilterChanged() {
+	gridOptions.api.setQuickFilter(document.getElementById('quickFilter').value);
+}
+
+function cancelBar() {
+	var id = document.getElementById("closeKey");
+	id.style.display = "block";
+	
+	if($('#quickFilter').val() == null || $('#quickFilter').val() == "") {
+		id.style.display = "none";
+	}
+}
+
+function getLocationExcelReport() {
+	var dataset = [];
+	
+	gridOptions.api.forEachNodeAfterFilterAndSort(function(rowNode, index) {
+		dataset.push(rowNode.data.locationId);
+	});
+	
+	var textVal = "";
+	for(var i = 0; i < dataset.length; i++) {
+		textVal = textVal + dataset[i] + ",";
+	}
+	
+	if(dataset.length > 0) {
+		textVal = textVal.substring(0, textVal.length - 1);
+	}
+	
+	textVal = window.btoa(textVal);
+	window.location.href="/master/manage-location-report-excel?id="+ textVal ;
+}
+</script>
 <script type="text/javascript">
 function activeRoom(id,secId,rmId,rmCode,rmType,secCd,flrCd,fNo,sNo) {
 	$(".roombtn").removeClass("roombtnactive");
@@ -244,7 +367,6 @@ $(document).ready(function() {
 
 	$("#cancelBtn").click(function() {
 		$("#myGrid").show();
-		$("#serachRowDiv").show();
 		$(".btn-hs").show();
 		$("#demo").hide();
 		
@@ -592,7 +714,6 @@ $(document).ready(function() {
 function openDetails(id) {
 	
 	$("#myGrid").hide();
-	$("#serachRowDiv").hide();
 	
 	closeNav();
 	//$("#searchRowDiv").hide();
@@ -873,9 +994,9 @@ function showRoomDetails(id) {
 								
 								if(j == 0 && act_cls == 0) {
 									if(textLen > 7) {
-										div = div + '<div id="'+i+'_'+j+'" class="roombtn roombtnactive cp fs-12" rmName="'+rmName+'" onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
+										div = div + '<div title="Edit Room" id="'+i+'_'+j+'" class="roombtn roombtnactive cp fs-12" rmName="'+rmName+'" onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
 									} else {
-										div = div + '<div id="'+i+'_'+j+'" class="roombtn roombtnactive cp " rmName="'+rmName+'" onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
+										div = div + '<div title="Edit Room" id="'+i+'_'+j+'" class="roombtn roombtnactive cp " rmName="'+rmName+'" onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
 									}
 									
 									act_cls = 1;
@@ -885,9 +1006,9 @@ function showRoomDetails(id) {
 									
 								} else {
 									if(textLen > 7) {
-										div = div + '<div id="'+i+'_'+j+'" rmName="'+rmName+'" class="roombtn cp fs-12" onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
+										div = div + '<div title="Edit Room" id="'+i+'_'+j+'" rmName="'+rmName+'" class="roombtn cp fs-12" onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
 									} else {
-										div = div + '<div id="'+i+'_'+j+'" rmName="'+rmName+'" class="roombtn cp " onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
+										div = div + '<div title="Edit Room" id="'+i+'_'+j+'" rmName="'+rmName+'" class="roombtn cp " onclick=openNav("'+response.body[i].roomList[j].sectionId+'","'+response.body[i].roomList[j].sectionCode+'","'+response.body[i].roomList[j].floorCode+'");activeRoom("'+sec_room+'","'+secId+'","'+rmId+'","'+rmCode+'","'+rmType+'","'+secCode+'","'+floorCode+'",'+floorSlNo+','+secSlNo+');>'+response.body[i].roomList[j].roomName+'</div>';
 									}
 								}
 								
@@ -895,7 +1016,7 @@ function showRoomDetails(id) {
 						}
 						
 						var tbl = '<h3 class="roomLoc roomSectionDiv_'+response.body[i].sectionCode+' roomFloorDiv_'+response.body[i].floorCode+'">'+response.body[i].locationCode+'-'+response.body[i].floorCode+'-'+response.body[i].sectionCode+': '+response.body[i].floorName+' - '+response.body[i].sectionName+' ('+response.body[i].roomCount+')</h3>'+
-								'<div class="row btmgap roomLoc roomSectionDiv_'+response.body[i].sectionCode+' roomFloorDiv_'+response.body[i].floorCode+'"><div class="col-md-2"><div class="plusbtn cp" onclick=openNav("'+response.body[i].sectionId+'","'+response.body[i].sectionCode+'","'+response.body[i].floorCode+'")>+</div></div><div class="col-md-10 roomsection rmsec_'+response.body[i].sectionCode+'">'+div+'</div></div>';
+								'<div class="row btmgap roomLoc roomSectionDiv_'+response.body[i].sectionCode+' roomFloorDiv_'+response.body[i].floorCode+'"><div class="col-md-2"><div class="plusbtn cp" title="Add Room" onclick=openNav("'+response.body[i].sectionId+'","'+response.body[i].sectionCode+'","'+response.body[i].floorCode+'")>+</div></div><div class="col-md-10 roomsection rmsec_'+response.body[i].sectionCode+'">'+div+'</div></div>';
 						
 						$(".roomListDiv").append(tbl);
 					}
@@ -1459,129 +1580,6 @@ $(document).ready(function() {
     });
 });
 </script>
-<script>
-/** AG Grid **/
-
-var columnDefs = [{
-        headerCheckboxSelection: true,
-        headerCheckboxSelectionFilteredOnly: true,
-        checkboxSelection: true,
-        width: 10,
-        sortable: false,
-        filter: false,
-        resizable: true
-    },
-    {
-        headerName: "ID",
-        field: "locationId",
-        cellRenderer: function(params) {
-            return '<a onclick=openDetails("' + params.data.locationId + '") href="javascript:void(0)">' + params.data.locationId + '</a>';
-        }
-    },
-    {
-        headerName: "Code",
-        field: "locationCode",
-        cellRenderer: function(params) {
-            return '<a onclick=openDetails("' + params.data.locationId + '") href="javascript:void(0)">' + params.data.locationCode + '</a>';
-        }
-    },
-    {
-        headerName: "Name",
-        field: "locationName"
-    },
-    {
-        headerName: "Type",
-        field: "locationType"
-    },
-    {
-        headerName: "Virtual",
-        field: "locVirtual"
-    },
-    {
-        headerName: "Address",
-        field: "locStreet"
-    },
-    {
-        headerName: "City",
-        field: "locCity"
-    },
-    {
-        headerName: "State",
-        field: "locState"
-    },
-    {
-        headerName: "Country",
-        field: "locCountry"
-    },
-    {
-        headerName: "Status",
-        field: "locStatus",
-        cellStyle: {textAlign: 'center'}
-    },
-    {
-        headerName: "Create Date",
-        field: "createdDate",
-        cellStyle: {textAlign: 'center'}
-    }
-];
-
-var gridOptions = {
-	columnDefs: columnDefs,
-	defaultColDef: {
-		sortable: true,
-	    filter: true,
-	    resizable: true,
-	    width: 149,
-	    height: 10
-	}
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-    var gridDiv = document.querySelector('#myGrid');
-    new agGrid.Grid(gridDiv, gridOptions);
-});
-
-agGrid.simpleHttpRequest({
-	url : 'manage-location-get-location-listing'
-}).then(function(data) {
-	var len = data.length;
-	$('#totalReq').find('span').html(len);
-	gridOptions.api.setRowData(data);
-});
-
-function onQuickFilterChanged() {
-	gridOptions.api.setQuickFilter(document.getElementById('quickFilter').value);
-}
-
-function cancelBar() {
-	var id = document.getElementById("closeKey");
-	id.style.display = "block";
-	
-	if($('#quickFilter').val() == null || $('#quickFilter').val() == "") {
-		id.style.display = "none";
-	}
-}
-
-function getLocationExcelReport() {
-	var dataset = [];
-	
-	gridOptions.api.forEachNodeAfterFilterAndSort(function(rowNode, index) {
-		dataset.push(rowNode.data.locationId);
-	});
-	
-	var textVal = "";
-	for(var i = 0; i < dataset.length; i++) {
-		textVal = textVal + dataset[i] + ",";
-	}
-	
-	if(dataset.length > 0) {
-		textVal = textVal.substring(0, textVal.length - 1);
-	}
-	
-	textVal = window.btoa(textVal);
-	window.location.href="/master/manage-location-report-excel?id="+ textVal ;
-}
-</script>
 </head>
 <body>
 	<div layout:fragment="content" class="maincontent">
@@ -1602,17 +1600,17 @@ function getLocationExcelReport() {
 											class="fa fa-search"></i></a>
 									</div>
 								</div> -->
-								<div class="input-style row" id="serachRowDiv">
+								<div class="input-style row">
 									<input type="text" placeholder="Search.." name="search"
 										class="searchboxinput" onkeyup="cancelBar()"
 										oninput="onQuickFilterChanged()" id="quickFilter">
 									<div class="searchicon">
-										<a href="javascript:void(0)"><span
+										<a href="#"><span
 											style="display: none; border-right: 1px solid #ccc; padding-right: 5px;"
 											id="closeKey"
 											onclick="gridOptions.api.setQuickFilter(null);$('#quickFilter').val('');document.getElementById('closeKey').style.display='none';"
 											class="close_i"><i class="ti-close srchicon"></i></span></a><a
-											href="javascript:void(0)"><i class="ti-search srchicon"></i></a>
+											href="#"><i class="ti-search srchicon"></i></a>
 									</div>
 								</div>
 							</div>
@@ -1717,13 +1715,13 @@ function getLocationExcelReport() {
 										</div>
 
 										<div class="col-md-2">
-											<div class="form-group" style="margin-top: 36px;">
+											<div class="form-group" style="margin-top: 20px;">
 												<input type="checkbox" class="loc-chb" name="isVirtual"
 													id="locVirtual" value="1"> <label>Virtual</label>
 											</div>
 										</div>
 										<div class="col-md-2">
-											<div class="form-group" style="margin-top: 36px;">
+											<div class="form-group" style="margin-top: 20px;">
 												<input type="checkbox" class="loc-chb" name="isActive"
 													id="locStatus" value="1"> <label>Active</label>
 											</div>

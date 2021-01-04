@@ -15,24 +15,475 @@ $(document).ready(function() {
             this.classList.toggle("caret-down");
         });
     }
+    
+    $("#categorySave").click(function(){
+    	data = {};
+    	
+    	data.categoryId = $("#categoryId").val();
+    	data.categoryName = $("#categoryName").val();
+    	data.categoryDesc = $("#categoryDesc").val();
+    	data.categoryStatus = $("input[name='isActive']:checked").val();
+    	
+    	console.log(data)
+    	submitCategory(data);
+    })
+    
+    $("#subCatSave").click(function(){
+    	data = {};
+    	
+    	data.categoryId = $("#subCatId").val();
+    	data.categoryName = $("#subCatName").val();
+    	data.categoryDesc = $("#subCatDesc").val();
+    	data.categoryStatus = $("input[name='isSubCatActive']:checked").val();
+    	data.parentId = $("#parentCat").val();
+    	
+    	console.log(data)
+    	submitSubCategory(data);
+    })
+    
+    $("#deleteModalBtn").click(function(){
+    	var data = $("#deleteModalBtn").attr("value");
+    	var slno = $("#deleteModalBtn").attr("slno");
+    	$("#deleteModalBtn").attr("disabled","disabled");
+    	if(data) {
+    		if(slno == "1") {
+    			$.ajax({
+    				type : "POST",
+    				url : "product-category-delete",
+    				dataType : 'json',
+    				contentType : 'application/json',
+    				data : data,
+    				success : function(response) {
+    					if (response.message == "Success") {
+    						$("#deleteModalBtn").removeAttr("disabled");
+    						$("#myUL_"+data).remove();
+    						cancelModalBtn();
+    						closeCat();
+    						var totalPCat = $("#totalPCat").text();
+    						totalPCat = parseFloat(totalPCat) - 1;
+    						$("#totalPCat").text(totalPCat);
+    					}
+    				}, error : function(data) {
+    					console.log(data)
+    				}
+    			});
+    		} else if(slno == "2") {
+    			$.ajax({
+    				type : "POST",
+    				url : "product-category-delete",
+    				dataType : 'json',
+    				contentType : 'application/json',
+    				data : data,
+    				success : function(response) {
+    					if (response.message == "Success") {
+    						$("#deleteModalBtn").removeAttr("disabled");
+    						$("#li_"+data).remove();
+    						cancelModalBtn();
+    						closeNav();
+    					}
+    				}, error : function(data) {
+    					console.log(data)
+    				}
+    			});
+    		}
+    	}
+    })
+    
+    
+    getCategoryList();
 })
 
-function openNav() {
+function getCategoryList() {
+	$.ajax({
+        type: "POST",
+        url: "product-category-get-total-list",
+        dataType: "json",
+        contentType: "application/json",
+        success: function(response) {
+            if (response.message == "Success") {
+            	
+            	console.log(response.body)
+            	
+            	if(response.body.length > 0) {
+            		
+            		var c = 0;
+            		$("#totalPCat").text(c);
+            		for(var i = 0; i < response.body.length; i++) {
+            			
+            				c = c + 1;
+            			
+			            	var tbl = '<ul id="myUL_'+response.body[i].categoryId+'" class="level"><li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="spanA_'+response.body[i].categoryId+'" onclick=getRootLeafNodes("'+response.body[i].categoryId+'")></span> '+
+								'<span id="lbl_'+response.body[i].categoryId+'" class="leveltxt">'+response.body[i].categoryName+'</span><span id="catCount" class="level_counter"> (0)</span> '+
+								'<label for="check1">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Add Sub-Category" class="ti-plus cbicon" onclick=openNav("'+response.body[i].categoryId+'");></i></a>&nbsp;<a href="javascript:void(0)"><i title="Edit Category" class="ti-pencil" onclick=editCategory("'+response.body[i].categoryId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i title="Delete Category" class="ti-close" onclick=deleteCategory("'+response.body[i].categoryId+'")></i></a></label>'+
+								'<ul class="nested" id="ul_'+response.body[i].categoryId+'"></ul>'+
+								'</li></ul>';
+			            	$(".flowsection").append(tbl);
+            			
+            		}
+            		
+            		$("#totalPCat").text(c);
+            	}
+            } else {
+                swal({
+                    title: response.code,
+                    text: response.message,
+                    type: "warning"
+                })
+            }
+        },
+        error: function(response) {
+            console.log(response);
+        }
+    })
+}
+
+function getRootLeafNodes(id) {
+	$("#ul_"+id).empty();
+	var value = $("#spanA_"+id).attr("value");
+	if(value == "0") {
+		
+		$.ajax({
+	        type: "POST",
+	        url: "product-category-get-category-list-by-id",
+	        dataType: "json",
+	        contentType: "application/json",
+	        data: id,
+	        success: function(response) {
+	            if (response.message == "Success") {
+	            	if(response.body.length > 0) {
+	            		console.log(response.body)
+	            		for(var i = 0; i < response.body.length; i++) {
+		            		var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'+response.body[i].categoryId+'" onclick=getLeafNodes("'+response.body[i].categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'"> '+response.body[i].categoryName+' </span><span>(0)</span>'+
+		    				'<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Sub-Category" onclick=openNav("'+response.body[i].categoryId+'");></i></a>'+
+		    				'&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Sub-Category" onclick=editSubCategory("'+response.body[i].categoryId+'","'+response.body[i].parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Sub-Category" onclick=deleteSubCategory("'+response.body[i].categoryId+'")></i></a></label>'+
+		    				'<ul class="nested" id="ul_'+response.body[i].categoryId+'"></ul>'+
+		    				'</li>';
+		    		
+				    		$("#spanA_"+id).attr("value","1");
+				    		$("#spanA_"+id).addClass("caret-down");
+				    		$("#ul_"+id).addClass("active");
+				    		$("#ul_"+id).append(tbl);
+	            		}
+	            	}
+	            }
+	            	
+	        }, error: function(data) {
+	        	console.log(data)
+	        	$("#spanA_"+id).attr("value","0");
+	    		$("#spanA_"+id).removeClass("caret-down");
+	    		$("#ul_"+id).removeClass("active");
+	    		$("#ul_"+id).empty();
+	        }
+		});
+	} else {
+		$("#spanA_"+id).attr("value","0");
+		$("#spanA_"+id).removeClass("caret-down");
+		$("#ul_"+id).removeClass("active");
+		$("#ul_"+id).empty();
+	}
+}
+
+function getLeafNodes(id) {
+	$("#ul_"+id).empty();
+	var value = $("#span_"+id).attr("value");
+	if(value == "0") {
+		
+		$.ajax({
+	        type: "POST",
+	        url: "product-category-get-category-list-by-id",
+	        dataType: "json",
+	        contentType: "application/json",
+	        data: id,
+	        success: function(response) {
+	            if (response.message == "Success") {
+	            	if(response.body.length > 0) {
+	            		console.log(response.body)
+	            		for(var i = 0; i < response.body.length; i++) {
+		            		var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'+response.body[i].categoryId+'" onclick=getLeafNodes("'+response.body[i].categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'"> '+response.body[i].categoryName+' </span><span>(0)</span>'+
+		    				'<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Sub-Category" onclick=openNav("'+response.body[i].categoryId+'");></i></a>'+
+		    				'&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Sub-Category" onclick=editSubCategory("'+response.body[i].categoryId+'","'+response.body[i].parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Sub-Category" onclick=deleteSubCategory("'+response.body[i].categoryId+'")></i></a></label>'+
+		    				'<ul class="nested" id="ul_'+response.body[i].categoryId+'"></ul>'+
+		    				'</li>';
+		    		
+				    		$("#span_"+id).attr("value","1");
+				    		$("#span_"+id).addClass("caret-down");
+				    		$("#ul_"+id).addClass("active");
+				    		$("#ul_"+id).append(tbl);
+	            		}
+	            	}
+	            }
+	            	
+	        }, error: function(data) {
+	        	console.log(data)
+	        	$("#span_"+id).attr("value","0");
+	    		$("#span_"+id).removeClass("caret-down");
+	    		$("#ul_"+id).removeClass("active");
+	    		$("#ul_"+id).empty();
+	    		$("#ul_"+id).empty();
+	        }
+		});
+	} else {
+		$("#span_"+id).attr("value","0");
+		$("#span_"+id).removeClass("caret-down");
+		$("#ul_"+id).removeClass("active");
+		$("#ul_"+id).empty();
+		$("#ul_"+id).empty();
+	}
+}
+
+function cancelModalBtn() {
+	$("#delete").modal('hide');
+	$("#deleteModalBtn").attr("value","");
+	$("#deleteModalBtn").attr("slno","");
+	$("#deleteModalBtn").removeAttr("disabled");
+}
+
+function deleteCategory(id) {
+	if(id) {
+		$("#delete").modal('show');
+		$("#deleteModalBtn").attr("value",id);
+		$("#deleteModalBtn").attr("slno","1");
+	} else {
+		$("#delete").modal('hide');
+		$("#deleteModalBtn").attr("value","");
+		$("#deleteModalBtn").removeAttr("disabled");
+		$("#deleteModalBtn").attr("slno","");
+	}
+}
+
+function deleteSubCategory(id) {
+	if(id) {
+		$("#delete").modal('show');
+		$("#deleteModalBtn").attr("value",id);
+		$("#deleteModalBtn").attr("slno","2");
+	} else {
+		$("#delete").modal('hide');
+		$("#deleteModalBtn").attr("value","");
+		$("#deleteModalBtn").removeAttr("disabled");
+		$("#deleteModalBtn").attr("slno","");
+	}
+}
+
+function editSubCategory(id,pId) {
+	openNav(pId);
+	$("#subCatId").val(id);
+	if(id) {
+		$.ajax({
+	        type: "POST",
+	        url: "product-category-get-category-dtls-by-id",
+	        dataType: "json",
+	        contentType: "application/json",
+	        data: id,
+	        success: function(response) {
+	            if (response.message == "Success") {
+	            	if(response.body != null && response.body != "") {
+	            		$("#subCatName").val(response.body.categoryName);
+			        	$("#subCatDesc").val(response.body.categoryDesc);
+			        	if(response.body.categoryStatus == "1") {
+			        		$('#subCatStatus').prop('checked', true);
+			        	} else {
+			        		$('#subCatStatus').prop('checked', false);
+			        	}
+			        	var onAttr = "deleteSubCategory('"+response.body.categoryId+"')";
+			        	$("#dltSlideSubCat").attr("onclick",onAttr);
+	            	}
+	            }
+	        }, error : function(data) {
+	        	console.log(data)
+	    		$("#subCatId").val("");
+	    		$("#subCatName").val("");
+	    		$("#subCatDesc").val("");
+	    		$('#subCatStatus').prop('checked', true);
+	    		$("#dltSlideSubCat").attr("onclick","");
+	        }
+		});
+	} else {
+		$("#subCatId").val("");
+		$("#subCatName").val("");
+		$("#subCatDesc").val("");
+		$('#subCatStatus').prop('checked', true);
+		$("#dltSlideSubCat").attr("onclick","");
+	}
+}
+
+function editCategory(id) {
+	openCat();
+	$("#categoryId").val(id);
+	if(id) {
+		$.ajax({
+	        type: "POST",
+	        url: "product-category-get-category-dtls-by-id",
+	        dataType: "json",
+	        contentType: "application/json",
+	        data: id,
+	        success: function(response) {
+	            if (response.message == "Success") {
+	            	if(response.body != null && response.body != "") {
+	            		$("#categoryName").val(response.body.categoryName);
+			        	$("#categoryDesc").val(response.body.categoryDesc);
+			        	if(response.body.categoryStatus == "1") {
+			        		$('#catStatus').prop('checked', true);
+			        	} else {
+			        		$('#catStatus').prop('checked', false);
+			        	}
+			        	var onAttr = "deleteCategory('"+response.body.categoryId+"')";
+			        	$("#deleteSlideCat").attr("onclick",onAttr);
+	            	}
+	            }
+	        }, error : function(data) {
+	        	console.log(data)
+	        	$("#categoryId").val("");
+	        	$("#categoryName").val("");
+	        	$("#categoryDesc").val("");
+	        	$('#catStatus').prop('checked', true);
+	        	$("#deleteSlideCat").attr("onclick","");
+	        }
+		});
+	} else {
+		$("#categoryId").val("");
+		$("#categoryName").val("");
+		$("#categoryDesc").val("");
+		$('#catStatus').prop('checked', true);
+		$("#deleteSlideCat").attr("onclick","");
+	}
+}
+
+function submitCategory(dataset) {
+	$.ajax({
+        type: "POST",
+        url: "product-category-save",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(dataset),
+        success: function(response) {
+            if (response.message == "Success") {
+            	
+            	console.log(response.body)
+            	
+            	var tbl = '<ul id="myUL_'+response.body.categoryId+'" class="level"><li id="li_'+response.body.categoryId+'"><span class="caret"></span> <span'+
+					'<label id="lbl_'+response.body.categoryId+'" class="leveltxt">'+response.body.categoryName+'</span><span id="catCount" class="level_counter"> (0)</span> '+
+					'<label for="check1">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Add Sub-Category" class="ti-plus cbicon" onclick=openNav("'+response.body.categoryId+'");></i></a>&nbsp;'+
+					'<a href="javascript:void(0)"><i title="Edit Category" class="ti-pencil" onclick=editCategory("'+response.body.categoryId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i title="Delete Category" class="ti-close" onclick=deleteCategory("'+response.body.categoryId+'")></i></a></label>'+
+					'</li></ul>';
+					
+				var categoryId = $("#categoryId").val();
+				if(categoryId) {
+					$("#lbl_"+response.body.categoryId).text("");
+					$("#lbl_"+response.body.categoryId).text(response.body.categoryName);
+				} else {
+					$(".flowsection").append(tbl);
+					
+					var totalPCat = $("#totalPCat").text();
+					totalPCat = parseFloat(totalPCat) + 1;
+					$("#totalPCat").text(totalPCat);
+					
+				}
+				closeCat();
+            } else {
+                swal({
+                    title: response.code,
+                    text: response.message,
+                    type: "warning"
+                })
+            }
+        },
+        error: function(response) {
+            console.log(response);
+        }
+    })
+}
+
+function submitSubCategory(dataset) {
+	$.ajax({
+        type: "POST",
+        url: "product-category-save-subcat",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(dataset),
+        success: function(response) {
+            if (response.message == "Success") {
+            	
+            	console.log(response.body)
+            	
+            	var tbl = '<li id="li_'+response.body.categoryId+'"><span class="caret" value="0" id="span_'+response.body.categoryId+'" onclick=getLeafNodes("'+response.body.categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body.categoryId+'"> '+response.body.categoryName+' </span><span>(0)</span><label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Sub-Category" onclick=openNav("'+response.body.categoryId+'");></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Sub-Category" onclick=editSubCategory("'+response.body.categoryId+'","'+response.body.parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Sub-Category" onclick=deleteSubCategory("'+response.body.categoryId+'")></i></a></label><ul class="nested" id="ul_'+response.body.categoryId+'"></ul></li>';
+					
+				var subCatId = $("#subCatId").val();
+				if(subCatId) {
+					$("#lbl_"+response.body.categoryId).text("");
+					$("#lbl_"+response.body.categoryId).text(response.body.categoryName);
+				} else {
+					$("#ul_"+response.body.parentId).append(tbl);
+				}
+				closeNav();
+            } else {
+                swal({
+                    title: response.code,
+                    text: response.message,
+                    type: "warning"
+                })
+            }
+        },
+        error: function(response) {
+            console.log(response);
+        }
+    })
+}
+
+function openNav(categoryId) {
+	closeCat();
+	var pName = $("#lbl_"+categoryId).text();
+	$("#subCatParentSpan").text(" "+pName);
+	$("#parentCat").val(categoryId);
+	
+	$("#subCatId").val("");
+	$("#subCatName").val("");
+	$("#subCatDesc").val("");
+	$('#subCatStatus').prop('checked', true);
+	
+	$("#dltSlideSubCat").attr("onclick","");
+	
 	document.getElementById("mySidenavSubCat").style.cssText = "width: 270px; position: absolute; right:-45px; overflow: hidden;";
 	document.getElementById("main").style.width = "420px";
 }
 
 function closeNav() {
+	
+	$("#subCatParentSpan").text(" ");
+	$("#parentCat").val("");
+	
+	$("#subCatId").val("");
+	$("#subCatName").val("");
+	$("#subCatDesc").val("");
+	$('#subCatStatus').prop('checked', true);
+	
+	$("#dltSlideSubCat").attr("onclick","");
+	
 	document.getElementById("mySidenavSubCat").style.width = "0";
 	document.getElementById("main").style.width = "480px";
 }
 
 function openCat() {
+	closeNav();
+	$("#categoryId").val("");
+	$("#categoryName").val("");
+	$("#categoryDesc").val("");
+	$('#catStatus').prop('checked', true);
+	
+	$("#deleteSlideCat").attr("onclick","");
+	
 	document.getElementById("mySidenavCat").style.cssText = "width: 270px; position: absolute; right:-45px; overflow: hidden;";
 	document.getElementById("main").style.width = "420px";
 }
 
 function closeCat() {
+	
+	$("#categoryId").val("");
+	$("#categoryName").val("");
+	$("#categoryDesc").val("");
+	$('#catStatus').prop('checked', true);
+	
+	$("#deleteSlideCat").attr("onclick","");
+	
 	document.getElementById("mySidenavCat").style.width = "0";
 	document.getElementById("main").style.width = "480px";
 }
@@ -45,266 +496,195 @@ function closeCat() {
 			<div class="row">
 				<div class="maincontentsec">
 					<div class="content_padding">
-						<div class="row margin_topbot" id="searchRowDiv">
-						</div>
+						<div class="row margin_topbot" id="searchRowDiv"></div>
 						<div class="row">
 
-							<div class="col-md-10  btn-hs">
+							<div class="col-md-10  btn-hs" style="margin-bottom: 15px;">
 								<div class="font-design" id="totalReq">
-									Product Category (<span>2</span>)
+									Product Category (<span id="totalPCat">2</span>)
 								</div>
 							</div>
 							<div class="col-md-2 btn-hs">
 								<div class="row">
-									<button class="btn1" id="newBtn" onclick="openCat();">NEW</button>
-									<button class="btn3" id="locdeletebtn" onclick="deleteLocation()" >DELETE</button>
+									<!-- <button class="btn1" id="newBtn" onclick="openCat();">NEW</button>
+									<button class="btn3" id="locdeletebtn" onclick="deleteLocation()" >DELETE</button> -->
 								</div>
 							</div>
 
 						</div>
+						<div class="row">
+							<div class="col-md-2">
+								<div class="roomdetails">
+									<div class="plusbtn cp" title="Add Category"
+										onclick="openCat()">+</div>
+								</div>
+							</div>
+						</div>
 
 						<!--  </div> -->
-							<div class="wrapper center-block">
-								<div class="panel-group" id="accordion" role="tablist"
-									aria-multiselectable="true">
-									<div class="panel panel-default">
-										<div id="demo_11" class="panel-collapse collapse show"
-											role="tabpanel" aria-labelledby="headingOne">
-											<!-- show -->
-											<div class="row">
-												<div class="col-md-4">
-													<div class="flowsection" style="border-right: 0px solid #ccc !important">
-														<!-- code start for second tree -->
-														<ul id="myUL" class="level">
-														<li><span class="caret caret-down"></span>
-															<div id="cbLoc">
-																<input type="checkbox" id="check1" class="pc-box"
-																	checked="checked">
-															</div> <span id="locchkboxlabel" class="leveltxt">Clothings</span><span
-															id="locCount" class="level_counter"> (0)</span> <label
-															for="check1">&nbsp;&nbsp;<a
-																href="javascript:void(0)"><i title=""
-																	class="ti-plus cbicon" onclick="openFloorNav();"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-pencil"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close"></i></a></label>
-															<ul class="nested active" id="liFloor">
-																<li><span class="caret caret-down"></span>
-																	<div><input type="checkbox" checked="checked"></div><span>Shirts (0)</span>
-																	<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus"></i></a>
-																	&nbsp;<a href="javascript:void(0)"><i class="ti-pencil"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close"></i></a></label>
-																	<ul class="nested active" id="liFloor">
-																		<li><span class="caret caret-down"></span>
-																			<div><input type="checkbox" checked="checked"></div><span>Formals (0)</span>
-																			<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus"></i></a>
-																			&nbsp;<a href="javascript:void(0)"><i class="ti-pencil"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close"></i></a></label>
-																			<ul class="nested active" id="liFloor">
-																				<li><span class="caret caret-down"></span>
-																					<div><input type="checkbox" checked="checked"></div><span>Cotton (0)</span>
-																					<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus"></i></a>
-																					&nbsp;<a href="javascript:void(0)"><i class="ti-pencil"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close"></i></a></label>
-																					
-																				</li>
-																				<li><span class="caret caret-down"></span>
-																					<div><input type="checkbox" checked="checked"></div><span>Casual (0)</span>
-																					<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus"></i></a>
-																					&nbsp;<a href="javascript:void(0)"><i class="ti-pencil"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close"></i></a></label>
-																					
-																				</li>
-																			</ul>
-																		</li>
-																	</ul>
-																</li>
-															</ul>
-															<ul class="nested active" id="liFloor">
-																<li><span class="caret caret-down"></span>
-																	<div><input type="checkbox" checked="checked"></div><span>Pants (0)</span>
-																	<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus"></i></a>
-																	&nbsp;<a href="javascript:void(0)"><i class="ti-pencil"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close"></i></a></label>
-																	
-																</li>
-															</ul>
-															<ul class="nested active" id="liFloor">
-																<li><span class="caret caret-down"></span>
-																	<div><input type="checkbox" checked="checked"></div><span>Shorts (0)</span>
-																	<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus"></i></a>
-																	&nbsp;<a href="javascript:void(0)"><i class="ti-pencil"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close"></i></a></label>
-																	
-																</li>
-															</ul>
-														</li>
-													</ul>
-														<ul id="myUL" class="level">
-														<li><span class="caret caret-down"></span>
-															<div id="cbLoc">
-																<input type="checkbox" id="check1" class="pc-box"
-																	checked="checked">
-															</div> <span id="locchkboxlabel" class="leveltxt">Electronics</span><span
-															id="locCount" class="level_counter"> (0)</span> <label
-															for="check1">&nbsp;&nbsp;<a
-																href="javascript:void(0)"><i title=""
-																	class="ti-plus cbicon" onclick="openFloorNav();"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-pencil"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close"></i></a></label>
-															<ul class="nested active" id="liFloor">
-																<li><span class="caret caret-down"></span>
-																	<div><input type="checkbox" checked="checked"></div><span>Television (0)</span>
-																	<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus"></i></a>
-																	&nbsp;<a href="javascript:void(0)"><i class="ti-pencil"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close"></i></a></label>
-																	
-																</li>
-															</ul>
-															<ul class="nested active" id="liFloor">
-																<li><span class="caret caret-down"></span>
-																	<div><input type="checkbox" checked="checked"></div><span>Washing Machine (0)</span>
-																	<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus"></i></a>
-																	&nbsp;<a href="javascript:void(0)"><i class="ti-pencil"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close"></i></a></label>
-																	
-																</li>
-															</ul>
-															<ul class="nested active" id="liFloor">
-																<li><span class="caret caret-down"></span>
-																	<div><input type="checkbox" checked="checked"></div><span>Refrigerator (0)</span>
-																	<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus"></i></a>
-																	&nbsp;<a href="javascript:void(0)"><i class="ti-pencil"></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close"></i></a></label>
-																	
-																</li>
-															</ul>
-														</li>
-													</ul>
-														<!-- code end for second tree -->
-													</div>
+						<div class="wrapper center-block">
+							<div class="panel-group" id="accordion" role="tablist"
+								aria-multiselectable="true">
+								<div class="panel panel-default">
+									<div id="demo_11" class="panel-collapse collapse show"
+										role="tabpanel" aria-labelledby="headingOne">
+										<!-- show -->
+										<div class="row">
+											<div class="col-md-8">
+												<div class="flowsection"
+													style="border-right: 0px solid #ccc !important">
+													<!-- code start for second tree -->
+													<!-- code end for second tree -->
 												</div>
-												<div class="col-md-8">
-													<div class="roomdetails roomListDiv" id="main"></div>
-													<div class="slidearrow" onclick="openNav()">
-														<i class="ti-arrow-left"></i>
-													</div>
-													<div id="mySidenav" class="sidenav">
-														<div class="slidebox">
-															<div class="row">
-																<div class="col-md-10">
-																	<div class="edit" id="roomLevelText"></div>
+											</div>
+											<div class="col-md-4">
+												<div class="roomdetails roomListDiv" id="main"></div>
+												<div class="slidearrow" onclick="openNav()">
+													<i class="ti-arrow-left"></i>
+												</div>
+												<div id="mySidenav" class="sidenav">
+													<div class="slidebox">
+														<div class="row">
+															<div class="col-md-10">
+																<div class="edit" id="roomLevelText"></div>
+															</div>
+															<div class="col-md-2">
+																<div class="arrow">
+																	<a href="javascript:void(0)" class="closebtn"
+																		onclick="closeNav()"><i class="ti-arrow-right"></i></a>
 																</div>
-																<div class="col-md-2">
-																	<div class="arrow">
-																		<a href="javascript:void(0)" class="closebtn"
-																			onclick="closeNav()"><i class="ti-arrow-right"></i></a>
-																	</div>
+															</div>
+															<div class="chartbtnsec">
+																<div class="row">
+																	<button class="btn4" onclick="closeNav()">CANCEL</button>
+																	<button class="btn3" id="dltRoom"
+																		onclick="deleteRoom()">DELETE</button>
+																	<button class="btn1" id="roomSave">SAVE</button>
 																</div>
-																<div class="chartbtnsec">
-																	<div class="row">
-																		<button class="btn4" onclick="closeNav()">CANCEL</button>
-																		<button class="btn3" id="dltRoom"
-																			onclick="deleteRoom()">DELETE</button>
-																		<button class="btn1" id="roomSave">SAVE</button>
-																	</div>
+															</div>
+															<div class="col-md-12">
+																<div class="form-group">
+																	<label>Code</label> <input type="text"
+																		class="form-control transparenttxtbox"
+																		placeholder="Room Code" id="roomCode"> <input
+																		type="hidden" id="sectionRoomId"> <input
+																		type="hidden" id="roomDBId"> <input
+																		type="hidden" id="rFloorSlNo"> <input
+																		type="hidden" id="rSectionSlNo">
 																</div>
-																<div class="col-md-12">
-																	<div class="form-group">
-																		<label>Code</label> <input type="text"
-																			class="form-control transparenttxtbox"
-																			placeholder="Room Code" id="roomCode"> <input
-																			type="hidden" id="sectionRoomId"> <input
-																			type="hidden" id="roomDBId">
-																			<input type="hidden" id="rFloorSlNo">
-																			<input type="hidden" id="rSectionSlNo">
-																	</div>
+															</div>
+															<div class="col-md-12">
+																<div class="form-group">
+																	<label>Name</label> <input type="text"
+																		class="form-control transparenttxtbox"
+																		placeholder="Room Name" id="roomName"
+																		onblur="checkCharLengthOfString('roomName','10');">
 																</div>
-																<div class="col-md-12">
-																	<div class="form-group">
-																		<label>Name</label> <input type="text"
-																			class="form-control transparenttxtbox"
-																			placeholder="Room Name" id="roomName" onblur="checkCharLengthOfString('roomName','10');">
-																	</div>
-																</div>
-																<div class="col-md-12">
-																	<div class="form-group">
-																		<label>Room Type</label> <div class="select"> <select id="roomType"
-																			class="transparenttxtbox">
+															</div>
+															<div class="col-md-12">
+																<div class="form-group">
+																	<label>Room Type</label>
+																	<div class="select">
+																		<select id="roomType" class="transparenttxtbox">
 																			<option th:each="c,iter:${roomTypeList}"
 																				th:value="${c.key}" th:text="${c.name}"></option>
-																		</select> </div>
+																		</select>
 																	</div>
 																</div>
 															</div>
 														</div>
 													</div>
+												</div>
 
-													<!-- Add Floor -->
-													<div id="mySidenavSubCat" class="sidenav">
-														<div class="slidebox">
-															<div class="row">
-																<div class="col-md-10">
-																	<div class="edit" id="floorNavText">Sub-Category</div>
+												<!-- Add Floor -->
+												<div id="mySidenavSubCat" class="sidenav">
+													<div class="slidebox">
+														<div class="row">
+															<div class="col-md-10">
+																<div class="edit" id="floorNavText">Sub-Category</div>
+															</div>
+															<div class="col-md-2">
+																<div class="arrow">
+																	<a href="javascript:void(0)" class="closebtn"
+																		onclick="closeNav()"><i class="ti-arrow-right"></i></a>
 																</div>
-																<div class="col-md-2">
-																	<div class="arrow">
-																		<a href="javascript:void(0)" class="closebtn"
-																			onclick="closeNav()"><i
-																			class="ti-arrow-right"></i></a>
-																	</div>
+															</div>
+															<div class="chartbtnsec">
+																<div class="row">
+																	<button class="btn4" onclick="closeNav()">CANCEL</button>
+																	<button class="btn3" id="dltSlideSubCat" onclick="">DELETE</button>
+																	<button class="btn1" id="subCatSave">SAVE</button>
 																</div>
-																<div class="chartbtnsec">
-																	<div class="row">
-																		<button class="btn4" onclick="closeNav()">CANCEL</button>
-																		<button class="btn3" onclick="">DELETE</button>
-																		<button class="btn1" id="floorSave">SAVE</button>
-																	</div>
+															</div>
+															<div class="col-md-12">
+																<div class="form-group">
+																	<span class="slide-span">Parent:</span><span id="subCatParentSpan" class="slide-span-text"></span>
 																</div>
-																<div class="col-md-12">
-																	<div class="form-group">
-																		<label>Id</label> <input type="text" id="floorId"
-																			class="form-control transparenttxtbox"
-																			placeholder=""> <input type="hidden"
-																			id="floorDBVal"> <input type="hidden"
-																			id="floorSlNoDBVal">
-																	</div>
+															</div>
+															<div class="col-md-12">
+																<div class="form-group">
+																	<label>Name</label> <input type="hidden"
+																		id="subCatId"> <input type="text"
+																		class="form-control transparenttxtbox" placeholder=""
+																		id="subCatName"> <input type="hidden" id="parentCat">
 																</div>
-																<div class="col-md-12">
-																	<div class="form-group">
-																		<label>Name</label> <input type="text"
-																			class="form-control transparenttxtbox"
-																			placeholder="" id="floorName">
-																	</div>
+															</div>
+															<div class="col-md-12">
+																<div class="form-group">
+																	<label>Description</label>
+																	<textarea class="form-control"
+																		id="subCatDesc"></textarea>
+																</div>
+															</div>
+															<div class="col-md-12">
+																<div class="form-group">
+																	<input type="checkbox" class="loc-chb" name="isSubCatActive"
+																		id="subCatStatus" value="1" checked> <label>Active</label>
 																</div>
 															</div>
 														</div>
 													</div>
+												</div>
 
-													<!-- Add Section -->
-													<div id="mySidenavCat" class="sidenav">
-														<div class="slidebox">
-															<div class="row">
-																<div class="col-md-10">
-																	<div class="edit" id="sectionNavText">Category</div>
+												<!-- Add Section -->
+												<div id="mySidenavCat" class="sidenav">
+													<div class="slidebox">
+														<div class="row">
+															<div class="col-md-10">
+																<div class="edit" id="sectionNavText">Category</div>
+															</div>
+															<div class="col-md-2">
+																<div class="arrow">
+																	<a href="javascript:void(0)" class="closebtn"
+																		onclick="closeCat()"><i class="ti-arrow-right"></i></a>
 																</div>
-																<div class="col-md-2">
-																	<div class="arrow">
-																		<a href="javascript:void(0)" class="closebtn"
-																			onclick="closeCat()"><i
-																			class="ti-arrow-right"></i></a>
-																	</div>
+															</div>
+															<div class="chartbtnsec">
+																<div class="row">
+																	<button class="btn4" onclick="closeCat()">CANCEL</button>
+																	<button class="btn3" id="deleteSlideCat">DELETE</button>
+																	<button class="btn1" id="categorySave">SAVE</button>
 																</div>
-																<div class="chartbtnsec">
-																	<div class="row">
-																		<button class="btn4" onclick="closeCat()">CANCEL</button>
-																		<button class="btn3" onclick="">DELETE</button>
-																		<button class="btn1" id="sectionSave">SAVE</button>
-																	</div>
+															</div>
+															<div class="col-md-12">
+																<div class="form-group">
+																	<label>Name</label> <input type="hidden"
+																		id="categoryId"> <input type="text"
+																		class="form-control transparenttxtbox" placeholder=""
+																		id="categoryName">
 																</div>
-																<div class="col-md-12">
-																	<div class="form-group">
-																		<label>Id</label> <input type="text" id="sectionId"
-																			class="form-control transparenttxtbox"
-																			placeholder=""> <input type="hidden"
-																			id="sectionDBVal"> <input type="hidden"
-																			id="floorSection"> <input type="hidden"
-																			id="floorSerialNo"> <input type="hidden"
-																			id="sectionSerialNo">
-																	</div>
+															</div>
+															<div class="col-md-12">
+																<div class="form-group">
+																	<label>Description</label>
+																	<textarea class="form-control"
+																		id="categoryDesc"></textarea>
 																</div>
-																<div class="col-md-12">
-																	<div class="form-group">
-																		<label>Name</label> <input type="text"
-																			class="form-control transparenttxtbox"
-																			placeholder="" id="sectionName">
-																	</div>
+															</div>
+															<div class="col-md-12">
+																<div class="form-group">
+																	<input type="checkbox" class="loc-chb" name="isActive"
+																		id="catStatus" value="1" checked> <label>Active</label>
 																</div>
 															</div>
 														</div>
@@ -315,6 +695,7 @@ function closeCat() {
 									</div>
 								</div>
 							</div>
+						</div>
 					</div>
 				</div>
 			</div>

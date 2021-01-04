@@ -2,11 +2,115 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layout/extend-master}">
+	layout:decorate="~{layout/master}">
 <head>  
 <script>
 
+
+	//ag grid
+	var columnDefs = [{
+		headerCheckboxSelection: true,
+		headerCheckboxSelectionFilteredOnly: true,
+		checkboxSelection: true,
+		width: 10,
+		sortable: false,
+		filter: false,
+		resizable: true
+	},
+	{
+		headerName: "Location ID",
+		field: "vendorLocationId",
+		cellRenderer: function (params) {
+			return '<a onclick=titlePage("' + params.data.vendorLocationId + '") href="javascript:void(0)">' + params.data.vendorLocationId + '</a>';
+		}
+	},
+	 {
+		headerName: "Location Name",
+		field: "vendorLocationName"
+		
+	}, 
+	{
+		headerName: "Location Type",
+		field: "vendorLocationType",
+		type: "rightAligned"
+	},
+	{
+		headerName: "Billing Status",
+		field: "vendorBillingStatus",
+		cellRenderer: function (params) {
+			if(params.data.vendorBillingStatus == "1"){
+				return '<i class="fa fa-check" aria-hidden="true"></i>';
+			}else{
+				return '';
+			}
+		}
+	},{
+		headerName: "Primary Status",
+		field: "vendorPrimaryStatus",
+		cellRenderer: function (params) {
+			if(params.data.vendorPrimaryStatus == "1"){
+				return '<i class="fa fa-check" aria-hidden="true"></i>';
+			}else{
+				return '';
+			}
+		}
+	},{
+		headerName: "Location",
+		field: "vendorLocAddress"
+		
+	},{
+		headerName: "Country",
+		field: "vendorCountry"
+		
+	},{
+		headerName: "State",
+		field: "vendorState"
+		
+	},{
+		headerName: "City",
+		field: "vendorCity"
+		
+	}];
+
+	var gridOptions = {
+		columnDefs: columnDefs,
+		defaultColDef: {
+			sortable: true,
+			filter: true,
+			resizable: true,
+			width: 149,
+			height: 10
+		}
+	};
+
+
+	//setup the grid after the page has finished loading
+	document.addEventListener('DOMContentLoaded', function() {
+	var gridDiv = document.querySelector('#myGrid');
+	new agGrid.Grid(gridDiv, gridOptions);
+
+
+	/* var myVendor = document.querySelector('#myGrid');
+	new agGrid.Grid(myVendor, gridOptionsChild);  */
+
+	});
+		
+			agGrid.simpleHttpRequest({
+		    	url : 'manage-vendor-master-through-ajax'
+		    }).then(function(data) {
+		    	console.log("dataa"+JSON.stringify(data))
+		    	gridOptions.api.setRowData(data);
+		    });
+
+	//ag grid end
+
+
+
 $(document).ready(function() {
+
+	
+	
+	
 	$('.collapse').on('show.bs.collapse', function() {
 		$(this).siblings('.panel-heading').addClass('active');
 	});
@@ -95,6 +199,7 @@ $(document).ready(function() {
 	
 	
 	//onchange of state and city end
+	//save vendor 
 	$("#saveVendor").click(function(){
 		
 		data = {};
@@ -110,6 +215,39 @@ $(document).ready(function() {
 		submitVendor(data);
 		
 	})
+	//save vendor end
+	//save vendor location
+	
+$("#saveVendorLocation").click(function(){
+		
+		data = {};
+		
+		data.vendorLocationName = $("#vendorLocationName").val();
+		data.vendorLocationType = $("#vendorLocationType").val();
+		data.vendorId = $("#vendorId").val();
+		data.vendorBillingStatus = $("input[name='isBillingActive']:checked").val();
+		data.vendorPrimaryStatus = $("input[name='isPrimaryActive']:checked").val();
+		data.vendorLocAddress = $("#vendorLocAddress").val();
+		data.vendorCountry = $("#vendorCountry").val();
+		data.vendorCity = $("#vendorCity").val();
+		data.vendorState = $("#vendorState").val();
+		submitVendorLocation(data);
+		/* gridOptions.api.setRowData(gridOptions.rowData) */
+		/* 
+		 var datas = [];
+		 gridOptions.api.forEachNode(function (rowNode, index) {
+			datas.push(rowNode.data);
+		});
+		datas.push(data)
+		gridOptions.api.setRowData(datas);
+		closeNav();
+		$("#vendorLocationName").html('');
+		$("#vendorLocationType").html('');
+		  */
+		
+	})
+	//save vendor location end
+	
 });
 function openNav() {
 	document.getElementById("mySidenav").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:850px;";
@@ -502,6 +640,40 @@ function submitVendor(dataset) {
         }
     })
 }
+function submitVendorLocation(dataset) {
+    console.log("location",dataset)
+    $.ajax({
+        type: "POST",
+        url: "manage-vendor-master-location-save",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(dataset),
+        success: function(response) {
+            if (response.message == "Success") {
+            	
+            	console.log(response.body)
+            	
+            	/* $("#myUL").show(); */
+            	agGrid.simpleHttpRequest({
+    		    	url : 'manage-vendor-master-through-ajax'
+    		    }).then(function(data) {
+    		    	console.log("dataa"+JSON.stringify(data))
+    		    	gridOptions.api.setRowData(data);
+    		    });
+
+            } else {
+                swal({
+                    title: response.code,
+                    text: response.message,
+                    type: "warning"
+                })
+            }
+        },
+        error: function(response) {
+            console.log(response);
+        }
+    })
+}
 </script>
 </head>
 <body>
@@ -663,7 +835,7 @@ function submitVendor(dataset) {
 										<div class="col-md-4">
 											<div class="form-group">
 												<label>Code</label> <input type="text" name="code" value="" id="vendorCode"
-													placeholder="Code" class="form-control" style="height:49px;">
+													placeholder="Code" class="form-control">
 											</div>
 										</div>
 
@@ -792,9 +964,9 @@ function submitVendor(dataset) {
 													</div>
 													<div class="chartbtnsec">
 														<div class="row">
-															<button class="btn4">CANCEL</button>
+															<button class="btn4" onclick="closeNav()" >CANCEL</button>
 															<button class="btn3">DELETE</button>
-															<button class="btn1">SAVE</button>
+															<button class="btn1"  id="saveVendorLocation">SAVE</button>
 														</div>
 													</div>
 													<div class="col-md-12 mt-15">
@@ -804,39 +976,46 @@ function submitVendor(dataset) {
 																placeholder="Marketing" id="vendorLocationId"> -->
 														</div>
 													</div>
-													<div class="col-md-12 mt-15">
-														<div class="form-group">
-															<label>Name</label> <input type="text"
-																class="form-control transparenttxtbox"
-																placeholder="Marketing" id="vendorLocationName">
-														</div>
-													</div>
-													<div class="col-md-12 mt-15">
-														<div class="form-group">
-															<label>Type</label> <input type="text"
-																class="form-control transparenttxtbox"
-																placeholder="Marketing" id="vendorLocationType">
-														</div>
-													</div>
-													<div class="row  mt-15" style="padding:0px 15px;">
-													<div class="col-md-6">
-														<div class="form-group">
-															<label  style="position: relative;top: 1px;">Billing</label> <input type="checkbox" name="isBillingActive" id="billingStatus"
-													value="1">
-														</div>
-													</div>
-													<div class="col-md-6"> 
-														<div class="form-group">
-															<label  style="position: relative;top: 1px;">Primary</label>  <input type="checkbox" name="isBillingActive" id="primaryStatus"
-													value="1">
-														</div>
-													</div>
-													</div>
-													<div class="col-md-12 mt-15">
+										<div class="col-md-12 mt-15">
+											<div class="form-group">
+												<label>Name</label> <input type="text"
+													class="form-control transparenttxtbox"
+													placeholder="Marketing" id="vendorLocationName">
+											</div>
+										</div>
+										<div class="col-md-12 mt-15">
+											<div class="form-group">
+												<label>Type</label>
+												<div class="select">
+													<select id="vendorLocationType">
+													<option th:value="NULL">Select</option>
+														<option th:each="c,iter:${locationTypeList}"
+															th:value="${c.key}" th:text="${c.name}"></option>
+													</select>
+												</div>
+											</div>
+										</div>
+										<div class="row  mt-15" style="padding: 0px 15px;">
+											<div class="col-md-6">
+												<div class="form-group">
+													<label style="position: relative; top: 1px;">Billing</label>
+													<input type="checkbox" name="isBillingActive"
+														id="billingStatus" value="1">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label style="position: relative; top: 1px;">Primary</label>
+													<input type="checkbox" name="isPrimaryActive"
+														id="primaryStatus" value="1">
+												</div>
+											</div>
+										</div>
+										<div class="col-md-12 mt-15">
 														<div class="form-group">
 															<label>Address</label> <input type="text"
 																class="form-control transparenttxtbox"
-																placeholder="Marketing">
+																placeholder="Marketing" id="vendorLocAddress">
 														</div>
 													</div>
 													
@@ -925,8 +1104,9 @@ function submitVendor(dataset) {
 									</div>
 
 								</div>
+								<div id="myGrid" style="width:100%; height:100px;" class="ag-theme-alpine"></div>
 
-								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+						<!-- 		<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
 									<thead>
 										<tr>
 											<th align="center" width="20"><input type="checkbox"
@@ -963,7 +1143,7 @@ function submitVendor(dataset) {
 											<td align="center">9-Oct-2020</td>
 										</tr>
 									</tbody>
-								</table>
+								</table> -->
 
 							</div>
 							</div>

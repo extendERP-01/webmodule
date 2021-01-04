@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -20,10 +21,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import nirmalya.aathithya.webmodule.common.utils.DropDownModel;
 import nirmalya.aathithya.webmodule.common.utils.EnvironmentVaribles;
@@ -163,33 +168,6 @@ public class VendorMasterController {
 		logger.info("Method : saveVendorMaster starts");
 		return resp;
 	}
-	
-	@SuppressWarnings("unchecked")
-	@PostMapping(value = { "manage-vendor-master-get-state-list" })
-	public @ResponseBody JsonResponse<Object> getStateNameForLocation(Model model, @RequestBody String tCountry,
-			BindingResult result) {
-		logger.info("Method : getStateNameForLocation starts");
-		
-		JsonResponse<Object> res = new JsonResponse<Object>();
-		
-		try {
-			res = restClient.getForObject(env.getMasterUrl() + "getStateListForLoc?id=" + tCountry,
-					JsonResponse.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		if (res.getMessage() != null) {
-			res.setCode(res.getMessage());
-			res.setMessage("Unsuccess");
-		} else {
-			res.setMessage("success");
-		}
-		
-		logger.info("Method : getStateNameForLocation ends");
-		return res;
-
-	}
-	
 	public String saveAllImage(byte[] imageBytes, String ext) {
 		logger.info("Method : saveAllImage starts");
 		
@@ -256,5 +234,102 @@ public class VendorMasterController {
 		
 		logger.info("Method : saveVendorLocationMaster starts");
 		return resp;
+	}
+
+	@SuppressWarnings("unchecked")
+	@PostMapping(value = { "manage-vendor-master-get-state-list" })
+	public @ResponseBody JsonResponse<Object> getStateNameForLocationVendor(Model model, @RequestBody String tCountry,
+			BindingResult result) {
+		logger.info("Method : getStateNameForLocation starts");
+
+		JsonResponse<Object> res = new JsonResponse<Object>();
+
+		try {
+			res = restClient.getForObject(env.getMasterUrl() + "getStateListForLoc?id=" + tCountry, JsonResponse.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (res.getMessage() != null) {
+			res.setCode(res.getMessage());
+			res.setMessage("Unsuccess");
+		} else {
+			res.setMessage("success");
+		}
+
+		logger.info("Method : getStateNameForLocation ends");
+		return res;
+
+	}
+	@SuppressWarnings("unchecked")
+	@GetMapping("manage-vendor-master-data-through-ajax")
+	public @ResponseBody List<VendorMasterModel> vendorThroughAjax(Model model, HttpServletRequest request) {
+		logger.info("Method : vendorThroughAjax starts");
+
+		JsonResponse<List<VendorMasterModel>> jsonResponse = new JsonResponse<List<VendorMasterModel>>();
+
+		try {
+
+			jsonResponse = restClient.getForObject(env.getMasterUrl() + "get-vendor-list", JsonResponse.class);
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			List<VendorMasterModel> addreq = mapper.convertValue(jsonResponse.getBody(),
+					new TypeReference<List<VendorMasterModel>>() {
+					});
+		/*	for (AddRecruitentModel m : addreq) {
+				if (m.getActivityStatus() == "1") {
+					m.setActivityStatus("Created");
+				} else if (m.getActivityStatus() == "2") {
+					m.setActivityStatus("Active");
+				} else if (m.getActivityStatus() == "3") {
+					m.setActivityStatus("Closed");
+				}
+			}*/
+			jsonResponse.setBody(addreq);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Method ; vendorThroughAjax ends");
+		System.out.println("###########" + jsonResponse.getBody());
+
+		return jsonResponse.getBody();
+	}
+	@SuppressWarnings("unchecked")
+	@GetMapping("manage-vendor-master-through-ajax")
+	public @ResponseBody List<VendorLocationMasterModel> vendorLocationThroughAjax(Model model, HttpServletRequest request) {
+		logger.info("Method : vendorLocationThroughAjax starts");
+
+		JsonResponse<List<VendorLocationMasterModel>> jsonResponse = new JsonResponse<List<VendorLocationMasterModel>>();
+
+		try {
+
+			jsonResponse = restClient.getForObject(env.getMasterUrl() + "get-vendor-location-list", JsonResponse.class);
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			List<VendorLocationMasterModel> addreq = mapper.convertValue(jsonResponse.getBody(),
+					new TypeReference<List<VendorLocationMasterModel>>() {
+					});
+		/*	for (AddRecruitentModel m : addreq) {
+				if (m.getActivityStatus() == "1") {
+					m.setActivityStatus("Created");
+				} else if (m.getActivityStatus() == "2") {
+					m.setActivityStatus("Active");
+				} else if (m.getActivityStatus() == "3") {
+					m.setActivityStatus("Closed");
+				}
+			}*/
+			jsonResponse.setBody(addreq);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Method ; vendorLocationThroughAjax ends");
+		System.out.println("###########" + jsonResponse.getBody());
+
+		return jsonResponse.getBody();
 	}
 }

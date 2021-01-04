@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class VendorLocationMasterModel {
 	private String vendorLocationId;
+	private String vendorId;
 	private String vendorLocationName;
 	private String vendorLocationType;
 	private String vendorBillingStatus;
@@ -24,6 +25,12 @@ public class VendorLocationMasterModel {
 	}
 	public void setVendorLocationId(String vendorLocationId) {
 		this.vendorLocationId = vendorLocationId;
+	}
+	public String getVendorId() {
+		return vendorId;
+	}
+	public void setVendorId(String vendorId) {
+		this.vendorId = vendorId;
 	}
 	public String getVendorLocationName() {
 		return vendorLocationName;

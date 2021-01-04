@@ -3,6 +3,14 @@
 <head>
 <title>Extend</title>
 <script type="text/javascript">
+	/* FORM VALIDATION FUNCTION STARTS */
+	function validationModal(msg,id){
+		var divId = id+"Div";
+		var div = "<div class='formValidation'>" + msg + "</div>";
+		$('#'+id).after(div);	
+	}
+	/* FORM VALIDATION FUNCTION ENDS */
+
 	$(document).ready(function() {
 		$("ul.tabs li:first").addClass("active").show(); //Activate first tab
 		$(".tab_content:first").show(); //Show first tab content 		

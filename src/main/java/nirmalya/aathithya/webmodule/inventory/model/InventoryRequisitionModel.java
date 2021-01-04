@@ -21,6 +21,7 @@ public class InventoryRequisitionModel {
 	private String itemCategoryId;
 	private String itemCategoryName;
 	private String uom;
+	private String uomId;
 	private Double qty;
 	private String lastPoDate;
 	private Double estimatedPrice;
@@ -29,11 +30,17 @@ public class InventoryRequisitionModel {
 	private Double lastPurchaseTotalPrice;
 	private Double quantity;
 	private String location;
+	private String locationId;
 	private String costCenter;
+	private String costCenterId;
 	private String createdBy;
 	private String createdOn;
 	private String updatedon;
 	private String updatedBy;
+
+	private String moduleId;
+	private String componentId;
+	private String subComponentId;
 
 	public InventoryRequisitionModel() {
 		super();
@@ -253,6 +260,54 @@ public class InventoryRequisitionModel {
 
 	public void setUpdatedBy(String updatedBy) {
 		this.updatedBy = updatedBy;
+	}
+
+	public String getUomId() {
+		return uomId;
+	}
+
+	public void setUomId(String uomId) {
+		this.uomId = uomId;
+	}
+
+	public String getLocationId() {
+		return locationId;
+	}
+
+	public void setLocationId(String locationId) {
+		this.locationId = locationId;
+	}
+
+	public String getCostCenterId() {
+		return costCenterId;
+	}
+
+	public void setCostCenterId(String costCenterId) {
+		this.costCenterId = costCenterId;
+	}
+
+	public String getModuleId() {
+		return moduleId;
+	}
+
+	public void setModuleId(String moduleId) {
+		this.moduleId = moduleId;
+	}
+
+	public String getComponentId() {
+		return componentId;
+	}
+
+	public void setComponentId(String componentId) {
+		this.componentId = componentId;
+	}
+
+	public String getSubComponentId() {
+		return subComponentId;
+	}
+
+	public void setSubComponentId(String subComponentId) {
+		this.subComponentId = subComponentId;
 	}
 
 	@Override

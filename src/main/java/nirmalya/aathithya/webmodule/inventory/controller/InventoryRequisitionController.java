@@ -1,9 +1,9 @@
 package nirmalya.aathithya.webmodule.inventory.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -92,7 +93,7 @@ public class InventoryRequisitionController {
 		} catch (RestClientException e) {
 			e.printStackTrace();
 		}
-		
+
 		/**
 		 * get DropDown value for Requisition Type
 		 *
@@ -106,41 +107,51 @@ public class InventoryRequisitionController {
 		} catch (RestClientException e) {
 			e.printStackTrace();
 		}
-		
-		
+
+		/**
+		 * get DropDown value for Requisition Type
+		 *
+		 */
+
+		try {
+			DropDownModel[] dropDownModel = restTemplate.getForObject(env.getInventoryUrl() + "get-uom",
+					DropDownModel[].class);
+			List<DropDownModel> uomList = Arrays.asList(dropDownModel);
+			model.addAttribute("uomList", uomList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
 		logger.info("Method : generateInventoryStockReport ends");
 		return "inventory/view-requisition";
 
 	}
 
 	/*
-	 * view throughAjax
+	 * for edit
 	 * 
 	 * 
 	 */
 	@GetMapping(value = { "view-requisition-item-trough-ajax" })
-	public @ResponseBody List<InventoryRequisitionModel> viewStockThroughAjax(Model model, HttpServletRequest request,
+	public @ResponseBody List<InventoryRequisitionModel> viewRequsitionEdit(@RequestParam String id,
 			HttpSession session) {
-		logger.info("Method : viewStockThroughAjax starts");
+		logger.info("Method : viewRequsitionEdit starts");
 		JsonResponse<List<InventoryRequisitionModel>> jsonResponse = new JsonResponse<List<InventoryRequisitionModel>>();
-		String userId = "";
-		try {
-			userId = (String) session.getAttribute("USER_ID");
-		} catch (Exception e1) {
-			e1.printStackTrace();
+
+		if (id != null && id != "") {
+			try {
+				InventoryRequisitionModel[] inventoryStockModel = restTemplate.getForObject(
+						env.getInventoryUrl() + "get-requisition-edit?id=" + id, InventoryRequisitionModel[].class);
+				List<InventoryRequisitionModel> productList = Arrays.asList(inventoryStockModel);
+
+				jsonResponse.setBody(productList);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			jsonResponse.setBody(new ArrayList<InventoryRequisitionModel>());
 		}
-
-		try {
-
-			InventoryRequisitionModel[] inventoryStockModel = restTemplate.getForObject(
-					env.getInventoryUrl() + "get-requisition-item-list", InventoryRequisitionModel[].class);
-			List<InventoryRequisitionModel> productList = Arrays.asList(inventoryStockModel);
-
-			jsonResponse.setBody(productList);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		logger.info("Method : viewStockThroughAjax ends");
+		logger.info("Method : viewRequsitionEdit ends");
 		return jsonResponse.getBody();
 	}
 
@@ -175,8 +186,7 @@ public class InventoryRequisitionController {
 	@SuppressWarnings("unchecked")
 	@PostMapping(value = "view-requisition-save-th-ajax")
 	public @ResponseBody JsonResponse<Object> saveItemRequisition(
-			@RequestBody List<InventoryRequisitionModel> inventoryItemRequisitionModel,  
-			HttpSession session) {
+			@RequestBody List<InventoryRequisitionModel> inventoryItemRequisitionModel, HttpSession session) {
 		logger.info("Method : saveItemRequisition function starts");
 		JsonResponse<Object> res = new JsonResponse<Object>();
 		String userId = "";
@@ -184,13 +194,13 @@ public class InventoryRequisitionController {
 			userId = (String) session.getAttribute("USER_ID");
 		} catch (Exception e) {
 
-		} 
+		}
 		for (InventoryRequisitionModel m : inventoryItemRequisitionModel) {
 			m.setCreatedBy(userId);
 		}
 		try {
 
-			res = restTemplate.postForObject(env.getInventoryUrl() + "rest-requisition",
+			res = restTemplate.postForObject(env.getInventoryUrl() + "rest-add-requisition",
 					inventoryItemRequisitionModel, JsonResponse.class);
 		} catch (RestClientException e) {
 			e.printStackTrace();
@@ -204,6 +214,134 @@ public class InventoryRequisitionController {
 			res.setMessage("Success");
 		}
 		logger.info("Method : saveItemRequisition function Ends");
+		return res;
+	}
+
+	/**
+	 * Web Controller - Get Item List By AutoSearch
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@PostMapping(value = { "/view-requisition-get-product-list" })
+	public @ResponseBody JsonResponse<InventoryRequisitionModel> getItemAutoSearchList(Model model,
+			@RequestBody String searchValue, BindingResult result) {
+		logger.info("Method : getItemAutoSearchList starts");
+
+		JsonResponse<InventoryRequisitionModel> res = new JsonResponse<InventoryRequisitionModel>();
+
+		try {
+			res = restTemplate.getForObject(env.getInventoryUrl() + "getProductListByAutoSearch?id=" + searchValue,
+					JsonResponse.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (res.getMessage() != null) {
+
+			res.setCode(res.getMessage());
+			res.setMessage("Unsuccess");
+		} else {
+			res.setMessage("success");
+		}
+
+		logger.info("Method : getItemAutoSearchList ends");
+		return res;
+	}
+
+	/*
+	 * view throughAjax
+	 * 
+	 * 
+	 */
+	@GetMapping(value = { "view-requisition-trough-ajax" })
+	public @ResponseBody List<InventoryRequisitionModel> viewRequisitionThroughAjax(HttpSession session) {
+		logger.info("Method : viewRequisitionThroughAjax starts");
+		JsonResponse<List<InventoryRequisitionModel>> jsonResponse = new JsonResponse<List<InventoryRequisitionModel>>();
+
+		try {
+
+			InventoryRequisitionModel[] inventoryStockModel = restTemplate.getForObject(
+					env.getInventoryUrl() + "get-requisition-view-list", InventoryRequisitionModel[].class);
+			List<InventoryRequisitionModel> productList = Arrays.asList(inventoryStockModel);
+
+			jsonResponse.setBody(productList);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Method : viewRequisitionThroughAjax ends");
+		return jsonResponse.getBody();
+	}
+
+	/*
+	 * post Mapping for delete ItemRequisition
+	 * 
+	 */
+	@SuppressWarnings("unchecked")
+	@PostMapping(value = "view-requisition-delete-th-ajax")
+	public @ResponseBody JsonResponse<Object> deleteItemRequisition(
+			@RequestBody InventoryRequisitionModel inventoryItemRequisitionModel, HttpSession session) {
+		logger.info("Method : deleteItemRequisition function starts");
+		JsonResponse<Object> res = new JsonResponse<Object>();
+		String userId = "";
+		try {
+			userId = (String) session.getAttribute("USER_ID");
+			inventoryItemRequisitionModel.setCreatedBy(userId);
+		} catch (Exception e) {
+
+		}
+		try {
+
+			res = restTemplate.postForObject(env.getInventoryUrl() + "rest-delete-requisition",
+					inventoryItemRequisitionModel, JsonResponse.class);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		String message = res.getMessage();
+
+		if (message != null && message != "") {
+
+		} else {
+			res.setMessage("Success");
+		}
+		logger.info("Method : deleteItemRequisition function Ends");
+		return res;
+	}
+
+	/*
+	 * post Mapping for approve ItemRequisition
+	 * 
+	 */
+	@SuppressWarnings("unchecked")
+	@PostMapping(value = "view-requisition-approve-th-ajax")
+	public @ResponseBody JsonResponse<Object> approveItemRequisition(
+			@RequestBody InventoryRequisitionModel inventoryItemRequisitionModel, HttpSession session) {
+		logger.info("Method : approveItemRequisition function starts");
+		JsonResponse<Object> res = new JsonResponse<Object>();
+		String userId = "";
+		try {
+			userId = (String) session.getAttribute("USER_ID");
+			inventoryItemRequisitionModel.setCreatedBy(userId);
+		} catch (Exception e) {
+
+		}
+		try {
+
+			res = restTemplate.postForObject(env.getInventoryUrl() + "rest-approve-requisition",
+					inventoryItemRequisitionModel, JsonResponse.class);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		String message = res.getMessage();
+
+		if (message != null && message != "") {
+
+		} else {
+			res.setMessage("Success");
+		}
+		logger.info("Method : approveItemRequisition function Ends");
 		return res;
 	}
 }

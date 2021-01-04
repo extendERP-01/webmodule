@@ -6,14 +6,14 @@
 <head>
 <script>
 	function openNav() {
-		document.getElementById("mySidenav").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:370px;";
+		document.getElementById("mySidenav").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:auto;";
 
 		document.getElementById("main_content").style.width = "83%";
 	}
 
 	function closeNav() {
 		document.getElementById("mySidenav").style.width = "0";
-		document.getElementById("main_content").style.width = "100%";
+		document.getElementById("main_content").style.width = "103%";
 	}
 </script>
 
@@ -309,35 +309,26 @@ $(document).ready(function() {
 
 
 <script type="text/javascript">
-	$(document).ready(function() {
+	var data1 = {};
+	function submitCountryType() {
+		
+		
+		data1.countryOrderId = $("#countryOrderId").val();
+		data1.countryCode = $("#countryCode").val();
+		data1.countryName = $("#countryName").val();
+		data1.countryStatus = $("#countryStatus").val();
 
-		$("#saveCountryType").click(function() {
-			
-			data = {};
-			data.globalId = $("#globalId").val();
-			data.countryOrderId = $("#countryOrderId").val();
-			data.countryCode = $("#countryCode").val();
-			data.countryName = $("#countryName").val();
-			data.countryStatus = $("#countryStatus").val();
-
-			console.log("data", data)
-
-			submitCountryType(data);
-
-		})
-	})
-	function submitCountryType(dataset) {
-		console.log(dataset)
+		console.log("data", data1)
+		
 		$.ajax({
 			type : "POST",
 			url : "geography-master-country-type",
 			dataType : "json",
 			contentType : "application/json",
-			data : JSON.stringify(dataset),
+			data : JSON.stringify(data1),
 			success : function(response) {
 				if (response.message == "Success") {
 
-					console.log(response.body)
 
 				} else {
 					swal({
@@ -352,55 +343,47 @@ $(document).ready(function() {
 			}
 		})
 	}
+	
+	
+	var columnDefs = [
+		
+		{headerName: "Order", field: "countryOrderId",width:70},
+		{headerName: "Code", field: "countryCode"},
+		{headerName: "Country Name", field: "countryName"},
+		{headerName: "Status", field: "countryStatus"}
+		];
+
+		var gridOptions = {
+		columnDefs: columnDefs,
+		defaultColDef: {
+		sortable: true,
+		filter: true,
+		resizable: true,
+		width: 88,
+		height: 10
+		}
+
+		};
+
+
+		// setup the grid after the page has finished loading
+		document.addEventListener('DOMContentLoaded', function() {
+		var gridDiv = document.querySelector('#myGrid');
+		new agGrid.Grid(gridDiv, gridOptions);
+
+		});
+		
+		agGrid.simpleHttpRequest({url: 'geography-master-country-type-view'}).then(function(data) {
+		
+		data.push(data1);
+		
+		gridOptions.api.setRowData(data);
+		});
+	
 </script>
 
 
 
-<!-- <script type="text/javascript">
-	$(document).ready(function() {
-
-		$("#saveCountryType").click(function() {
-			alert("error");
-			data = {};
-			data.globalId = $("#globalId").val();
-			data.globalOrderId = $("#globalOrderId").val();
-			data.globalCode = $("#globalCode").val();
-			data.globalState = $("#globalState").val();
-			data.globalStatus = $("#globalStatus").val();
-
-			console.log("data", data)
-
-			submitCountryType(data);
-
-		})
-	})
-	function submitCountryType(dataset) {
-		console.log(dataset)
-		$.ajax({
-			type : "POST",
-			url : "geography-master-country-type",
-			dataType : "json",
-			contentType : "application/json",
-			data : JSON.stringify(dataset),
-			success : function(response) {
-				if (response.message == "Success") {
-
-					console.log(response.body)
-
-				} else {
-					swal({
-						title : response.code,
-						text : response.message,
-						type : "warning"
-					})
-				}
-			},
-			error : function(response) {
-				console.log(response);
-			}
-		})
-	}
-</script> -->
 </head>
 
 <body>
@@ -428,7 +411,7 @@ $(document).ready(function() {
 														aria-expanded="true" aria-controls="collapseOne">
 														Select Global </a>
 												</h4>
-												
+												<hr style="width: 99%; left: -10px">
 											</div>
 
 											<div id="collapseOne" class="panel-collapse collapse show"
@@ -455,38 +438,7 @@ $(document).ready(function() {
 
 															</div>
 															<div class="box_reference" align="center">
-																<table id="table" class="table table-bordered newtbl">
-																	<tr>
-																		<td align="center">Order</td>
-																		<td align="center">Code</td>
-																		<td align="center">Country Name</td>
-																		<td align="center">Status</td>
-																	</tr>
-																	<tr>
-																		<td>1</td>
-																		<td>IN</td>
-																		<td>India</td>
-																		<td class="active_colotxt">Active</td>
-																	</tr>
-																	<tr>
-																		<td>2</td>
-																		<td>US</td>
-																		<td>United States</td>
-																		<td class="active_colotxt">Active</td>
-																	</tr>
-																	<tr>
-																		<td>3</td>
-																		<td>UK</td>
-																		<td>United Kingdom</td>
-																		<td class="active_colotxt">Active</td>
-																	</tr>
-																	<tr>
-																		<td>4</td>
-																		<td>CA</td>
-																		<td>Canada</td>
-																		<td>Inactive</td>
-																	</tr>
-																</table>
+																<div id="myGrid" style="width:100%; height:140px;" class="ag-theme-alpine"></div>
 															</div>
 														</div>
 
@@ -635,7 +587,7 @@ $(document).ready(function() {
 																		<div class="row">
 																			<button class="btn4">CANCEL</button>
 																			<button class="btn3">DELETE</button>
-																			<button class="btn1" id="saveCountryType">SAVE</button>
+																			<button class="btn1"  onclick="submitCountryType()">SAVE</button>
 																		</div>
 																	</div>
 																	<div class="col-md-12">
@@ -652,7 +604,7 @@ $(document).ready(function() {
 																			<label>Name</label> <input type="text"
 																				id="countryName"
 																				class="form-control transparenttxtbox"
-																				placeholder="India">
+																				placholder="India">
 																		</div>
 																	</div>
 
@@ -661,8 +613,8 @@ $(document).ready(function() {
 																		<div class="form-group">
 																			<label>Status</label> <select id="countryStatus"
 																				class="form-control">
-																				<option value="active">Active</option>
-																				<option value="inactive">Inactive</option>
+																				<option value="Active">Active</option>
+																				<option value="Inactive">Inactive</option>
 																			</select>
 																		</div>
 																	</div>

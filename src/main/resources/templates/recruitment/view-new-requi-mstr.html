@@ -98,6 +98,7 @@ function newBtn(){
             $("#hideTbl").show();
             $("#btnReset").show();
             $("#demo").hide();
+            $(".formValidation").remove();
         });
 
          $("#copycancelBtn").click(function(){
@@ -481,30 +482,86 @@ var userRole = [];
 		obj.approver = approverName;
 		obj.about = aboutComp;
 		
-		console.log(obj)
-		$.ajax({
-			type		: "POST",
-			url 		: "view-new-requi-mstr-ajax",
-			contentType	: "application/json",
-			data		: JSON.stringify(obj),
-			/* async 		: false, */
-			success		: function(response){
-				console.log(response);
-				if(response.message=="Success"){
+		console.log(obj);
+		
+		/* FORM VALIDATION STARTS*/
+		$(".formValidation").remove();
+		allValid = true;
+		if( obj.jobTitle == null || obj.jobTitle == ""){
+			allValid = false;
+			validationModal("JobTitle Required","jobTitle");
+		} 
+		if(obj.jobType == null || obj.jobType == ""){
+			allValid = false;
+			validationModal("JobType Required","jobType");
+		} 
+		if(obj.jobLocation == null || obj.jobLocation == ""){
+			allValid = false;
+			validationModal("Location Required","location");
+		}
+		if(obj.minEducation == null || obj.minEducation == ""){
+			allValid = false;
+			validationModal("Minimum Education Required","educationReq");
+		}
+		if(obj.minSalary == null || obj.minSalary == ""){
+			allValid = false;
+			validationModal("Minimum Salary Required","minSalary");
+		}
+		
+		if(obj.maxSalary == null || obj.maxSalary == ""){
+			allValid = false;
+			validationModal("Maximum Salary Required","maxSalary");
+		}
+		if(obj.department == null || obj.department == ""){
+			allValid = false;
+			validationModal("Department Name Required","dept");
+		}
+		if(obj.hiringManager == null || obj.hiringManager == ""){
+			allValid = false;
+			validationModal("Hiring Manager Name Required","hiringManager");
+		}
+		if(obj.workHour == null || obj.workHour == ""){
+			allValid = false;
+			validationModal("Working Hour Required","workHour");
+		}
+		if(obj.band == null || obj.band == ""){
+			allValid = false;
+			validationModal("Band Required","band");
+		}
+		if(obj.joinDate == null || obj.joinDate == ""){
+			allValid = false;
+			validationModal("Joining Date Required","dateReq");
+		}
+		/* FORM VALIDATION ENDS*/
+		
+		
+		if(allValid){
+			
+			$.ajax({
+				type		: "POST",
+				url 		: "view-new-requi-mstr-ajax",
+				contentType	: "application/json",
+				data		: JSON.stringify(obj),
+				/* async 		: false, */
+				success		: function(response){
+					console.log(response);
+					if(response.message=="Success"){
+						
+								window.location.href = "/recruitment/view-new-requi-mstr";
+					}/* else{
+						swal({
+							title:response.code,
+							text: response.message,
+							type:"warning"
+						})
+					} */
+				},error		: function(data){
 					
-							window.location.href = "/recruitment/view-new-requi-mstr";
-				}/* else{
-					swal({
-						title:response.code,
-						text: response.message,
-						type:"warning"
-					})
-				} */
-			},error		: function(data){
-				
-				console.log(data);
-			}
-		}) //ajax ends
+					console.log(data);
+				}
+			}) //ajax ends
+		}
+		
 	}
 	
 	
@@ -642,6 +699,11 @@ function copyBtn(){
 	
 	//var gridOptions1 = {};
 	
+	function validRemove(event){
+		var id = event.target.id;
+		$('#'+id).next('div').remove();
+	}
+	
 	
 </script>
    </head>
@@ -777,7 +839,7 @@ function copyBtn(){
 <div class="col-md-4">
 <div class="form-group">
     <label>Job Title</label>
-    <input type="text" class="form-control" id="jobTitle" placeholder="Type Job Title">
+    <input type="text" class="form-control" id="jobTitle" onkeyup="validRemove(event)" placeholder="Type Job Title">
   </div>
 </div>
 <!-- <div class="col-md-4">
@@ -796,7 +858,7 @@ function copyBtn(){
 <div class="form-group">
     <label>Job Type</label>
     <div class="select">
-    <select id="jobType">
+    <select id="jobType" onchange="validRemove(event)">
     <option value="">Select Job Type</option>
       <option th:each="c,iter:${jobTypeList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
@@ -808,7 +870,7 @@ function copyBtn(){
     <div class="form-group">
     <label>Job Location</label>
      <div class="select">
-    <select id="location">
+    <select id="location" onchange="validRemove(event)">
       <option value="">Select Location</option>
       <option th:each="c,iter:${jobLocationList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
@@ -821,7 +883,7 @@ function copyBtn(){
     <div class="form-group">
     <label>Minimum Education Required</label>
     <div class="select">
-    <select id="educationReq" >
+    <select id="educationReq" onchange="validRemove(event)">
       <option value="">Select  Education</option>
       <option th:each="c,iter:${educationList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
@@ -833,20 +895,20 @@ function copyBtn(){
 <div class="col-md-4">
     <div class="form-group">
     <label>Annual Salary Range (Minimum)</label>
-      <input type="text" data-type="currency" class="form-control" id="minSalary" placeholder="Annual Salary">
+      <input type="text" data-type="currency" class="form-control" id="minSalary" onkeyup="validRemove(event)" placeholder="Annual Salary">
   </div>
 </div>
 <div class="col-md-4">
     <div class="form-group">
     <label>Annual Salary Range (Maximum)</label>
-     <input type="text" class="form-control" id="maxSalary" placeholder="Annual Salary">
+     <input type="text" class="form-control" id="maxSalary" onkeyup="validRemove(event)" placeholder="Annual Salary">
   </div>
 </div>
 <div class="col-md-4">
     <div class="form-group">
     <label>Department</label>
      <div class="select">
-  	 <select  id="dept" >
+  	 <select  id="dept" onchange="validRemove(event)">
   	 <option value="">Select Department</option>
       <option th:each="c,iter:${DepartmentList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
@@ -859,7 +921,7 @@ function copyBtn(){
 <div class="form-group">
     <label>Hiring Manager</label>
      <div class="select">
-   <select id="hiringManager" >
+   <select id="hiringManager" onchange="validRemove(event)">
       <option value="">Select Manager</option>
       <option th:each="c,iter:${managerList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
@@ -880,7 +942,7 @@ function copyBtn(){
     <div class="form-group">
     <label>Excepted Work hours</label>
     <div class="select">
-    <select id="workHour" >
+    <select id="workHour" onchange="validRemove(event)">
       <option value="">Select Work Hour</option>
       <option th:each="c,iter:${workHourList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
@@ -893,7 +955,7 @@ function copyBtn(){
     <div class="form-group">
     <label>Band</label>
     <div class="select">
-    <select id="band" >
+    <select id="band" onchange="validRemove(event)">
     <option value="">Select Band</option>
       <option th:each="c,iter:${bandList}" th:value="${c.key}"
 			th:text="${c.name}"></option>
@@ -905,7 +967,7 @@ function copyBtn(){
 <div class="col-md-4">
 	<div class="form-group">
     	<label>Joining Date</label>
-      	<input type="date" id="dateReq" class="form-control" >
+      	<input type="date" id="dateReq" class="form-control" onkeyup="validRemove(event)">
 	</div>
 </div>
 
@@ -950,7 +1012,7 @@ function copyBtn(){
             <div class="row">
                 <div class="col-4 col-md-4">
                     <div class="checkbox">
-                      <label><input type="checkbox" id="approvalCheck" onclick="approval()">Need Approval</label>
+                      <span class="green-cls"><input type="checkbox" id="approvalCheck" onclick="approval()">Need Approval</span>
                     </div>
                 </div>
                 <div class="col-4 col-md-4" id="approvalName">
@@ -968,7 +1030,7 @@ function copyBtn(){
      
 	   <div class="col-md-12">
 		   <div class="checkbox">
-			   <label><input type="checkbox" class="about" onclick="about()">Include about company</label>
+			   <span class="green-cls"><input type="checkbox" class="about" onclick="about()">Include about company</span>
 		</div>
 		</div>
 	<div class="col-md-12" id="aboutCompany" style="display: none;">

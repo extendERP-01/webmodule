@@ -20,10 +20,14 @@
 	position: relative;
 	top: 4px;
 }
+
+.holdCls {
+	background-color: rgb(0, 143, 0);
+}
 </style>
 <script type="text/javascript">
 	function openNav() {
-		document.getElementById("mySidenav").style.cssText = "width: 350px; position: absolute; right:-30px; overflow: hidden; height:770px; top:200px;";
+		document.getElementById("mySidenav").style.cssText = "width: 350px; position: absolute; right:-30px; overflow: hidden; height:auto; top:200px;";
 
 		document.getElementById("main_content").style.width = "72%";
 	}
@@ -67,15 +71,7 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		changeOpt();
-		/* $("#lineGraphDiv").hide(); */
-
-		/* $("#receiveDate").datetimepicker({
-			format : 'd-m-Y',
-			closeOnDateSelect : true,
-			timepicker : false,
-		})
-		 */
+		//changeOpt();
 
 		$('.collapse').on('show.bs.collapse', function() {
 			$(this).siblings('.panel-heading').addClass('active');
@@ -90,6 +86,13 @@
 			$(".btn-hs").hide();
 			$("#demo").show();
 		})
+/* 
+		$("#copyBtn").click(function() {
+			$("#myGrid").hide();
+			$("#reqTable").hide();
+			$(".btn-hs").hide();
+			$("#demo").show();
+		}) */
 
 		$("#cancelBtn").click(function() {
 			$("#reqTable").show();
@@ -104,6 +107,12 @@
 			$("#demo").show();
 		})
 
+		$("#receiveDate").datetimepicker({
+			format : 'd-m-Y',
+			closeOnDateSelect : true,
+			timepicker : false,
+		})
+
 	});
 
 	$("input[class='myCheckbox']").click(function() {
@@ -113,18 +122,6 @@
 			$(".checkSubmit").removeClass('active');
 		}
 	});
-
-	function changeOpt() {
-		var Category = $("#Category").val();
-		$("#type").empty();
-		if (Category == 'Product') {
-			var option = "<option id='ProductOpt'>Software</option> <option id='ProductOpt'>Hardware</option> <option id='ProductOpt'>Office</option> <option id='ProductOpt'>Food</option> <option id='ProductOpt'>Parts</option> <option id='ProductOpt'>Raw Material</option>";
-			$("#type").append(option);
-		} else {
-			var option = "<option id='ServicesOpt'>Credit Card</option> <option id='ServicesOpt'>Bank</option> <option id='ServicesOpt'>Insurance</option> <option id='ServicesOpt'>Financial Service</option> <option id='ServicesOpt'>Government Agency</option> <option id='ServicesOpt'>GOffice Maintenance</option> <option id='ServicesOpt'>Consulting</option>";
-			$("#type").append(option);
-		}
-	}
 
 	function cancelBar() {
 		var id = document.getElementById("closeKey");
@@ -145,52 +142,33 @@
 		resizable : true,
 		width : 20
 	}, {
-		headerName : "Req Id",
-		field : "sku"
+		headerName : "Requisition Id",
+		field : "reqId"
 
 	}, {
 		headerName : "Description",
-		field : "brand"
+		field : "desc"
 	}, {
 		headerName : "Type",
-		field : "brand"
+		field : "reqType"
 	}, {
 		headerName : "Priority",
-		field : "itemName"
-
-	}, {
-		headerName : "Location",
-		field : "model"
-
-	}, {
-		headerName : "Cost Center",
-		field : "mode"
-
-	}, {
-		headerName : "Quantity",
-		field : "uom",
-		type : 'rightAligned'
-
-	}, {
-		headerName : "Estimated Price",
-		field : "minStock",
-		type : 'rightAligned'
+		field : "reqPrior"
 
 	}, {
 		headerName : "Receive By Date",
-		field : "stockInHand"
+		field : "receiveDate"
 
 	}, {
 		headerName : "Status",
-		field : "stockInTransit"
-
+		field : "holdStatus"
 	}, {
 		headerName : "Created By",
-		field : "totalStock"
+		field : "createdBy"
 
 	}, {
 		headerName : "Created Date",
-		field : "lastReceiceDate"
+		field : "createdOn"
 
 	} ];
 
@@ -259,7 +237,7 @@
 
 	}, {
 		headerName : "Created Date",
-		field : "lastPoDate"
+		field : "createdOn"
 
 	} ];
 
@@ -273,10 +251,10 @@
 		width : 20
 	}, {
 		headerName : "Activity Name",
-		field : "operationBy"
+		field : "operationName"
 	}, {
 		headerName : "User Name",
-		field : "operationName"
+		field : "operationBy"
 	}, {
 		headerName : "Created Date",
 		field : "operationOn"
@@ -333,23 +311,13 @@
 
 	});
 
-	// for product table
 	agGrid.simpleHttpRequest({
-		url : 'view-requisition-item-trough-ajax'
+		url : 'view-requisition-trough-ajax'
 	}).then(function(data) {
-		productOptions.api.setRowData(data);
-	});
+		var len = data.length;
+		$('#totalReq').find('span').html(len);
 
-	agGrid.simpleHttpRequest({
-		url : 'view-stock-trough-ajax'
-	}).then(function(data) {
 		gridOptions.api.setRowData(data);
-	});
-
-	agGrid.simpleHttpRequest({
-		url : 'view-requisition-activity-log?id=' + $("#reqId").html()
-	}).then(function(data) {
-		activityOptions.api.setRowData(data);
 	});
 
 	function resetState() {
@@ -360,6 +328,170 @@
 	function onQuickFilterChanged() {
 		gridOptions.api
 				.setQuickFilter(document.getElementById('quickFilter').value);
+	}
+
+	function switchPage() {
+
+		var selectedRows = gridOptions.api.getSelectedRows();
+		var selectedRowsString = '';
+		selectedRows.forEach(function(selectedRow, index) {
+			if (index > 0) {
+				selectedRowsString += ',';
+			}
+			selectedRowsString += selectedRow.itemId;
+		});
+
+		// for product table
+		agGrid.simpleHttpRequest({
+			url : 'view-requisition-item-trough-ajax?id=' + selectedRowsString
+		}).then(function(data) {
+			productOptions.api.setRowData(data);
+		});
+
+		agGrid.simpleHttpRequest({
+			url : 'view-requisition-activity-log?id=' + selectedRowsString
+		}).then(function(data) {
+			activityOptions.api.setRowData(data);
+		});
+
+	}
+
+	function copy() {
+
+		var selectedRows = gridOptions.api.getSelectedRows();
+		var selectedRowsString = '';
+		selectedRows.forEach(function(selectedRow, index) {
+			if (index > 0) {
+				selectedRowsString += ',';
+			}
+			selectedRowsString += selectedRow.reqId;
+		});
+
+		if(selectedRowsString){
+			$("#myGrid").hide();
+			$("#reqTable").hide();
+			$(".btn-hs").hide();
+			$("#demo").show();
+			
+			agGrid.simpleHttpRequest({
+				url : 'view-requisition-item-trough-ajax?id=' + selectedRowsString
+			}).then(function(data) {
+				$("#desc").val(data[0].desc);
+				$("#reqType").val(data[0].reqType);
+				$("#reqPrior").val(data[0].reqPrior);
+				$("#receiveDate").val(data[0].receiveDate);
+				$("#isHold").val(data[0].holdStatus);
+				// $("#reqId").val(data[0].reqId);
+
+				productOptions.api.setRowData(data);
+			});
+
+			agGrid.simpleHttpRequest({
+				url : 'view-requisition-activity-log?id=' + selectedRowsString
+			}).then(function(data) {
+				activityOptions.api.setRowData(data);
+			});
+
+			putOnHold();
+		}else{
+			$("#alert").modal('show');
+			document.getElementById("textId").innerHTML = "Please Select Atleast one Record !";
+		}
+		
+	}
+
+	function deleteFun() {
+		$('#delete').modal('show');
+	}
+	function deleteOnclick() {
+		var selectedRows = gridOptions.api.getSelectedRows();
+		var selectedRowsString = '';
+		selectedRows.forEach(function(selectedRow, index) {
+			if (index > 0) {
+				selectedRowsString += ',';
+			}
+			selectedRowsString += selectedRow.reqId;
+		});
+		if (selectedRowsString) {
+			var item = {};
+			item.moduleId = localStorage.getItem('module');
+			item.componentId = localStorage.getItem('function');
+			item.subComponentId = localStorage.getItem('activity');
+			item.reqId = selectedRowsString;
+			$.ajax({
+				type : "POST",
+				url : "view-requisition-delete-th-ajax",
+				dataType : "json",
+				contentType : "application/json",
+				data : JSON.stringify(item),
+				success : function(response) {
+
+					if (response.message == "Success") {
+						window.location.href = "/inventory/view-requisition";
+					} else {
+						swal({
+							title : response.code,
+							text : response.message,
+							type : "warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			})
+		}else{
+			$("#alert").modal('show');
+			document.getElementById("textId").innerHTML = "Please Select Atleast one Record !";
+		}
+
+	}
+
+	function cancelModalBtn() {
+		$("#deleteModalBtn").removeAttr("disabled");
+	}
+
+	function approve() {
+		var selectedRows = gridOptions.api.getSelectedRows();
+		var selectedRowsString = '';
+		selectedRows.forEach(function(selectedRow, index) {
+			if (index > 0) {
+				selectedRowsString += ',';
+			}
+			selectedRowsString += selectedRow.reqId;
+		});
+		if (selectedRowsString) {
+			var item = {};
+			item.moduleId = localStorage.getItem('module');
+			item.componentId = localStorage.getItem('function');
+			item.subComponentId = localStorage.getItem('activity');
+			item.reqId = selectedRowsString;
+			$.ajax({
+				type : "POST",
+				url : "view-requisition-approve-th-ajax",
+				dataType : "json",
+				contentType : "application/json",
+				data : JSON.stringify(item),
+				success : function(response) {
+
+					if (response.message == "Success") {
+						window.location.href = "/inventory/view-requisition";
+					} else {
+						swal({
+							title : response.code,
+							text : response.message,
+							type : "warning"
+						})
+					}
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			})
+		}else{
+			$("#alert").modal('show');
+			document.getElementById("textId").innerHTML = "Please Select Atleast one Record !";
+		}
 	}
 </script>
 <script type="text/javascript">
@@ -442,10 +574,10 @@
 <script>
 	function saveTableData() {
 		var item = {};
-		item.sku = $("#skuId").val();
-		item.brand = $("#brandId").val();
+		item.sku = $("#sku").html();
+		item.brand = $("#brandId").html();
 		item.itemId = $("#itemId").val();
-		item.itemName = $("#itemId").find('option:selected').text();
+		item.itemName = $("#itemName").html();
 		item.locationId = $("#locationId").val();
 		item.location = $("#locationId").find('option:selected').text();
 		item.costCenterId = $("#costCenterId").val();
@@ -463,7 +595,18 @@
 		});
 		datas.push(item)
 		productOptions.api.setRowData(datas);
-
+		closeNav();
+		$("#sku").html('');
+		$("#brandId").html('');
+		$("#itemId").html('');
+		$("#itemName").html('');
+		$("#locationId").val('');
+		$("#quantity").val('');
+		$("#uom").val('');
+		$("#estimatedPrice").val('');
+		$("#totalEstPrc").val('');
+		$("#lastPurchaseUnitPrice").val('');
+		$("#lastPurchaseTotalPrice").val('');
 	}
 
 	function saveData() {
@@ -476,9 +619,12 @@
 			item.reqPrior = $("#reqPrior").val();
 			item.receiveDate = $("#receiveDate").val();
 			item.holdStatus = $("#isHold").val();
+			item.moduleId = localStorage.getItem('module');
+			item.componentId = localStorage.getItem('function');
+			item.subComponentId = localStorage.getItem('activity');
+
 			datas.push(item);
 		});
-		console.log(datas);
 		saveRequisition(datas);
 	}
 
@@ -489,11 +635,11 @@
 			url : "view-requisition-save-th-ajax",
 			dataType : "json",
 			contentType : "application/json",
-			data : JSON.stringify(dataset),
+			data : JSON.stringify(datas),
 			success : function(response) {
 
 				if (response.message == "Success") {
-
+					window.location.href = "/inventory/view-requisition";
 				} else {
 					swal({
 						title : response.code,
@@ -508,17 +654,254 @@
 		}) //ajax ends
 
 	}
-	
-	  
-	  function cancelBar(){
-		  var id = document.getElementById("closeKey");
-		  id.style.display = "block";
-		  if($('#quickFilter').val() == null || $('#quickFilter').val() == ""){
-			  id.style.display = "none";
-		  }
-	  }
-</script>
 
+	function cancelBar() {
+		var id = document.getElementById("closeKey");
+		id.style.display = "block";
+		if ($('#quickFilter').val() == null || $('#quickFilter').val() == "") {
+			id.style.display = "none";
+		}
+	}
+
+	/* function getProductList() {
+		var search = $("#search").val();
+		if (search) {
+
+			$.ajax({
+				type : "POST",
+				url : "view-requisition-get-product-list",
+				dataType : 'json',
+				contentType : 'application/json',
+				data : search,
+				success : function(response) {
+					if (response.message == "success") {
+
+						if (response.body.length != 0) {
+							autocomplete(response.body);
+						}
+					}
+				},
+				error : function(data) {
+					console.log(data);
+				}
+			})
+		}
+	} */
+
+	
+	function getProductList() {
+		var search = $("#search").val();
+		if (search) {
+
+		$.ajax({
+		type : "POST",
+		url : "view-requisition-get-product-list",
+		dataType : 'json',
+		contentType : 'application/json',
+		data : search,
+		success : function(response) {
+		if (response.message == "success") {
+
+		/* if (response.body.length != 0) {
+		console.log(response.body);
+		autocomplete(document.getElementById("search"),response.body);
+		} */
+
+
+		if(response.body.length!=0) {
+		$("#search").css("background","#FFF");
+		var content = '<ul id="autocomplete-list1" style="margin-left:-40px; font-weight:100; font-size:14px; color:#ccc;">';
+		for (var i = 0; i < response.body.length; i++) {
+		content += '<li class="autocompletedata" onClick="selectAutocompleteValue1(\''+response.body[i].itemId+'\',\''+response.body[i].itemName+'\',\''+response.body[i].sku+'\',\''+response.body[i].brand+'\')">'+response.body[i].itemName+ '</li>';
+		}
+		content += '</ul>';
+		console.log("content " + content)
+		$("#suggesstion-box1_").show();
+		$("#suggesstion-box1_").html(content);
+
+		} else {
+		$("#search").css("background","#FFF");
+		var content = '<ul id="autocomplete-list1">';
+		content += '<li onClick="selectAutocompleteValue()">'+"No Data Found"+'</li>';
+		content += '</ul>';
+		$("#suggesstion-box1_").show();
+		$("#suggesstion-box1_").html(content);
+		}
+		}
+		},
+		error : function(data) {
+		console.log(data);
+		}
+		})
+		}
+		}
+	
+	function autocomplete(arr) {
+		var currentFocus;
+		var inp = document.getElementById("search");
+
+		inp
+				.addEventListener(
+						"input",
+						function(e) {
+							var a, b, i, val = this.value;
+							closeAllLists();
+							if (!val) {
+								return false;
+							}
+							currentFocus = -1;
+
+							a = document.createElement("DIV");
+							a.setAttribute("id", this.id + "autocomplete-list");
+							a.setAttribute("class", "autocomplete-items");
+
+							this.parentNode.appendChild(a);
+
+							for (i = 0; i < arr.length; i++) {
+
+								b = document.createElement("DIV");
+								console.log(arr[i]);
+								b.innerHTML = "<strong>" + arr[i].itemName
+										+ "</strong>";
+								// b.innerHTML += arr[i].substr(val.length);
+
+								b.innerHTML += "<input type='hidden' value='" + arr[i].itemName + "'>";
+								b.innerHTML += "<input type='hidden' id='itemIdAuto' value='" + arr[i].itemId + "'>";
+								b.innerHTML += "<input type='hidden' id='brandAuto' value='" + arr[i].brand + "'>";
+								b.innerHTML += "<input type='hidden' id='skuAuto' value='" + arr[i].sku + "'>";
+
+								b
+										.addEventListener(
+												"click",
+												function(e) {
+
+													inp.value = this
+															.getElementsByTagName("input")[0].value;
+
+													$("#itemName").html(
+															inp.value);
+													$("#itemId").val(
+															$("#itemIdAuto")
+																	.val());
+													$("#brandId").html(
+															$("#brandAuto")
+																	.val());
+													$("#sku")
+															.html(
+																	$(
+																			"#skuAuto")
+																			.val());
+													closeAllLists();
+												});
+								a.appendChild(b);
+
+							}
+						});
+
+		/*execute a function presses a key on the keyboard:*/
+		inp.addEventListener("keydown", function(e) {
+			var x = document.getElementById(this.id + "autocomplete-list");
+			if (x)
+				x = x.getElementsByTagName("div");
+			if (e.keyCode == 40) {
+
+				currentFocus++;
+
+				addActive(x);
+			} else if (e.keyCode == 38) {
+
+				currentFocus--;
+
+				addActive(x);
+			} else if (e.keyCode == 13) {
+				e.preventDefault();
+				if (currentFocus > -1) {
+					if (x)
+						x[currentFocus].click();
+				}
+			}
+		});
+
+		function addActive(x) {
+			if (!x)
+				return false;
+			removeActive(x);
+			if (currentFocus >= x.length)
+				currentFocus = 0;
+			if (currentFocus < 0)
+				currentFocus = (x.length - 1);
+			x[currentFocus].classList.add("autocomplete-active");
+		}
+
+		function removeActive(x) {
+			for (var i = 0; i < x.length; i++) {
+				x[i].classList.remove("autocomplete-active");
+			}
+		}
+
+		function closeAllLists(elmnt) {
+
+			var x = document.getElementsByClassName("autocomplete-items");
+			for (var i = 0; i < x.length; i++) {
+				if (elmnt != x[i] && elmnt != inp) {
+					x[i].parentNode.removeChild(x[i]);
+				}
+			}
+		}
+		/*execute a function when someone clicks in the document:*/
+		document.addEventListener("click", function(e) {
+			closeAllLists(e.target);
+		});
+	}
+
+	function putOnHold() {
+		var isHold = $("#isHold").val();
+		if (isHold == '1') {
+			$("#isHold").val('0');
+			$("#putOnHold").removeClass('holdCls');
+		} else {
+			$("#isHold").val('1');
+			$("#putOnHold").addClass('holdCls');
+		}
+	}
+	
+
+	function selectAutocompleteValue1(key,name,sku,brand) {
+
+	if (key) {
+	$("#itemName").html(name);
+	$("#itemId").val(key);
+	$("#brandId").html(brand);
+	$("#sku").html(sku);
+	$("#search").val(name)
+	$("#search").attr('data-procat', key);
+	$("#suggesstion-box1_").hide();
+	//checkForDuplicate(key,counter);
+
+	} else {
+
+	$("#itemName").html("");
+	$("#itemId").val("");
+	$("#brandId").html("");
+	$("#sku").html("");
+	$("#search").val("");
+	$("#search").attr('data-procat', "");
+	$("#suggesstion-box1_").hide();
+
+
+	}
+	}
+	function selectAutocompleteValue() {
+	$("#itemName").html("");
+	$("#itemId").val("");
+	$("#brandId").html("");
+	$("#sku").html("");
+	$("#search").val("");
+	$("#search").attr('data-procat', "");
+	$("#suggesstion-box1_").hide();
+
+	}
+</script>
 </head>
 <body>
 
@@ -546,19 +929,19 @@
 						<div class="row" id="reqTable">
 
 							<div class="col-md-6 btn-hs">
-								<div class="font-design">
-									REQUISITION LIST <span>(10)</span>
+								<div class="font-design" id="totalReq">
+									REQUISITION LIST (<span></span>)
 								</div>
 							</div>
 							<div class="col-md-3 btn-hs">
 								<div class="row">
-									<button class="btn1" id="newBtn">NEW</button>
-									<button class="btn2" id="newBtn">COPY</button>
-									<button class="btn3" id="newBtn">DELETE</button>
+									<button class="btn1" id="newBtn" onclick="switchPage()">NEW</button>
+									<button class="btn2" id="copyBtn" onclick="copy()">COPY</button>
+									<button class="btn3" id="newBtn" onclick="deleteFun()">DELETE</button>
 								</div>
 							</div>
 							<div class="col-md-1 btn-hs ">
-								<button class="btn2 centerbtn">APPROVE</button>
+								<button class="btn2 centerbtn" onclick="approve()">APPROVE</button>
 							</div>
 
 							<div class="col-md-2 btn-hs">
@@ -575,7 +958,7 @@
 								<div class="row">
 
 									<div class="col-md-3">
-										Requisition ID:<span id="reqId">1023</span>
+										Requisition ID:<span id="reqId"></span>
 									</div>
 									<div class="col-md-6">
 										<div class="hr4"></div>
@@ -652,8 +1035,8 @@
 									<div class="row">
 										<div class="col-md-6">
 											<div class="form-group">
-												<label>Receive By Date</label> <input type="date"
-													id="receiveDate" class="form-control">
+												<label>Receive By Date</label> <input type="text"
+													id="receiveDate" class="form-control" readonly placeholder="DD-MM-YYYY">
 											</div>
 										</div>
 
@@ -661,15 +1044,13 @@
 											<div class="form-group">
 												<button class="btn2 putonhold" id="putOnHold"
 													onclick="putOnHold()">PUT ON HOLD</button>
-												<input type="hidden" id="isHold" />
+												<input type="hidden" value="0" id="isHold" />
 											</div>
 										</div>
 									</div>
 								</div>
 							</div>
 							<div id="main_content">
-
-
 								<div class="wrapper center-block">
 									<div class="panel-group" id="accordion" role="tablist"
 										aria-multiselectable="true">
@@ -778,7 +1159,7 @@
 											</div>
 											<div class="chartbtnsec">
 												<div class="row">
-													<button class="btn4">CANCEL</button>
+													<button class="btn4" onclick="closeNav()">CANCEL</button>
 													<button class="btn3">DELETE</button>
 													<button class="btn1" onclick="saveTableData()">SAVE</button>
 												</div>
@@ -787,24 +1168,39 @@
 											<div class="row">
 												<div class="col-lg-9">
 													<div class="form-group">
-														<!-- <label>Search</label> <input type="text"
-															class="form-control transparenttxtbox"
-															placeholder="search"> -->
+
 														<div class="inner_search">
+
 															<div class="input-style1 row">
-																<input type="text" placeholder="Search.." name="search"
-																	class="inner_searchboxinput" onkeyup="cancelBar()"
-																	oninput="onQuickFilterChanged()" id="quickFilter">
+																<div class="autocomplete">
+																	<input id="search" type="text" name="search"
+																		class="inner_searchboxinput" placeholder="Search"
+																		onkeyup='getProductList()'>
+																</div>
+																<!-- <div class="searchicon1">
+																	<a href="#"><span class="close_i"><i class="ti-close"></i></span></a> 
+																	<a href="#"> <span class="close_i"><i class="ti-search srchicon"></i></span></a>
+																</div> -->
 																<div class="searchicon1">
 																	<a href="#"><span
 																		style="display: block; border-right: 1px solid rgb(204, 204, 204); padding-right: 5px;"
 																		id="closeKey"
 																		onclick="gridOptions.api.setQuickFilter(null);$('#quickFilter').val('');document.getElementById('closeKey').style.display='none';"
 																		class="close_i"><i class="ti-close srchicon"></i></span></a><a
-																		href="#" style="color:#ccc;margin-top: -5px;"><i class="ti-search srchicon"></i></a>
+																		href="#" style="color: #ccc; margin-top: -5px;"><i
+																		class="ti-search srchicon"></i></a>
 																</div>
 															</div>
+															<!-- <div class="input-style1 row">
+																<input type="text" placeholder="Search.." name="search"
+																	class="inner_searchboxinput" onkeyup="cancelBar();getProductList();"  id="search">
+																<div class="searchicon1">
+																	<a href="#"> <i class="ti-search srchicon"></i></a>
+																</div>
+																<div id="suggesstion-box1_"></div> 
+															</div> -->
 														</div>
+														<div id="suggesstion-box1_"></div>
 													</div>
 												</div>
 												<div class="col-lg-3 mrt_6">
@@ -817,17 +1213,12 @@
 											<div class="row">
 												<div class="col-lg-6">
 													<div class="form-group">
-														<label>SKU</label> <input type="text"
-															class="form-control transparenttxtbox" id="skuId"
-															placeholder="SKU">
+														<label>SKU</label> &nbsp; &nbsp; <span id="sku" class="fetchdata"></span>
 													</div>
 												</div>
 												<div class="col-lg-6">
 													<div class="form-group">
-														<label>Brand</label> <input type="text"
-															class="form-control transparenttxtbox"
-															placeholder="Brand" id="brandId"> <input
-															type="hidden" placeholder="Brand" id="brandId">
+														<label>Brand</label><span id="brandId" class="fetchdata"></span>
 													</div>
 												</div>
 											</div>
@@ -835,13 +1226,14 @@
 											<div class="row">
 												<div class="col-lg-8">
 													<div class="form-group">
-														<label>Item Name</label>
-														<div class="select">
+														<label>Item Name</label><span id="itemName" class="fetchdata"></span><input
+															type="hidden" id="itemId">
+														<!-- <div class="select">
 															<select id="itemId">
 																<option th:each="c:${productList}"
 																	th:value='${c.itemId}' th:text="${c.itemName}"></option>
 															</select>
-														</div>
+														</div> -->
 													</div>
 												</div>
 												<div class="col-lg-8">
@@ -879,8 +1271,8 @@
 														<label>UOM</label>
 														<div class="select">
 															<select id="uom">
-																<option th:each="c:${costCenterList}"
-																	th:value='${c.key}' th:text="${c.name}"></option>
+																<option th:each="c:${uomList}" th:value='${c.key}'
+																	th:text="${c.name}"></option>
 															</select>
 														</div>
 
@@ -971,10 +1363,63 @@
 
 								</div>
 								<!-- Modal footer -->
+
+
+
+							</div>
+						</div>
+					</div>
+					<!-- delete modal start -->
+					<div id="delete" class="modal fade show" aria-modal="true">
+						<div class="modal-dialog modal-confirm">
+							<div class="modal-content">
+								<div class="modal-header flex-column">
+									<button type="button" class="close" data-dismiss="modal"
+										aria-hidden="true" onclick="cancelModalBtn()">
+										<i class="ti-close modal-close"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<p>Do you really want to delete these records? This process
+										cannot be undone.</p>
+								</div>
+								<div class="modal-footer justify-content-center"
+									style="margin-top: -30px;">
+
+									<button type="button" class="btn1" data-dismiss="modal"
+										onclick="cancelModalBtn();">Cancel</button>
+									<button type="button" class="btn3" onclick="deleteOnclick()">Delete</button>
+								</div>
 							</div>
 						</div>
 					</div>
 
+
+
+                  <!-- alert modal start -->
+					<div id="alert" class="modal fade show" aria-modal="true">
+						<div class="modal-dialog modal-confirm">
+							<div class="modal-content">
+								<div class="modal-header flex-column">
+									<button type="button" class="close" data-dismiss="modal"
+										aria-hidden="true" onclick="cancelModalBtn()">
+										<i class="ti-close modal-close"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<p id="textId"> </p>
+								</div>
+								 <div class="modal-footer justify-content-center"
+									style="margin-top: -30px;">
+
+									<button type="button" class="btn1" data-dismiss="modal"
+										onclick="cancelModalBtn();">Cancel</button>
+									<!-- <button type="button" class="btn3" onclick="deleteOnclick()">Delete</button> -->
+								</div>  
+							</div>
+						</div>
+					</div>
+					
 				</div>
 			</div>
 		</div>
