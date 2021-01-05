@@ -1,8 +1,12 @@
 package nirmalya.aathithya.webmodule.master.model;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import nirmalya.aathithya.webmodule.common.utils.DropDownModel;
 
 public class VendorLocationMasterModel {
 	private String vendorLocationId;
@@ -16,6 +20,10 @@ public class VendorLocationMasterModel {
 	private String vendorCity;
 	private String vendorState;
 	private String createdBy;
+	private String createdOn;
+	private List<DropDownModel> stateList = new ArrayList<DropDownModel>();
+	private List<DropDownModel> cityList = new ArrayList<DropDownModel>();
+	
 	public VendorLocationMasterModel() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -87,6 +95,26 @@ public class VendorLocationMasterModel {
 	}
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
+	}
+	
+	public List<DropDownModel> getStateList() {
+		return stateList;
+	}
+	public void setStateList(List<DropDownModel> stateList) {
+		this.stateList = stateList;
+	}
+	public List<DropDownModel> getCityList() {
+		return cityList;
+	}
+	public void setCityList(List<DropDownModel> cityList) {
+		this.cityList = cityList;
+	}
+	
+	public String getCreatedOn() {
+		return createdOn;
+	}
+	public void setCreatedOn(String createdOn) {
+		this.createdOn = createdOn;
 	}
 	@Override
 	public String toString() {

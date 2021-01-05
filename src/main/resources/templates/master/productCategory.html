@@ -37,8 +37,10 @@ $(document).ready(function() {
     	data.categoryStatus = $("input[name='isSubCatActive']:checked").val();
     	data.parentId = $("#parentCat").val();
     	
+    	var slno = $("#slnoval").val();
+    	
     	console.log(data)
-    	submitSubCategory(data);
+    	submitSubCategory(data,slno);
     })
     
     $("#deleteModalBtn").click(function(){
@@ -114,7 +116,7 @@ function getCategoryList() {
             			
 			            	var tbl = '<ul id="myUL_'+response.body[i].categoryId+'" class="level"><li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="spanA_'+response.body[i].categoryId+'" onclick=getRootLeafNodes("'+response.body[i].categoryId+'")></span> '+
 								'<span id="lbl_'+response.body[i].categoryId+'" class="leveltxt">'+response.body[i].categoryName+'</span><span id="catCount" class="level_counter"> (0)</span> '+
-								'<label for="check1">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Add Sub-Category" class="ti-plus cbicon" onclick=openNav("'+response.body[i].categoryId+'");></i></a>&nbsp;<a href="javascript:void(0)"><i title="Edit Category" class="ti-pencil" onclick=editCategory("'+response.body[i].categoryId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i title="Delete Category" class="ti-close" onclick=deleteCategory("'+response.body[i].categoryId+'")></i></a></label>'+
+								'<label for="check1">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Add Child" class="ti-plus cbicon" onclick=openNav("'+response.body[i].categoryId+'","1");></i></a>&nbsp;<a href="javascript:void(0)"><i title="Edit Category" class="ti-pencil" onclick=editCategory("'+response.body[i].categoryId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i title="Delete Category" class="ti-close" onclick=deleteCategory("'+response.body[i].categoryId+'")></i></a></label>'+
 								'<ul class="nested" id="ul_'+response.body[i].categoryId+'"></ul>'+
 								'</li></ul>';
 			            	$(".flowsection").append(tbl);
@@ -142,6 +144,7 @@ function getRootLeafNodes(id) {
 	var value = $("#spanA_"+id).attr("value");
 	if(value == "0") {
 		
+		
 		$.ajax({
 	        type: "POST",
 	        url: "product-category-get-category-list-by-id",
@@ -154,8 +157,8 @@ function getRootLeafNodes(id) {
 	            		console.log(response.body)
 	            		for(var i = 0; i < response.body.length; i++) {
 		            		var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'+response.body[i].categoryId+'" onclick=getLeafNodes("'+response.body[i].categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'"> '+response.body[i].categoryName+' </span><span>(0)</span>'+
-		    				'<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Sub-Category" onclick=openNav("'+response.body[i].categoryId+'");></i></a>'+
-		    				'&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Sub-Category" onclick=editSubCategory("'+response.body[i].categoryId+'","'+response.body[i].parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Sub-Category" onclick=deleteSubCategory("'+response.body[i].categoryId+'")></i></a></label>'+
+		    				'<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Child" onclick=openNav("'+response.body[i].categoryId+'","2");></i></a>'+
+		    				'&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Category" onclick=editSubCategory("'+response.body[i].categoryId+'","'+response.body[i].parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Category" onclick=deleteSubCategory("'+response.body[i].categoryId+'")></i></a></label>'+
 		    				'<ul class="nested" id="ul_'+response.body[i].categoryId+'"></ul>'+
 		    				'</li>';
 		    		
@@ -200,8 +203,8 @@ function getLeafNodes(id) {
 	            		console.log(response.body)
 	            		for(var i = 0; i < response.body.length; i++) {
 		            		var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'+response.body[i].categoryId+'" onclick=getLeafNodes("'+response.body[i].categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'"> '+response.body[i].categoryName+' </span><span>(0)</span>'+
-		    				'<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Sub-Category" onclick=openNav("'+response.body[i].categoryId+'");></i></a>'+
-		    				'&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Sub-Category" onclick=editSubCategory("'+response.body[i].categoryId+'","'+response.body[i].parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Sub-Category" onclick=deleteSubCategory("'+response.body[i].categoryId+'")></i></a></label>'+
+		    				'<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Child" onclick=openNav("'+response.body[i].categoryId+'","2");></i></a>'+
+		    				'&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Category" onclick=editSubCategory("'+response.body[i].categoryId+'","'+response.body[i].parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Category" onclick=deleteSubCategory("'+response.body[i].categoryId+'")></i></a></label>'+
 		    				'<ul class="nested" id="ul_'+response.body[i].categoryId+'"></ul>'+
 		    				'</li>';
 		    		
@@ -265,7 +268,7 @@ function deleteSubCategory(id) {
 }
 
 function editSubCategory(id,pId) {
-	openNav(pId);
+	openNav(pId,"2");
 	$("#subCatId").val(id);
 	if(id) {
 		$.ajax({
@@ -362,7 +365,7 @@ function submitCategory(dataset) {
             	
             	var tbl = '<ul id="myUL_'+response.body.categoryId+'" class="level"><li id="li_'+response.body.categoryId+'"><span class="caret"></span> <span'+
 					'<label id="lbl_'+response.body.categoryId+'" class="leveltxt">'+response.body.categoryName+'</span><span id="catCount" class="level_counter"> (0)</span> '+
-					'<label for="check1">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Add Sub-Category" class="ti-plus cbicon" onclick=openNav("'+response.body.categoryId+'");></i></a>&nbsp;'+
+					'<label for="check1">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Add Child" class="ti-plus cbicon" onclick=openNav("'+response.body.categoryId+'","1");></i></a>&nbsp;'+
 					'<a href="javascript:void(0)"><i title="Edit Category" class="ti-pencil" onclick=editCategory("'+response.body.categoryId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i title="Delete Category" class="ti-close" onclick=deleteCategory("'+response.body.categoryId+'")></i></a></label>'+
 					'</li></ul>';
 					
@@ -393,7 +396,8 @@ function submitCategory(dataset) {
     })
 }
 
-function submitSubCategory(dataset) {
+function submitSubCategory(dataset,slno) {
+	
 	$.ajax({
         type: "POST",
         url: "product-category-save-subcat",
@@ -405,7 +409,7 @@ function submitSubCategory(dataset) {
             	
             	console.log(response.body)
             	
-            	var tbl = '<li id="li_'+response.body.categoryId+'"><span class="caret" value="0" id="span_'+response.body.categoryId+'" onclick=getLeafNodes("'+response.body.categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body.categoryId+'"> '+response.body.categoryName+' </span><span>(0)</span><label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Sub-Category" onclick=openNav("'+response.body.categoryId+'");></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Sub-Category" onclick=editSubCategory("'+response.body.categoryId+'","'+response.body.parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Sub-Category" onclick=deleteSubCategory("'+response.body.categoryId+'")></i></a></label><ul class="nested" id="ul_'+response.body.categoryId+'"></ul></li>';
+            	var tbl = '<li id="li_'+response.body.categoryId+'"><span class="caret" value="0" id="span_'+response.body.categoryId+'" onclick=getLeafNodes("'+response.body.categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body.categoryId+'"> '+response.body.categoryName+' </span><span>(0)</span><label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Child" onclick=openNav("'+response.body.categoryId+'","2");></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Category" onclick=editSubCategory("'+response.body.categoryId+'","'+response.body.parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Category" onclick=deleteSubCategory("'+response.body.categoryId+'")></i></a></label><ul class="nested" id="ul_'+response.body.categoryId+'"></ul></li>';
 					
 				var subCatId = $("#subCatId").val();
 				if(subCatId) {
@@ -429,7 +433,7 @@ function submitSubCategory(dataset) {
     })
 }
 
-function openNav(categoryId) {
+function openNav(categoryId,sl) {
 	closeCat();
 	var pName = $("#lbl_"+categoryId).text();
 	$("#subCatParentSpan").text(" "+pName);
@@ -439,6 +443,8 @@ function openNav(categoryId) {
 	$("#subCatName").val("");
 	$("#subCatDesc").val("");
 	$('#subCatStatus').prop('checked', true);
+	
+	$("#slnoval").val(sl);
 	
 	$("#dltSlideSubCat").attr("onclick","");
 	
@@ -455,6 +461,8 @@ function closeNav() {
 	$("#subCatName").val("");
 	$("#subCatDesc").val("");
 	$('#subCatStatus').prop('checked', true);
+	
+	$("#slnoval").val("");
 	
 	$("#dltSlideSubCat").attr("onclick","");
 	
@@ -500,26 +508,31 @@ function closeCat() {
 						<div class="row">
 
 							<div class="col-md-10  btn-hs" style="margin-bottom: 15px;">
-								<div class="font-design" id="totalReq">
+								<div class="font-design ft-lt" id="totalReq">
 									Product Category (<span id="totalPCat">2</span>)
 								</div>
-							</div>
-							<div class="col-md-2 btn-hs">
-								<div class="row">
-									<!-- <button class="btn1" id="newBtn" onclick="openCat();">NEW</button>
-									<button class="btn3" id="locdeletebtn" onclick="deleteLocation()" >DELETE</button> -->
-								</div>
-							</div>
-
-						</div>
-						<div class="row">
-							<div class="col-md-2">
-								<div class="roomdetails">
-									<div class="plusbtn cp" title="Add Category"
+								<div class="roomdetails2">
+									<div class="cat_plusbtn cp" title="Add Category"
 										onclick="openCat()">+</div>
 								</div>
 							</div>
+							
+							<div class="col-md-2 btn-hs">
+								<!-- <div class="row">
+									<button class="btn1" id="newBtn" onclick="openCat();">NEW</button>
+									<button class="btn3" id="locdeletebtn" onclick="deleteLocation()" >DELETE</button>
+								</div> -->
+							</div>
+
 						</div>
+						<!-- <div class="row">
+							<div class="col-md-2">
+								<div class="roomdetails">
+									<div class="cat_plusbtn cp" title="Add Child"
+										onclick="openCat()">+</div>
+								</div>
+							</div>
+						</div> -->
 
 						<!--  </div> -->
 						<div class="wrapper center-block">
@@ -626,7 +639,8 @@ function closeCat() {
 																	<label>Name</label> <input type="hidden"
 																		id="subCatId"> <input type="text"
 																		class="form-control transparenttxtbox" placeholder=""
-																		id="subCatName"> <input type="hidden" id="parentCat">
+																		id="subCatName"> <input type="hidden" id="parentCat"> 
+																		<input type="hidden" id="slnoval">
 																</div>
 															</div>
 															<div class="col-md-12">

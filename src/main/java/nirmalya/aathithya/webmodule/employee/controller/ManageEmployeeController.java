@@ -1,6 +1,5 @@
 package nirmalya.aathithya.webmodule.employee.controller;
 
-
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -47,16 +46,18 @@ import nirmalya.aathithya.webmodule.common.pagination.DataTableResponse;
 import nirmalya.aathithya.webmodule.common.utils.DropDownModel;
 import nirmalya.aathithya.webmodule.common.utils.EnvironmentVaribles;
 import nirmalya.aathithya.webmodule.common.utils.JsonResponse;
-import nirmalya.aathithya.webmodule.employee.model.HrmsEmployeeDocumentsModel; 
+import nirmalya.aathithya.webmodule.employee.model.HrmsEmployeeDocumentsModel;
 import nirmalya.aathithya.webmodule.employee.model.HrmsEmployeeModel;
 import nirmalya.aathithya.webmodule.employee.model.HrmsEmployeeSalaryStructureModel;
 import nirmalya.aathithya.webmodule.employee.model.IncomeTaxModel;
+import nirmalya.aathithya.webmodule.employee.model.ManageEmployeeAddressModel;
+import nirmalya.aathithya.webmodule.employee.model.ManageEmployeeModel;
 
 /*
  * @author Nirmalya labs
  */
 @Controller
-@RequestMapping(value ={ "employee/" })
+@RequestMapping(value = { "employee/" })
 
 public class ManageEmployeeController {
 	Logger logger = LoggerFactory.getLogger(ManageEmployeeController.class);
@@ -66,213 +67,340 @@ public class ManageEmployeeController {
 
 	@Autowired
 	EnvironmentVaribles env;
-	
-	
+
 	// Summary
-		@GetMapping("/view-manage-employee")
-		public String employee(Model model, HttpSession session) {
+	@GetMapping("/view-manage-employee")
+	public String employee(Model model, HttpSession session) {
 
-			logger.info("Method : employee starts");
-			
-			
-			try {
-				DropDownModel[] Country = restClient.getForObject(env.getEmployeeUrl() + "getCountryList", DropDownModel[].class);
-				List<DropDownModel> counntryList = Arrays.asList(Country);
-				
-				model.addAttribute("counntryList", counntryList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			try {
-				DropDownModel[] State = restClient.getForObject(env.getEmployeeUrl() + "getstateList1", DropDownModel[].class);
-				List<DropDownModel> stateList = Arrays.asList(State);
-				
-				model.addAttribute("stateList", stateList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			try {
-				DropDownModel[] City = restClient.getForObject(env.getEmployeeUrl() + "getcityList1", DropDownModel[].class);
-				List<DropDownModel> cityList = Arrays.asList(City);
-				
-				model.addAttribute("cityList", cityList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			try {
-				DropDownModel[] Gender = restClient.getForObject(env.getEmployeeUrl() + "getgenderList1", DropDownModel[].class);
-				List<DropDownModel> genderTypeList = Arrays.asList(Gender);
-				
-				model.addAttribute("genderTypeList", genderTypeList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			try {
-				DropDownModel[] Nationality = restClient.getForObject(env.getEmployeeUrl() + "getnationalityList1", DropDownModel[].class);
-				List<DropDownModel> nationalityList = Arrays.asList(Nationality);
-				
-				model.addAttribute("nationalityList", nationalityList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			
-			
-			try {
-				DropDownModel[] BloodGroup = restClient.getForObject(env.getEmployeeUrl() + "getbloodgroupList1", DropDownModel[].class);
-				List<DropDownModel> bloodgroupList = Arrays.asList(BloodGroup);
-				
-				model.addAttribute("bloodgroupList", bloodgroupList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			
-			
-			
-			try {
-				DropDownModel[] MaritalStatus = restClient.getForObject(env.getEmployeeUrl() + "getmaritalstatusList1", DropDownModel[].class);
-				List<DropDownModel> maritalstatusList = Arrays.asList(MaritalStatus);
-				
-				model.addAttribute("maritalstatusList", maritalstatusList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			
-			try {
-				DropDownModel[] DocumentType = restClient.getForObject(env.getEmployeeUrl() + "getdocumenttypeList1", DropDownModel[].class);
-				List<DropDownModel> documenttypeList = Arrays.asList(DocumentType);
-				
-				model.addAttribute("documenttypeList", documenttypeList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			
-			try {
-				DropDownModel[] JobType = restClient.getForObject(env.getEmployeeUrl() + "getJobType1", DropDownModel[].class);
-				List<DropDownModel> jobtypeList = Arrays.asList(JobType);
-				
-				model.addAttribute("jobtypeList", jobtypeList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			
-			
-			try {
-				DropDownModel[] Department = restClient.getForObject(env.getEmployeeUrl() + "getDepartmentList1", DropDownModel[].class);
-				List<DropDownModel> DepartmentList = Arrays.asList(Department);
-				
-				model.addAttribute("DepartmentList", DepartmentList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			try {
-				DropDownModel[] EmploymentStatus = restClient.getForObject(env.getEmployeeUrl() + "getemploymentstatusList1", DropDownModel[].class);
-				List<DropDownModel> employmentstatusList = Arrays.asList(EmploymentStatus);
-				
-				model.addAttribute("employmentstatusList", employmentstatusList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			try {
-				DropDownModel[] degination = restClient.getForObject(env.getEmployeeUrl() + "getJobType2", DropDownModel[].class);
-				List<DropDownModel> jobtypeList = Arrays.asList(degination);
-				
-				model.addAttribute("jobtypeList", jobtypeList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			try {
-				DropDownModel[] Benefits = restClient.getForObject(env.getEmployeeUrl() + "getBenefits", DropDownModel[].class);
-				List<DropDownModel> benefitsList = Arrays.asList(Benefits);
-				
-				model.addAttribute("benefitsList", benefitsList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			try {
-				DropDownModel[] Bank = restClient.getForObject(env.getEmployeeUrl() + "getBankNameList", DropDownModel[].class);
-				List<DropDownModel> BankNameList = Arrays.asList(Bank);
-				
-				model.addAttribute("BankNameList", BankNameList);
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			}
-			
+		logger.info("Method : employee starts");
 
-			logger.info("Method : employee ends");
+		try {
+			DropDownModel[] Country = restClient.getForObject(env.getEmployeeUrl() + "getCountryList",
+					DropDownModel[].class);
+			List<DropDownModel> counntryList = Arrays.asList(Country);
 
-			return "employee/view-manage-employee";
+			model.addAttribute("counntryList", counntryList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
 		}
-		
-		
-		
-		@PostMapping("/manage-employee-upload-file")
-		public @ResponseBody JsonResponse<Object> uploadFile(@RequestParam("file") MultipartFile inputFile,
-				HttpSession session) {
-			logger.info("Method : employee uploadimage controller  starts");
+		try {
+			DropDownModel[] State = restClient.getForObject(env.getEmployeeUrl() + "getstateList1",
+					DropDownModel[].class);
+			List<DropDownModel> stateList = Arrays.asList(State);
 
-			JsonResponse<Object> response = new JsonResponse<Object>();
-
-			try {
-				response.setMessage(inputFile.getOriginalFilename());
-				session.setAttribute("employeePFile", inputFile);
-				
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			logger.info("Method : employee uploadimage controller ' ends");
-			return response;
+			model.addAttribute("stateList", stateList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
 		}
-		
-		@PostMapping("/manage-employee-delete-file")
-		public @ResponseBody JsonResponse<Object> deleteFile(HttpSession session) {
-			logger.info("Method : deleteFile employee uploadimage controller starts");
-			
-			JsonResponse<Object> response = new JsonResponse<Object>();
-			
-			try {
-				session.removeAttribute("employeePFile");
-			} catch (RestClientException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			logger.info("Method : deleteFile employee uploadimage controller ends");
-			return response;
+		try {
+			DropDownModel[] City = restClient.getForObject(env.getEmployeeUrl() + "getcityList1",
+					DropDownModel[].class);
+			List<DropDownModel> cityList = Arrays.asList(City);
+
+			model.addAttribute("cityList", cityList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		try {
+			DropDownModel[] Gender = restClient.getForObject(env.getEmployeeUrl() + "getgenderList1",
+					DropDownModel[].class);
+			List<DropDownModel> genderTypeList = Arrays.asList(Gender);
+
+			model.addAttribute("genderTypeList", genderTypeList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		try {
+			DropDownModel[] Nationality = restClient.getForObject(env.getEmployeeUrl() + "getnationalityList1",
+					DropDownModel[].class);
+			List<DropDownModel> nationalityList = Arrays.asList(Nationality);
+
+			model.addAttribute("nationalityList", nationalityList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
 		}
 
+		try {
+			DropDownModel[] BloodGroup = restClient.getForObject(env.getEmployeeUrl() + "getbloodgroupList1",
+					DropDownModel[].class);
+			List<DropDownModel> bloodgroupList = Arrays.asList(BloodGroup);
 
+			model.addAttribute("bloodgroupList", bloodgroupList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
 
-public String saveAllImage(byte[] imageBytes, String ext) {
-	logger.info("Method : saveAllImage starts");
+		try {
+			DropDownModel[] MaritalStatus = restClient.getForObject(env.getEmployeeUrl() + "getmaritalstatusList1",
+					DropDownModel[].class);
+			List<DropDownModel> maritalstatusList = Arrays.asList(MaritalStatus);
+
+			model.addAttribute("maritalstatusList", maritalstatusList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			DropDownModel[] DocumentType = restClient.getForObject(env.getEmployeeUrl() + "getdocumenttypeList1",
+					DropDownModel[].class);
+			List<DropDownModel> documenttypeList = Arrays.asList(DocumentType);
+
+			model.addAttribute("documenttypeList", documenttypeList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			DropDownModel[] JobType = restClient.getForObject(env.getEmployeeUrl() + "getJobType1",
+					DropDownModel[].class);
+			List<DropDownModel> jobtypeList = Arrays.asList(JobType);
+
+			model.addAttribute("jobtypeList", jobtypeList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			DropDownModel[] Department = restClient.getForObject(env.getEmployeeUrl() + "getDepartmentList1",
+					DropDownModel[].class);
+			List<DropDownModel> DepartmentList = Arrays.asList(Department);
+
+			model.addAttribute("DepartmentList", DepartmentList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		try {
+			DropDownModel[] EmploymentStatus = restClient
+					.getForObject(env.getEmployeeUrl() + "getemploymentstatusList1", DropDownModel[].class);
+			List<DropDownModel> employmentstatusList = Arrays.asList(EmploymentStatus);
+
+			model.addAttribute("employmentstatusList", employmentstatusList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		try {
+			DropDownModel[] degination = restClient.getForObject(env.getEmployeeUrl() + "getJobType2",
+					DropDownModel[].class);
+			List<DropDownModel> jobtypeList = Arrays.asList(degination);
+
+			model.addAttribute("jobtypeList", jobtypeList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		try {
+			DropDownModel[] Benefits = restClient.getForObject(env.getEmployeeUrl() + "getBenefits",
+					DropDownModel[].class);
+			List<DropDownModel> benefitsList = Arrays.asList(Benefits);
+
+			model.addAttribute("benefitsList", benefitsList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		try {
+			DropDownModel[] Bank = restClient.getForObject(env.getEmployeeUrl() + "getBankNameList",
+					DropDownModel[].class);
+			List<DropDownModel> BankNameList = Arrays.asList(Bank);
+
+			model.addAttribute("BankNameList", BankNameList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Method : employee ends");
+
+		return "employee/view-manage-employee";
+	}
+
+	@PostMapping("/manage-employee-upload-file")
+	public @ResponseBody JsonResponse<Object> uploadFile(@RequestParam("file") MultipartFile inputFile,
+			HttpSession session) {
+		logger.info("Method : employee uploadimage controller  starts");
+
+		JsonResponse<Object> response = new JsonResponse<Object>();
+
+		try {
+			response.setMessage(inputFile.getOriginalFilename());
+			System.out.println(inputFile);
+			session.setAttribute("employeePFile", inputFile);
+
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Method : employee uploadimage controller ' ends");
+		return response;
+	}
+
+	@PostMapping("/manage-employee-delete-file")
+	public @ResponseBody JsonResponse<Object> deleteFile(HttpSession session) {
+		logger.info("Method : deleteFile employee uploadimage controller starts");
+
+		JsonResponse<Object> response = new JsonResponse<Object>();
+
+		try {
+			session.removeAttribute("employeePFile");
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Method : deleteFile employee uploadimage controller ends");
+		return response;
+	}
+
 	
-	String imageName = null;
+
+	@SuppressWarnings("unchecked")
+	@PostMapping("/manage-employee-master-save")
+	public @ResponseBody JsonResponse<Object> savemanangeemployee(@RequestBody  ManageEmployeeModel manageEmployeeModel,
+			HttpSession session) {
+		logger.info("Method : saveemployee personalMaster starts");
+
+		JsonResponse<Object> resp = new JsonResponse<Object>();
+
+		String userId = "";
+
+		try {
+			userId = (String) session.getAttribute("USER_ID");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		manageEmployeeModel.setCreatedBy(userId);
+
+		MultipartFile inputFile = (MultipartFile) session.getAttribute("employeePFile");
+		byte[] bytes;
+		String imageName = null;
+
+		if (inputFile != null) {
+			try {
+				bytes = inputFile.getBytes();
+				String[] fileType = inputFile.getContentType().split("/");
+				imageName = saveAllImage(bytes, fileType[1]);
+				System.out.println(imageName);
+
+				manageEmployeeModel.setFileEmployeeimg(imageName);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
+
+		try {
+			
+			resp = restClient.postForObject(env.getEmployeeUrl() + "saveemployeeMaster", manageEmployeeModel,
+					JsonResponse.class);
+
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		String message = resp.getMessage();
+
+		if (message != null && message != "") {
+
+		} else {
+			session.removeAttribute("employeePFile");
+			resp.setMessage("Success");
+		}
+
+		logger.info("Method : saveemployee personalMaster End");
+		return resp;
+	}
+
+	public String saveAllImage(byte[] imageBytes, String ext) {
+		logger.info("Method : saveAllImage starts");
+
+		String imageName = null;
+
+		try {
+
+			if (imageBytes != null) {
+				long nowTime = new Date().getTime();
+				if (ext.contentEquals("jpeg")) {
+					imageName = nowTime + ".jpg";
+				} else {
+					imageName = nowTime + "." + ext;
+				}
+
+			}
+
+			Path path = Paths.get(env.getFileUploadEmployee() + imageName);
+			if (imageBytes != null) {
+				Files.write(path, imageBytes);
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		logger.info("Method : saveAllImage ends");
+		return imageName;
+	}
 	
+	
+	@SuppressWarnings("unchecked")
+	@PostMapping("/manage-employee-address-save")
+	public @ResponseBody JsonResponse<Object> saveemployeeaddress(@RequestBody ManageEmployeeAddressModel manageEmployeeAddressModel, HttpSession session) {
+		logger.info("Method : saveemployeeaddress starts");
+		
+		JsonResponse<Object> resp = new JsonResponse<Object>();
+		
+		String userId = "";
+		
+		try {
+			userId = (String) session.getAttribute("USER_ID");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		manageEmployeeAddressModel.setCreatedBy(userId);
+		
+		
+		
+		try {
+			resp = restClient.postForObject(env.getEmployeeUrl() + "saveemployeeaddress", manageEmployeeAddressModel,
+					JsonResponse.class);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		
+		String message = resp.getMessage();
+
+		if (message != null && message != "") {
+
+		} else {
+			session.removeAttribute("employeePFile");
+			resp.setMessage("Success");
+		}
+		
+		System.out.println("Success");
+		
+		logger.info("Method : saveemployeeaddress starts");
+		return resp;
+	}
+
+@SuppressWarnings("unchecked")
+@GetMapping("view-emp-address-mstr-data")
+public @ResponseBody List<ManageEmployeeAddressModel> viewemployeeaddressthroughajax(Model model, HttpServletRequest request) {
+	logger.info("Method : viewemployeeaddressthroughajax starts");
+
+	JsonResponse<List<ManageEmployeeAddressModel>> jsonResponse = new JsonResponse<List<ManageEmployeeAddressModel>>();
+
 	try {
-		
-		if(imageBytes!=null) {
-			long nowTime = new Date().getTime();
-			if(ext.contentEquals("jpeg")) {
-				imageName = nowTime+".jpg";
-			} else {
-				imageName = nowTime+"."+ext;
-			}
-			
-		}
 
-		Path path = Paths.get(env.getFileUploadEmployee() + imageName);
-		if(imageBytes !=null) {
-			Files.write(path, imageBytes);
-		}
-		
+		jsonResponse = restClient.getForObject(env.getEmployeeUrl() + "viewEmployeeadd",
+				JsonResponse.class);
+
+
 	} catch (Exception e) {
 		e.printStackTrace();
 	}
-	logger.info("Method : saveAllImage ends");
-	return imageName;
-}
-}
 
+	logger.info("Method ; viewemployeeaddressthroughajax ends");
+	System.out.println("###########" + jsonResponse.getBody());
+
+	return jsonResponse.getBody();
+}
+}

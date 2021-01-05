@@ -298,29 +298,21 @@ public class VendorMasterController {
 	}
 	@SuppressWarnings("unchecked")
 	@GetMapping("manage-vendor-master-through-ajax")
-	public @ResponseBody List<VendorLocationMasterModel> vendorLocationThroughAjax(Model model, HttpServletRequest request) {
+	public @ResponseBody List<VendorLocationMasterModel> vendorLocationThroughAjax(Model model, HttpServletRequest request,@RequestParam String id) {
 		logger.info("Method : vendorLocationThroughAjax starts");
 
 		JsonResponse<List<VendorLocationMasterModel>> jsonResponse = new JsonResponse<List<VendorLocationMasterModel>>();
-
+		System.out.println("id"+id);
 		try {
 
-			jsonResponse = restClient.getForObject(env.getMasterUrl() + "get-vendor-location-list", JsonResponse.class);
+			jsonResponse = restClient.getForObject(env.getMasterUrl() + "get-vendor-location-list?id=" + id, JsonResponse.class);
 
 			ObjectMapper mapper = new ObjectMapper();
 
 			List<VendorLocationMasterModel> addreq = mapper.convertValue(jsonResponse.getBody(),
 					new TypeReference<List<VendorLocationMasterModel>>() {
 					});
-		/*	for (AddRecruitentModel m : addreq) {
-				if (m.getActivityStatus() == "1") {
-					m.setActivityStatus("Created");
-				} else if (m.getActivityStatus() == "2") {
-					m.setActivityStatus("Active");
-				} else if (m.getActivityStatus() == "3") {
-					m.setActivityStatus("Closed");
-				}
-			}*/
+		
 			jsonResponse.setBody(addreq);
 
 		} catch (Exception e) {
@@ -331,5 +323,56 @@ public class VendorMasterController {
 		System.out.println("###########" + jsonResponse.getBody());
 
 		return jsonResponse.getBody();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@PostMapping("/manage-vendor-master-location-edit")
+	public @ResponseBody JsonResponse<Object> editVendorLocationMaster(@RequestBody String vendorId, HttpSession session) {
+		logger.info("Method : editVendorLocationMaster starts");
+		
+		JsonResponse<Object> resp = new JsonResponse<Object>();
+		
+		try {
+			resp = restClient.getForObject(env.getMasterUrl() + "editVendorLoactionById?id="+vendorId,
+					JsonResponse.class);
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			VendorLocationMasterModel locDetails = mapper.convertValue(resp.getBody(),
+					new TypeReference<VendorLocationMasterModel>() {
+					});
+			try {
+				DropDownModel[] state = restClient.getForObject(env.getMasterUrl() + "viewStateLocListByCountry?id="+locDetails.getVendorCountry(), DropDownModel[].class);
+				List<DropDownModel> stateList = Arrays.asList(state);
+				System.out.println(stateList);
+				locDetails.setStateList(stateList);
+			} catch (RestClientException e) {
+				e.printStackTrace();
+			}
+			
+			try {
+				DropDownModel[] city = restClient.getForObject(env.getMasterUrl() + "viewCityLocListByState?id="+locDetails.getVendorState(), DropDownModel[].class);
+				List<DropDownModel> cityList = Arrays.asList(city);
+				
+				locDetails.setCityList(cityList);
+			} catch (RestClientException e) {
+				e.printStackTrace();
+			}
+			resp.setBody(locDetails);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		
+		
+		String message = resp.getMessage();
+		
+		if (message != null && message != "") {
+			
+		} else {
+			resp.setMessage("success");
+		}
+		
+		logger.info("Method : editVendorLocationMaster starts");
+		return resp;
 	}
 }

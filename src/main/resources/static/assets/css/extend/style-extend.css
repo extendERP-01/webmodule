@@ -2335,13 +2335,6 @@ hr {
 	left: -20px;
 	width: 60%;
 }
-.hr2 {
-	position: relative;
-    top: 12px;
-    left: -10px;
-    width: 60%;
-    border: 1px solid #e5e5e5;
-}
 
 .hr3 {
 	position: relative;
@@ -3073,4 +3066,88 @@ float: left;
 th
 {
 font-weight:100;
+}
+
+/* Ashish 05/01/2021 */
+.hr2 {
+position: relative;
+top: 12px;
+left: 3px;
+width: 45%;
+border: 1px solid #e5e5e5;
+}
+
+.ag-body-horizontal-scroll-viewport
+{
+height: 5px!important;
+min-height: 5px!important;
+max-height:5px!important;
+}
+
+h5 span {
+	font-family: "helveticaneue" !important;
+	font-weight: 100 !important;
+	font-size: 16px;
+	color: #ccc;
+}
+
+.cat_plusbtn {
+	background: #FFF;
+	color: #008f00;
+	float: left;
+	width: 36px;
+	border-radius: 18px;
+	font-family: 'HelveticaNeue';
+	text-align: center;
+	padding: 3px 0px;
+	font-size: 18px;
+	font-weight: 100;
+	margin-top: 5px;
+}
+.ft-lt{
+	float:left;
+}
+.roomdetails2 {
+    height: auto;
+    padding: 0px 25px 0px;
+    margin-top: -10px;
+    float: left;
+    width: auto;
+}
+
+.catdiv {
+	margin-left: -60px;
+    margin-top: 5px;
+}
+
+.form-control_big::-webkit-input-placeholder {
+    color: #e5e5e5;
+    opacity: 1;
+    padding:0px;
+}
+
+.form-control_big:-ms-input-placeholder {
+    color: #e5e5e5;
+    opacity: 1;
+    padding:0px;
+}
+
+.form-control_big::placeholder {
+    color: #e5e5e5;
+    opacity: 1;
+    padding:0px;
+}
+
+.position-r {
+	position: relative;
+	bottom: 2px;
+}
+
+.position-l {
+	position: relative;
+	bottom: 3px;
+}
+
+.pdb-24 {
+	padding-bottom: 24px;
 }

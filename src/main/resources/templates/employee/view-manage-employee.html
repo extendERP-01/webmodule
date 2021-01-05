@@ -174,13 +174,13 @@
 		];
 
 
+
+
 /* 
-
-
 	 var rowdata = [
 		{requisitionId: "8", jobTitle: 'Software Engineer', noPosition: "2", band: "Band 4", department: "Product development", hiringManager: "Pradip Singh", joinDate: "8-Nov-2020",
 		minSalary: "400000", activityStatus: "Active"}
-		]; 
+		];  */
 
 		var gridOptions = {
 		columnDefs: columnDefs,
@@ -205,43 +205,10 @@
 
 		});
 
-		agGrid.simpleHttpRequest({url: 'view-emp-address-mstr-data'}).then(function(data) {
-		var len = data.length;
-		
+		agGrid.simpleHttpRequest({url: 'view-emp-address-mstr-data'}).then(function(data) {	
+			console.log(data)
 		gridOptions.api.setRowData(data);
 		});
-		 */
-		
-		 
-		 // specify the data
-		 var rowData = [
-		   {type: "Primary", address: 'Nayapally n/35', city: "Bhubaneswar", state: "Odisha", country: "India", zipCode: "751010", status: "active"},
-		   {type: "Primary", address: 'Nayapally n/35', city: "Bhubaneswar", state: "Odisha", country: "India", zipCode: "751010", status: "Inactive"},
-		 ];
-		     
-		 // let the grid know which columns and what data to use
-		 var gridOptions = {
-		   columnDefs: columnDefs,
-		   rowData: rowData/* ,
-		   defaultColDef: {
-		       filter: true // set filtering on for all columns
-		   } */
-		   
-		 };
-
-		 // setup the grid after the page has finished loading
-		 document.addEventListener('DOMContentLoaded', function() {
-		     var gridDiv = document.querySelector('#myGrid');
-		     new agGrid.Grid(gridDiv, gridOptions);
-		 });
-		
-		 
-		 
-		 var i =0;
-		    function cellAsLink(){
-		    	var link = "<a href='#' onclick='titlePage()'>" + rowData[i].title + "</a>";
-		    	return link;
-		    	}
 		
 		</script>
 <script type="text/javascript">
@@ -345,6 +312,29 @@
 			submitemployee(data);
 
 		})
+		
+		$("#submitemployeeaddress").click(function(){
+		
+		data = {};
+		
+		
+		data.employeeId = $("#employeeId").val();
+		
+		
+		data.type = $("#typeid_").val();
+		data.address = $("#addressid_").val();
+	
+		
+		data.city = $("#cityid_").val();
+		data.state = $("#stateid_").val();
+		data.country = $("#countryid_").val();
+		data.zipCode = $("#zipcodeid_").val();
+		data.status = $("#Status_").val();
+		
+		submitemployeeaddress(data);
+	
+		
+	})
 
 		$("#profilecancelbtn").click(function() {
 			$("#newId").show();
@@ -386,7 +376,7 @@
 					/* $("#myUL").show(); */
 					$("#employeeId").text("");
 					$("#employeeId").text(
-							"Vendor Id :" + response.body.employeeId);
+							"employee Id :" + response.body.employeeId);
 					/* 				var labeltxt = response.body.code + " - " + response.body.vendorName + " (0)"; */
 					$("#employeeId").text(labeltxt);
 
@@ -402,6 +392,43 @@
 				console.log(response);
 			}
 		})
+	}
+	
+	
+	
+	function submitemployeeaddress(dataset) {
+	
+	    $.ajax({
+	        type: "POST",
+	        url: "manage-employee-address-save",
+	        dataType: "json",
+	        contentType: "application/json",
+	        data: JSON.stringify(dataset),
+	        success: function(response) {
+	            if (response.message == "Success") {
+	            	
+	            	console.log(response.body)
+	            	
+	            	/* $("#myUL").show(); */
+	            	agGrid.simpleHttpRequest({
+	    		    	url : 'manage-vendor-master-through-ajax'
+	    		    }).then(function(data) {
+	    		    	console.log("dataa"+JSON.stringify(data))
+	    		    	gridOptions.api.setRowData(data);
+	    		    });
+
+	            } else {
+	                swal({
+	                    title: response.code,
+	                    text: response.message,
+	                    type: "warning"
+	                })
+	            }
+	        },
+	        error: function(response) {
+	            console.log(response);
+	        }
+	    })
 	}
 
 	var count = 0;
@@ -431,15 +458,15 @@
 </script>
 <script>
 function openNav() {
-  document.getElementById("mySidenav").style.cssText = "width: 250px; position: absolute; right:-37px; overflow: hidden; height:auto;";  
- 
-  document.getElementById("main").style.width = "78%";
-}
+	document.getElementById("mySidenav").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:auto;";
 
-function closeNav() {
-  document.getElementById("mySidenav").style.width = "0";
-  document.getElementById("main").style.width= "100%";
-}
+	document.getElementById("main").style.width = "82%";
+	}
+
+	function closeNav() {
+	document.getElementById("mySidenav").style.width = "0";
+	document.getElementById("main").style.width = "100%";
+	}
 </script>
 </head>
 <body>
@@ -546,6 +573,7 @@ function closeNav() {
 										</tbody>
 									</table>
 								</div>
+								<div id="main">
 								<div id="profile" class="collapse">
 									<div class="row">
 										<div class="col-md-6 btn-hs"></div>
@@ -857,7 +885,7 @@ function closeNav() {
 											<div class="slidebox">
 												<div class="row">
 													<div class="col-md-10">
-														<div class="edit">Location</div>
+														<div class="edit">Address</div>
 													</div>
 													<div class="col-md-2">
 														<div class="arrow">
@@ -870,58 +898,76 @@ function closeNav() {
 														<div class="row">
 															<button class="btn4">CANCEL</button>
 															<button class="btn3">DELETE</button>
-															<button class="btn1">SAVE</button>
+															<button class="btn1" id="submitemployeeaddress">SAVE</button>
 														</div>
 													</div>
 												
 													<div class="col-md-12 mt-15">
 														<div class="form-group">
-															<label>Type</label> <input type="text"
-																class="form-control transparenttxtbox"
-																placeholder="Type" id="vendorLocationName">
-														</div>
+																<input type="text" name="type" value=""
+																	placeholder="Type" class="form-control typecls"
+																	id="typeid_">
+															</div>
 													</div>
 													<div class="col-md-12 mt-15">
 														<div class="form-group">
-															<label>Address</label> <input type="text"
-																class="form-control transparenttxtbox"
-																placeholder="Address" id="vendorLocationName">
-														</div>
+																<input type="text" name="Address" value=""
+																	placeholder="Address" class="form-control adresscls"
+																	id="addressid_">
+															</div>
 													</div>
 													<div class="col-md-12 mt-15">
 														<div class="form-group">
-															<label>City</label> <input type="text"
-																class="form-control transparenttxtbox"
-																placeholder="City" id="vendorLocationName">
-														</div>
+
+
+																<select class="form-control   cityclsss" id="cityid_">
+																	<option value="">Select</option>
+																	<option th:each="c,iter:${cityList}"
+																		th:value="${c.key}" th:text="${c.name}"></option>
+																</select>
+
+															</div>
 													</div>
 													<div class="col-md-12 mt-15">
 														<div class="form-group">
-															<label>State</label> <input type="text"
-																class="form-control transparenttxtbox"
-																placeholder="State" id="vendorLocationName">
-														</div>
+
+
+																<select class="form-control stateclss" id="stateid_">
+																	<option value="">Select</option>
+																	<option th:each="c,iter:${stateList}"
+																		th:value="${c.key}" th:text="${c.name}"></option>
+																</select>
+
+															</div>
+
 													</div>
 													<div class="col-md-12 mt-15">
 														<div class="form-group">
-															<label>Country</label> <input type="text"
-																class="form-control transparenttxtbox"
-																placeholder="Country" id="vendorLocationName">
-														</div>
+
+
+																<select class="form-control  countryclss"
+																	id="countryid_">
+																	<option value="">Select</option>
+																	<option th:each="c,iter:${counntryList}"
+																		th:value="${c.key}" th:text="${c.name}"></option>
+																</select>
+															</div>
 													</div>
 													<div class="col-md-12 mt-15">
 														<div class="form-group">
-															<label>Zip Code</label> <input type="text"
-																class="form-control transparenttxtbox"
-																placeholder="Zip Code" id="vendorLocationName">
-														</div>
+																<input type="text" name="zipcode" value=""
+																	placeholder="zipcode" class="form-control   zipclss"
+																	id="zipcodeid_">
+															</div>
 													</div>
 											<div class="col-md-12 mt-15">
 														<div class="form-group">
-															<label>Status</label> <input type="text"
-																class="form-control transparenttxtbox"
-																placeholder="Status" id="vendorLocationName">
-														</div>
+																			<label>Status</label> <select id="Status_"
+																				class="form-control">
+																				<option value="Active">Active</option>
+																				<option value="Inactive">Inactive</option>
+																			</select>
+																		</div>
 													</div>
 												
 												<!-- </div> -->
@@ -1093,7 +1139,7 @@ function closeNav() {
 											<table  id="docTbl" cellspacing="7" cellpadding="7">
 												<thead>
 													<tr class="tr_clone">
-
+                                                       <th align="center"></th>
 														<th width="320">Document Type</th>
 														<th width="320">Document No</th>
 
@@ -1106,7 +1152,7 @@ function closeNav() {
 													<tr>
 
 
-
+                                                      <td align="center" class="pdb-24"><input class="checkCls" type="checkbox" id="check2"><label for="check2"></label></td>
 														<td><div class="form-group">
 
 
@@ -1115,11 +1161,12 @@ function closeNav() {
 																	<option th:each="c,iter:${documenttypeList}"
 																		th:value="${c.key}" th:text="${c.name}"></option>
 																</select>
-															</div></td>
+															</div>
+															</td>
 
 														<td><div class="form-group">
 																<input type="text" name="status" value=""
-																	placeholder="Status" class="form-control  docNoclss"
+																	placeholder="Passport No" class="form-control  docNoclss"
 																	id="docnoid_">
 															</div></td>
 														<td>
@@ -1135,7 +1182,7 @@ function closeNav() {
 															<div id="uploadedBillDiv_0" align="center"
 																class="uploadedBillCls"></div> -->
 
-															<div class="control-group">
+															<div class="control-group position-r">
 																<label class="custom-file-upload" for="userImage">
 																	<i class="ti-plus"></i>
 																</label>
@@ -1145,7 +1192,7 @@ function closeNav() {
 																</div>
 															</div>
 
-															<div class="uploadicon">
+															<div class="uploadicon position-l">
 																<i class="fa fa-file-pdf-o"></i> 
 															</div>
 														</td>
@@ -1672,7 +1719,7 @@ function closeNav() {
 										</div>
 									</div>
 								</div>
-
+</div>
 							</div>
 
 						</div>

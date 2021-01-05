@@ -29,6 +29,7 @@ import nirmalya.aathithya.webmodule.common.utils.DropDownModel;
 import nirmalya.aathithya.webmodule.common.utils.EnvironmentVaribles;
 import nirmalya.aathithya.webmodule.common.utils.JsonResponse;
 import nirmalya.aathithya.webmodule.recruitment.model.AddRecruitentModel;
+import nirmalya.aathithya.webmodule.recruitment.model.RequisitionActivityModel;
 
 @Controller
 @RequestMapping(value = "recruitment")
@@ -455,16 +456,7 @@ public class AddRecruitmentController {
 		if (message != null && message != "") {
 			model.addAttribute("message", message);
 		}
-
-		/*
-		 * ObjectMapper mapper = new ObjectMapper();
-		 * 
-		 * List<AddRecruitentModel> req = mapper.convertValue(jsonResponse.getBody(),new
-		 * TypeReference<List<AddRecruitentModel>>() {});
-		 * session.setAttribute("message", ""); System.out.println(req);
-		 * model.addAttribute("reqisitionId", req.get(0).getRequisitionId());
-		 * model.addAttribute("requisition", req);
-		 */
+		 
 		if (jsonResponse.getMessage() != null && jsonResponse.getMessage() != "") {
 			jsonResponse.setCode(jsonResponse.getMessage());
 			jsonResponse.setMessage("Unsuccess");
@@ -473,9 +465,56 @@ public class AddRecruitmentController {
 			jsonResponse.setMessage("Success");
 		}
 		
-		System.out.println(jsonResponse);
+		System.out.println("##@@@@"+jsonResponse);
 		logger.info("Method : editRequisition ends");
 		return jsonResponse;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@GetMapping("/view-new-requi-mstr-view-activity")
+	public @ResponseBody List<RequisitionActivityModel> activityRequisition(Model model, @RequestParam String id, HttpSession session) {
+		
+		logger.info("Method : activityRequisition starts");
+		
+		JsonResponse<List<RequisitionActivityModel>> jsonResponse = new JsonResponse<List<RequisitionActivityModel>>();
+		
+		try {
+			jsonResponse = restTemplate.getForObject(env.getRecruitment() + "activityRequisition?id=" + id,
+					JsonResponse.class);
+			
+		} catch(RestClientException e) {
+			e.printStackTrace();
+		}
+		String message = (String) session.getAttribute("message");
+
+		if (message != null && message != "") {
+			model.addAttribute("message", message);
+		}
+
+		 ObjectMapper mapper = new ObjectMapper();
+		 List<RequisitionActivityModel> req = mapper.convertValue(jsonResponse.getBody(),new
+		 TypeReference<List<RequisitionActivityModel>>() {});
+		
+		for(RequisitionActivityModel m : req) {
+			if(m.getActivityHistoryStatus().equals("1")) {
+				m.setActivityHistoryStatus("Created");
+			}
+			if(m.getActivityHistoryStatus().equals("2")) {
+				m.setActivityHistoryStatus("Updated");
+			}
+		}
+		 
+		if (jsonResponse.getMessage() != null && jsonResponse.getMessage() != "") {
+			jsonResponse.setCode(jsonResponse.getMessage());
+			jsonResponse.setMessage("Unsuccess");
+			
+		} else {
+			jsonResponse.setMessage("Success");
+		}
+		jsonResponse.setBody(req);
+		
+		logger.info("Method : activityRequisition ends");
+		return jsonResponse.getBody();
 	}
 	
 }

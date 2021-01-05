@@ -32,6 +32,8 @@ public class AddRecruitentModel {
 	private String reqBenefits;
 	private Integer count;
 	
+	
+	
 	public String getCreatedBy() {
 		return createdBy;
 	}
@@ -177,6 +179,7 @@ public class AddRecruitentModel {
 	public void setReqBenefits(String reqBenefits) {
 		this.reqBenefits = reqBenefits;
 	}
+	
 	@Override
 	public String toString() {
 		ObjectMapper mapperObj = new ObjectMapper();

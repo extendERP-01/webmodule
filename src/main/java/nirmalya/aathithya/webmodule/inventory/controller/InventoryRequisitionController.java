@@ -128,7 +128,7 @@ public class InventoryRequisitionController {
 	}
 
 	/*
-	 * for edit
+	 * for copy
 	 * 
 	 * 
 	 */
@@ -344,4 +344,36 @@ public class InventoryRequisitionController {
 		logger.info("Method : approveItemRequisition function Ends");
 		return res;
 	}
+
+	/**
+	 * Web Controller - Get Item List By AutoSearch
+	 *
+	 */
+	@SuppressWarnings("unchecked")
+	@GetMapping(value = { "/view-requisition-get-product-by-req-sku" })
+	public @ResponseBody JsonResponse<InventoryRequisitionModel> getProductByReqList(@RequestParam String id,
+			@RequestParam String prodId) {
+		logger.info("Method : getProductByReqList starts");
+
+		JsonResponse<InventoryRequisitionModel> res = new JsonResponse<InventoryRequisitionModel>();
+
+		try {
+			res = restTemplate.getForObject(
+					env.getInventoryUrl() + "getProductByReqList?id=" + id + "&prodId=" + prodId, JsonResponse.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		if (res.getMessage() != null) {
+
+			res.setCode(res.getMessage());
+			res.setMessage("Unsuccess");
+		} else {
+			res.setMessage("success");
+		}
+
+		logger.info("Method : getProductByReqList ends");
+		return res;
+	}
+
 }

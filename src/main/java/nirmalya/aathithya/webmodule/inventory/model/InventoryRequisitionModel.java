@@ -41,7 +41,8 @@ public class InventoryRequisitionModel {
 	private String moduleId;
 	private String componentId;
 	private String subComponentId;
-
+	private String approveStatus;
+	
 	public InventoryRequisitionModel() {
 		super();
 	}
@@ -308,6 +309,14 @@ public class InventoryRequisitionModel {
 
 	public void setSubComponentId(String subComponentId) {
 		this.subComponentId = subComponentId;
+	}
+
+	public String getApproveStatus() {
+		return approveStatus;
+	}
+
+	public void setApproveStatus(String approveStatus) {
+		this.approveStatus = approveStatus;
 	}
 
 	@Override

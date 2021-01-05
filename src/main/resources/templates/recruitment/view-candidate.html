@@ -11,8 +11,7 @@
 			$(this).css('background-color', '#0076BA');
 			$(this).css('color', '#FFFFFF');
 			$(this).css('color', '#FFFFFF');
-		});
-		
+		});   
 	});
 	  
 	  function cancelBar(){
@@ -27,31 +26,27 @@
 	  var columnDefs = [
 			{ headerCheckboxSelection: true,
 		        headerCheckboxSelectionFilteredOnly: true, checkboxSelection: true,width: 10, sortable: false,filter: false,resizable: true},
-			    {headerName: "Req ID", field: "requisitionId" },
-			    {headerName: "Title", field: "jobTitle",
-			     cellRenderer: function(params){
-			        return '<a onclick=titlePage("' +  params.data.requisitionId + '") href="javascript:void(0)">' + params.data.jobTitle + '</a>';} },
-			    {headerName: "# of positions", field: "noPosition",type:"rightAligned"},
-			    {headerName: "Band", field: "band"},
-			    {headerName: "Department", field: "department"},
-			    {headerName: "Hiring Manager", field: "hiringManager"},
-			    {headerName: "Join Date", field: "joinDate",cellStyle: {textAlign: 'center'}},
-			    {headerName: "CTC Cap", field: "minSalary",type:"rightAligned"},
-			    {headerName: "Status", field: "activityStatus"},
-			    {headerName: "Applicants", field: "applicant"},
-			    {headerName: "Shortlisted", field: "shortList"},
-			    {headerName: "Interviewed", field: "interviewed"},
-			    {headerName: "Offered", field: "offered"},
-			    {headerName: "Create Date", field: "createdOn",cellStyle: {textAlign: 'center'}}
+			    {headerName: "Candidate ID", field: "candidateId"},
+			    {headerName: "Name", field: "candidateName"},
+			    {headerName: "Location", field: "location"},
+			    {headerName: "BOD", field: "dob"},
+			    {headerName: "Experience", field: "experience"},
+			    {headerName: "Source", field: "source"},
+			    {headerName: "# of Applications", field: "application"},
+			    {headerName: "Candidacy Status", field: "status"},
+			    {headerName: "Resume", field: "resume"},
+			    {headerName: "Last Updated", field: "lastUpdate"},
+			    {headerName: "Create Date", field: "createdOn"}
 			]; 
 	  
-	 /*  var rowData = [
-			{requisitionId: "8", jobTitle: 'Software Engineer', noPosition: "2", band: "Band 4", department: "Product development", hiringManager: "Pradip Singh", joinDate: "8-Nov-2020",
-				minSalary: "400000", activityStatus: "Active"}
-			]; */
+	var rowData = [
+			{candidateId: "8", candidateName: 'Rajesh Kanhar', location: "Odisha", dob: "13-01-1997", experience: "1", source: "Interna", application: "2",
+				status: "Active", resume: "VIEW", lastUpdate: "", createdOn: "9-Oct-20"}
+			];
 	  
 	  var gridOptions = {
 			   columnDefs: columnDefs,
+			   rowData: rowData,
 			  defaultColDef: {
 				  sortable: true, 
 				  filter: true, 
@@ -68,26 +63,35 @@
 			     var gridDiv = document.querySelector('#myGrid');
 			     new agGrid.Grid(gridDiv, gridOptions);
 			     
-			     
-			     var myVendor = document.querySelector('#myVendor');
-			     new agGrid.Grid(myVendor, gridOptionsChild);
-			     
 			 });
 			  
-			  agGrid.simpleHttpRequest({url: 'view-new-requi-mstr-view-data'}).then(function(data) {
+			  /* agGrid.simpleHttpRequest({url: 'view-new-requi-mstr-view-data'}).then(function(data) {
 				var len = data.length;
-				$('#totalReq').find('span').html(len);
+				$('#totalCandidate').find('span').html(len);
 			      gridOptions.api.setRowData(data);
-			   });
-			    
-			  /* function resetState() {
-				   gridOptions.columnApi.resetColumnState();
-				   console.log('column state reset');
-				 } */
+			   }); */
 			    
 			    function onQuickFilterChanged() {
 			    	  gridOptions.api.setQuickFilter(document.getElementById('quickFilter').value);
 			    	}
+	
+	function addCandidate(){
+		$('#hideTbl').hide();
+		$('#buttonDetails').hide();
+		$('#myGrid').hide();
+		$('#demo').show();
+	}
+	
+	function openNav() {
+		document.getElementById("mySidenav").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:auto;";
+
+		document.getElementById("main").style.width = "82%";
+	}
+
+	function closeNav() {
+		document.getElementById("mySidenav").style.width = "0";
+		document.getElementById("main").style.width = "100%";
+	}
 </script>
 <body>
 	<div layout:fragment="content" class="maincontent">
@@ -96,7 +100,7 @@
 			<div class="row">
 				<div class="maincontentsec">
 					<div class="content_padding">
-						<div class="row margin_topbot">
+						<div class="row margin_topbot" id="hideTbl">
 							<div class="col-md-8 padding-7">
 								<div class="input-style row">
                                 <input type="text"  placeholder="Search.." name="search" class="searchboxinput" onkeyup="cancelBar()" oninput="onQuickFilterChanged()" id="quickFilter" >
@@ -104,15 +108,15 @@
                             </div>
 							</div>
 						</div>
-						<div class="col-md-12 padding-7">
+						<div class="col-md-12 padding-7" id="buttonDetails">
 							<div class="row mt-20">
 
 								<div class="section1_big">
-									<div class="font-design" id="totalReq">CANDIDATE LIST (<span></span>)</div>
+									<div class="font-design" id="totalCandidate">CANDIDATE LIST (<span></span>)</div>
 								</div>
 								<div class="section2_new">
 									<div class="row">
-										<button class="btn1">NEW</button>
+										<button class="btn1" onclick="addCandidate()">NEW</button>
 										<button class="btn2">COPY</button>
 										<button class="btn3">BLACKLIST</button>
 									</div>
@@ -128,63 +132,376 @@
 						
 						<div id="myGrid" style="width:100%; height:200px;" class="ag-theme-alpine"></div>
 						
-						<!-- <table class="newtbl" id="example">
-							<thead>
-								<tr>
-									<th align="center" width="20"><input type="checkbox"
-										onclick="allCheck()" id="check1"><label for="check1"></label></th>
-									<th align="center">Candidate ID</th>
-									<th align="center">Name</th>
-									<th align="center">Location</th>
-									<th align="center">BOD</th>
-									<th align="center">Experience</th>
-									<th align="center">Source</th>
-									<th align="center">No of Applications</th>
-									<th align="center">Candidacy Status</th>
-									<th align="center">Resume</th>
-									<th align="center">Last Updated</th>
-									<th align="center">Create Date</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td align="center"><input class="checkCls" type="checkbox"
-										id="check2"><label for="check2"></label></td>
-									<td align="center"><div class="txt-blue">1023</div></td>
-									<td align="Left">
-										<div data-toggle="modal" data-target="#myModal"
-											class="txt-blue">Kamala Suresh</div>
-									</td>
-									<td align="Left">Cochin, India</td>
-									<td align="center">14-Jan-99</td>
-									<td align="center">5</td>
-									<td align="Left">Interna</td>
-									<td align="center">2</td>
-									<td align="center">Active</td>
-									<td align="center">VIEW</td>
-									<td align="center">9-Oct-20</td>
-									<td align="center">9-Oct-20</td>
-								</tr>
-								<tr>
-									<td align="center"><input class="checkCls" type="checkbox"
-										id="check3"><label for="check3"></label></td>
-									<td align="center"><div class="txt-blue">1004</div></td>
-									<td align="Left">
-										<div data-toggle="modal" data-target="#myModal" class="txt-blue">Amal Bhat</div>
-									</td>
-									<td align="Left">Delhi, India</td>
-									<td align="center">27-Aug-98</td>
-									<td align="center">6</td>
-									<td align="Left">Global Tech</td>
-									<td align="center">0</td>
-									<td align="center">No Activity</td>
-									<td align="center">VIEW</td>
-									<td align="center">9-Oct-20</td>
-									<td align="center">9-Oct-20</td>
-								</tr>
-							</tbody>
-						</table> -->
+						
+						
+						<div class="collapse" id="demo">
+						<div class="innerstickybg">
+							
+							<div class="row">
+							
+								<div class="col-md-4"> </div>
+								<div class="col-md-4">
+									
+								</div>
+								<div class="col-md-4" align="right">
+									<button class="btn3" id="cancelBtn">Cancel</button>
+									<button class="btn1" id="saveVendor">Save</button>
+								</div>
+								</div>
+								
+								</div>
+								<div class="innercontent">
+								<div class="row">
+								<div class="col-md-3">
+									<div class="hvrbox">
+										<img src="../assets/images/noimage.jpg" id="imgLoc"
+											alt="Location" class="hvrbox-layer_bottom img-fluid"
+											style="height: 203px; width: 241px;">
+										<div class="hvrbox-layer_top">
+											<div class="hvrbox-text">
+											<input type="file" id="fileUpload" hidden
+													onchange="saveFile();" /> <span><label
+													for="fileUpload"><i class="ti-files"
+														style="cursor: pointer;"></i> <!-- <i class="fa fa-pencil-square-o"></i> --></label></span>
+												<span><i class="fa fa-trash red"
+													onclick="deleteFile();"></i></span>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-md-9">
+									<div class="row">
+										
+									</div>
+									<div class="row">
+										
 
+										
+
+										
+									</div>
+								</div>
+</div>
+</div>
+							<div id="main">
+							
+							<!-- SIDE BAR NAVIGATION STARTS -->
+							<div id="mySidenav" class="sidenav">
+											<div class="slidebox">
+												<div class="row">
+													<div class="col-md-10">
+														<div class="edit" id="heading"></div>
+													</div>
+													<div class="col-md-2">
+														<div class="arrow">
+															<a href="javascript:void(0)" class="closebtn"
+																onclick="closeNav()"><i class="ti-arrow-right"></i></a>
+														</div>
+													</div>
+													</div>
+													<div class="chartbtnsec">
+														<div class="row">
+															<button class="btn4">CANCEL</button>
+															<button class="btn3">DELETE</button>
+															<button class="btn1">SAVE</button>
+														</div>
+													</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															
+														</div>
+													</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															
+														</div>
+													</div>
+													
+											
+												
+												<!-- </div> -->
+											</div>
+										</div>
+							<!-- SIDE BAR NAVIGATION ENDS -->
+							
+							<div class="wrapper center-block">
+									<div class="panel-group" id="accordion" role="tablist"
+										aria-multiselectable="true">
+										
+									<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingOne">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseOne"
+															aria-expanded="false" aria-controls="collapseOne">
+															Personal Details</a>
+													</h4>
+												</div>
+												<div id="collapseOne" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingThree">
+								<div class="row">
+
+									<div class="col-md-5 btn-hs1">
+										<div class="font-design"></div>
+									</div>
+									
+									<div class="col-md-12 btn-hs1" align="right">
+										<button class="btn1" id="newLocation" onclick="openNav();" >NEW</button>
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+									</div>
+
+								</div>
+
+								
+
+							</div>
+							</div>
+							
+
+							
+							<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingThree">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseThree"
+															aria-expanded="false" aria-controls="collapseTwo">
+															Educational Details </a>
+													</h4>
+												</div>
+												<div id="collapseThree" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingThree">
+								<div class="row">
+
+									<div class="col-md-5 btn-hs1">
+										<div class="font-design">
+											<!-- Vendor LIST <span>(10)</span> -->
+										</div>
+									</div>
+									<div class="col-md-12 btn-hs1">
+										
+											<button class="btn1" id="newBtn1" onclick="openNav();">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+									</div>
+								</div>
+
+								
+
+							</div>
+							</div>
+
+
+						<!-- 	<div class="row">
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#demo_13"
+											style="color: #333; text-decoration: none;">Legal</a> <a
+											href="#" data-toggle="collapse" data-target="#demo_13"
+											style="float: right; color: #333; text-decoration: none;"><i
+											class="ti-angle-down"></i></a>
+									</div>
+								</div>
+							</div>
+
+							<div id="demo_13" class="collapse show">
+								<div class="row"> -->
+								<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingFour">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseFour"
+															aria-expanded="false" aria-controls="collapseFour">
+															IT Skills</a>
+													</h4>
+												</div>
+												<div id="collapseFour" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingFour">
+								<div class="row">
+								
+
+									<div class="col-md-5 padding-7 btn-hs1">
+										<div class="font-design">
+											<!-- Vendor LIST <span>(10)</span> -->
+										</div>
+									</div>
+									<div class="col-md-12 btn-hs1">
+										
+											<button class="btn1" id="newBtn1" onclick="openNav();">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+										
+									</div>
+									
+
+								</div>
+								
+							</div>
+							</div>
+
+
+							<!-- <div class="row">
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#demo_14"
+											style="color: #333; text-decoration: none;">Bank Details</a>
+										<a href="#" data-toggle="collapse" data-target="#demo_14"
+											style="float: right; color: #333; text-decoration: none;"><i
+											class="ti-angle-down"></i></a>
+									</div>
+								</div>
+							</div>
+
+							<div id="demo_14" class="collapse show">
+								<div class="row"> -->
+								<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingFive">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseFive"
+															aria-expanded="false" aria-controls="collapseFive">
+															Work Experience </a>
+													</h4>
+												</div>
+												<div id="collapseFive" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingFive">
+								<div class="row">
+								
+
+									<div class="col-md-5  btn-hs1">
+										<div class="font-design">
+											<!-- Vendor LIST <span>(10)</span> -->
+										</div>
+									</div>
+									<div class="col-md-12 btn-hs1">
+										
+											<button class="btn1" id="newBtn1">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+										
+									</div>
+								
+								</div>
+
+							</div>
+							</div>
+
+
+
+							<!-- <div class="row">
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#demo_16"
+											style="color: #333; text-decoration: none;">Company
+											Information</a> <a href="#" data-toggle="collapse"
+											data-target="#demo_16"
+											style="float: right; color: #333; text-decoration: none;"><i
+											class="ti-angle-down"></i></a>
+									</div>
+								</div>
+							</div>
+
+							<div id="demo_16" class="collapse show">
+								<div class="row"> -->
+								<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingSix">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseSix"
+															aria-expanded="false" aria-controls="collapseSix">
+															Projects </a>
+													</h4>
+												</div>
+												<div id="collapseSix" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingSix">
+								<div class="row">
+								
+
+									<div class="col-md-5  btn-hs1">
+										<div class="font-design">
+											<!-- Vendor LIST <span>(10)</span> -->
+										</div>
+									</div>
+									<div class="col-md-12 btn-hs1">
+										
+											<button class="btn1" id="newBtn1">NEW</button>
+											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<button class="btn3" data-toggle="modal"
+												data-target="#delete">DELETE</button>
+											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
+                                 <a class="btn3 delete-record copy">DELETE</a> -->
+									
+									</div>
+
+								</div>
+
+							</div>
+							</div>
+
+
+
+							<!-- <div class="row">
+								<div class="col-md-12">
+									<div class="headingbar">
+										<a href="#" data-toggle="collapse" data-target="#demo_15"
+											style="color: #333; text-decoration: none;">Activities</a> <a
+											href="#" data-toggle="collapse" data-target="#demo_15"
+											style="float: right; color: #333; text-decoration: none;"><i
+											class="ti-angle-down"></i></a>
+									</div>
+								</div>
+							</div>
+							<div id="demo_15" class="collapse show">
+								<div class="row"> -->
+								<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingSeven">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseSeven"
+															aria-expanded="false" aria-controls="collapseSeven">
+															Resume</a>
+													</h4>
+												</div>
+												<div id="collapseSeven" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingFour">
+								<div class="row">
+								
+									<div class="col-md-5  btn-hs1">
+										<div class="font-design">
+											<!-- Vendor LIST <span>(10)</span> -->
+										</div>
+									</div>
+								
+									<div class="col-md-12 btn-hs1 padding-7" align="right">
+										<button class="btn4">Upload</button>
+										<button class="btn4">Download</button>
+									</div>
+
+								</div>
+
+							</div>
+						</div>
+					
+					</div>
+				</div>
+				
+			</div>
+			
+			
+		</div>
+						
+						
+						
+						
 					</div>
 				</div>
 			</div>

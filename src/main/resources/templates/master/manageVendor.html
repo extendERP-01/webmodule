@@ -21,7 +21,7 @@
 		headerName: "Location ID",
 		field: "vendorLocationId",
 		cellRenderer: function (params) {
-			return '<a onclick=titlePage("' + params.data.vendorLocationId + '") href="javascript:void(0)">' + params.data.vendorLocationId + '</a>';
+			return '<a onclick=editLocation("' + params.data.vendorLocationId + '") href="javascript:void(0)">' + params.data.vendorLocationId + '</a>';
 		}
 	},
 	 {
@@ -70,6 +70,10 @@
 		headerName: "City",
 		field: "vendorCity"
 		
+	},{
+		headerName: "Created Date",
+		field: "createdOn"
+		
 	}];
 
 	var gridOptions = {
@@ -94,13 +98,16 @@
 	new agGrid.Grid(myVendor, gridOptionsChild);  */
 
 	});
+	function agGridLocation(){
+			var vendorId= $("#vendorId").val(); 
 		
 			agGrid.simpleHttpRequest({
-		    	url : 'manage-vendor-master-through-ajax'
+		    	url : "manage-vendor-master-through-ajax?id="+ vendorId
 		    }).then(function(data) {
 		    	console.log("dataa"+JSON.stringify(data))
 		    	gridOptions.api.setRowData(data);
 		    });
+	}
 
 	//ag grid end
 
@@ -217,11 +224,18 @@ $(document).ready(function() {
 	})
 	//save vendor end
 	//save vendor location
-	
+	var vendorId= $("#vendorId").val();
+	if(vendorId != "" && vendorId != null){	
+		$('#newLocation').prop('disabled', false);
+		
+	}else{	
+		$('#newLocation').prop('disabled', true);
+		
+	}
 $("#saveVendorLocation").click(function(){
 		
 		data = {};
-		
+		data.vendorLocationId = $("#vendorLocationId").val();
 		data.vendorLocationName = $("#vendorLocationName").val();
 		data.vendorLocationType = $("#vendorLocationType").val();
 		data.vendorId = $("#vendorId").val();
@@ -250,8 +264,18 @@ $("#saveVendorLocation").click(function(){
 	
 });
 function openNav() {
+	$("#vendorLocationId").val("");
+	$("#vendorLocationName").val("");
+	$("#vendorLocationType").val("");
+	$('#billingStatus').prop('checked', true);
+	$('#primaryStatus').prop('checked', true);
+	$("#vendorLocAddress").val("");
+	$("#vendorCountry").val("");
+	$("#vendorState").empty();
+	$("#vendorState").append("<option value=''>Select</option>");
+	$("#vendorCity").empty();
+	$("#vendorCity").append("<option value=''>Select</option>");
 	document.getElementById("mySidenav").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:850px;";
-
 	document.getElementById("main").style.width = "82%";
 }
 
@@ -423,6 +447,7 @@ function closeNav() {
 			$("#myTbl").hide();
 			$(".btn-hs").hide();
 			$("#demo").show();
+			agGridLocation();
 		})
 
 		$("#cancelBtn").click(function() {
@@ -620,13 +645,16 @@ function submitVendor(dataset) {
             if (response.message == "Success") {
             	
             	console.log(response.body)
-            	
+            	$('#newLocation').prop('disabled', false);
             	/* $("#myUL").show(); */
-            	$("#vendorId").text("");
-				$("#vendorId").text("Vendor Id :"+response.body.vendorId);
+            	$("#vendorText").text("");
+            	$("#vendorId").val(response.body.vendorId);
+				$("#vendorText").text("Vendor Id :"+response.body.vendorId);
 /* 				var labeltxt = response.body.code + " - " + response.body.vendorName + " (0)"; */
-				$("#vendorId").text(labeltxt);
-
+				$("#vendorText").text(labeltxt);
+				
+				
+				
             } else {
                 swal({
                     title: response.code,
@@ -654,12 +682,7 @@ function submitVendorLocation(dataset) {
             	console.log(response.body)
             	
             	/* $("#myUL").show(); */
-            	agGrid.simpleHttpRequest({
-    		    	url : 'manage-vendor-master-through-ajax'
-    		    }).then(function(data) {
-    		    	console.log("dataa"+JSON.stringify(data))
-    		    	gridOptions.api.setRowData(data);
-    		    });
+            	agGridLocation();
 
             } else {
                 swal({
@@ -673,6 +696,60 @@ function submitVendorLocation(dataset) {
             console.log(response);
         }
     })
+}
+function editLocation(id){
+
+	openNav();
+	if(id) {
+		$.ajax({
+			type : "POST",
+			url : "manage-vendor-master-location-edit",
+			dataType : 'json',
+			contentType : 'application/json',
+			data : id,
+			success : function(response) {
+				if (response.message == "success") {
+				
+					$ ("#vendorLocationId").val(response.body.vendorLocationId);
+					$("#vendorLocationName").val(response.body.vendorLocationName);
+					$("#vendorLocationType").val(response.body.vendorLocationType);
+					
+					var vendorBillingStatus = response.body.vendorBillingStatus;
+					
+					if(vendorBillingStatus == '1') {
+						$('#billingStatus').prop('checked', true);
+					} else {
+						$('#billingStatus').prop('checked', false);
+					}
+					var vendorPrimaryStatus = response.body.vendorPrimaryStatus;
+					
+					if(vendorPrimaryStatus == '1') {
+						$('#primaryStatus').prop('checked', true);
+					} else {
+						$('#primaryStatus').prop('checked', false);
+					}
+					$("#vendorLocAddress").val(response.body.vendorLocAddress);
+					$("#vendorCountry").val(response.body.vendorCountry);
+					$("#vendorState").empty();
+					$("#vendorState").append("<option value=''>Select</option>");
+					for(var i=0; i < response.body.stateList.length; i++) {
+						$("#vendorState").append("<option value='"+response.body.stateList[i].key+"'>"+response.body.stateList[i].name+"</option>");
+					}
+					
+					$("#vendorState").val(response.body.vendorState);
+					
+					$("#vendorCity").empty();
+					$("#vendorCity").append("<option value=''>Select</option>");
+					for(var i=0; i < response.body.cityList.length; i++) {
+						$("#vendorCity").append("<option value='"+response.body.cityList[i].key+"'>"+response.body.cityList[i].name+"</option>");
+					}
+					$("#vendorCity").val(response.body.vendorCity);
+				}
+			}, error : function(data) {
+				console.log(data)
+			}
+		});
+	}
 }
 </script>
 </head>
@@ -774,7 +851,8 @@ function submitVendorLocation(dataset) {
 						<div class="innerstickybg">
 							<div class="row">
 							
-								<div class="col-md-4" id="vendorId" >Vendor ID: </div>
+								<div class="col-md-4" id="vendorText" >Vendor ID: </div>
+								<input type="hidden" id="vendorId"/>
 								<div class="col-md-4">
 									<hr>
 									<div class="main-div">
@@ -971,9 +1049,9 @@ function submitVendorLocation(dataset) {
 													</div>
 													<div class="col-md-12 mt-15">
 														<div class="form-group">
-															<label>ID :</label> <!-- <input type="text"
+															<label>ID </label><!-- <span  class="form-control transparenttxtbox" id="vendorLocationId"></span> --> <input type="text"
 																class="form-control transparenttxtbox"
-																placeholder="Marketing" id="vendorLocationId"> -->
+																placeholder="id" id="vendorLocationId" disabled>
 														</div>
 													</div>
 										<div class="col-md-12 mt-15">
@@ -1094,9 +1172,9 @@ function submitVendorLocation(dataset) {
 												data-target="#delete">DELETE</button>
 										</div>
 									</div>
-									<div class="col-md-1 btn-hs1">
+									<!-- <div class="col-md-1 btn-hs1">
 										<button class="btn2">Approve</button>
-									</div>
+									</div> -->
 
 									<div class="col-md-3 btn-hs1" align="right">
 										<button class="btn4">Upload</button>
@@ -1190,9 +1268,9 @@ function submitVendorLocation(dataset) {
                                  <a class="btn3 delete-record copy">DELETE</a> -->
 										</div>
 									</div>
-									<div class="col-md-1 btn-hs1">
+									<!-- <div class="col-md-1 btn-hs1">
 										<button class="btn2">Approve</button>
-									</div>
+									</div> -->
 
 									<div class="col-md-3 btn-hs1 padding-7" align="right">
 										<button class="btn4">Upload</button>

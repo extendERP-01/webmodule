@@ -73,6 +73,57 @@
 	$(document).ready(function() {
 		//changeOpt();
 
+		var reqId = $("#reqHeadId").html();
+		if (reqId) {
+			var holdStatus = $("#isHold").val();
+
+			if (holdStatus == '0') {
+				$('#createdDiv').addClass('green-box');
+				$('#createdDiv').removeClass('grey-box');
+				$('#activeDiv').addClass('grey-box');
+				$('#activeDiv').removeClass('green-box');
+				$('#completeDiv').addClass('grey-box');
+				$('#completeDiv').removeClass('green-box');
+				$('#onHoldDiv').addClass('grey-box');
+				$('#onHoldDiv').removeClass('green-box');
+			} else if (holdStatus == '1') {
+				$('#activeDiv').addClass('green-box');
+				$('#activeDiv').removeClass('grey-box');
+				$('#createdDiv').addClass('grey-box');
+				$('#createdDiv').addClass('grey-box');
+				$('#completeDiv').addClass('grey-box');
+				$('#completeDiv').removeClass('green-box');
+				$('#onHoldDiv').addClass('grey-box');
+				$('#onHoldDiv').removeClass('green-box');
+			} else if (holdStatus == '2') {
+				$('#completeDiv').addClass('green-box');
+				$('#completeDiv').removeClass('grey-box');
+				$('#createdDiv').addClass('grey-box');
+				$('#createdDiv').addClass('grey-box');
+				$('#activeDiv').addClass('grey-box');
+				$('#activeDiv').removeClass('green-box');
+				$('#onHoldDiv').addClass('grey-box');
+				$('#onHoldDiv').removeClass('green-box');
+			} else if (holdStatus == '4') {
+				$('#onHoldDiv').addClass('green-box');
+				$('#onHoldDiv').removeClass('grey-box');
+				$('#completeDiv').removeClass('green-box');
+				$('#completeDiv').addClass('grey-box');
+				$('#createdDiv').addClass('grey-box');
+				$('#createdDiv').addClass('grey-box');
+				$('#activeDiv').addClass('grey-box');
+				$('#activeDiv').removeClass('green-box');
+			}
+		} else {
+			$('#createdDiv').addClass('green-box');
+			$('#createdDiv').removeClass('grey-box');
+			$('#activeDiv').addClass('grey-box');
+			$('#activeDiv').removeClass('green-box');
+			$('#completeDiv').addClass('grey-box');
+			$('#completeDiv').removeClass('green-box');
+			$('#onHoldDiv').addClass('grey-box');
+			$('#onHoldDiv').removeClass('green-box');
+		}
 		$('.collapse').on('show.bs.collapse', function() {
 			$(this).siblings('.panel-heading').addClass('active');
 		});
@@ -86,13 +137,13 @@
 			$(".btn-hs").hide();
 			$("#demo").show();
 		})
-/* 
-		$("#copyBtn").click(function() {
-			$("#myGrid").hide();
-			$("#reqTable").hide();
-			$(".btn-hs").hide();
-			$("#demo").show();
-		}) */
+		/* 
+		 $("#copyBtn").click(function() {
+		 $("#myGrid").hide();
+		 $("#reqTable").hide();
+		 $(".btn-hs").hide();
+		 $("#demo").show();
+		 }) */
 
 		$("#cancelBtn").click(function() {
 			$("#reqTable").show();
@@ -133,113 +184,127 @@
 </script>
 
 <script>
-	var columnDefs = [ {
-		headerCheckboxSelection : true,
-		headerCheckboxSelectionFilteredOnly : true,
-		checkboxSelection : true,
-		sortable : false,
-		filter : false,
-		resizable : true,
-		width : 20
-	}, {
-		headerName : "Requisition Id",
-		field : "reqId"
+	var columnDefs = [
+			{
+				headerCheckboxSelection : true,
+				headerCheckboxSelectionFilteredOnly : true,
+				checkboxSelection : true,
+				sortable : false,
+				filter : false,
+				resizable : true,
+				width : 20
+			},
+			{
+				headerName : "Requisition Id",
+				field : "reqId",
+				cellRenderer : function(params) {
+					return '<a onclick=editRequisition("' + params.data.reqId
+							+ '") href="javascript:void(0)">'
+							+ params.data.reqId + '</a>';
+				}
 
-	}, {
-		headerName : "Description",
-		field : "desc"
-	}, {
-		headerName : "Type",
-		field : "reqType"
-	}, {
-		headerName : "Priority",
-		field : "reqPrior"
+			}, {
+				headerName : "Description",
+				field : "desc"
+			}, {
+				headerName : "Type",
+				field : "reqType"
+			}, {
+				headerName : "Priority",
+				field : "reqPrior"
 
-	}, {
-		headerName : "Receive By Date",
-		field : "receiveDate"
+			}, {
+				headerName : "Receive By Date",
+				field : "receiveDate"
 
-	}, {
-		headerName : "Status",
-		field : "holdStatus"
-	}, {
-		headerName : "Created By",
-		field : "createdBy"
+			}, {
+				headerName : "Status",
+				field : "approveStatus"
+			}, {
+				headerName : "Created By",
+				field : "createdBy"
 
-	}, {
-		headerName : "Created Date",
-		field : "createdOn"
+			}, {
+				headerName : "Created Date",
+				field : "createdOn"
 
-	} ];
+			} ];
 
 	// for product table
 
-	var productDefs = [ {
-		headerCheckboxSelection : true,
-		headerCheckboxSelectionFilteredOnly : true,
-		checkboxSelection : true,
-		sortable : false,
-		filter : false,
-		resizable : true,
-		width : 20
-	}, {
-		headerName : "SKU",
-		field : "sku"
-	}, {
-		headerName : "Name",
-		field : "itemName"
+	var productDefs = [
+			{
+				headerCheckboxSelection : true,
+				headerCheckboxSelectionFilteredOnly : true,
+				checkboxSelection : true,
+				sortable : false,
+				filter : false,
+				resizable : true,
+				width : 20
+			},
+			{
+				headerName : "SKU",
+				field : "sku",
+				cellRenderer : function(params) {
+					return '<a onclick=editProduct("' + params.data.sku
+							+ '") href="javascript:void(0)">' + params.data.sku
+							+ '</a>';
+				}
+			}, {
+				headerName : "Name",
+				field : "itemName"
 
-	}, {
-		headerName : "itemId",
-		field : "itemId",
-		hide : "true"
-	}, {
-		headerName : "Brand",
-		field : "brand"
-	}, {
-		headerName : "Location",
-		field : "location"
+			}, {
+				headerName : "itemId",
+				field : "itemId",
+				hide : "true"
+			}, {
+				headerName : "Brand",
+				field : "brand"
+			}, {
+				headerName : "Location",
+				field : "location"
 
-	}, {
-		headerName : "locationId",
-		field : "locationId",
-		hide : "true"
+			}, {
+				headerName : "locationId",
+				field : "locationId",
+				hide : "true"
 
-	}, {
-		headerName : "Cost Center",
-		field : "costCenter"
+			}, {
+				headerName : "Cost Center",
+				field : "costCenter"
 
-	}, {
-		headerName : "costCenterId",
-		field : "costCenterId",
-		hide : "true"
-	}, {
-		headerName : "Quantity",
-		field : "qty"
+			}, {
+				headerName : "costCenterId",
+				field : "costCenterId",
+				hide : "true"
+			}, {
+				headerName : "Quantity",
+				field : "qty"
 
-	}, {
-		headerName : "UOM",
-		field : "uom"
+			}, {
+				headerName : "UOM",
+				field : "uom"
 
-	}, {
-		headerName : "uomId",
-		field : "uomId",
-		hide : "true"
-	}, {
-		headerName : "Estimated Price",
-		field : "estimatedPrice",
-		type : 'rightAligned'
+			}, {
+				headerName : "uomId",
+				field : "uomId",
+				hide : "true"
+			}, {
+				headerName : "Estimated Price",
+				field : "estimatedPrice",
+				type : 'rightAligned'
 
-	}, {
-		headerName : "Last Purchase Price",
-		field : "lastPurchaseUnitPrice",
-		type : 'rightAligned'
+			}, {
+				headerName : "Last Purchase Price",
+				field : "lastPurchaseUnitPrice",
+				type : 'rightAligned'
 
-	}, {
-		headerName : "Created Date",
-		field : "createdOn"
+			}, {
+				headerName : "Created Date",
+				field : "createdOn"
 
-	} ];
+			} ];
 
 	var activityDefs = [ {
 		headerCheckboxSelection : true,
@@ -356,33 +421,113 @@
 
 	}
 
-	function copy() {
+	function editProduct(prodId) {
 
-		var selectedRows = gridOptions.api.getSelectedRows();
-		var selectedRowsString = '';
-		selectedRows.forEach(function(selectedRow, index) {
-			if (index > 0) {
-				selectedRowsString += ',';
-			}
-			selectedRowsString += selectedRow.reqId;
+		var reqId = $("#reqHeadId").html();
+		if (prodId && reqId) {
+			$.ajax({
+				type : "GET",
+				url : "view-requisition-get-product-by-req-sku?id=" + reqId
+						+ "&prodId=" + prodId,
+				dataType : "json",
+				contentType : "application/json",
+				success : function(response) {
+					console.log(response);
+					if (response.message == "success") {
+						if (response.body.length != 0) {
+							$("#sku").html(prodId);
+							$("#brandId").html(response.body.brand);
+							$("#itemId").html(response.body.itemId);
+							$("#itemName").html(response.body.itemName);
+							$("#locationId").val(response.body.locationId);
+							$("#quantity").val(response.body.qty);
+							$("#uom").val(response.body.uomId);
+							$("#estimatedPrice").val(
+									response.body.estimatedPrice);
+							$("#totalEstPrc").val(
+									response.body.estimatedTotalPrice);
+							$("#lastPurchaseUnitPrice").val(
+									response.body.lastPurchaseUnitPrice);
+							$("#lastPurchaseTotalPrice").val(
+									response.body.lastPurchaseTotalPrice);
+							$("#search").val(response.body.itemName);
+						}
+					}
+
+				},
+				error : function(data) {
+					console.log(data)
+				}
+			})
+		}
+
+		openNav();
+
+	}
+	function editRequisition(reqId) {
+		$("#myGrid").hide();
+		$("#reqTable").hide();
+		$(".btn-hs").hide();
+		$("#demo").show();
+
+		agGrid.simpleHttpRequest({
+			url : 'view-requisition-item-trough-ajax?id=' + reqId
+		}).then(function(data) {
+			$("#desc").val(data[0].desc);
+			$("#reqType").val(data[0].reqType);
+			$("#reqPrior").val(data[0].reqPrior);
+			$("#receiveDate").val(data[0].receiveDate);
+			$("#isHold").val(data[0].holdStatus);
+			$("#reqId").val(data[0].reqId);
+			$("#reqHeadId").html(data[0].reqId);
+			productOptions.api.setRowData(data);
 		});
 
-		if(selectedRowsString){
+		agGrid.simpleHttpRequest({
+			url : 'view-requisition-activity-log?id=' + reqId
+		}).then(function(data) {
+			activityOptions.api.setRowData(data);
+		});
+
+		putOnHold();
+	}
+	function copy() {
+		var selectedRows = gridOptions.api.getSelectedRows();
+		var selectedRowsString = '';
+		var count = 0;
+		selectedRows
+				.forEach(function(selectedRow, index) {
+					if (count > 0) {
+						$("#alert").modal('show');
+						document.getElementById("textId").innerHTML = "Please Select Only one Record For Copy !";
+					} else {
+						selectedRowsString += selectedRow.reqId;
+					}
+					count++;
+				});
+
+		if (selectedRowsString) {
 			$("#myGrid").hide();
 			$("#reqTable").hide();
 			$(".btn-hs").hide();
 			$("#demo").show();
-			
-			agGrid.simpleHttpRequest({
-				url : 'view-requisition-item-trough-ajax?id=' + selectedRowsString
-			}).then(function(data) {
+
+			agGrid.simpleHttpRequest(
+					{
+						url : 'view-requisition-item-trough-ajax?id='
+								+ selectedRowsString
+					}).then(function(data) {
 				$("#desc").val(data[0].desc);
 				$("#reqType").val(data[0].reqType);
 				$("#reqPrior").val(data[0].reqPrior);
 				$("#receiveDate").val(data[0].receiveDate);
 				$("#isHold").val(data[0].holdStatus);
-				// $("#reqId").val(data[0].reqId);
-
+				$("#reqId").val(null);
+				$("#reqHeadId").html(data[0].reqId);
+				//$("#reqId").val(data[0].reqId);
+				for (var i = 0; i < data.length; i++) {
+					data[i].reqId = '';
+				}
 				productOptions.api.setRowData(data);
 			});
 
@@ -393,15 +538,18 @@
 			});
 
 			putOnHold();
-		}else{
+		} else {
 			$("#alert").modal('show');
 			document.getElementById("textId").innerHTML = "Please Select Atleast one Record !";
 		}
-		
+
 	}
 
 	function deleteFun() {
 		$('#delete').modal('show');
+	}
+	function deleteProduct() {
+		$('#deleteProduct').modal('show');
 	}
 	function deleteOnclick() {
 		var selectedRows = gridOptions.api.getSelectedRows();
@@ -440,15 +588,28 @@
 					console.log(data)
 				}
 			})
-		}else{
+		} else {
 			$("#alert").modal('show');
 			document.getElementById("textId").innerHTML = "Please Select Atleast one Record !";
 		}
 
 	}
 
+	function deleteProductOnclick() {
+		var selectedRows = productOptions.api.getSelectedRows();
+		productOptions.api.applyTransaction({
+			remove : selectedRows
+		});
+		cancelModalProductBtn();
+
+	}
+
 	function cancelModalBtn() {
 		$("#deleteModalBtn").removeAttr("disabled");
+	}
+	function cancelModalProductBtn() {
+		$("#deleteModalBtn").removeAttr("disabled");
+		$('#deleteProduct').modal('hide');
 	}
 
 	function approve() {
@@ -488,7 +649,7 @@
 					console.log(data)
 				}
 			})
-		}else{
+		} else {
 			$("#alert").modal('show');
 			document.getElementById("textId").innerHTML = "Please Select Atleast one Record !";
 		}
@@ -507,7 +668,7 @@
 		});
 
 		if (selectedRowsString) {
-			/* $("#lineGraph").show(); */
+
 			$('#lineGraph').modal('show');
 			$
 					.ajax({
@@ -607,24 +768,27 @@
 		$("#totalEstPrc").val('');
 		$("#lastPurchaseUnitPrice").val('');
 		$("#lastPurchaseTotalPrice").val('');
+		$("#search").val('');
 	}
 
 	function saveData() {
-
 		var datas = [];
 		productOptions.api.forEachNode(function(rowNode, index) {
+
 			var item = rowNode.data;
 			item.desc = $("#desc").val();
 			item.reqType = $("#reqType").val();
 			item.reqPrior = $("#reqPrior").val();
 			item.receiveDate = $("#receiveDate").val();
 			item.holdStatus = $("#isHold").val();
+			item.reqId = $("#reqId").val();
 			item.moduleId = localStorage.getItem('module');
 			item.componentId = localStorage.getItem('function');
 			item.subComponentId = localStorage.getItem('activity');
 
 			datas.push(item);
 		});
+		console.log(datas);
 		saveRequisition(datas);
 	}
 
@@ -663,243 +827,112 @@
 		}
 	}
 
-	/* function getProductList() {
-		var search = $("#search").val();
-		if (search) {
-
-			$.ajax({
-				type : "POST",
-				url : "view-requisition-get-product-list",
-				dataType : 'json',
-				contentType : 'application/json',
-				data : search,
-				success : function(response) {
-					if (response.message == "success") {
-
-						if (response.body.length != 0) {
-							autocomplete(response.body);
-						}
-					}
-				},
-				error : function(data) {
-					console.log(data);
-				}
-			})
-		}
-	} */
-
-	
 	function getProductList() {
 		var search = $("#search").val();
 		if (search) {
 
-		$.ajax({
-		type : "POST",
-		url : "view-requisition-get-product-list",
-		dataType : 'json',
-		contentType : 'application/json',
-		data : search,
-		success : function(response) {
-		if (response.message == "success") {
+			$
+					.ajax({
+						type : "POST",
+						url : "view-requisition-get-product-list",
+						dataType : 'json',
+						contentType : 'application/json',
+						data : search,
+						success : function(response) {
+							if (response.message == "success") {
 
-		/* if (response.body.length != 0) {
-		console.log(response.body);
-		autocomplete(document.getElementById("search"),response.body);
-		} */
+								/* if (response.body.length != 0) {
+									console.log(response.body);
+									autocomplete(document.getElementById("search"),response.body);
+								} */
 
+								if (response.body.length != 0) {
+									$("#search").css("background", "#FFF");
+									var content = '<ul id="autocomplete-list1" style="margin-left:-40px; font-weight:100; font-size:14px; color:#ccc;">';
+									for (var i = 0; i < response.body.length; i++) {
+										content += '<li class="autocompletedata cp" onClick="selectAutocompleteValue1(\''
+												+ response.body[i].itemId
+												+ '\',\''
+												+ response.body[i].itemName
+												+ '\',\''
+												+ response.body[i].sku
+												+ '\',\''
+												+ response.body[i].brand
+												+ '\')">'
+												+ response.body[i].itemName
+												+ '</li>';
+									}
+									content += '</ul>';
+									console.log("content " + content)
+									$("#suggesstion-box1_").show();
+									$("#suggesstion-box1_").html(content);
 
-		if(response.body.length!=0) {
-		$("#search").css("background","#FFF");
-		var content = '<ul id="autocomplete-list1" style="margin-left:-40px; font-weight:100; font-size:14px; color:#ccc;">';
-		for (var i = 0; i < response.body.length; i++) {
-		content += '<li class="autocompletedata" onClick="selectAutocompleteValue1(\''+response.body[i].itemId+'\',\''+response.body[i].itemName+'\',\''+response.body[i].sku+'\',\''+response.body[i].brand+'\')">'+response.body[i].itemName+ '</li>';
-		}
-		content += '</ul>';
-		console.log("content " + content)
-		$("#suggesstion-box1_").show();
-		$("#suggesstion-box1_").html(content);
-
-		} else {
-		$("#search").css("background","#FFF");
-		var content = '<ul id="autocomplete-list1">';
-		content += '<li onClick="selectAutocompleteValue()">'+"No Data Found"+'</li>';
-		content += '</ul>';
-		$("#suggesstion-box1_").show();
-		$("#suggesstion-box1_").html(content);
-		}
-		}
-		},
-		error : function(data) {
-		console.log(data);
-		}
-		})
-		}
-		}
-	
-	function autocomplete(arr) {
-		var currentFocus;
-		var inp = document.getElementById("search");
-
-		inp
-				.addEventListener(
-						"input",
-						function(e) {
-							var a, b, i, val = this.value;
-							closeAllLists();
-							if (!val) {
-								return false;
+								} else {
+									$("#search").css("background", "#FFF");
+									var content = '<ul id="autocomplete-list1">';
+									content += '<li onClick="selectAutocompleteValue()">'
+											+ "No Data Found" + '</li>';
+									content += '</ul>';
+									$("#suggesstion-box1_").show();
+									$("#suggesstion-box1_").html(content);
+								}
 							}
-							currentFocus = -1;
-
-							a = document.createElement("DIV");
-							a.setAttribute("id", this.id + "autocomplete-list");
-							a.setAttribute("class", "autocomplete-items");
-
-							this.parentNode.appendChild(a);
-
-							for (i = 0; i < arr.length; i++) {
-
-								b = document.createElement("DIV");
-								console.log(arr[i]);
-								b.innerHTML = "<strong>" + arr[i].itemName
-										+ "</strong>";
-								// b.innerHTML += arr[i].substr(val.length);
-
-								b.innerHTML += "<input type='hidden' value='" + arr[i].itemName + "'>";
-								b.innerHTML += "<input type='hidden' id='itemIdAuto' value='" + arr[i].itemId + "'>";
-								b.innerHTML += "<input type='hidden' id='brandAuto' value='" + arr[i].brand + "'>";
-								b.innerHTML += "<input type='hidden' id='skuAuto' value='" + arr[i].sku + "'>";
-
-								b
-										.addEventListener(
-												"click",
-												function(e) {
-
-													inp.value = this
-															.getElementsByTagName("input")[0].value;
-
-													$("#itemName").html(
-															inp.value);
-													$("#itemId").val(
-															$("#itemIdAuto")
-																	.val());
-													$("#brandId").html(
-															$("#brandAuto")
-																	.val());
-													$("#sku")
-															.html(
-																	$(
-																			"#skuAuto")
-																			.val());
-													closeAllLists();
-												});
-								a.appendChild(b);
-
-							}
-						});
-
-		/*execute a function presses a key on the keyboard:*/
-		inp.addEventListener("keydown", function(e) {
-			var x = document.getElementById(this.id + "autocomplete-list");
-			if (x)
-				x = x.getElementsByTagName("div");
-			if (e.keyCode == 40) {
-
-				currentFocus++;
-
-				addActive(x);
-			} else if (e.keyCode == 38) {
-
-				currentFocus--;
-
-				addActive(x);
-			} else if (e.keyCode == 13) {
-				e.preventDefault();
-				if (currentFocus > -1) {
-					if (x)
-						x[currentFocus].click();
-				}
-			}
-		});
-
-		function addActive(x) {
-			if (!x)
-				return false;
-			removeActive(x);
-			if (currentFocus >= x.length)
-				currentFocus = 0;
-			if (currentFocus < 0)
-				currentFocus = (x.length - 1);
-			x[currentFocus].classList.add("autocomplete-active");
+						},
+						error : function(data) {
+							console.log(data);
+						}
+					})
 		}
-
-		function removeActive(x) {
-			for (var i = 0; i < x.length; i++) {
-				x[i].classList.remove("autocomplete-active");
-			}
-		}
-
-		function closeAllLists(elmnt) {
-
-			var x = document.getElementsByClassName("autocomplete-items");
-			for (var i = 0; i < x.length; i++) {
-				if (elmnt != x[i] && elmnt != inp) {
-					x[i].parentNode.removeChild(x[i]);
-				}
-			}
-		}
-		/*execute a function when someone clicks in the document:*/
-		document.addEventListener("click", function(e) {
-			closeAllLists(e.target);
-		});
 	}
 
+	function selectAutocompleteValue1(key, name, sku, brand) {
+
+		if (key) {
+			$("#itemName").html(name);
+			$("#itemId").val(key);
+			$("#brandId").html(brand);
+			$("#sku").html(sku);
+			$("#search").val(name)
+			$("#search").attr('data-procat', key);
+			$("#suggesstion-box1_").hide();
+			//checkForDuplicate(key,counter);
+
+		} else {
+
+			$("#itemName").html("");
+			$("#itemId").val("");
+			$("#brandId").html("");
+			$("#sku").html("");
+			$("#search").val("");
+			$("#search").attr('data-procat', "");
+			$("#suggesstion-box1_").hide();
+
+		}
+	}
+	function selectAutocompleteValue() {
+		$("#itemName").html("");
+		$("#itemId").val("");
+		$("#brandId").html("");
+		$("#sku").html("");
+		$("#search").val("");
+		$("#search").attr('data-procat', "");
+		$("#suggesstion-box1_").hide();
+
+	}
 	function putOnHold() {
 		var isHold = $("#isHold").val();
 		if (isHold == '1') {
 			$("#isHold").val('0');
 			$("#putOnHold").removeClass('holdCls');
-		} else {
-			$("#isHold").val('1');
+		} else if (isHold == '4'){
+			$("#isHold").val('4');
 			$("#putOnHold").addClass('holdCls');
 		}
 	}
-	
 
-	function selectAutocompleteValue1(key,name,sku,brand) {
-
-	if (key) {
-	$("#itemName").html(name);
-	$("#itemId").val(key);
-	$("#brandId").html(brand);
-	$("#sku").html(sku);
-	$("#search").val(name)
-	$("#search").attr('data-procat', key);
-	$("#suggesstion-box1_").hide();
-	//checkForDuplicate(key,counter);
-
-	} else {
-
-	$("#itemName").html("");
-	$("#itemId").val("");
-	$("#brandId").html("");
-	$("#sku").html("");
-	$("#search").val("");
-	$("#search").attr('data-procat', "");
-	$("#suggesstion-box1_").hide();
-
-
-	}
-	}
-	function selectAutocompleteValue() {
-	$("#itemName").html("");
-	$("#itemId").val("");
-	$("#brandId").html("");
-	$("#sku").html("");
-	$("#search").val("");
-	$("#search").attr('data-procat', "");
-	$("#suggesstion-box1_").hide();
-
+	function viewRFQ() {
+		localStorage.setItem('activity', 'ACT0021');
+		window.location.href = "/inventory/view-quatation";
 	}
 </script>
 </head>
@@ -958,30 +991,30 @@
 								<div class="row">
 
 									<div class="col-md-3">
-										Requisition ID:<span id="reqId"></span>
+										Requisition ID:<span id="reqHeadId"></span>
 									</div>
 									<div class="col-md-6">
 										<div class="hr4"></div>
 										<div class="main-div">
 											<div class="section2">
-												<div class="green-box">
+												<div id="createdDiv" class="green-box">
 													<div class="green-box-heading">CREATED</div>
 													<div class="date">9-OCT-20</div>
 												</div>
 											</div>
 											<div class="section3">
-												<div class="green-box">
+												<div id="activeDiv" class="green-box">
 													<div class="green-box-heading">ACTIVE</div>
-													<div class="date">11-OCT-20</div>
+													<!-- <div class="date">11-OCT-20</div> -->
 												</div>
 											</div>
 											<div class="section4">
-												<div class="grey-box">
+												<div id="completeDiv" class="grey-box">
 													<div>COMPLETE</div>
 												</div>
 											</div>
 											<div class="section5">
-												<div class="grey-box">
+												<div id="onHoldDiv" class="grey-box">
 													<div>ONHOLD</div>
 												</div>
 											</div>
@@ -999,7 +1032,8 @@
 								<div class="col-md-6">
 									<div class="form-group">
 										<label>Description</label>
-										<textarea class="form-control" id="desc"></textarea>
+										<textarea class="form-control" id="desc"
+											style="line-height: 54px !important;"></textarea>
 										<input type="hidden" id="reqId" />
 									</div>
 								</div>
@@ -1036,7 +1070,7 @@
 										<div class="col-md-6">
 											<div class="form-group">
 												<label>Receive By Date</label> <input type="text"
-													id="receiveDate" class="form-control" readonly placeholder="DD-MM-YYYY">
+													id="receiveDate" class="form-control" readonly>
 											</div>
 										</div>
 
@@ -1073,9 +1107,9 @@
 													<div class="col-md-3 btn-hs1">
 														<div class="row">
 															<button class="btn1" id="newBtn1" onclick="openNav()">NEW</button>
+															<button class="btn3" id="newBtn"
+																onclick="deleteProduct()">DELETE</button>
 
-															<button class="btn3" data-toggle="modal"
-																data-target="#delete">DELETE</button>
 
 														</div>
 													</div>
@@ -1096,6 +1130,24 @@
 
 
 											</div>
+
+											<!-- <div class="butttonsec btn-hs">
+												<button class="btn1" id="newBtn">NEW</button>
+												<button class="btn2" id="copyBtn">COPY</button>
+												<button class="btn3" data-toggle="modal"
+													data-target="#delete">DELETE</button>
+
+												<div class="buttongap"></div>
+
+												<button class="btn2">APPROVE</button>
+												<button class="btn2">POST</button>
+
+												<div class="buttongap"></div>
+
+												<button class="btn2" data-toggle="modal"
+													data-target="#myModal1">ALLOCATE VENDOR</button>
+											</div> -->
+
 										</div>
 
 										<div class="panel panel-default">
@@ -1111,10 +1163,10 @@
 												role="tabpanel" aria-labelledby="headingtwo">
 												<div class="row">
 
-													<div class="col-md-4 btn-hs1">
+													<div class="col-md-6 btn-hs1">
 														<div class="font-design"></div>
 													</div>
-													<div class="col-md-3 btn-hs1">
+													<!-- <div class="col-md-2 btn-hs1">
 														<div class="row">
 															<button class="btn1" id="newBtn1">NEW</button>
 
@@ -1122,9 +1174,11 @@
 																data-target="#delete">DELETE</button>
 
 														</div>
-													</div>
-													<div class="col-md-2 btn-hs1">
-														<button class="btn2">Approve</button>
+													</div>   -->
+													<div class="col-md-3 btn-hs1">
+														<button class="btn2">Create PO</button>
+														<button class="btn2" onclick="viewRFQ()">Create
+															RFQ</button>
 													</div>
 
 													<div class="col-md-3 btn-hs1" align="right">
@@ -1160,7 +1214,7 @@
 											<div class="chartbtnsec">
 												<div class="row">
 													<button class="btn4" onclick="closeNav()">CANCEL</button>
-													<button class="btn3">DELETE</button>
+													<button class="btn3" onclick="deleteProduct()">DELETE</button>
 													<button class="btn1" onclick="saveTableData()">SAVE</button>
 												</div>
 											</div>
@@ -1189,7 +1243,9 @@
 																		class="close_i"><i class="ti-close srchicon"></i></span></a><a
 																		href="#" style="color: #ccc; margin-top: -5px;"><i
 																		class="ti-search srchicon"></i></a>
+
 																</div>
+
 															</div>
 															<!-- <div class="input-style1 row">
 																<input type="text" placeholder="Search.." name="search"
@@ -1200,6 +1256,7 @@
 																<div id="suggesstion-box1_"></div> 
 															</div> -->
 														</div>
+
 														<div id="suggesstion-box1_"></div>
 													</div>
 												</div>
@@ -1394,9 +1451,33 @@
 						</div>
 					</div>
 
+					<!-- delete product modal start -->
+					<div id="deleteProduct" class="modal fade show" aria-modal="true">
+						<div class="modal-dialog modal-confirm">
+							<div class="modal-content">
+								<div class="modal-header flex-column">
+									<button type="button" class="close" data-dismiss="modal"
+										aria-hidden="true" onclick="cancelModalProductBtn()">
+										<i class="ti-close modal-close"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<p>Do you really want to delete these records? This process
+										cannot be undone.</p>
+								</div>
+								<div class="modal-footer justify-content-center"
+									style="margin-top: -30px;">
 
+									<button type="button" class="btn1" data-dismiss="modal"
+										onclick="cancelModalBtn();">Cancel</button>
+									<button type="button" class="btn3"
+										onclick="deleteProductOnclick()">Delete</button>
+								</div>
+							</div>
+						</div>
+					</div>
 
-                  <!-- alert modal start -->
+					<!-- alert modal start -->
 					<div id="alert" class="modal fade show" aria-modal="true">
 						<div class="modal-dialog modal-confirm">
 							<div class="modal-content">
@@ -1407,19 +1488,19 @@
 									</button>
 								</div>
 								<div class="modal-body">
-									<p id="textId"> </p>
+									<p id="textId"></p>
 								</div>
-								 <div class="modal-footer justify-content-center"
+								<div class="modal-footer justify-content-center"
 									style="margin-top: -30px;">
 
 									<button type="button" class="btn1" data-dismiss="modal"
 										onclick="cancelModalBtn();">Cancel</button>
 									<!-- <button type="button" class="btn3" onclick="deleteOnclick()">Delete</button> -->
-								</div>  
+								</div>
 							</div>
 						</div>
 					</div>
-					
+
 				</div>
 			</div>
 		</div>

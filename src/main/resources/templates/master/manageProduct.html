@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/master}">
+<head>
+<link rel="stylesheet" href="../assets/css/extend/lightslider.css" />
+<style>
+ul {
+	list-style: none outside none;
+	padding-left: 0;
+	margin: 0;
+}
+
+.demo .item {
+	margin-bottom: 60px;
+}
+
+.content-slider li {
+	background-color: #ed3020;
+	text-align: center;
+	color: #FFF;
+}
+
+.content-slider h3 {
+	margin: 0;
+	padding: 70px 0;
+}
+
+.demo {
+	width: 800px;
+}
+
+.pd-0 {
+	padding: 0px;
+}
+
+.left-section {
+	border-right: 1px solid #ccc;
+	text-align: center;
+}
+
+.product-box {
+	border: 1px solid #ccc;
+}
+
+.product-heading {
+	font-size: 18px;
+	color: #ccc;
+	padding: 10px 0px;
+	text-align: center;
+	border-bottom: 1px solid #ccc;
+}
+
+.product-cnt {
+	font-size: 16px;
+	color: #ccc;
+	padding: 7px 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.product-cnt:last-child {
+	border-bottom: none;
+}
+
+.btn:focus {
+	outline: none !important;
+}
+
+.md-color {
+	color: #929292;
+    font-weight: 100;
+    font-size: 16px;
+}
+</style>
+<script src="../assets/js/extend/lightslider.js"></script>
+<script>
+	$(document).ready(function() {
+		$('#vertical').lightSlider({
+			gallery : true,
+			item : 1,
+			vertical : true,
+			verticalHeight : 214,
+			vThumbWidth : 50,
+			thumbItem : 6,
+			thumbMargin : 4,
+			slideMargin : 0
+		});
+	});
+</script>
+<script>
+function profileSelect() {
+	$('#newId').hide();
+	$("#profile").show();
+	/* $("#demo23").show(); */
+}
+</script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#profile").hide();
+	$("#profilecancelbtn").click(function() {
+		$("#newId").show();
+		$(".btn-hs").show();
+		$("#profile").hide();
+		$('.panel-heading').removeClass('active');
+		$('.collapse').removeClass('show');
+		/* $("#demo23").hide(); */
+	});
+});
+</script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('.collapse').on('show.bs.collapse', function() {
+        $(this).siblings('.panel-heading').addClass('active');
+    });
+
+    $('.collapse').on('hide.bs.collapse', function() {
+        $(this).siblings('.panel-heading').removeClass('active');
+    });
+    
+    $("#categoryBtn").click(function(){
+    	$("#myModal").modal('show');
+    })
+    
+});
+</script>
+</head>
+<body>
+	<div layout:fragment="content">
+		<div class="content-wrap">
+			<div class="container-fluid">
+				<div class="maincontent">
+					<div class="row">
+
+						<div class="maincontentsec">
+							<div class="content_padding">
+								<div id="newId">
+									<div class="row margin_topbot btn-hs">
+										<div class="col-md-8 btn-hs">
+											<div class="input-style row">
+												<input type="text" id="searchBar" placeholder="Search.."
+													name="search" class="searchboxinput" onkeyup="cancelBar()">
+												<div class="searchicon">
+													<a href="#"><span style="display: none" id="closeKey"
+														onclick="$('#searchBar').val('');document.getElementById('closeKey').style.display='none';"
+														class="close_i">X</span></a><a href="#"><i
+														class="fa fa-search"></i></a>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+
+										<div class="col-md-10  btn-hs">
+											<div class="font-design">
+												Product List <span>(200)</span>
+											</div>
+										</div>
+
+
+									</div>
+
+
+									<div class="row">
+
+										<div class="col-md-8  btn-hs"></div>
+										<div class="col-md-2 btn-hs">
+											<div class="row">
+												<button class="btn1" id="newBtn" onclick="profileSelect()">NEW</button>
+												<button class="btn3" data-toggle="modal"
+													data-target="#delete">DELETE</button>
+											</div>
+										</div>
+										<div class="col-md-2 btn-hs pd-0" align="right">
+											<button class="btn4">Download</button>
+											<button class="btn4">Upload</button>
+										</div>
+									</div>
+									<table class="newtbl" id="myTbl">
+										<thead>
+											<tr>
+												<th align="center" width="20"><input id="check1"
+													onclick="allCheck()" type="checkbox"><label
+													for="check1"></label></th>
+												<th>SKU</th>
+												<th>Brand</th>
+												<th>Name</th>
+												<th>Model</th>
+												<th>Cat</th>
+												<th>Mode</th>
+												<th>UOM</th>
+												<th>Purchase Price</th>
+												<th>Sales Price</th>
+												<th>Status</th>
+												<th>Create Date</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td align="center"><input class="checkCls"
+													type="checkbox" id="check2"><label for="check2"></label></td>
+												<td align="left"><div data-toggle="" class="txt-blue"
+														onclick="profileSelect()">1023</div></td>
+												<td align="left">LG</td>
+												<td align="left">60 "Curved TV</td>
+												<td align="left">LG2342</td>
+												<td align="left">Electronics>TV>LED</td>
+												<td align="left">Sales</td>
+												<td align="left">Pcs</td>
+												<td align="center"></td>
+												<td align="right">12000</td>
+												<td align="center">Active</td>
+												<td align="center">9-Oct-2020</td>
+											</tr>
+
+										</tbody>
+										<tbody>
+											<tr>
+												<td align="center"><input class="checkCls"
+													type="checkbox" id="check3"><label for="check3"></label></td>
+												<td align="left"><div data-toggle="" class="txt-blue"
+														onclick="profileSelect()">1004</div></td>
+												<td align="left">LG</td>
+												<td align="left">52 "LED TV</td>
+												<td align="left">LG2523</td>
+												<td align="left">Electronics>TV>LED</td>
+												<td align="left">Purchase</td>
+												<td align="left">Pcs</td>
+												<td align="right">10000</td>
+												<td align="center"></td>
+												<td align="center">Active</td>
+												<td align="center">9-Oct-2020</td>
+											</tr>
+										</tbody>
+										<tbody>
+											<tr>
+												<td align="center"><input class="checkCls"
+													type="checkbox" id="check4"><label for="check4"></label></td>
+												<td align="left"><div data-toggle="" class="txt-blue"
+														onclick="profileSelect()">972</div></td>
+												<td align="left">Samsung</td>
+												<td align="left">60 "Curved TV</td>
+												<td align="left">SM2523</td>
+												<td align="left">Electronics>TV>LED</td>
+												<td align="left">Sales</td>
+												<td align="left">Pcs</td>
+												<td align="center"></td>
+												<td align="right">15200</td>
+												<td align="center">Active</td>
+												<td align="center">9-Oct-2020</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<div id="profile" class="collapse">
+									<div class="row">
+										<div class="col-md-6 btn-hs"></div>
+										<div class="col-md-12" align="right">
+											<button class="btn1">Save</button>
+											<button class="btn4" id="profilecancelbtn">Cancel</button>
+
+										</div>
+										<div class="col-md-4">
+											<div class="demo">
+												<div class="item">
+													<div class="clearfix" style="max-width: 360px">
+														<ul id="vertical">
+															<li data-thumb="../assets/images/login_img/cS-1.jpg">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-1.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-2.jpg">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-2.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-3.jpg">
+
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-3.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-4.jpg">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-4.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-5.jpg">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-5.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-6.jpg">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-6.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-7.jpg">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-7.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-8.jpg">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-8.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-9.jpg">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-9.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-10.jpg">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-10.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-11.jpg">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-11.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-12.jpg">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-12.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-13.jpg"
+																class="img-fluid">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-13.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-14.jpg"
+																class="img-fluid">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-14.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+															<li data-thumb="../assets/images/login_img/cS-15.jpg"
+																class="img-fluid">
+																<div class="hvrbox">
+																	<img src="../assets/images/login_img/cS-15.jpg"
+																		alt="Mountains" class="hvrbox-layer_bottom img-fluid">
+																	<div class="hvrbox-layer_top">
+
+																		<div class="hvrbox-text">
+																			<span><i class="fa fa-pencil-square-o"></i></span> <span><i
+																				class="fa fa-trash"></i></span>
+																		</div>
+																	</div>
+																</div>
+															</li>
+														</ul>
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-8">
+											<div class="row">
+												<div class="col-md-12">
+													<input type="text" name="code" value=""
+														placeholder="Product Name" class="form-control_big">
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Brand</label>
+														<div class="select">
+															<select class="" id="brand">
+																<option value="">Select</option>
+																<option th:each="c,iter:${brandList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Mode</label>
+														<div class="select">
+															<select class="" id="mode">
+																<option value="">Select</option>
+																<option th:each="c,iter:${modeList}" th:value="${c.key}"
+																	th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-2">
+													<div class="form-group" style="margin-top: 28px;">
+														<input type="checkbox" name="isActive"
+															style="margin-top: 8px;" id="prodStatus" value="1">
+														<label>Active</label>
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>HSN</label>
+														<div class="select">
+															<select class="" id="hsnCode">
+																<option value="">Select</option>
+																<option th:each="c,iter:${hsnCodeList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+												</div>
+
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>SIC Code</label>
+														<div class="select">
+															<select class="" id="sicCode">
+																<option value="">Select</option>
+																<option th:each="c,iter:${countryList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3">
+													<button class="btn btn-primary cp" id="categoryBtn"
+														style="font-size: 12px;">Select Category</button>
+												</div>
+												<div class="col-md-2 catdiv">
+													<div style="font-size: 12px; color: #cacaca;">Electronics>TV>LED</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-12">
+											<div class="wrapper center-block">
+												<div class="panel-group" id="accordion" role="tablist"
+													aria-multiselectable="true">
+													<div class="panel panel-default">
+														<div class="panel-heading " role="tab" id="headingOne">
+															<h4 class="panel-title">
+																<a role="button" id="layoutId" data-toggle="collapse"
+																	data-parent="#accordion" href="#demo23"
+																	aria-expanded="true" aria-controls="demo23">
+																	Product Details </a>
+															</h4>
+														</div>
+														<div id="demo23" class="collapse">
+															<div class="row">
+
+																<div class="col-md-7  btn-hs"></div>
+																<div class="col-md-3 btn-hs mt-15">
+																	<div class="row">
+																		<button class="btn1" id="newBtn">NEW</button>
+																		<button class="btn1" id="newBtn">EDIT</button>
+																		<button class="btn3" data-toggle="modal"
+																			data-target="#delete">DELETE</button>
+																	</div>
+																</div>
+																<div class="col-md-2 mt-15" align="right">
+
+																	<button class="btn4">Upload</button>
+																	<button class="btn4">Download</button>
+																</div>
+															</div>
+															<div class="row">
+																<div class="col-md-12">
+																	<table class="newtbl" id="myTbl" cellpadding="1"
+																		style="background: #fff;">
+																		<thead>
+																			<tr>
+																				<th align="center" width="20"><input
+																					type="checkbox" class="allChkBox"
+																					onchange="checkAll(this)"></th>
+																				<th align="center">SKU</th>
+																				<th align="center">Model#</th>
+																				<th align="center">Manufacture Item #</th>
+																				<th align="center">Variation Type</th>
+																				<th align="center">Variation Value</th>
+																				<th align="center">UOM</th>
+																				<th align="center">Sale Price</th>
+																				<th align="center">Sale Tax</th>
+																				<th align="center">Sales Cees</th>
+																				<th align="center">Create Date</th>
+																			</tr>
+																		</thead>
+																		<tbody>
+																			<tr>
+																				<td align="center"><input class="checkCls"
+																					type="checkbox" id="check3"><label
+																					for="check3"></label></td>
+																				<td align="left"><div onclick=""
+																						class="txt-blue">1023</div></td>
+																				<td align="left">244098</td>
+																				<td align="left">12409098</td>
+																				<td align="left">Size</td>
+																				<td align="left">60"</td>
+																				<td align="left">Pcs</td>
+																				<td align="center"></td>
+																				<td align="center"></td>
+																				<td align="center"></td>
+																				<td align="center">9-Oct-2020</td>
+																			</tr>
+																			<tr>
+																				<td align="center"><input class="checkCls"
+																					type="checkbox" id="check3"><label
+																					for="check3"></label></td>
+																				<td align="left"><div data-toggle=""
+																						class="txt-blue">1023</div></td>
+																				<td align="left">244098</td>
+																				<td align="left">12409098</td>
+																				<td align="left">Size</td>
+																				<td align="left">60"</td>
+																				<td align="left">Pcs</td>
+																				<td align="center"></td>
+																				<td align="center"></td>
+																				<td align="center"></td>
+																				<td align="center">9-Oct-2020</td>
+																			</tr>
+																			<tr>
+																				<td align="center"><input class="checkCls"
+																					type="checkbox" id="check3"><label
+																					for="check3"></label></td>
+																				<td align="left"><div data-toggle=""
+																						class="txt-blue">1023</div></td>
+																				<td align="left">244098</td>
+																				<td align="left">12409098</td>
+																				<td align="left">Size</td>
+																				<td align="left">60"</td>
+																				<td align="left">Pcs</td>
+																				<td align="center"></td>
+																				<td align="center"></td>
+																				<td align="center"></td>
+																				<td align="center">9-Oct-2020</td>
+																			</tr>
+
+																		</tbody>
+																	</table>
+																</div>
+															</div>
+															<br>
+															<div class="row">
+																<div class="col-md-12">
+																	<table class="newtbl" id="myTbl" cellpadding="1"
+																		style="background: #fff;">
+																		<thead>
+																			<tr>
+																				<th align="center" width="20"><input
+																					type="checkbox" class="allChkBox"
+																					onchange="checkAll(this)"></th>
+																				<th align="center">SKU</th>
+																				<th align="center">Vendor ID</th>
+																				<th align="center">Vendor Name</th>
+																				<th align="center">Variation Type</th>
+																				<th align="center">Variation Value</th>
+																				<th align="center">Purchase Price</th>
+																				<th align="center">Purchase Tax</th>
+																				<th align="center">Purchase Cees</th>
+																				<th align="center">MOQ</th>
+																				<th align="center">Create Date</th>
+																			</tr>
+																		</thead>
+																		<tbody>
+																			<tr>
+																				<td align="center"><input class="checkCls"
+																					type="checkbox" id="check3"><label
+																					for="check3"></label></td>
+																				<td align="left">1023</td>
+																				<td align="left">4320</td>
+																				<td align="left">JK Industries Ltd</td>
+																				<td align="left">Size</td>
+																				<td align="left">60"</td>
+																				<td align="right">12000</td>
+																				<td align="right">120</td>
+																				<td align="right">20</td>
+																				<td align="right">5</td>
+																				<td align="center">9-Oct-2020</td>
+																			</tr>
+																			<tr>
+																				<td align="center"><input class="checkCls"
+																					type="checkbox" id="check3"><label
+																					for="check3"></label></td>
+																				<td align="left">1023</td>
+																				<td align="left">423498</td>
+																				<td align="left">12409098</td>
+																				<td align="left">Size</td>
+																				<td align="left">60"</td>
+																				<td align="right">15000</td>
+																				<td align="right">125</td>
+																				<td align="right">20</td>
+																				<td align="right">10</td>
+																				<td align="center">9-Oct-2020</td>
+																			</tr>
+																		</tbody>
+																	</table>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="myModal">
+			<div class="modal-dialog modal-lg" style="margin-top: 150px;">
+				<div class="modal-content">
+
+					<!-- Modal Header -->
+					<div class="modal-header">
+						<h4 class="modal-title md-color">Select Product Category</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+
+					<!-- Modal body -->
+					<div class="modal-body" style="height: 200px;">
+						<!-- <div class="row">
+							<div class="col-md-6">
+								<div class="left-section">guirfgijkgrb</div>
+							</div>
+							<div class="col-md-6">
+								<div class="product-box">
+									<div class="product-heading">Product List</div>
+									<div class="product-cnt">uksdgfsjkfbksjf</div>
+									<div class="product-cnt">uksdgfsjkfbksjf</div>
+									<div class="product-cnt">uksdgfsjkfbksjf</div>
+									<div class="product-cnt">uksdgfsjkfbksjf</div>
+								</div>
+							</div>
+						</div> -->
+					</div>
+
+					<!-- Modal footer -->
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">Close</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>
