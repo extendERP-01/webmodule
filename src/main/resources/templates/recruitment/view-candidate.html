@@ -7,11 +7,78 @@
 
 <script>
 	$(function() {
+		
+		gridOptions1.api.setRowData();
+		gridOptions2.api.setRowData();
+		
+		$('.collapse').on('show.bs.collapse', function() {
+			$(this).siblings('.panel-heading').addClass('active');
+		});
+
+		$('.collapse').on('hide.bs.collapse', function() {
+			$(this).siblings('.panel-heading').removeClass('active');
+		});
+		
+		var i, currentYear, startYear, endYear, newOption, dropdownYear;
+		dropdownYear = document.getElementById("dropdownYear");
+		currentYear = (new Date()).getFullYear();
+		startYear = currentYear - 40;
+		endYear = currentYear + 3;
+
+		for (i=startYear;i<=endYear;i++) {
+		  newOption = document.createElement("option");
+		  newOption.value = i;
+		  newOption.label = i;
+			if (i == currentYear) {
+				newOption.selected = true;
+			}
+		  dropdownYear.appendChild(newOption);
+		}
+		
+		$("#cancelBtn").click(function(){
+	        $("#myGrid").show();
+	        $(".formValidation").remove();
+	        $('#hideTbl').show();
+			$('#buttonDetails').show();
+			$('#myGrid').show();
+			$('#demo').hide();
+	        
+	    });
+		
+		
+		$('#expDate1').hide();
+		
+		var today = new Date();
+		var dd = String(today.getDate()).padStart(2, '0');
+		var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+		var yyyy = today.getFullYear();
+
+		today = mm + '-' + dd + '-' + yyyy;
+		$('#workTillExp').val(today);
+		
 		$(".box,.number,.text").click(function() {
 			$(this).css('background-color', '#0076BA');
 			$(this).css('color', '#FFFFFF');
 			$(this).css('color', '#FFFFFF');
 		});   
+		
+		$("#watch-me").click(function(){
+			$("#expDate").show('slow');
+			$("#expDate1").hide();
+			
+			$('#workFromExp1').val("");
+			$('#workTillExp1').val("");
+		});
+		
+		$("#see-me").click(function(){
+			$("#expDate1").show('slow');
+			$("#expDate").hide();
+			
+			$('#workFromExp').val("");
+			$('#workTillExp').val(today);
+			$('#noticeId').val("");
+		});
+		
 	});
 	  
 	  function cancelBar(){
@@ -57,13 +124,6 @@
 			   
 			 };
 			 
-
-			 // setup the grid after the page has finished loading
-			 document.addEventListener('DOMContentLoaded', function() {
-			     var gridDiv = document.querySelector('#myGrid');
-			     new agGrid.Grid(gridDiv, gridOptions);
-			     
-			 });
 			  
 			  /* agGrid.simpleHttpRequest({url: 'view-new-requi-mstr-view-data'}).then(function(data) {
 				var len = data.length;
@@ -92,6 +152,135 @@
 		document.getElementById("mySidenav").style.width = "0";
 		document.getElementById("main").style.width = "100%";
 	}
+	
+	/* function inputCreate(id,placeholder,label,name){
+		var div = '';
+		if(name == "input"){
+			for(i = 0; i< label.length; i++){
+				div = div + '<div class="col-md-12 mt-15"><div class="form-group">' +
+				'<label>' + label[i] + '</label> <input type="text"class="form-control transparenttxtbox"' +
+				'placeholder="' + placeholder[i] + '" id="' + id[i] + '"></div></div>';
+			}
+		}
+		if(name == "selectbox"){
+			for(i = 0; i< label.length; i++){
+				div = div + '<div class="col-md-12 mt-15"><div class="form-group">' +
+				'<label>' + label[i] + '</label> <input type="text"class="form-control transparenttxtbox"' +
+				'placeholder="' + placeholder[i] + '" id="' + id[i] + '"></div></div>';
+			}
+		}
+		if(name == "textarea"){
+			for(i = 0; i< label.length; i++){
+				div = div + '<div class="col-md-12 mt-15"><div class="form-group">' +
+				'<label>' + label[i] + '</label> <input type="text"class="form-control transparenttxtbox"' +
+				'placeholder="' + placeholder[i] + '" id="' + id[i] + '"></div></div>';
+			}
+		}
+		
+		return div;
+	} */
+	
+	var columnDefs1 = [
+		
+		{headerCheckboxSelection: true,
+	        headerCheckboxSelectionFilteredOnly: true, checkboxSelection: true,width: 10, sortable: false,filter: false,resizable: true},
+		{headerName: "Skills", field: "skills", width: 300}
+		 	
+		]; 
+
+	var gridOptions1 = {
+			   columnDefs: columnDefs1,
+			  defaultColDef: {
+				  sortable: true, 
+				  filter: true, 
+				  resizable: true, 
+				  /* width: 450, */
+				  height: 10
+			   }
+			   
+			 };
+	var dataSkill = []; 
+	function saveSkill(){
+		
+		var obj={};
+	
+		obj.skills = $('#skillsId').val();
+		dataSkill.push(obj);
+		gridOptions1.api.setRowData(dataSkill);
+	}
+	
+	
+var columnDefs2 = [
+		
+		{headerCheckboxSelection: true,
+	        headerCheckboxSelectionFilteredOnly: true, checkboxSelection: true,width: 10, sortable: false,filter: false,resizable: true},
+		{headerName: "Designation", field: "designation"},
+		{headerName: "Organization", field: "organization"},
+		{headerName: "Worked From", field: "workFrom", cellStyle: {textAlign: 'center'}},
+		{headerName: "Worked Till", field: "workTill", cellStyle: {textAlign: 'center'}},
+		{headerName: "Notice Period", field: "noticePeriod", type: "rightAligned"},
+		{headerName: "Description", field: "description"}
+		 	
+		]; 
+
+	var gridOptions2 = {
+			   columnDefs: columnDefs2,
+			  defaultColDef: {
+				  sortable: true, 
+				  filter: true, 
+				  resizable: true, 
+				  width: 250,
+				  height: 10
+			   }
+			   
+			 };
+	var experience = []; 
+	function saveExperiene(){
+		var alt = $('#see-me').is(":checked");
+		var obj={};
+	
+		obj.designation = $('#desgId').val();
+		obj.organization = $('#orgId').val();
+		obj.description = $('#jobDescId').val();
+		
+		if(alt == false){
+			obj.workFrom = $('#workFromExp').val();
+			obj.workTill = $('#workTillExp').val();
+			obj.noticePeriod = $('#noticeId').val();
+		} else{
+			obj.workFrom = $('#workFromExp1').val();
+			obj.workTill = $('#workTillExp1').val();
+			obj.noticePeriod = $('#noticeId').val();
+		}
+		console.log(obj)
+		experience.push(obj);
+		gridOptions2.api.setRowData(experience);
+	}
+	    
+	
+	 // setup the grid after the page has finished loading
+	 document.addEventListener('DOMContentLoaded', function() {
+	     var gridDiv = document.querySelector('#myGrid');
+	     new agGrid.Grid(gridDiv, gridOptions);
+	     
+	     var myGrid12 = document.querySelector('#myGrid1');
+		 new agGrid.Grid(myGrid12, gridOptions1);
+		 
+		 var myGrid2 = document.querySelector('#myGrid2');
+		    new agGrid.Grid(myGrid2, gridOptions2);
+	 });
+	 
+	 function openNav1() {
+			document.getElementById("mySidenav1").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:auto;";
+
+			document.getElementById("main").style.width = "82%";
+		}
+
+		function closeNav1() {
+			document.getElementById("mySidenav1").style.width = "0";
+			document.getElementById("main").style.width = "100%";
+		}
+	 
 </script>
 <body>
 	<div layout:fragment="content" class="maincontent">
@@ -144,7 +333,7 @@
 									
 								</div>
 								<div class="col-md-4" align="right">
-									<button class="btn3" id="cancelBtn">Cancel</button>
+									<button class="btn4" id="cancelBtn">Cancel</button>
 									<button class="btn1" id="saveVendor">Save</button>
 								</div>
 								</div>
@@ -185,45 +374,6 @@
 </div>
 							<div id="main">
 							
-							<!-- SIDE BAR NAVIGATION STARTS -->
-							<div id="mySidenav" class="sidenav">
-											<div class="slidebox">
-												<div class="row">
-													<div class="col-md-10">
-														<div class="edit" id="heading"></div>
-													</div>
-													<div class="col-md-2">
-														<div class="arrow">
-															<a href="javascript:void(0)" class="closebtn"
-																onclick="closeNav()"><i class="ti-arrow-right"></i></a>
-														</div>
-													</div>
-													</div>
-													<div class="chartbtnsec">
-														<div class="row">
-															<button class="btn4">CANCEL</button>
-															<button class="btn3">DELETE</button>
-															<button class="btn1">SAVE</button>
-														</div>
-													</div>
-													<div class="col-md-12 mt-15">
-														<div class="form-group">
-															
-														</div>
-													</div>
-													<div class="col-md-12 mt-15">
-														<div class="form-group">
-															
-														</div>
-													</div>
-													
-											
-												
-												<!-- </div> -->
-											</div>
-										</div>
-							<!-- SIDE BAR NAVIGATION ENDS -->
-							
 							<div class="wrapper center-block">
 									<div class="panel-group" id="accordion" role="tablist"
 										aria-multiselectable="true">
@@ -234,22 +384,138 @@
 														<a class="collapsed" role="button" data-toggle="collapse"
 															data-parent="#accordion" href="#collapseOne"
 															aria-expanded="false" aria-controls="collapseOne">
-															Personal Details</a>
+															PERSONAL DETAILS </a>
 													</h4>
 												</div>
 												<div id="collapseOne" class="panel-collapse collapse"
-													role="tabpanel" aria-labelledby="headingThree">
+													role="tabpanel" aria-labelledby="headingOne">
 								<div class="row">
 
-									<div class="col-md-5 btn-hs1">
+									<!-- <div class="col-md-5 btn-hs1">
 										<div class="font-design"></div>
-									</div>
+									</div> -->
 									
-									<div class="col-md-12 btn-hs1" align="right">
-										<button class="btn1" id="newLocation" onclick="openNav();" >NEW</button>
+									<!-- <div class="col-md-12 btn-hs1" align="right">
+										<button class="btn1" id="personalDtls" >NEW</button>
 											<button class="btn3" data-toggle="modal"
 												data-target="#delete">DELETE</button>
+									</div> -->
+									
+									<div class="col-md-4">
+													<div class="form-group">
+														<label>First Name</label> <input type="text"
+															name="First Name" value="" placeholder="First Name"
+															class="form-control" id="firstnameid">
+													</div>
 									</div>
+									
+									<div class="col-md-4">
+													<div class="form-group">
+														<label>Last Name</label> <input type="text"
+															name="First Name" value="" placeholder="First Name"
+															class="form-control" id="firstnameid">
+													</div>
+									</div>
+									
+									<div class="col-md-4">
+													<div class="form-group">
+														<label>Gender</label>
+														<div class="select">
+															<select class="form-control" id="genderid">
+																<option>Select</option>
+																<option th:each="c,iter:${genderTypeList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>DOB</label> <input type="date" name="Date of birth"
+															value="" class="form-control"
+															id="dobid">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Blood Group</label>
+														<div class="select">
+															<select class="form-control" id="bloodgroupid">
+																<option>Select</option>
+																<option th:each="c,iter:${bloodgroupList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Marital Status</label>
+														<div class="select">
+															<select class="form-control" id="maritalstatusid">
+																<option>Select</option>
+																<option th:each="c,iter:${maritalstatusList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Nationality</label>
+														<div class="select">
+															<select class="form-control" id="nationalityid">
+																<option>Select</option>
+																<option th:each="c,iter:${nationalityList}"
+																	th:value="${c.key}" th:text="${c.name}"></option>
+															</select>
+														</div>
+													</div>
+												</div>
+
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Father Name</label> <input type="text"
+															name="Father Name" value="" placeholder="Father Name"
+															class="form-control" id="fatherid">
+													</div>
+												</div>
+
+
+
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Mother Name</label> <input type="text"
+															name="Mother Name" value="" placeholder="Mother Name"
+															class="form-control" id="motherid">
+													</div>
+												</div>
+
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Mobile No</label> <input type="text"
+															name="mobileno" value="" placeholder="mobileno"
+															class="form-control" id="mobilenoid">
+													</div>
+												</div>
+
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Personal Mail</label> <input type="text"
+															name="personalmail" value="" placeholder="personalmail"
+															class="form-control" id="personalmailid">
+													</div>
+												</div>
+
+
+
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Work Mail</label> <input type="text"
+															name="workmail" value="" placeholder="workmail"
+															class="form-control" id="workmailid">
+													</div>
+												</div>
 
 								</div>
 
@@ -259,6 +525,204 @@
 							</div>
 							
 
+							<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingTwo">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseTwo"
+															aria-expanded="false" aria-controls="collapseTwo">
+															ADDRESS </a>
+													</h4>
+												</div>
+												<div id="collapseTwo" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingTwo">
+								<div class="row">
+
+									<div class="col-md-4">
+											<div class="form-group">
+												<label>Address</label> <input type="text"
+													name="address" value="" placeholder="address"
+													class="form-control" id="addressId">
+											</div>
+									</div>
+															
+									<div class="col-md-4">
+											<div class="form-group">
+											<label>Country</label>
+											<div class="select">
+												<select class="form-control  countryclss"
+														id="countryid">
+													<option value="">Select</option>
+													<option th:each="c,iter:${counntryList}"
+															th:value="${c.key}" th:text="${c.name}"></option>
+												</select>
+												</div>
+											</div>
+									</div>
+									
+									<div class="col-md-4">
+											<div class="form-group">
+											<label>State</label>
+											<div class="select">
+												<select class="form-control stateclss" id="stateid">
+																	<option value="">Select</option>
+																	<option th:each="c,iter:${stateList}"
+																		th:value="${c.key}" th:text="${c.name}"></option>
+																</select>
+																</div>
+											</div>
+									</div>
+									
+									<div class="col-md-4">
+											<div class="form-group">
+											<label>City</label>
+											<div class="select">
+												<select class="form-control   cityclsss" id="cityid">
+																	<option value="">Select</option>
+																	<option th:each="c,iter:${cityList}"
+																		th:value="${c.key}" th:text="${c.name}"></option>
+																</select>
+																</div>
+											</div>
+									</div>
+									
+									<div class="col-md-4">
+											<div class="form-group">
+												<label>Pin Code</label> <input type="text"
+													name="pinCode" value="" placeholder="Pin Code"
+													class="form-control" id="pinCodeId">
+											</div>
+									</div>
+									
+								</div>
+
+								
+
+							</div>
+							</div>
+
+							
+							<!-- SIDE BAR NAVIGATION STARTS -->
+							<div id="mySidenav1" class="sidenav">
+											<div class="slidebox">
+												<div class="row">
+													<div class="col-md-10">
+														<div class="edit" id="heading">Work Experience</div>
+													</div>
+													<div class="col-md-2">
+														<div class="arrow">
+															<a href="javascript:void(0)" class="closebtn"
+																onclick="closeNav1()"><i class="ti-arrow-right"></i></a>
+														</div>
+													</div>
+													</div>
+													<div class="chartbtnsec2">
+														<div class="row">
+														<div class="col-md-12">
+															<button class="btn4">CANCEL</button>
+															<button class="btn1" onclick="saveExperiene()">SAVE</button>
+															<button class="btn3">DELETE</button>
+															</div>
+														</div>
+													</div>
+													
+														<div class="row">
+														
+															<div class="col-md-12 mt-15">
+																<div class="form-group">
+																
+																	<label>Designation</label>
+																	<input type="text" placeholder="Designation" class="form-control" id="desgId">
+												
+																</div>
+															</div>
+										
+															<div class="col-md-12 mt-15">
+																<div class="form-group">
+																
+																	<label>Organization</label>
+																	<input type="text" placeholder="Organization" class="form-control" id="orgId">
+												
+																</div>
+															</div>
+															
+															<div class="col-md-12 mt-15">
+																<div class="form-group">
+																	<label>Is this your current company?</label>
+																	<div class="mt-15">
+																	<input id='watch-me' name='test' type='radio' checked /> <span style="display: inline-block;font-weight: 100;color: #929292;">Yes</span>
+		            												<input id='see-me' name='test' type='radio' /> <span style="display: inline-block;font-weight: 100;color: #929292;">No</span>
+		            												</div>
+		            											</div>
+		            										</div>
+		            										
+		            										<div id="expDate">
+		            										<div class="col-md-12">
+																<div class="form-group">
+																
+																	<label>Worked From</label>
+																	<input type="date"  class="form-control" id="workFromExp">
+												
+																</div>
+															</div>
+															<div class="col-md-12 mt-15">
+																<div class="form-group">
+																
+																	<label>Worked Till</label>
+																	<input type="text" class="form-control" id="workTillExp" readonly>
+												
+																</div>
+															</div>
+															
+															<div class="col-md-12 mt-15">
+																<div class="form-group">
+																
+																	<label>Notice Period (in Months)</label>
+																	<input type="text" class="form-control" id="noticeId">
+												
+																</div>
+															</div>
+															
+															
+															</div>
+															
+															<div id="expDate1">
+		            										<div class="col-md-12">
+																<div class="form-group">
+																
+																	<label>Worked From</label>
+																	<input type="date"  class="form-control" id="workFromExp1">
+												
+																</div>
+															</div>
+															<div class="col-md-12 mt-15">
+																<div class="form-group">
+																
+																	<label>Worked Till</label>
+																	<input type="date" class="form-control" id="workTillExp1">
+												
+																</div>
+															</div>
+															</div>
+															
+															<div class="col-md-12 mt-15">
+																<div class="form-group">
+																
+																	<label>Describe your Job Profile</label>
+																	<textarea class="form-control" id="jobDescId"></textarea>
+												
+																</div>
+															</div>
+															
+															
+														</div>
+												
+												</div>
+											</div>
+										
+							<!-- SIDE BAR NAVIGATION ENDS -->
+							
+							
 							
 							<div class="panel panel-default">
 												<div class="panel-heading" role="tab" id="headingThree">
@@ -266,107 +730,136 @@
 														<a class="collapsed" role="button" data-toggle="collapse"
 															data-parent="#accordion" href="#collapseThree"
 															aria-expanded="false" aria-controls="collapseTwo">
-															Educational Details </a>
+															EDUCATIONAL DETAILS </a>
 													</h4>
 												</div>
 												<div id="collapseThree" class="panel-collapse collapse"
 													role="tabpanel" aria-labelledby="headingThree">
+												
 								<div class="row">
-
-									<div class="col-md-5 btn-hs1">
-										<div class="font-design">
-											<!-- Vendor LIST <span>(10)</span> -->
-										</div>
+									
+									<div class="col-md-4">
+											<div class="form-group">
+													<label>Highest Qualification</label>
+														<div class="select">
+														    <select>
+														      <option value="">Select</option>
+														      <option th:each="c,iter:${educationList}" th:value="${c.key}"
+																	th:text="${c.name}"></option>
+														    </select>
+														 </div>
+												</div>
 									</div>
-									<div class="col-md-12 btn-hs1">
+									
+									<div class="col-md-4">
+											<div class="form-group">
+													<label>Institution</label>
+													<input type="text" placeholder="Institution" class="form-control" id="institution">
+												</div>
+									</div>
+									
+									<div class="col-md-4">
+											<div class="form-group">
+													<label>Passing Year</label>
+														<div class="select">
+															<select class="form-control" id="dropdownYear"></select>
+														</div>
+												</div>
+									</div>
+									
+								</div>
+
+
+							</div>
+							</div>
+
+							<!-- SIDE BAR NAVIGATION STARTS -->
+							<div id="mySidenav" class="sidenav">
+											<div class="slidebox">
+												<div class="row">
+													<div class="col-md-10">
+														<div class="edit" id="heading">Skills</div>
+													</div>
+													<div class="col-md-2">
+														<div class="arrow">
+															<a href="javascript:void(0)" class="closebtn"
+																onclick="closeNav()"><i class="ti-arrow-right"></i></a>
+														</div>
+													</div>
+													</div>
+													<div class="chartbtnsec2">
+														<div class="row">
+														<div class="col-md-12">
+															<button class="btn4">CANCEL</button>
+															<button class="btn1" onclick="saveSkill()">SAVE</button>
+															<button class="btn3">DELETE</button>
+															</div>
+														</div>
+													</div>
+													<div id="innerDiv">
+														<div class="row">
+															<div class="col-md-12 mt-15">
+																<div class="form-group">
+																
+																	<label>Skill</label>
+																	<input type="text" placeholder="Skill" class="form-control" id="skillsId">
+												
+																</div>
+															</div>
+														</div>
+														
+													</div>
+												
+												</div>
+											</div>
 										
-											<button class="btn1" id="newBtn1" onclick="openNav();">NEW</button>
-											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-											<button class="btn3" data-toggle="modal"
-												data-target="#delete">DELETE</button>
-											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
-                                 <a class="btn3 delete-record copy">DELETE</a> -->
-									</div>
-								</div>
-
+								<!-- SIDE BAR NAVIGATION ENDS -->
 								
-
-							</div>
-							</div>
-
-
-						<!-- 	<div class="row">
-								<div class="col-md-12">
-									<div class="headingbar">
-										<a href="#" data-toggle="collapse" data-target="#demo_13"
-											style="color: #333; text-decoration: none;">Legal</a> <a
-											href="#" data-toggle="collapse" data-target="#demo_13"
-											style="float: right; color: #333; text-decoration: none;"><i
-											class="ti-angle-down"></i></a>
-									</div>
-								</div>
-							</div>
-
-							<div id="demo_13" class="collapse show">
-								<div class="row"> -->
 								<div class="panel panel-default">
 												<div class="panel-heading" role="tab" id="headingFour">
 													<h4 class="panel-title">
 														<a class="collapsed" role="button" data-toggle="collapse"
 															data-parent="#accordion" href="#collapseFour"
 															aria-expanded="false" aria-controls="collapseFour">
-															IT Skills</a>
+															SKILLS </a>
 													</h4>
 												</div>
 												<div id="collapseFour" class="panel-collapse collapse"
 													role="tabpanel" aria-labelledby="headingFour">
-								<div class="row">
 								
-
-									<div class="col-md-5 padding-7 btn-hs1">
+								<div class="row">
+									
+									<div class="col-md-5  btn-hs1">
 										<div class="font-design">
 											<!-- Vendor LIST <span>(10)</span> -->
 										</div>
 									</div>
 									<div class="col-md-12 btn-hs1">
 										
-											<button class="btn1" id="newBtn1" onclick="openNav();">NEW</button>
+											<button class="btn1" id="experienceId" onclick="openNav();">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
 											<button class="btn3" data-toggle="modal"
 												data-target="#delete">DELETE</button>
-											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
-                                 <a class="btn3 delete-record copy">DELETE</a> -->
-										
 									</div>
 									
+									<div class="col-md-4">
+										
+									 		<div id="myGrid1" style="width:100%; height:100px;" class="ag-theme-alpine"></div>
+								
+									</div>
 
 								</div>
 								
 							</div>
 							</div>
-
-
-							<!-- <div class="row">
-								<div class="col-md-12">
-									<div class="headingbar">
-										<a href="#" data-toggle="collapse" data-target="#demo_14"
-											style="color: #333; text-decoration: none;">Bank Details</a>
-										<a href="#" data-toggle="collapse" data-target="#demo_14"
-											style="float: right; color: #333; text-decoration: none;"><i
-											class="ti-angle-down"></i></a>
-									</div>
-								</div>
-							</div>
-
-							<div id="demo_14" class="collapse show">
-								<div class="row"> -->
+						
 								<div class="panel panel-default">
 												<div class="panel-heading" role="tab" id="headingFive">
 													<h4 class="panel-title">
 														<a class="collapsed" role="button" data-toggle="collapse"
 															data-parent="#accordion" href="#collapseFive"
 															aria-expanded="false" aria-controls="collapseFive">
-															Work Experience </a>
+															WORK EXPERIENCE </a>
 													</h4>
 												</div>
 												<div id="collapseFive" class="panel-collapse collapse"
@@ -381,7 +874,7 @@
 									</div>
 									<div class="col-md-12 btn-hs1">
 										
-											<button class="btn1" id="newBtn1">NEW</button>
+											<button class="btn1" id="experienceId" onclick="openNav1();">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
 											<button class="btn3" data-toggle="modal"
 												data-target="#delete">DELETE</button>
@@ -389,13 +882,17 @@
                                  <a class="btn3 delete-record copy">DELETE</a> -->
 										
 									</div>
+									
+									<div class="col-md-12">
+										
+									 		<div id="myGrid2" style="width:100%; height:100px;" class="ag-theme-alpine"></div>
+								
+									</div>
 								
 								</div>
 
 							</div>
 							</div>
-
-
 
 							<!-- <div class="row">
 								<div class="col-md-12">
@@ -418,7 +915,7 @@
 														<a class="collapsed" role="button" data-toggle="collapse"
 															data-parent="#accordion" href="#collapseSix"
 															aria-expanded="false" aria-controls="collapseSix">
-															Projects </a>
+															AWARDS & ACHIEVEMENTS </a>
 													</h4>
 												</div>
 												<div id="collapseSix" class="panel-collapse collapse"
@@ -433,7 +930,7 @@
 									</div>
 									<div class="col-md-12 btn-hs1">
 										
-											<button class="btn1" id="newBtn1">NEW</button>
+											<button class="btn1" id="awardsId" onclick="openNav();openSideBar(event)">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
 											<button class="btn3" data-toggle="modal"
 												data-target="#delete">DELETE</button>
@@ -462,17 +959,68 @@
 							</div>
 							<div id="demo_15" class="collapse show">
 								<div class="row"> -->
+								
 								<div class="panel panel-default">
 												<div class="panel-heading" role="tab" id="headingSeven">
 													<h4 class="panel-title">
 														<a class="collapsed" role="button" data-toggle="collapse"
 															data-parent="#accordion" href="#collapseSeven"
 															aria-expanded="false" aria-controls="collapseSeven">
-															Resume</a>
+															REFERENCES </a>
 													</h4>
 												</div>
 												<div id="collapseSeven" class="panel-collapse collapse"
-													role="tabpanel" aria-labelledby="headingFour">
+													role="tabpanel" aria-labelledby="headingSeven">
+								<div class="row">
+								
+									<div class="col-md-5  btn-hs1">
+										<div class="font-design">
+											<!-- Vendor LIST <span>(10)</span> -->
+										</div>
+									</div>
+								
+									<div class="col-md-12 btn-hs1 padding-7" align="right">
+										<button class="btn1">New</button>
+										<button class="btn3">Delete</button>
+									</div>
+
+								</div>
+
+							</div>
+						</div>
+								
+								
+								<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingEight">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseEight"
+															aria-expanded="false" aria-controls="collapseEight">
+															SOURCE </a>
+													</h4>
+												</div>
+												<div id="collapseEight" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingEight">
+								<div class="row">
+								
+									
+
+								</div>
+
+							</div>
+						</div>
+						
+						<div class="panel panel-default">
+												<div class="panel-heading" role="tab" id="headingNine">
+													<h4 class="panel-title">
+														<a class="collapsed" role="button" data-toggle="collapse"
+															data-parent="#accordion" href="#collapseNine"
+															aria-expanded="false" aria-controls="collapseNine">
+															DOCUMENTS & RESUME </a>
+													</h4>
+												</div>
+												<div id="collapseNine" class="panel-collapse collapse"
+													role="tabpanel" aria-labelledby="headingNine">
 								<div class="row">
 								
 									<div class="col-md-5  btn-hs1">
@@ -490,6 +1038,8 @@
 
 							</div>
 						</div>
+						
+						<!-- END OF ALL COLLAPS -->
 					
 					</div>
 				</div>

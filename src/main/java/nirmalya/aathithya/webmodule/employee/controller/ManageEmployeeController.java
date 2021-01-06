@@ -52,6 +52,7 @@ import nirmalya.aathithya.webmodule.employee.model.HrmsEmployeeSalaryStructureMo
 import nirmalya.aathithya.webmodule.employee.model.IncomeTaxModel;
 import nirmalya.aathithya.webmodule.employee.model.ManageEmployeeAddressModel;
 import nirmalya.aathithya.webmodule.employee.model.ManageEmployeeModel;
+import nirmalya.aathithya.webmodule.employee.model.ManageEmployeeWorkdetailsModel;
 
 /*
  * @author Nirmalya labs
@@ -251,11 +252,9 @@ public class ManageEmployeeController {
 		return response;
 	}
 
-	
-
 	@SuppressWarnings("unchecked")
 	@PostMapping("/manage-employee-master-save")
-	public @ResponseBody JsonResponse<Object> savemanangeemployee(@RequestBody  ManageEmployeeModel manageEmployeeModel,
+	public @ResponseBody JsonResponse<Object> savemanangeemployee(@RequestBody ManageEmployeeModel manageEmployeeModel,
 			HttpSession session) {
 		logger.info("Method : saveemployee personalMaster starts");
 
@@ -289,7 +288,7 @@ public class ManageEmployeeController {
 		}
 
 		try {
-			
+
 			resp = restClient.postForObject(env.getEmployeeUrl() + "saveemployeeMaster", manageEmployeeModel,
 					JsonResponse.class);
 
@@ -338,34 +337,32 @@ public class ManageEmployeeController {
 		logger.info("Method : saveAllImage ends");
 		return imageName;
 	}
-	
-	
+
 	@SuppressWarnings("unchecked")
 	@PostMapping("/manage-employee-address-save")
-	public @ResponseBody JsonResponse<Object> saveemployeeaddress(@RequestBody ManageEmployeeAddressModel manageEmployeeAddressModel, HttpSession session) {
+	public @ResponseBody JsonResponse<Object> saveemployeeaddress(
+			@RequestBody ManageEmployeeAddressModel manageEmployeeAddressModel, HttpSession session) {
 		logger.info("Method : saveemployeeaddress starts");
-		
+
 		JsonResponse<Object> resp = new JsonResponse<Object>();
-		
+
 		String userId = "";
-		
+
 		try {
 			userId = (String) session.getAttribute("USER_ID");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		manageEmployeeAddressModel.setCreatedBy(userId);
-		
-		
-		
+
 		try {
 			resp = restClient.postForObject(env.getEmployeeUrl() + "saveemployeeaddress", manageEmployeeAddressModel,
 					JsonResponse.class);
 		} catch (RestClientException e) {
 			e.printStackTrace();
 		}
-		
+
 		String message = resp.getMessage();
 
 		if (message != null && message != "") {
@@ -374,33 +371,201 @@ public class ManageEmployeeController {
 			session.removeAttribute("employeePFile");
 			resp.setMessage("Success");
 		}
-		
+
 		System.out.println("Success");
-		
+
 		logger.info("Method : saveemployeeaddress starts");
 		return resp;
 	}
 
-@SuppressWarnings("unchecked")
-@GetMapping("view-emp-address-mstr-data")
-public @ResponseBody List<ManageEmployeeAddressModel> viewemployeeaddressthroughajax(Model model, HttpServletRequest request) {
-	logger.info("Method : viewemployeeaddressthroughajax starts");
+	
+	
+	
+	@SuppressWarnings("unchecked")
+	@GetMapping("manage-vendor-master-data-through-ajax")
+	public @ResponseBody List<ManageEmployeeModel> personalThroughAjax(Model model, HttpServletRequest request) {
+		logger.info("Method : personal inf ThroughAjax starts");
 
-	JsonResponse<List<ManageEmployeeAddressModel>> jsonResponse = new JsonResponse<List<ManageEmployeeAddressModel>>();
+		JsonResponse<List<ManageEmployeeModel>> jsonResponse = new JsonResponse<List<ManageEmployeeModel>>();
 
-	try {
+		try {
 
-		jsonResponse = restClient.getForObject(env.getEmployeeUrl() + "viewEmployeeadd",
-				JsonResponse.class);
+			jsonResponse = restClient.getForObject(env.getEmployeeUrl() + "get-personal-list", JsonResponse.class);
 
+			ObjectMapper mapper = new ObjectMapper();
 
-	} catch (Exception e) {
-		e.printStackTrace();
+			List<ManageEmployeeModel> addreq = mapper.convertValue(jsonResponse.getBody(),
+					new TypeReference<List<ManageEmployeeModel>>() {
+					});
+		/*	for (AddRecruitentModel m : addreq) {
+				if (m.getActivityStatus() == "1") {
+					m.setActivityStatus("Created");
+				} else if (m.getActivityStatus() == "2") {
+					m.setActivityStatus("Active");
+				} else if (m.getActivityStatus() == "3") {
+					m.setActivityStatus("Closed");
+				}
+			}*/
+			jsonResponse.setBody(addreq);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Method ; personal inf ThroughAjax ends");
+		System.out.println("###########" + jsonResponse.getBody());
+
+		return jsonResponse.getBody();
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	@SuppressWarnings("unchecked")
+	@GetMapping("view-manage-employee-through-ajax")
+	public @ResponseBody List<ManageEmployeeAddressModel> vendorLocationThroughAjax(Model model,
+			HttpServletRequest request) {
+		logger.info("Method : vendorLocationThroughAjax starts");
 
-	logger.info("Method ; viewemployeeaddressthroughajax ends");
-	System.out.println("###########" + jsonResponse.getBody());
+		JsonResponse<List<ManageEmployeeAddressModel>> jsonResponse = new JsonResponse<List<ManageEmployeeAddressModel>>();
 
-	return jsonResponse.getBody();
-}
+		try {
+
+			jsonResponse = restClient.getForObject(env.getEmployeeUrl() + "viewEmployeeadd", JsonResponse.class);
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			List<ManageEmployeeAddressModel> addreq = mapper.convertValue(jsonResponse.getBody(),
+					new TypeReference<List<ManageEmployeeAddressModel>>() {
+					});
+
+			jsonResponse.setBody(addreq);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Method ; vendorLocationThroughAjax ends");
+		System.out.println("###########" + jsonResponse.getBody());
+
+		return jsonResponse.getBody();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@PostMapping("/manage-employee-workdetails-save")
+	public @ResponseBody JsonResponse<Object> saveemployeeworkdetails(
+			@RequestBody ManageEmployeeWorkdetailsModel manageEmployeeWorkdetailsModel, HttpSession session) {
+		logger.info("Method : saveemployeeworkdetails starts");
+
+		JsonResponse<Object> resp = new JsonResponse<Object>();
+
+		String userId = "";
+
+		try {
+			userId = (String) session.getAttribute("USER_ID");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		manageEmployeeWorkdetailsModel.setCreatedBy(userId);
+
+		try {
+			resp = restClient.postForObject(env.getEmployeeUrl() + "saveemployeeworkdetails", manageEmployeeWorkdetailsModel,
+					JsonResponse.class);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		String message = resp.getMessage();
+
+		if (message != null && message != "") {
+
+		} else {
+			session.removeAttribute("employeePFile");
+			resp.setMessage("Success");
+		}
+
+		System.out.println("Success");
+
+		logger.info("Method : saveemployeeworkdetails starts");
+		return resp;
+	}
+	@SuppressWarnings("unchecked")
+	@GetMapping("view-manage-employee-work-ajax")
+	public @ResponseBody List<ManageEmployeeWorkdetailsModel> viewmanageemployeeworkajax(Model model,
+			HttpServletRequest request) {
+		logger.info("Method : viewmanageemployeeworkajax starts");
+
+		JsonResponse<List<ManageEmployeeWorkdetailsModel>> jsonResponse = new JsonResponse<List<ManageEmployeeWorkdetailsModel>>();
+
+		try {
+
+			jsonResponse = restClient.getForObject(env.getEmployeeUrl() + "viewEmployeework", JsonResponse.class);
+
+			ObjectMapper mapper = new ObjectMapper();
+
+			List<ManageEmployeeWorkdetailsModel> addreq = mapper.convertValue(jsonResponse.getBody(),
+					new TypeReference<List<ManageEmployeeWorkdetailsModel>>() {
+					});
+
+			jsonResponse.setBody(addreq);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		logger.info("Method ; viewmanageemployeeworkajax ends");
+		System.out.println("###########" + jsonResponse.getBody());
+
+		return jsonResponse.getBody();
+	}
+	
+	@SuppressWarnings("unchecked")
+	@PostMapping("view-delete-address-emp")
+	public @ResponseBody JsonResponse<Object> deleteempaddress(Model model, @RequestParam String id,
+			HttpSession session) {
+		logger.info("Method : delectRequistion starts");
+
+		JsonResponse<Object> resp = new JsonResponse<Object>();
+		String createdBy = "";
+
+		try {
+			createdBy = (String) session.getAttribute("USER_ID");
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+			resp = restClient.getForObject(
+					env.getEmployeeUrl() + "deleteaddressemp?id="+ id,
+					JsonResponse.class);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		if (resp.getMessage() != null && resp.getMessage() != "") {
+			resp.setCode(resp.getMessage());
+			resp.setMessage("Unsuccess");
+		} else {
+			resp.setMessage("success");
+		}
+
+		logger.info("Method :  deleteempaddress ends");
+		return resp;
+	}
 }

@@ -11,9 +11,31 @@
 		document.getElementById("main_content").style.width = "83%";
 	}
 
+	function openNav1() {
+		document.getElementById("mySidenav1").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:auto;";
+
+		document.getElementById("main_content1").style.width = "83%";
+	}
+
+	function openNav2() {
+		document.getElementById("mySidenav2").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:auto;";
+
+		document.getElementById("main_content").style.width = "83%";
+	}
+
 	function closeNav() {
 		document.getElementById("mySidenav").style.width = "0";
-		document.getElementById("main_content").style.width = "103%";
+		document.getElementById("main_content").style.width = "103%"
+	}
+
+	function closeNav1() {
+		document.getElementById("mySidenav1").style.width = "0";
+		document.getElementById("main_content1").style.width = "103%";
+	}
+
+	function closeNav2() {
+		document.getElementById("mySidenav2").style.width = "0";
+		document.getElementById("main_content2").style.width = "103%";
 	}
 </script>
 
@@ -269,57 +291,37 @@
 	/*if the user clicks anywhere outside the select box,
 	 then close all select boxes:*/
 	document.addEventListener("click", closeAllSelect);
+
+	$("#StateSave").click(function() {
+
+		data = {};
+
+		data.stateId = $("#stateId").val();
+		data.stateName = $("#stateName").val();
+		data.stateCode = $("#stateCode").val();
+		data.stateOrderId = $("#stateOrderId").val();
+		data.stateStatus = $("#stateStatus").val();
+
+		if (parseFloat($("#stateName").val().length) > 20) {
+			checkCharLengthOfString("stateName", 20);
+		} else {
+			submitRoom(data);
+		}
+
+	})
 </script>
-
-
-<!-- <script type="text/javascript">
-$(document).ready(function() {			
-	$('#table').DataTable({
-		'processing' : true,
-		'serverSide' : true,
-		'searching' : false,
-		'ordering' : false,
-		"ajax" : {
-			'url' : 'geography-master-through-ajax',
-			}
-		},
-		'dataSrc' : "",
-		'columns' : [
-		
-			{'data' : 'globalId'},
-			
-			{'data' : 'globalCode'},
-			
-			{'data' : 'globalCountry'},
-			
-			{'data' : 'globalState'},
-			
-			{'data' : 'globalCity'},
-			
-			{'data' : 'globalStatus'}
-		]	
-	});
-});
-
-
-</script>
- -->
-
-
-
 
 <script type="text/javascript">
 	var data1 = {};
 	function submitCountryType() {
-		
-		
+
 		data1.countryOrderId = $("#countryOrderId").val();
 		data1.countryCode = $("#countryCode").val();
 		data1.countryName = $("#countryName").val();
 		data1.countryStatus = $("#countryStatus").val();
 
 		console.log("data", data1)
-		
+
 		$.ajax({
 			type : "POST",
 			url : "geography-master-country-type",
@@ -328,7 +330,6 @@ $(document).ready(function() {
 			data : JSON.stringify(data1),
 			success : function(response) {
 				if (response.message == "Success") {
-
 
 				} else {
 					swal({
@@ -343,43 +344,189 @@ $(document).ready(function() {
 			}
 		})
 	}
-	
-	
-	var columnDefs = [
-		
-		{headerName: "Order", field: "countryOrderId",width:70},
-		{headerName: "Code", field: "countryCode"},
-		{headerName: "Country Name", field: "countryName"},
-		{headerName: "Status", field: "countryStatus"}
-		];
 
-		var gridOptions = {
-		columnDefs: columnDefs,
-		defaultColDef: {
-		sortable: true,
-		filter: true,
-		resizable: true,
-		width: 88,
-		height: 10
+	var columnDefs = [
+
+	{
+		headerName : "Order",
+		field : "countryOrderId",
+		width : 70
+	}, {
+		headerName : "Code",
+		field : "countryCode"
+	}, {
+		headerName : "Country Name",
+		field : "countryName"
+	}, {
+		headerName : "Status",
+		field : "countryStatus"
+	} ];
+
+	var gridOptions = {
+		columnDefs : columnDefs,
+		defaultColDef : {
+			sortable : true,
+			filter : true,
+			resizable : true,
+			width : 88,
+			height : 10
 		}
 
-		};
+	};
 
+	agGrid.simpleHttpRequest({
+		url : 'geography-master-country-type-view'
+	}).then(function(data) {
 
-		// setup the grid after the page has finished loading
-		document.addEventListener('DOMContentLoaded', function() {
+		data.push(data1);
+
+		gridOptions.api.setRowData(data);
+	});
+
+	var data2 = {};
+	function submitStateType() {
+
+		data2.stateOrderId = $("#stateOrderId").val();
+		data2.stateCode = $("#stateCode").val();
+		data2.stateName = $("#stateName").val();
+		data2.stateStatus = $("#stateStatus").val();
+
+		console.log("data", data2)
+
+		$.ajax({
+			type : "POST",
+			url : "geography-master-state-type",
+			dataType : "json",
+			contentType : "application/json",
+			data : JSON.stringify(data2),
+			success : function(response) {
+				if (response.message == "Success") {
+
+				} else {
+
+				}
+			},
+			error : function(response) {
+				console.log(response);
+			}
+		})
+	}
+
+	var columnDefs1 = [
+
+	{
+		headerName : "Order",
+		field : "stateOrderId",
+		width : 70
+	}, {
+		headerName : "Code",
+		field : "stateCode"
+	}, {
+		headerName : "State Name",
+		field : "stateName"
+	}, {
+		headerName : "Status",
+		field : "stateStatus"
+	} ];
+
+	var gridOptions1 = {
+		columnDefs : columnDefs1,
+		defaultColDef : {
+			sortable : true,
+			filter : true,
+			resizable : true,
+			width : 88,
+			height : 10
+		}
+
+	};
+
+	agGrid.simpleHttpRequest({
+		url : 'geography-master-state-type-view'
+	}).then(function(data) {
+
+		data.push(data2);
+		gridOptions1.api.setRowData(data);
+	});
+
+	var data3 = {};
+	function submitCityType() {
+
+		data3.cityOrderId = $("#cityOrderId").val();
+		data3.cityCode = $("#cityCode").val();
+		data3.cityName = $("#cityName").val();
+		data3.cityStatus = $("#cityStatus").val();
+
+		console.log("data", data3)
+
+		$.ajax({
+			type : "POST",
+			url : "geography-master-city-type",
+			dataType : "json",
+			contentType : "application/json",
+			data : JSON.stringify(data3),
+			success : function(response) {
+				if (response.message == "Success") {
+
+				} else {
+
+				}
+			},
+			error : function(response) {
+				console.log(response);
+			}
+		})
+	}
+
+	var columnDefs2 = [
+
+	{
+		headerName : "Order",
+		field : "cityOrderId",
+		width : 70
+	}, {
+		headerName : "Code",
+		field : "cityCode"
+	}, {
+		headerName : "City Name",
+		field : "cityName"
+	}, {
+		headerName : "Status",
+		field : "cityStatus"
+	} ];
+
+	var gridOptions2 = {
+		columnDefs : columnDefs2,
+		defaultColDef : {
+			sortable : true,
+			filter : true,
+			resizable : true,
+			width : 88,
+			height : 10
+		}
+
+	};
+
+	agGrid.simpleHttpRequest({
+		url : 'geography-master-city-type-view'
+	}).then(function(data) {
+
+		data.push(data3);
+		gridOptions2.api.setRowData(data);
+	});
+
+	// setup the grid after the page has finished loading
+	document.addEventListener('DOMContentLoaded', function() {
 		var gridDiv = document.querySelector('#myGrid');
 		new agGrid.Grid(gridDiv, gridOptions);
 
-		});
-		
-		agGrid.simpleHttpRequest({url: 'geography-master-country-type-view'}).then(function(data) {
-		
-		data.push(data1);
-		
-		gridOptions.api.setRowData(data);
-		});
-	
+		var gridDiv1 = document.querySelector('#myGrid1');
+		new agGrid.Grid(gridDiv1, gridOptions1);
+
+		var gridDiv2 = document.querySelector('#myGrid2');
+		new agGrid.Grid(gridDiv2, gridOptions2);
+
+	});
 </script>
 
 
@@ -438,15 +585,49 @@ $(document).ready(function() {
 
 															</div>
 															<div class="box_reference" align="center">
-																<div id="myGrid" style="width:100%; height:140px;" class="ag-theme-alpine"></div>
+																<div id="myGrid" style="width: 100%; height: 140px;"
+																	class="ag-theme-alpine"></div>
 															</div>
 														</div>
+
+
+
 
 
 														<div class="col-md-4">
 															<div class="row">
 																<div class="col-md-10">
-																	<div class="sml_plus" onclick='openNav()'>
+																	<div class="sml_plus">
+																		<i class="ti-plus" onclick='openNav1()'></i>
+																	</div>
+																	<!-- <div class="sml_edit">
+																		<i class="ti-pencil"></i>
+																	</div> -->
+																	<div class="sml_action">
+																		<i class="ti-bolt-alt"></i>
+																	</div>
+																</div>
+
+																<div class="sml_hide">
+																	<i class="ti-download"></i>
+																</div>
+
+															</div>
+															<div class="box_reference" align="center">
+																<div id="myGrid1" style="width: 100%; height: 140px;"
+																	class="ag-theme-alpine"></div>
+
+															</div>
+														</div>
+
+
+
+
+
+														<div class="col-md-4">
+															<div class="row">
+																<div class="col-md-10">
+																	<div class="sml_plus" onclick='openNav2()'>
 																		<i class="ti-plus"></i>
 																	</div>
 																	<!-- <div class="sml_edit">
@@ -463,108 +644,14 @@ $(document).ready(function() {
 
 															</div>
 															<div class="box_reference" align="center">
-																<table id="table" class="table table-bordered newtbl">
+																<div id="myGrid2" style="width: 100%; height: 140px;"
+																	class="ag-theme-alpine"></div>
 
-																	<tr>
-																		<td>Order</td>
-																		<td>Code</td>
-																		<td>State Name</td>
-																		<td>Status</td>
-																	</tr>
-
-																	<tr>
-																		<td>1</td>
-																		<td>WB</td>
-																		<td>West Bengal</td>
-																		<td class="active_colotxt">Active</td>
-																	</tr>
-
-																	<tr>
-																		<td>1</td>
-																		<td>OR</td>
-																		<td>Orissa</td>
-																		<td class="active_colotxt">Active</td>
-																	</tr>
-
-																	<tr>
-																		<td>1</td>
-																		<td>PN</td>
-																		<td>Punjab</td>
-																		<td class="active_colotxt">Active</td>
-																	</tr>
-
-																	<tr>
-																		<td>1</td>
-																		<td>KR</td>
-																		<td>Kerala</td>
-																		<td class="active_colotxt">Active</td>
-																	</tr>
-
-
-																</table>
 															</div>
 														</div>
 
 
-														<div class="col-md-4">
-															<div class="row">
-																<div class="col-md-10">
-																	<div class="sml_plus" onclick='openNav()'>
-																		<i class="ti-plus"></i>
-																	</div>
-																	<!-- <div class="sml_edit">
-																		<i class="ti-pencil"></i>
-																	</div> -->
-																	<div class="sml_action">
-																		<i class="ti-bolt-alt"></i>
-																	</div>
-																</div>
 
-																<div class="sml_hide">
-																	<i class="ti-download"></i>
-																</div>
-
-															</div>
-															<div class="box_reference" align="center">
-																<table id="table" class="table table-bordered newtbl">
-																	<tr>
-																		<td style="width: 5%">Order</td>
-																		<td style="width: 5%">Code</td>
-																		<td style="width: 20%">City Name</td>
-																		<td style="width: 5%">Status</td>
-																	</tr>
-
-																	<tr>
-																		<td>1</td>
-																		<td>KOL</td>
-																		<td>Kolkata</td>
-																		<td class="active_colotxt">Active</td>
-																	</tr>
-
-																	<tr>
-																		<td>1</td>
-																		<td>ASS</td>
-																		<td>Assansole</td>
-																		<td class="active_colotxt">Active</td>
-																	</tr>
-
-																	<tr>
-																		<td>1</td>
-																		<td>KHA</td>
-																		<td>Kharagpur</td>
-																		<td class="active_colotxt">Active</td>
-																	</tr>
-
-																	<tr>
-																		<td>1</td>
-																		<td>DUR</td>
-																		<td>Durgapur</td>
-																		<td class="active_colotxt">Active</td>
-																	</tr>
-
-																</table>
-															</div>
-														</div>
 
 
 														<div class="slidearrow_new" onclick="openNav()">
@@ -585,9 +672,9 @@ $(document).ready(function() {
 
 																	<div class="chartbtnsec">
 																		<div class="row">
-																			<button class="btn4">CANCEL</button>
+																			<button class="btn4" onclick="closeNav()">CANCEL</button>
 																			<button class="btn3">DELETE</button>
-																			<button class="btn1"  onclick="submitCountryType()">SAVE</button>
+																			<button class="btn1" onclick="submitCountryType()">SAVE</button>
 																		</div>
 																	</div>
 																	<div class="col-md-12">
@@ -633,6 +720,141 @@ $(document).ready(function() {
 																</div>
 															</div>
 														</div>
+
+
+														<div class="slidearrow_new" onclick="openNav1()">
+															<i class="ti-arrow-left"></i>
+														</div>
+
+														<div id="mySidenav1" class="sidenav">
+															<div class="slidebox">
+																<div class="row">
+																	<div class="col-md-9">
+																		<div class="edit">State</div>
+																	</div>
+																	<div class="col-md-3">
+																		<div class="arrow">
+																			<a href="javascript:void(0)" class="closebtn"
+																				onclick="closeNav1()"><i class="ti-arrow-right"></i></a>
+																		</div>
+																	</div>
+
+																	<div class="chartbtnsec">
+																		<div class="row">
+																			<button class="btn4" onclick="closeNav1()">CANCEL</button>
+																			<button class="btn3">DELETE</button>
+																			<button class="btn1" onclick="submitStateType()">SAVE</button>
+																		</div>
+																	</div>
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Code</label> <input type="text" id="stateCode"
+																				class="form-control transparenttxtbox"
+																				placeholder="IN"><input type="hidden"
+																				id="stateId">
+																		</div>
+																	</div>
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Name</label> <input type="text" id="stateName"
+																				class="form-control transparenttxtbox"
+																				placholder="Assam">
+																		</div>
+																	</div>
+
+
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Status</label> <select id="stateStatus"
+																				class="form-control">
+																				<option value="Active">Active</option>
+																				<option value="Inactive">Inactive</option>
+																			</select>
+																		</div>
+																	</div>
+
+
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Order</label> <input type="text"
+																				id="stateOrderId"
+																				class="form-control transparenttxtbox"
+																				placeholder="1">
+																		</div>
+																	</div>
+
+
+																</div>
+															</div>
+														</div>
+
+
+														<div class="slidearrow_new" onclick="openNav2()">
+															<i class="ti-arrow-left"></i>
+														</div>
+
+														<div id="mySidenav2" class="sidenav">
+															<div class="slidebox">
+																<div class="row">
+																	<div class="col-md-9">
+																		<div class="edit">City</div>
+																	</div>
+																	<div class="col-md-3">
+																		<div class="arrow">
+																			<a href="javascript:void(0)" class="closebtn"
+																				onclick="closeNav2()"><i class="ti-arrow-right"></i></a>
+																		</div>
+																	</div>
+
+																	<div class="chartbtnsec">
+																		<div class="row">
+																			<button class="btn4" onclick="closeNav2()">CANCEL</button>
+																			<button class="btn3">DELETE</button>
+																			<button class="btn1" onclick="submitCityType()">SAVE</button>
+																		</div>
+																	</div>
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Code</label> <input type="text" id="cityCode"
+																				class="form-control transparenttxtbox"
+																				placeholder="BHUB"><input type="hidden"
+																				id="cityId">
+																		</div>
+																	</div>
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Name</label> <input type="text" id="cityName"
+																				class="form-control transparenttxtbox"
+																				placholder="Bhubaneswar">
+																		</div>
+																	</div>
+
+
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Status</label> <select id="cityStatus"
+																				class="form-control">
+																				<option value="Active">Active</option>
+																				<option value="Inactive">Inactive</option>
+																			</select>
+																		</div>
+																	</div>
+
+
+																	<div class="col-md-12">
+																		<div class="form-group">
+																			<label>Order</label> <input type="text"
+																				id="cityOrderId"
+																				class="form-control transparenttxtbox"
+																				placeholder="1">
+																		</div>
+																	</div>
+
+
+																</div>
+															</div>
+														</div>
+
 
 
 													</div>

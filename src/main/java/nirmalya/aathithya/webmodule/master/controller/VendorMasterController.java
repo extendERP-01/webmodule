@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import nirmalya.aathithya.webmodule.common.utils.DropDownModel;
 import nirmalya.aathithya.webmodule.common.utils.EnvironmentVaribles;
 import nirmalya.aathithya.webmodule.common.utils.JsonResponse;
@@ -375,4 +376,39 @@ public class VendorMasterController {
 		logger.info("Method : editVendorLocationMaster starts");
 		return resp;
 	}
+
+	@SuppressWarnings("unchecked")
+	@PostMapping("manage-vendor-master-location-delete")
+	public @ResponseBody JsonResponse<Object> deleteVendorLocationMaster(Model model, @RequestParam String id,
+			HttpSession session) {
+		logger.info("Method : deleteVendorLocationMaster starts");
+
+		JsonResponse<Object> resp = new JsonResponse<Object>();
+		String createdBy = "";
+
+		try {
+			createdBy = (String) session.getAttribute("USER_ID");
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		System.out.println("delete"+id);
+		try {
+			resp = restClient.getForObject(env.getMasterUrl() + "deleteVendorLocation?id=" + id + "&createdBy="+createdBy, JsonResponse.class);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		if (resp.getMessage() != null && resp.getMessage() != "") {
+			resp.setCode(resp.getMessage());
+			resp.setMessage("Unsuccess");
+		} else {
+			resp.setMessage("success");
+		}
+
+		logger.info("Method : deleteVendorLocationMaster ends");
+		return resp;
+	}
+	
+	
+	
 }

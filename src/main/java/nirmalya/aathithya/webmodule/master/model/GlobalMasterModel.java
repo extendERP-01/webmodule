@@ -13,19 +13,24 @@ public class GlobalMasterModel {
 	private String countryOrderId;
 	private String countryCode;
 	private String countryName;
+	private String stateId;
 	private String stateName;
 	private String stateCode;
 	private String stateOrderId;
+	private String cityId;
 	private String cityName;
 	private String cityCode;
 	private String cityOrderId;
+	private String districtId;
 	private String countryStatus;
 	private String stateStatus;
 	private String cityStatus;
+	private String stateCreatedBy;
+	private String cityCreatedBy;
 	private String createdBy;
 	private List<DropDownModel> stateList = new ArrayList<DropDownModel>();
 	private List<DropDownModel> cityList = new ArrayList<DropDownModel>();
-
+	private List<DropDownModel> districtList = new ArrayList<DropDownModel>();
 	public GlobalMasterModel() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -40,6 +45,22 @@ public class GlobalMasterModel {
 	}
 	
 	
+
+	public String getCityId() {
+		return cityId;
+	}
+
+	public void setCityId(String cityId) {
+		this.cityId = cityId;
+	}
+
+	public String getStateId() {
+		return stateId;
+	}
+
+	public void setStateId(String stateId) {
+		this.stateId = stateId;
+	}
 
 	public String getStateCode() {
 		return stateCode;
@@ -164,6 +185,42 @@ public class GlobalMasterModel {
 
 	public void setCityList(List<DropDownModel> cityList) {
 		this.cityList = cityList;
+	}
+	
+
+	public String getStateCreatedBy() {
+		return stateCreatedBy;
+	}
+
+	public void setStateCreatedBy(String stateCreatedBy) {
+		this.stateCreatedBy = stateCreatedBy;
+	}
+
+	public String getCityCreatedBy() {
+		return cityCreatedBy;
+	}
+
+	public void setCityCreatedBy(String cityCreatedBy) {
+		this.cityCreatedBy = cityCreatedBy;
+	}
+
+	
+	
+	
+	public String getDistrictId() {
+		return districtId;
+	}
+
+	public void setDistrictId(String districtId) {
+		this.districtId = districtId;
+	}
+
+	public List<DropDownModel> getDistrictList() {
+		return districtList;
+	}
+
+	public void setDistrictList(List<DropDownModel> districtList) {
+		this.districtList = districtList;
 	}
 
 	@Override

@@ -23,6 +23,39 @@
 
 
 
+function deleteempaddress() {
+
+	var selectedRows = gridOptions.api.getSelectedRows();
+	var selectedRowsString = '';
+	selectedRows.forEach(function(selectedRow, index) {
+	if (index > 0) {
+	selectedRowsString += ',';
+	}
+	selectedRowsString += '"' + selectedRow.addressId + '"';
+	});
+	
+	if (selectedRowsString) {
+		
+		$.ajax({
+			type : "POST",
+			url : "view-delete-address-emp?id="+ selectedRowsString,
+			success : function(response) {
+			if (response.message == "success") {
+				window.location.href = "/employee/view-manage-employee";
+			}
+			},
+			error : function(data) {
+			console.log(data);
+			}
+		})
+	} else {
+		$('#addressemp').modal('toggle');
+	}
+
+	}
+
+
+
 
 
 	function addMore1() {
@@ -59,55 +92,7 @@
 
 	}
 
-	function addMore3() {
-
-		var lengthOfTableRow = $("#workdetailstbodyData").children('tr').length;
-		var cloneHtml = $("#docTbl tbody tr:first").clone();
-
-		$("#workdetailsTbl tbody").append(
-				$("#workdetailsTbl tbody tr:first").clone());
-		$("#myTable tbody tr td:last").html("");
-		var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore3();"><span class="ti-plus"></span></button>&nbsp;'
-
-		$("#workdetailsTbl tbody tr:last").find(".fromdatecls").val("");
-		$("#workdetailsTbl tbody tr:last").find(".todateclss").val("");
-		$("#workdetailsTbl tbody tr:last").find(".jobtitlecls").val("");
-		$("#workdetailsTbl tbody tr:last").find(".jobtypecls").val("");
-		$("#workdetailsTbl tbody tr:last").find(".deptcls").val("");
-		$("#workdetailsTbl tbody tr:last").find(".empstatuscls").val("");
-		$("#workdetailsTbl tbody tr:last").find(".deginationcls").val("");
-		$("#workdetailsTbl tbody tr:last").find(".bandcls").val("");
-		$("#workdetailsTbl tbody tr:last").find(".managerclss").val("");
-		$("#workdetailsTbl tbody tr:last").find(".annualctccls").val("");
-
-		var editTr = 0;
-
-		if (lengthOfTableRow > editTr) {
-
-			$("#workdetailsTbl tbody tr").eq(lengthOfTableRow - 1).find(
-					'td:last').append(removeMore);
-		}
-		$("#workdetailsTbl > tbody > tr").each(function(i) {
-			var selectInput = $(this).find('select');
-			var textInput = $(this).find('input');
-			var fileInput = $(this).find('file');
-			var divInput = $(this).find('div');
-			selectInput.eq(0).attr('id', "jobtypeid_" + i);
-			selectInput.eq(1).attr('id', "departmentid_" + i);
-			selectInput.eq(2).attr('id', "employmentstatusid_" + i);
-			selectInput.eq(3).attr('id', "deginationid_" + i);
-			selectInput.eq(4).attr('id', "managerid_" + i);
-
-			textInput.eq(0).attr('id', "fromdateid_" + i);
-			textInput.eq(1).attr('id', "todateid_" + i);
-			textInput.eq(0).attr('id', "jobtitleid_" + i);
-			textInput.eq(1).attr('id', "deginationid_" + i);
-			textInput.eq(0).attr('id', "bandid_" + i);
-			textInput.eq(1).attr('id', "annualctcid_" + i);
-
-		})
-
-	}
+	
 	function addMore4() {
 
 		var lengthOfTableRow = $("#dependenttbodyData").children('tr').length;
@@ -151,7 +136,8 @@
 	}
 </script>
 
-<script>var columnDefs = [
+<script>
+var columnDefs = [
 	{ headerCheckboxSelection: true,
 		headerCheckboxSelectionFilteredOnly: true, checkboxSelection: true,width: 10, sortable: false,filter: false,resizable: true},
 		/* {headerName: "Emp ID", field: "Type" }, */
@@ -159,13 +145,11 @@
 		
 		{headerName: "Type", field: "type",
 		cellRenderer: function(params){
-		return '<a onclick=titlePage("' + params.data.employeeId + '") href="javascript:void(0)">' + params.data.type + '</a>';} },
+		return '<a onclick=titlePage("' + params.data.addressId + '") href="javascript:void(0)">' + params.data.type + '</a>';} },
 		
 		{headerName: "Address", field: "address"},
 		{headerName: "City", field: "city"},
 		{headerName: "State", field: "state"},
-		
-		
 		{headerName: "Country", field: "country"},
 		{headerName: "Zipcode", field: "zipCode"},
 		{headerName: "Status", field: "status"},
@@ -200,15 +184,80 @@
 		var gridDiv = document.querySelector('#myGrid');
 		new agGrid.Grid(gridDiv, gridOptions);
 
+		});
 
 		
+		agGrid.simpleHttpRequest({
+	    	url : 'view-manage-employee-through-ajax'
+	    }).then(function(data) {
+	    	
+	    	console.log("dataa aedrERQG "+JSON.stringify(data))
+	    	gridOptions.api.setRowData(data);
+	    });
+		
+		
+		
+		
+		var columnDefs1 = [
+			{ headerCheckboxSelection: true,
+				headerCheckboxSelectionFilteredOnly: true, checkboxSelection: true,width: 10, sortable: false,filter: false,resizable: true},
+				/* {headerName: "Emp ID", field: "Type" }, */
+				
+				
+				{headerName: "Start Date", field: "startDate"},
+				{headerName: "End Date", field: "endDate"},
+				{headerName: "Job Title", field: "jobTitle"},
+				{headerName: "Department", field: "department"},
+				{headerName: "Employment Status", field: "employmentStatus"},
+				{headerName: "	Degination", field: "degination"},
+				{headerName: "Band", field: "band"},
+				{headerName: "Manager", field: "manager"},
+				{headerName: "	Annual CTC", field: "annualCTC"},
+				
+				
+				
+				];
 
-		});
 
-		agGrid.simpleHttpRequest({url: 'view-emp-address-mstr-data'}).then(function(data) {	
-			console.log(data)
-		gridOptions.api.setRowData(data);
-		});
+
+
+		/* 
+			 var rowdata = [
+				{requisitionId: "8", jobTitle: 'Software Engineer', noPosition: "2", band: "Band 4", department: "Product development", hiringManager: "Pradip Singh", joinDate: "8-Nov-2020",
+				minSalary: "400000", activityStatus: "Active"}
+				];  */
+
+				var gridOptions1 = {
+				columnDefs: columnDefs1,
+				defaultColDef: {
+				sortable: true,
+				filter: true,
+				resizable: true,
+				width: 149,
+				height: 10
+				}
+
+				};
+
+
+				// setup the grid after the page has finished loading
+				document.addEventListener('DOMContentLoaded', function() {
+				var gridDiv1 = document.querySelector('#myGrid1');
+				new agGrid.Grid(gridDiv1, gridOptions1);
+
+				});
+
+				
+				agGrid.simpleHttpRequest({
+			    	url : 'view-manage-employee-work-ajax'
+			    }).then(function(data) {
+			    	
+			    	console.log("dataa aedrERQG "+JSON.stringify(data))
+			    	gridOptions1.api.setRowData(data);
+			    });
+		
+		
+		
 		
 		</script>
 <script type="text/javascript">
@@ -335,6 +384,34 @@
 	
 		
 	})
+	
+	
+	$("#submitworkdetails").click(function(){
+		
+		data = {};
+		
+		
+		data.employeeId = $("#employeeId").val();
+		
+		
+		data.startDate = $("#fromdateid_").val();
+		data.endDate = $("#todateid_").val();
+	
+		
+		data.jobTitle = $("#jobtitleid_").val();
+		data.jobType = $("#jobtypeid_").val();
+		data.department = $("#departmentid_").val();
+		data.employmentStatus = $("#employmentstatusid_").val();
+		data.degination = $("#deginationid_").val();
+		data.band = $("#bandid_").val();
+		data.manager = $("#managerid_").val();
+		data.annualCTC = $("#annualctcid_").val();
+		
+		
+		submitworkdetails(data);
+	
+		
+	})
 
 		$("#profilecancelbtn").click(function() {
 			$("#newId").show();
@@ -400,7 +477,7 @@
 	
 	    $.ajax({
 	        type: "POST",
-	        url: "manage-employee-address-save",
+	        url: "manage-employee-master-save",
 	        dataType: "json",
 	        contentType: "application/json",
 	        data: JSON.stringify(dataset),
@@ -410,12 +487,12 @@
 	            	console.log(response.body)
 	            	
 	            	/* $("#myUL").show(); */
-	            	agGrid.simpleHttpRequest({
-	    		    	url : 'manage-vendor-master-through-ajax'
+	            	 agGrid.simpleHttpRequest({
+	    		    	url : 'view-manage-employee-through-ajax'
 	    		    }).then(function(data) {
 	    		    	console.log("dataa"+JSON.stringify(data))
 	    		    	gridOptions.api.setRowData(data);
-	    		    });
+	    		    }); 
 
 	            } else {
 	                swal({
@@ -431,6 +508,46 @@
 	    })
 	}
 
+	
+	
+	
+	
+	function submitworkdetails(dataset) {
+	
+	    $.ajax({
+	        type: "POST",
+	        url: "manage-employee-workdetails-save",
+	        dataType: "json",
+	        contentType: "application/json",
+	        data: JSON.stringify(dataset),
+	        success: function(response) {
+	            if (response.message == "Success") {
+	            	
+	            	console.log(response.body)
+	            	
+	            	/* $("#myUL").show(); */
+	            	 agGrid.simpleHttpRequest({
+	    		    	url : 'view-manage-employee-work-ajax'
+	    		    }).then(function(data) {
+	    		    	console.log("dataa"+JSON.stringify(data))
+	    		    	gridOptions.api.setRowData(data);
+	    		    }); 
+
+	            } else {
+	                swal({
+	                    title: response.code,
+	                    text: response.message,
+	                    type: "warning"
+	                })
+	            }
+	        },
+	        error: function(response) {
+	            console.log(response);
+	        }
+	    })
+	}
+	
+	
 	var count = 0;
 	function allCheck() {
 		count++;
@@ -467,6 +584,17 @@ function openNav() {
 	document.getElementById("mySidenav").style.width = "0";
 	document.getElementById("main").style.width = "100%";
 	}
+	
+	function openNav1() {
+		document.getElementById("mySidenav1").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:auto;";
+
+		document.getElementById("main").style.width = "82%";
+		}
+
+		function closeNav1() {
+		document.getElementById("mySidenav1").style.width = "0";
+		document.getElementById("main").style.width = "100%";
+		}
 </script>
 </head>
 <body>
@@ -496,15 +624,23 @@ function openNav() {
 									<!--  <form enctype="multipart/form-data"> -->
 									<div class="row">
 
-										<div class="col-md-10  btn-hs">
+										<div class="col-md-6  btn-hs">
 											<div class="font-design">
 												Employee List <span>(10)</span>
 											</div>
 										</div>
-										<div class="col-md-2 btn-hs" align="right">
+										<div class="col-md-3 btn-hs">
+				                            <div class="row">
+				                              	
+				                                
+				                            </div>
+				                        </div>
+										<div class="col-md-3 btn-hs" align="right">
+										
 											<button class="btn4" onclick="profileSelect()">Upload</button>
 											<button class="btn4">Download</button>
-
+											<button class="btn1" onclick="profileSelect();">New</button>
+                                            
 										</div>
 
 									</div>
@@ -533,9 +669,9 @@ function openNav() {
 												<td align="center"><input class="checkCls"
 													type="checkbox" id="check2"><label for="check2"></label></td>
 												<td align="center"><div data-toggle="collapse"
-														class="txt-blue" onclick="profileSelect()">Emp0001</div></td>
+														class="txt-blue" >Emp0001</div></td>
 												<td align="center"><div data-toggle="collapse"
-														class="txt-blue" onclick="profileSelect()">Kamala
+														class="txt-blue" >Kamala
 														Suresh</div></td>
 												<td align="center">India</td>
 												<td align="center">01/03/1998</td>
@@ -555,9 +691,9 @@ function openNav() {
 												<td align="center"><input class="checkCls"
 													type="checkbox" id="check3"><label for="check3"></label></td>
 												<td align="center"><div data-toggle="collapse"
-														class="txt-blue" onclick="profileSelect()">Emp0002</div></td>
+														class="txt-blue" >Emp0002</div></td>
 												<td align="center"><div data-toggle="collapse"
-														class="txt-blue" onclick="profileSelect()">Ashis
+														class="txt-blue" >Ashis
 														Misra</div></td>
 												<td align="center">India</td>
 												<td align="center">01/04/1997</td>
@@ -808,30 +944,6 @@ function openNav() {
 													</div>
 												</div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 												<div class="col-md-4">
 													<div class="form-group">
 														<label>Mobile No</label> <input type="text"
@@ -847,8 +959,6 @@ function openNav() {
 															class="form-control" id="personalmailid">
 													</div>
 												</div>
-
-
 
 												<div class="col-md-4">
 													<div class="form-group">
@@ -897,7 +1007,7 @@ function openNav() {
 													<div class="chartbtnsec">
 														<div class="row">
 															<button class="btn4">CANCEL</button>
-															<button class="btn3">DELETE</button>
+															<button class="btn3"   id="deleteModalBtn" onclick="deleteempaddress()">DELETE</button>
 															<button class="btn1" id="submitemployeeaddress">SAVE</button>
 														</div>
 													</div>
@@ -1155,13 +1265,15 @@ function openNav() {
                                                       <td align="center" class="pdb-24"><input class="checkCls" type="checkbox" id="check2"><label for="check2"></label></td>
 														<td><div class="form-group">
 
-
+																<div class="select">
 																<select class="form-control  documentclss" id="docid_0">
 																	<option value="">Select</option>
+																	
 																	<option th:each="c,iter:${documenttypeList}"
 																		th:value="${c.key}" th:text="${c.name}"></option>
 																</select>
-															</div>
+																</div>
+														
 															</td>
 
 														<td><div class="form-group">
@@ -1230,22 +1342,152 @@ function openNav() {
 										</div>
 										<div id="collapsefour" class="panel-collapse collapse "
 											role="tabpanel" aria-labelledby="headingfour">
+											
+											<div id="main">
+											
+											<div id="mySidenav1" class="sidenav">
+											<div class="slidebox">
+												<div class="row">
+													<div class="col-md-10">
+														<div class="edit">Work Details</div>
+													</div>
+													<div class="col-md-2">
+														<div class="arrow">
+															<a href="javascript:void(0)" class="closebtn"
+																onclick="closeNav1()"><i class="ti-arrow-right"></i></a>
+														</div>
+													</div>
+													</div>
+													<div class="chartbtnsec">
+														<div class="row">
+															<button class="btn4">CANCEL</button>
+															<button class="btn3">DELETE</button>
+															<button class="btn1" id="submitworkdetails">SAVE</button>
+														</div>
+													</div>
+												
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+																<input type="date" name="From Date" value=""
+																	placeholder="From Date"
+																	class="form-control   fromdatecls" id="fromdateid_">
+															</div>
+													</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+																<input type="date" name="to Date" value=""
+																	placeholder="To Date" class="form-control  todateclss"
+																	id="todateid_">
+															</div>
+													</div>
+													
+													
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+																<input type="text" name="job title" value=""
+																	placeholder="Job Title"
+																	class="form-control  jobtitlecls" id="jobtitleid_">
+															</div>
+
+
+													</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+
+
+																<select class="form-control   jobtypecls"
+																	id="jobtypeid_">
+																	<option value="">Select</option>
+																	<option th:each="c,iter:${jobtypeList}"
+																		th:value="${c.key}" th:text="${c.name}"></option>
+																</select>
+															</div>
+													</div>
+													
+													<div class="col-md-12 mt-15">
+														
+															<div class="form-group">
+
+
+																<select class="form-control deptcls" id="departmentid_">
+																	<option value="">Select</option>
+																	<option th:each="c,iter:${DepartmentList}"
+																		th:value="${c.key}" th:text="${c.name}"></option>
+																</select>
+															</div>
+													</div>
+														<div class="col-md-12 mt-15">
+														<div class="form-group">
+																<input type="text" name="Employmentstatus" value=""
+																	placeholder="Employment status"
+																	class="form-control   empstatuscls"
+																	id="employmentstatusid_">
+															</div>
+													</div>
+													
+													
+												
+											<div class="col-md-12 mt-15">
+														<div class="form-group">
+																<input type="text" name="Degination" value=""
+																	placeholder="Degination"
+																	class="form-control deginationcls" id="deginationid_">
+															</div>
+													</div>
+													
+													
+													<div class="col-md-12 mt-15">
+													<div class="form-group">
+																<input type="text" name="Manager" value=""
+																	placeholder="Manager" class="form-control managerclss"
+																	id="managerid_">
+															</div>
+												
+												</div> 
+												
+												
+												
+												
+											<div class="col-md-12 mt-15">
+													<div class="form-group">
+																<input type="text" name="Band" value=""
+																	placeholder="Band" class="form-control bandcls"
+																	id="bandid_">
+															</div>
+												
+												</div> 
+											
+											<div class="col-md-12 mt-15">
+											<div class="form-group">
+																<input type="text" name="Annual CTC" value=""
+																	placeholder="Annual CTC"
+																	class="form-control annualctccls" id="annualctcid_">
+															</div>
+											
+											
+										</div>
+										
+										
+										</div>
+										</div>
 											<div class="row">
 												<div class="col-md-9"></div>
 												<div class="col-md-3 btn-hs" align="right">
 													<button class="btn4">Download</button>
 													<button class="btn3">Delete</button>
 
-													<button class="btn1" onclick="addMore3();">New</button>
+													<button class="btn1" onclick="openNav1();">New</button>
 
 
 
 												</div>
 											</div>
 
+<div id="myGrid1" style="width:100%; height:100px;" class="ag-theme-alpine"></div>
 
+</div>
 
-											<table class="workdetailscls" id="workdetailsTbl">
+										<!-- 	<table class="workdetailscls" id="workdetailsTbl">
 												<thead>
 													<tr class="tr_clone">
 
@@ -1387,12 +1629,12 @@ function openNav() {
 
 													</tr>
 												</tbody>
-											</table>
+											</table> -->
 
 
 
 										</div>
-									</div>
+									
 									<!-- <div class="card-header">
 											<a href="#" data-toggle="collapse" data-target="#demo25"
 												style="color: #333; text-decoration: none;"

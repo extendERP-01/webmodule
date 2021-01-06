@@ -26,6 +26,7 @@ import nirmalya.aathithya.webmodule.common.utils.DropDownModel;
 import nirmalya.aathithya.webmodule.common.utils.EnvironmentVaribles;
 import nirmalya.aathithya.webmodule.common.utils.JsonResponse;
 import nirmalya.aathithya.webmodule.inventory.model.InventoryRequisitionModel;
+import nirmalya.aathithya.webmodule.master.model.ProductCategoryModel;
 
 /*
  * @author NirmalyaLabs
@@ -136,23 +137,21 @@ public class InventoryRequisitionController {
 	public @ResponseBody List<InventoryRequisitionModel> viewRequsitionEdit(@RequestParam String id,
 			HttpSession session) {
 		logger.info("Method : viewRequsitionEdit starts");
-		JsonResponse<List<InventoryRequisitionModel>> jsonResponse = new JsonResponse<List<InventoryRequisitionModel>>();
-
+		List<InventoryRequisitionModel> productList = new ArrayList<InventoryRequisitionModel>();
 		if (id != null && id != "") {
 			try {
 				InventoryRequisitionModel[] inventoryStockModel = restTemplate.getForObject(
 						env.getInventoryUrl() + "get-requisition-edit?id=" + id, InventoryRequisitionModel[].class);
-				List<InventoryRequisitionModel> productList = Arrays.asList(inventoryStockModel);
+				productList = Arrays.asList(inventoryStockModel);
+				productList.forEach(s -> s.setId(s.getSku()));
 
-				jsonResponse.setBody(productList);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else {
-			jsonResponse.setBody(new ArrayList<InventoryRequisitionModel>());
 		}
+		System.out.println("productList" + productList);
 		logger.info("Method : viewRequsitionEdit ends");
-		return jsonResponse.getBody();
+		return productList;
 	}
 
 	/*
@@ -163,20 +162,18 @@ public class InventoryRequisitionController {
 	@GetMapping(value = { "view-requisition-activity-log" })
 	public @ResponseBody List<ActivitylogModel> getActivityLog(@RequestParam String id) {
 		logger.info("Method : viewStockThroughAjax starts");
-		JsonResponse<List<ActivitylogModel>> jsonResponse = new JsonResponse<List<ActivitylogModel>>();
-
+		List<ActivitylogModel> activityLogList = new ArrayList<ActivitylogModel>();
 		try {
 
 			ActivitylogModel[] activityLog = restTemplate
 					.getForObject(env.getInventoryUrl() + "get-activity-log?id=" + id, ActivitylogModel[].class);
-			List<ActivitylogModel> activityLogList = Arrays.asList(activityLog);
+			activityLogList = Arrays.asList(activityLog);
 
-			jsonResponse.setBody(activityLogList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		logger.info("Method : viewStockThroughAjax ends");
-		return jsonResponse.getBody();
+		return activityLogList;
 	}
 
 	/*
@@ -256,21 +253,19 @@ public class InventoryRequisitionController {
 	@GetMapping(value = { "view-requisition-trough-ajax" })
 	public @ResponseBody List<InventoryRequisitionModel> viewRequisitionThroughAjax(HttpSession session) {
 		logger.info("Method : viewRequisitionThroughAjax starts");
-		JsonResponse<List<InventoryRequisitionModel>> jsonResponse = new JsonResponse<List<InventoryRequisitionModel>>();
-
+		List<InventoryRequisitionModel> productList = new ArrayList<InventoryRequisitionModel>();
 		try {
 
 			InventoryRequisitionModel[] inventoryStockModel = restTemplate.getForObject(
 					env.getInventoryUrl() + "get-requisition-view-list", InventoryRequisitionModel[].class);
-			List<InventoryRequisitionModel> productList = Arrays.asList(inventoryStockModel);
+			productList = Arrays.asList(inventoryStockModel);
 
-			jsonResponse.setBody(productList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		logger.info("Method : viewRequisitionThroughAjax ends");
-		return jsonResponse.getBody();
+		return productList;
 	}
 
 	/*
@@ -374,6 +369,58 @@ public class InventoryRequisitionController {
 
 		logger.info("Method : getProductByReqList ends");
 		return res;
+	}
+
+	@SuppressWarnings("unchecked")
+	@PostMapping("/view-requisition-product-category-get-total-list")
+	public @ResponseBody JsonResponse<List<ProductCategoryModel>> getAllProductCategoryList(HttpSession session) {
+		logger.info("Method : getAllProductCategoryList starts");
+
+		JsonResponse<List<ProductCategoryModel>> resp = new JsonResponse<List<ProductCategoryModel>>();
+
+		try {
+			resp = restTemplate.getForObject(env.getMasterUrl() + "getAllProductCategoryList", JsonResponse.class);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		String message = resp.getMessage();
+
+		if (message != null && message != "") {
+
+		} else {
+			resp.setMessage("Success");
+		}
+
+		logger.info("Method : getAllProductCategoryList starts");
+		return resp;
+	}
+
+	@SuppressWarnings("unchecked")
+	@PostMapping("/view-requisition-product-category-get-category-list-by-id")
+	public @ResponseBody JsonResponse<List<ProductCategoryModel>> getProductCategoryListById(@RequestBody String id,
+			HttpSession session) {
+		logger.info("Method : getProductCategoryListById starts");
+
+		JsonResponse<List<ProductCategoryModel>> resp = new JsonResponse<List<ProductCategoryModel>>();
+
+		try {
+			resp = restTemplate.getForObject(env.getMasterUrl() + "getProductCategoryListById?id=" + id,
+					JsonResponse.class);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		String message = resp.getMessage();
+
+		if (message != null && message != "") {
+
+		} else {
+			resp.setMessage("Success");
+		}
+
+		logger.info("Method : getProductCategoryListById starts");
+		return resp;
 	}
 
 }

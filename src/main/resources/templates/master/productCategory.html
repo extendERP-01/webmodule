@@ -115,7 +115,7 @@ function getCategoryList() {
             				c = c + 1;
             			
 			            	var tbl = '<ul id="myUL_'+response.body[i].categoryId+'" class="level"><li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="spanA_'+response.body[i].categoryId+'" onclick=getRootLeafNodes("'+response.body[i].categoryId+'")></span> '+
-								'<span id="lbl_'+response.body[i].categoryId+'" class="leveltxt">'+response.body[i].categoryName+'</span><span id="catCount" class="level_counter"> (0)</span> '+
+								'<span id="lbl_'+response.body[i].categoryId+'" class="leveltxt">'+response.body[i].categoryName+'</span> '+
 								'<label for="check1">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Add Child" class="ti-plus cbicon" onclick=openNav("'+response.body[i].categoryId+'","1");></i></a>&nbsp;<a href="javascript:void(0)"><i title="Edit Category" class="ti-pencil" onclick=editCategory("'+response.body[i].categoryId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i title="Delete Category" class="ti-close" onclick=deleteCategory("'+response.body[i].categoryId+'")></i></a></label>'+
 								'<ul class="nested" id="ul_'+response.body[i].categoryId+'"></ul>'+
 								'</li></ul>';
@@ -156,7 +156,7 @@ function getRootLeafNodes(id) {
 	            	if(response.body.length > 0) {
 	            		console.log(response.body)
 	            		for(var i = 0; i < response.body.length; i++) {
-		            		var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'+response.body[i].categoryId+'" onclick=getLeafNodes("'+response.body[i].categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'"> '+response.body[i].categoryName+' </span><span>(0)</span>'+
+		            		var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'+response.body[i].categoryId+'" onclick=getLeafNodes("'+response.body[i].categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'"> '+response.body[i].categoryName+' </span>'+
 		    				'<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Child" onclick=openNav("'+response.body[i].categoryId+'","2");></i></a>'+
 		    				'&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Category" onclick=editSubCategory("'+response.body[i].categoryId+'","'+response.body[i].parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Category" onclick=deleteSubCategory("'+response.body[i].categoryId+'")></i></a></label>'+
 		    				'<ul class="nested" id="ul_'+response.body[i].categoryId+'"></ul>'+
@@ -202,7 +202,7 @@ function getLeafNodes(id) {
 	            	if(response.body.length > 0) {
 	            		console.log(response.body)
 	            		for(var i = 0; i < response.body.length; i++) {
-		            		var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'+response.body[i].categoryId+'" onclick=getLeafNodes("'+response.body[i].categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'"> '+response.body[i].categoryName+' </span><span>(0)</span>'+
+		            		var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'+response.body[i].categoryId+'" onclick=getLeafNodes("'+response.body[i].categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'"> '+response.body[i].categoryName+' </span>'+
 		    				'<label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Child" onclick=openNav("'+response.body[i].categoryId+'","2");></i></a>'+
 		    				'&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Category" onclick=editSubCategory("'+response.body[i].categoryId+'","'+response.body[i].parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Category" onclick=deleteSubCategory("'+response.body[i].categoryId+'")></i></a></label>'+
 		    				'<ul class="nested" id="ul_'+response.body[i].categoryId+'"></ul>'+
@@ -364,7 +364,7 @@ function submitCategory(dataset) {
             	console.log(response.body)
             	
             	var tbl = '<ul id="myUL_'+response.body.categoryId+'" class="level"><li id="li_'+response.body.categoryId+'"><span class="caret"></span> <span'+
-					'<label id="lbl_'+response.body.categoryId+'" class="leveltxt">'+response.body.categoryName+'</span><span id="catCount" class="level_counter"> (0)</span> '+
+					'<label id="lbl_'+response.body.categoryId+'" class="leveltxt">'+response.body.categoryName+'</span>'+
 					'<label for="check1">&nbsp;&nbsp;<a href="javascript:void(0)"><i title="Add Child" class="ti-plus cbicon" onclick=openNav("'+response.body.categoryId+'","1");></i></a>&nbsp;'+
 					'<a href="javascript:void(0)"><i title="Edit Category" class="ti-pencil" onclick=editCategory("'+response.body.categoryId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i title="Delete Category" class="ti-close" onclick=deleteCategory("'+response.body.categoryId+'")></i></a></label>'+
 					'</li></ul>';
@@ -409,7 +409,7 @@ function submitSubCategory(dataset,slno) {
             	
             	console.log(response.body)
             	
-            	var tbl = '<li id="li_'+response.body.categoryId+'"><span class="caret" value="0" id="span_'+response.body.categoryId+'" onclick=getLeafNodes("'+response.body.categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body.categoryId+'"> '+response.body.categoryName+' </span><span>(0)</span><label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Child" onclick=openNav("'+response.body.categoryId+'","2");></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Category" onclick=editSubCategory("'+response.body.categoryId+'","'+response.body.parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Category" onclick=deleteSubCategory("'+response.body.categoryId+'")></i></a></label><ul class="nested" id="ul_'+response.body.categoryId+'"></ul></li>';
+            	var tbl = '<li id="li_'+response.body.categoryId+'"><span class="caret" value="0" id="span_'+response.body.categoryId+'" onclick=getLeafNodes("'+response.body.categoryId+'")></span><span class="leveltxt" id="lbl_'+response.body.categoryId+'"> '+response.body.categoryName+' </span><label for="chk2">&nbsp;&nbsp;<a href="javascript:void(0)"><i class="ti-plus" title="Add Child" onclick=openNav("'+response.body.categoryId+'","2");></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-pencil" title="Edit Category" onclick=editSubCategory("'+response.body.categoryId+'","'+response.body.parentId+'")></i></a>&nbsp;<a href="javascript:void(0)"><i class="ti-close" title="Delete Category" onclick=deleteSubCategory("'+response.body.categoryId+'")></i></a></label><ul class="nested" id="ul_'+response.body.categoryId+'"></ul></li>';
 					
 				var subCatId = $("#subCatId").val();
 				if(subCatId) {
@@ -509,7 +509,7 @@ function closeCat() {
 
 							<div class="col-md-10  btn-hs" style="margin-bottom: 15px;">
 								<div class="font-design ft-lt" id="totalReq">
-									Product Category (<span id="totalPCat">2</span>)
+									Product Category <!-- (<span id="totalPCat">2</span>) -->
 								</div>
 								<div class="roomdetails2">
 									<div class="cat_plusbtn cp" title="Add Category"

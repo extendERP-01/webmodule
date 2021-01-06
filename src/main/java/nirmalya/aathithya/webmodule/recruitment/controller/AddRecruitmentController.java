@@ -311,6 +311,82 @@ public class AddRecruitmentController {
 
 		logger.info("Method : viewCandidate starts");
 
+		try {
+			DropDownModel[] Gender = restTemplate.getForObject(env.getEmployeeUrl() + "getgenderList1",
+					DropDownModel[].class);
+			List<DropDownModel> genderTypeList = Arrays.asList(Gender);
+
+			model.addAttribute("genderTypeList", genderTypeList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		try {
+			DropDownModel[] Nationality = restTemplate.getForObject(env.getEmployeeUrl() + "getnationalityList1",
+					DropDownModel[].class);
+			List<DropDownModel> nationalityList = Arrays.asList(Nationality);
+
+			model.addAttribute("nationalityList", nationalityList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			DropDownModel[] BloodGroup = restTemplate.getForObject(env.getEmployeeUrl() + "getbloodgroupList1",
+					DropDownModel[].class);
+			List<DropDownModel> bloodgroupList = Arrays.asList(BloodGroup);
+
+			model.addAttribute("bloodgroupList", bloodgroupList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			DropDownModel[] MaritalStatus = restTemplate.getForObject(env.getEmployeeUrl() + "getmaritalstatusList1",
+					DropDownModel[].class);
+			List<DropDownModel> maritalstatusList = Arrays.asList(MaritalStatus);
+
+			model.addAttribute("maritalstatusList", maritalstatusList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			DropDownModel[] Country = restTemplate.getForObject(env.getEmployeeUrl() + "getCountryList",
+					DropDownModel[].class);
+			List<DropDownModel> counntryList = Arrays.asList(Country);
+
+			model.addAttribute("counntryList", counntryList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		try {
+			DropDownModel[] State = restTemplate.getForObject(env.getEmployeeUrl() + "getstateList1",
+					DropDownModel[].class);
+			List<DropDownModel> stateList = Arrays.asList(State);
+
+			model.addAttribute("stateList", stateList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		try {
+			DropDownModel[] City = restTemplate.getForObject(env.getEmployeeUrl() + "getcityList1",
+					DropDownModel[].class);
+			List<DropDownModel> cityList = Arrays.asList(City);
+
+			model.addAttribute("cityList", cityList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		try {
+			
+			DropDownModel[] education = restTemplate.getForObject(env.getRecruitment() + "educationList",
+					DropDownModel[].class);
+			List<DropDownModel> educationList = Arrays.asList(education);
+			model.addAttribute("educationList", educationList);
+		} catch (RestClientException e) {
+			e.printStackTrace();
+		}
+		
 		logger.info("Method : viewCandidate ends");
 
 		return "recruitment/view-candidate";

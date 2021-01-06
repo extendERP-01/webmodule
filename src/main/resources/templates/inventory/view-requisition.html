@@ -24,10 +24,30 @@
 .holdCls {
 	background-color: rgb(0, 143, 0);
 }
+.loading-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 10;
+}
+.loader
+{
+    display: none;
+    width:200px;
+    height: 200px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    text-align:center;
+    margin-left: -50px;
+    margin-top: -100px;
+    z-index:2;
+    overflow: auto;
+}
 </style>
 <script type="text/javascript">
 	function openNav() {
-		document.getElementById("mySidenav").style.cssText = "width: 350px; position: absolute; right:-30px; overflow: hidden; height:auto; top:200px;";
+		document.getElementById("mySidenav").style.cssText = "width: 350px; position: absolute; right:-30px; overflow: hidden; height:670px; top:200px;";
 
 		document.getElementById("main_content").style.width = "72%";
 	}
@@ -35,17 +55,6 @@
 	function closeNav() {
 		document.getElementById("mySidenav").style.width = "0";
 		document.getElementById("main_content").style.width = "100%";
-	}
-	var count = 0;
-	function allCheck() {
-		count++;
-
-		if (count == 1) {
-			$('.checkCls').prop("checked", true);
-		} else {
-			count = 0;
-			$('.checkCls').prop("checked", false);
-		}
 	}
 
 	var count1 = 0;
@@ -73,57 +82,10 @@
 	$(document).ready(function() {
 		//changeOpt();
 
-		var reqId = $("#reqHeadId").html();
-		if (reqId) {
-			var holdStatus = $("#isHold").val();
+		$('#reqDltBtn').attr('disabled', true);
+		$('#reqCopyBtn').attr('disabled', true);
+		$('#reqAppvBtn').attr('disabled', true);
 
-			if (holdStatus == '0') {
-				$('#createdDiv').addClass('green-box');
-				$('#createdDiv').removeClass('grey-box');
-				$('#activeDiv').addClass('grey-box');
-				$('#activeDiv').removeClass('green-box');
-				$('#completeDiv').addClass('grey-box');
-				$('#completeDiv').removeClass('green-box');
-				$('#onHoldDiv').addClass('grey-box');
-				$('#onHoldDiv').removeClass('green-box');
-			} else if (holdStatus == '1') {
-				$('#activeDiv').addClass('green-box');
-				$('#activeDiv').removeClass('grey-box');
-				$('#createdDiv').addClass('grey-box');
-				$('#createdDiv').addClass('grey-box');
-				$('#completeDiv').addClass('grey-box');
-				$('#completeDiv').removeClass('green-box');
-				$('#onHoldDiv').addClass('grey-box');
-				$('#onHoldDiv').removeClass('green-box');
-			} else if (holdStatus == '2') {
-				$('#completeDiv').addClass('green-box');
-				$('#completeDiv').removeClass('grey-box');
-				$('#createdDiv').addClass('grey-box');
-				$('#createdDiv').addClass('grey-box');
-				$('#activeDiv').addClass('grey-box');
-				$('#activeDiv').removeClass('green-box');
-				$('#onHoldDiv').addClass('grey-box');
-				$('#onHoldDiv').removeClass('green-box');
-			} else if (holdStatus == '4') {
-				$('#onHoldDiv').addClass('green-box');
-				$('#onHoldDiv').removeClass('grey-box');
-				$('#completeDiv').removeClass('green-box');
-				$('#completeDiv').addClass('grey-box');
-				$('#createdDiv').addClass('grey-box');
-				$('#createdDiv').addClass('grey-box');
-				$('#activeDiv').addClass('grey-box');
-				$('#activeDiv').removeClass('green-box');
-			}
-		} else {
-			$('#createdDiv').addClass('green-box');
-			$('#createdDiv').removeClass('grey-box');
-			$('#activeDiv').addClass('grey-box');
-			$('#activeDiv').removeClass('green-box');
-			$('#completeDiv').addClass('grey-box');
-			$('#completeDiv').removeClass('green-box');
-			$('#onHoldDiv').addClass('grey-box');
-			$('#onHoldDiv').removeClass('green-box');
-		}
 		$('.collapse').on('show.bs.collapse', function() {
 			$(this).siblings('.panel-heading').addClass('active');
 		});
@@ -162,6 +124,11 @@
 			format : 'd-m-Y',
 			closeOnDateSelect : true,
 			timepicker : false,
+		})
+
+		$("#browseBtn").click(function() {
+			$("#myModal").modal('show');
+			getCategoryList();
 		})
 
 	});
@@ -347,6 +314,9 @@
 			filter : true,
 			resizable : true,
 			width : 153
+		},
+		getRowNodeId : function(data) {
+			return data.id;
 		}
 
 	};
@@ -359,7 +329,8 @@
 			filter : true,
 			resizable : true,
 			width : 153
-		}
+		},
+		onSelectionChanged : onSelectionChanged,
 
 	};
 
@@ -395,6 +366,20 @@
 				.setQuickFilter(document.getElementById('quickFilter').value);
 	}
 
+	function onSelectionChanged() {
+		var selectedRows = gridOptions.api.getSelectedRows();
+		var rowCount = 0;
+		selectedRows.forEach(function(selectedRow, index) {
+			rowCount = rowCount + 1;
+		});
+
+		if (rowCount > 0) {
+			$('#reqDltBtn').attr('disabled', false);
+			$('#reqCopyBtn').attr('disabled', false);
+			$('#reqAppvBtn').attr('disabled', false);
+		}
+
+	}
 	function switchPage() {
 
 		var selectedRows = gridOptions.api.getSelectedRows();
@@ -420,11 +405,33 @@
 		});
 
 	}
-
+// for edit indivisual product
 	function editProduct(prodId) {
 
 		var reqId = $("#reqHeadId").html();
-		if (prodId && reqId) {
+		var rowNode = productOptions.api.getRowNode(prodId);
+ //console.log("rowNode " + JSON.stringify(rowNode.data));
+		 
+		$("#sku").html(prodId);
+		$("#skuEditId").html(prodId);
+		$("#brandId").html(rowNode.data.brand);
+		$("#itemId").html(rowNode.data.itemId);
+		$("#itemName").html(rowNode.data.itemName);
+		$("#locationId").val(rowNode.data.locationId);
+		$("#productEdit").val(prodId);
+		$("#quantity").val(rowNode.data.qty);
+		$("#uom").val(rowNode.data.uomId);
+		$("#estimatedPrice").val(
+				rowNode.data.estimatedPrice);
+		$("#totalEstPrc").val(
+				rowNode.data.estimatedTotalPrice);
+		$("#lastPurchaseUnitPrice").val(
+				rowNode.data.lastPurchaseUnitPrice);
+		$("#lastPurchaseTotalPrice").val(
+				rowNode.data.lastPurchaseTotalPrice);
+		$("#search").val(rowNode.data.itemName);  
+		
+		 /*  if (prodId && reqId) {
 			$.ajax({
 				type : "GET",
 				url : "view-requisition-get-product-by-req-sku?id=" + reqId
@@ -436,10 +443,12 @@
 					if (response.message == "success") {
 						if (response.body.length != 0) {
 							$("#sku").html(prodId);
+							$("#skuEditId").html(prodId);
 							$("#brandId").html(response.body.brand);
 							$("#itemId").html(response.body.itemId);
 							$("#itemName").html(response.body.itemName);
 							$("#locationId").val(response.body.locationId);
+							$("#productEdit").val(prodId);
 							$("#quantity").val(response.body.qty);
 							$("#uom").val(response.body.uomId);
 							$("#estimatedPrice").val(
@@ -459,11 +468,12 @@
 					console.log(data)
 				}
 			})
-		}
+		}   */
 
 		openNav();
 
 	}
+
 	function editRequisition(reqId) {
 		$("#myGrid").hide();
 		$("#reqTable").hide();
@@ -480,7 +490,13 @@
 			$("#isHold").val(data[0].holdStatus);
 			$("#reqId").val(data[0].reqId);
 			$("#reqHeadId").html(data[0].reqId);
+			$("#createdDate").append(data[0].createdOn);
+			$("#activeDate").append(data[0].activeDate);
+			$("#completeDate").html(data[0].completeDate);
+			$("#onHoldDate").html(data[0].onHoldDate);
 			productOptions.api.setRowData(data);
+			putOnHold();
+			headerStatus();
 		});
 
 		agGrid.simpleHttpRequest({
@@ -489,8 +505,8 @@
 			activityOptions.api.setRowData(data);
 		});
 
-		putOnHold();
 	}
+	// for copy all elements
 	function copy() {
 		var selectedRows = gridOptions.api.getSelectedRows();
 		var selectedRowsString = '';
@@ -551,6 +567,35 @@
 	function deleteProduct() {
 		$('#deleteProduct').modal('show');
 	}
+	function deleteProductIndConfirm() {
+		$('#deleteProductInd').modal('show');
+	}
+	// deleting ind product
+	function deleteProductInd() {
+		var productEdit = $("#productEdit").val();
+		if (productEdit) {
+			productOptions.api.applyTransaction({
+				remove : [ productOptions.api.getRowNode(productEdit).data ]
+			});
+			closeNav();
+			$("#sku").html('');
+			$("#skuEditId").html('');
+			$("#brandId").html('');
+			$("#itemId").html('');
+			$("#itemName").html('');
+			$("#locationId").val('');
+			$("#quantity").val('');
+			$("#uom").val('');
+			$("#estimatedPrice").val('');
+			$("#totalEstPrc").val('');
+			$("#lastPurchaseUnitPrice").val('');
+			$("#lastPurchaseTotalPrice").val('');
+			$("#search").val('');
+			$("#productEdit").val(null);
+		}
+
+	}
+	// delete requisition 
 	function deleteOnclick() {
 		var selectedRows = gridOptions.api.getSelectedRows();
 		var selectedRowsString = '';
@@ -566,6 +611,7 @@
 			item.componentId = localStorage.getItem('function');
 			item.subComponentId = localStorage.getItem('activity');
 			item.reqId = selectedRowsString;
+			$('.loader').show();
 			$.ajax({
 				type : "POST",
 				url : "view-requisition-delete-th-ajax",
@@ -573,9 +619,18 @@
 				contentType : "application/json",
 				data : JSON.stringify(item),
 				success : function(response) {
-
+					$('.loader').hide();
 					if (response.message == "Success") {
-						window.location.href = "/inventory/view-requisition";
+						//window.location.href = "/inventory/view-requisition";
+						// for refreshing grid data
+						 agGrid.simpleHttpRequest({
+							url : 'view-requisition-trough-ajax'
+						}).then(function(data) {
+							var len = data.length;
+							$('#totalReq').find('span').html(len);
+
+							gridOptions.api.setRowData(data);
+						});  
 					} else {
 						swal({
 							title : response.code,
@@ -594,7 +649,7 @@
 		}
 
 	}
-
+	// delete selected record from ag grid
 	function deleteProductOnclick() {
 		var selectedRows = productOptions.api.getSelectedRows();
 		productOptions.api.applyTransaction({
@@ -607,11 +662,16 @@
 	function cancelModalBtn() {
 		$("#deleteModalBtn").removeAttr("disabled");
 	}
+	//for closeing modal box for dlt  product
 	function cancelModalProductBtn() {
 		$("#deleteModalBtn").removeAttr("disabled");
 		$('#deleteProduct').modal('hide');
 	}
-
+	//for closeing modal box for dlt ind product
+	function cancelModalBtnDPI() {
+		$('#deleteProductInd').modal('hide');
+	}
+//for approve requisition
 	function approve() {
 		var selectedRows = gridOptions.api.getSelectedRows();
 		var selectedRowsString = '';
@@ -627,6 +687,7 @@
 			item.componentId = localStorage.getItem('function');
 			item.subComponentId = localStorage.getItem('activity');
 			item.reqId = selectedRowsString;
+			$('.loader').show();
 			$.ajax({
 				type : "POST",
 				url : "view-requisition-approve-th-ajax",
@@ -634,9 +695,18 @@
 				contentType : "application/json",
 				data : JSON.stringify(item),
 				success : function(response) {
-
+					$('.loader').hide();
 					if (response.message == "Success") {
-						window.location.href = "/inventory/view-requisition";
+						//window.location.href = "/inventory/view-requisition";
+						// for refreshing grid data
+						agGrid.simpleHttpRequest({
+							url : 'view-requisition-trough-ajax'
+						}).then(function(data) {
+							var len = data.length;
+							$('#totalReq').find('span').html(len);
+
+							gridOptions.api.setRowData(data);
+						});
 					} else {
 						swal({
 							title : response.code,
@@ -649,6 +719,7 @@
 					console.log(data)
 				}
 			})
+			 
 		} else {
 			$("#alert").modal('show');
 			document.getElementById("textId").innerHTML = "Please Select Atleast one Record !";
@@ -656,6 +727,7 @@
 	}
 </script>
 <script type="text/javascript">
+// for stock graph  report 
 	function stockReport() {
 
 		var selectedRows = productOptions.api.getSelectedRows();
@@ -716,7 +788,7 @@
 		}
 
 	}
-
+// get excel report
 	function getExcelReport() {
 		var selectedRows = productOptions.api.getSelectedRows();
 		var selectedRowsString = '';
@@ -750,14 +822,22 @@
 		item.estimatedTotalPrice = $("#totalEstPrc").val();
 		item.lastPurchaseUnitPrice = $("#lastPurchaseUnitPrice").val();
 		item.lastPurchaseTotalPrice = $("#lastPurchaseTotalPrice").val();
+		var productEdit = $("#productEdit").val();
 		var datas = [];
-		productOptions.api.forEachNode(function(rowNode, index) {
-			datas.push(rowNode.data);
-		});
-		datas.push(item)
-		productOptions.api.setRowData(datas);
+		if (productEdit) {
+			var rowNode = productOptions.api.getRowNode(productEdit);
+			rowNode.setData(item);
+		} else {
+			productOptions.api.forEachNode(function(rowNode, index) {
+				datas.push(rowNode.data);
+			});
+			datas.push(item)
+			productOptions.api.setRowData(datas);
+		}
+
 		closeNav();
 		$("#sku").html('');
+		$("#skuEditId").html('');
 		$("#brandId").html('');
 		$("#itemId").html('');
 		$("#itemName").html('');
@@ -769,6 +849,7 @@
 		$("#lastPurchaseUnitPrice").val('');
 		$("#lastPurchaseTotalPrice").val('');
 		$("#search").val('');
+		$("#productEdit").val(null);
 	}
 
 	function saveData() {
@@ -831,8 +912,7 @@
 		var search = $("#search").val();
 		if (search) {
 
-			$
-					.ajax({
+			$.ajax({
 						type : "POST",
 						url : "view-requisition-get-product-list",
 						dataType : 'json',
@@ -840,11 +920,6 @@
 						data : search,
 						success : function(response) {
 							if (response.message == "success") {
-
-								/* if (response.body.length != 0) {
-									console.log(response.body);
-									autocomplete(document.getElementById("search"),response.body);
-								} */
 
 								if (response.body.length != 0) {
 									$("#search").css("background", "#FFF");
@@ -922,10 +997,10 @@
 	function putOnHold() {
 		var isHold = $("#isHold").val();
 		if (isHold == '1') {
-			$("#isHold").val('0');
-			$("#putOnHold").removeClass('holdCls');
-		} else if (isHold == '4'){
 			$("#isHold").val('4');
+			$("#putOnHold").removeClass('holdCls');
+		} else if (isHold == '4') {
+			$("#isHold").val('1');
 			$("#putOnHold").addClass('holdCls');
 		}
 	}
@@ -933,6 +1008,323 @@
 	function viewRFQ() {
 		localStorage.setItem('activity', 'ACT0021');
 		window.location.href = "/inventory/view-quatation";
+	}
+	function headerStatus() {
+		var createdDate = $("#createdDate").text();
+		var activeDate = $("#activeDate").text();
+		var completeDate = $("#completeDate").text();
+		var onHoldDate = $("#onHoldDate").text();
+		if (createdDate) {
+			$('#createdDiv').addClass('green-box');
+			$('#createdDiv').removeClass('grey-box');
+		} else {
+			$('#createdDiv').removeClass('green-box');
+			$('#createdDiv').addClass('grey-box');
+		}
+		if (activeDate) {
+			$('#activeDiv').addClass('green-box');
+			$('#activeDiv').removeClass('grey-box');
+		} else {
+			$('#activeDiv').addClass('grey-box');
+			$('#activeDiv').removeClass('green-box');
+		}
+		if (completeDate) {
+			$('#completeDiv').addClass('green-box');
+			$('#completeDiv').removeClass('grey-box');
+		} else {
+			$('#completeDiv').removeClass('green-box');
+			$('#completeDiv').addClass('grey-box');
+		}
+		if (onHoldDate) {
+			$('#onHoldDiv').addClass('green-box');
+			$('#onHoldDiv').removeClass('grey-box');
+		} else {
+			$('#onHoldDiv').removeClass('green-box');
+			$('#onHoldDiv').addClass('grey-box');
+		}
+	}
+	function clearSearchData() {
+		$("#search").val(null);
+		$("#sku").html('');
+		$("#brandId").html('');
+		$("#itemId").html('');
+		$("#itemName").html('');
+	}
+
+	function getCategoryList() {
+		$("#productCategoryCBDiv").empty();
+		$
+				.ajax({
+					type : "POST",
+					url : "view-requisition-product-category-get-total-list",
+					dataType : "json",
+					contentType : "application/json",
+					success : function(response) {
+						if (response.message == "Success") {
+
+							console.log(response.body)
+
+							if (response.body.length > 0) {
+
+								var c = 0;
+								$("#totalPCat").text(c);
+								for (var i = 0; i < response.body.length; i++) {
+
+									c = c + 1;
+
+									if (response.body[i].nodeCount > 0) {
+										var tbl = '<ul id="myUL_'+response.body[i].categoryId+'" data-field="1" class="level"><li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="spanA_'
+												+ response.body[i].categoryId
+												+ '" onclick=getRootLeafNodes("'
+												+ response.body[i].categoryId
+												+ '")></span> '
+												+ '<span id="lbl_'+response.body[i].categoryId+'" class="leveltxt" level="'+response.body[i].catLevel+'">'
+												+ response.body[i].categoryName
+												+ '</span> '
+												+ '<ul class="nested" id="ul_'+response.body[i].categoryId+'" data-field="0"></ul>'
+												+ '</li></ul>';
+									} else {
+										var tbl = '<ul id="myUL_'+response.body[i].categoryId+'" data-field="1" class="level"><li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="spanA_'
+												+ response.body[i].categoryId
+												+ '" onclick=getRootLeafNodes("'
+												+ response.body[i].categoryId
+												+ '")></span> '
+												+ '<div class="category"><input type="checkbox" id="cat_'
+												+ response.body[i].categoryId
+												+ '" class="pc1-box" onchange=selectCheckBox("'
+												+ response.body[i].categoryId
+												+ '","'
+												+ response.body[i].catLevel
+												+ '")></div><span id="lbl_'+response.body[i].categoryId+'" class="leveltxt" level="'+response.body[i].catLevel+'">'
+												+ response.body[i].categoryName
+												+ '</span> '
+												+ '<ul class="nested" id="ul_'+response.body[i].categoryId+'" data-field="0"></ul>'
+												+ '</li></ul>';
+									}
+									//var df = $("#productCategoryCBDiv").attr("df");
+									//if(df == 0) {
+									$("#productCategoryCBDiv").append(tbl);
+									//}
+
+								}
+
+								var prCategoryId = $("#prCategoryId").val();
+
+								$("#cat_" + prCategoryId).prop("checked", true);
+
+								//$("#productCategoryCBDiv").attr("df","1");
+
+							}
+						} else {
+							swal({
+								title : response.code,
+								text : response.message,
+								type : "warning"
+							})
+						}
+					},
+					error : function(response) {
+						console.log(response);
+					}
+				})
+	}
+
+	function getRootLeafNodes(id) {
+		//var df = $("#ul_"+id).attr("data-field");
+		//if(df == 0) {
+		$("#ul_" + id).empty();
+		//}
+		var value = $("#spanA_" + id).attr("value");
+		if (value == "0") {
+
+			$
+					.ajax({
+						type : "POST",
+						url : "view-requisition-product-category-get-category-list-by-id",
+						dataType : "json",
+						contentType : "application/json",
+						data : id,
+						success : function(response) {
+							if (response.message == "Success") {
+								if (response.body.length > 0) {
+									console.log(response.body)
+									for (var i = 0; i < response.body.length; i++) {
+
+										if (response.body[i].nodeCount > 0) {
+											var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'
+													+ response.body[i].categoryId
+													+ '" onclick=getLeafNodes("'
+													+ response.body[i].categoryId
+													+ '")></span><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'" level="'+response.body[i].catLevel+'"> '
+													+ response.body[i].categoryName
+													+ ' </span>'
+													+ '<ul class="nested" id="ul_'+response.body[i].categoryId+'" data-field="0"></ul>'
+													+ '</li>';
+										} else {
+											var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'
+													+ response.body[i].categoryId
+													+ '" onclick=getLeafNodes("'
+													+ response.body[i].categoryId
+													+ '")></span><div class="category"><input type="checkbox" id="cat_'
+													+ response.body[i].categoryId
+													+ '" class="pc1-box" onchange=selectCheckBox("'
+													+ response.body[i].categoryId
+													+ '","'
+													+ response.body[i].catLevel
+													+ '")></div><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'" level="'+response.body[i].catLevel+'"> '
+													+ response.body[i].categoryName
+													+ ' </span>'
+													+ '<ul class="nested" id="ul_'+response.body[i].categoryId+'" data-field="0"></ul>'
+													+ '</li>';
+										}
+
+										$("#spanA_" + id).attr("value", "1");
+										$("#spanA_" + id)
+												.addClass("caret-down");
+										$("#ul_" + id).addClass("active");
+										//var df = $("#ul_"+id).attr("data-field");
+										//if(df == 0) {
+										$("#ul_" + id).append(tbl);
+										//}
+
+									}
+
+									var prCategoryId = $("#prCategoryId").val();
+
+									$("#cat_" + prCategoryId).prop("checked",
+											true);
+
+									//$("#ul_"+id).attr("data-field","1");
+								}
+							}
+
+						},
+						error : function(data) {
+							console.log(data)
+							$("#spanA_" + id).attr("value", "0");
+							$("#spanA_" + id).removeClass("caret-down");
+							$("#ul_" + id).removeClass("active");
+							$("#ul_" + id).empty();
+						}
+					});
+		} else {
+			$("#spanA_" + id).attr("value", "0");
+			$("#spanA_" + id).removeClass("caret-down");
+			$("#ul_" + id).removeClass("active");
+			$("#ul_" + id).empty();
+		}
+	}
+
+	function getLeafNodes(id) {
+		//var df = $("#ul_"+id).attr("data-field");
+		//if(df == 0) {
+		$("#ul_" + id).empty();
+		//}
+		var value = $("#span_" + id).attr("value");
+		if (value == "0") {
+
+			$
+					.ajax({
+						type : "POST",
+						url : "view-requisition-product-category-get-category-list-by-id",
+						dataType : "json",
+						contentType : "application/json",
+						data : id,
+						success : function(response) {
+							if (response.message == "Success") {
+								if (response.body.length > 0) {
+									console.log(response.body)
+									for (var i = 0; i < response.body.length; i++) {
+
+										if (response.body[i].nodeCount > 0) {
+											var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'
+													+ response.body[i].categoryId
+													+ '" onclick=getLeafNodes("'
+													+ response.body[i].categoryId
+													+ '")></span><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'" level="'+response.body[i].catLevel+'"> '
+													+ response.body[i].categoryName
+													+ ' </span>'
+													+ '<ul class="nested" id="ul_'+response.body[i].categoryId+'" data-field="0"></ul>'
+													+ '</li>';
+										} else {
+											var tbl = '<li id="li_'+response.body[i].categoryId+'"><span class="caret" value="0" id="span_'
+													+ response.body[i].categoryId
+													+ '" onclick=getLeafNodes("'
+													+ response.body[i].categoryId
+													+ '")></span><div class="category"><input type="checkbox" id="cat_'
+													+ response.body[i].categoryId
+													+ '" class="pc1-box" onchange=selectCheckBox("'
+													+ response.body[i].categoryId
+													+ '","'
+													+ response.body[i].catLevel
+													+ '")></div><span class="leveltxt" id="lbl_'+response.body[i].categoryId+'" level="'+response.body[i].catLevel+'"> '
+													+ response.body[i].categoryName
+													+ ' </span>'
+													+ '<ul class="nested" id="ul_'+response.body[i].categoryId+'" data-field="0"></ul>'
+													+ '</li>';
+										}
+
+										$("#span_" + id).attr("value", "1");
+										$("#span_" + id).addClass("caret-down");
+										$("#ul_" + id).addClass("active");
+										//var df = $("#ul_"+id).attr("data-field");
+										//if(df == 0) {
+										$("#ul_" + id).append(tbl);
+										//}
+
+									}
+
+									var prCategoryId = $("#prCategoryId").val();
+
+									$("#cat_" + prCategoryId).prop("checked",
+											true);
+
+									//$("#ul_"+id).attr("data-field","1");
+								}
+							}
+
+						},
+						error : function(data) {
+							console.log(data)
+							$("#span_" + id).attr("value", "0");
+							$("#span_" + id).removeClass("caret-down");
+							$("#ul_" + id).removeClass("active");
+							$("#ul_" + id).empty();
+							$("#ul_" + id).empty();
+						}
+					});
+		} else {
+			$("#span_" + id).attr("value", "0");
+			$("#span_" + id).removeClass("caret-down");
+			$("#ul_" + id).removeClass("active");
+			$("#ul_" + id).empty();
+		}
+	}
+
+	function selectCheckBox(id, lvl) {
+		$(".pc1-box").prop("checked", false);
+		$("#cat_" + id).prop("checked", true);
+		$("#prCategoryId").val(id);
+
+		if (lvl == 'L1') {
+			var textDesc = $("#lbl_" + id).text();
+			$("#catDesc").text(textDesc);
+		} else {
+			var res = lvl.substring(1, 1000000);
+
+			var lastText = $("#lbl_" + id).text();
+			var textDesc = "";
+			for (i = res; i > 1; i--) {
+				var pUL = $("#lbl_" + id).parents("ul").attr("id");
+				pUL = pUL.substring(3, 10000000000000);
+				var newText = $("#lbl_" + pUL).text();
+				console.log(newText + " " + i)
+				textDesc = newText + " > " + textDesc;
+				id = pUL;
+			}
+			textDesc = textDesc + lastText;
+			$("#catDesc").text(textDesc);
+		}
 	}
 </script>
 </head>
@@ -969,12 +1361,13 @@
 							<div class="col-md-3 btn-hs">
 								<div class="row">
 									<button class="btn1" id="newBtn" onclick="switchPage()">NEW</button>
-									<button class="btn2" id="copyBtn" onclick="copy()">COPY</button>
-									<button class="btn3" id="newBtn" onclick="deleteFun()">DELETE</button>
+									<button class="btn2" id="reqCopyBtn" onclick="copy()">COPY</button>
+									<button class="btn3" id="reqDltBtn" onclick="deleteFun()">DELETE</button>
 								</div>
 							</div>
 							<div class="col-md-1 btn-hs ">
-								<button class="btn2 centerbtn" onclick="approve()">APPROVE</button>
+								<button id="reqAppvBtn" class="btn2 centerbtn"
+									onclick="approve()">APPROVE</button>
 							</div>
 
 							<div class="col-md-2 btn-hs">
@@ -982,6 +1375,11 @@
 								<button class="btn4">DOWNLOAD</button>
 							</div>
 
+						</div>
+						<div class="loader">
+							<center>
+								<img class="loading-image" src="../assets/images/loading.gif" alt="../assets/images/loading.gif">
+							</center>
 						</div>
 						<div id="myGrid" style="width: 100%; height: 200px;"
 							class="ag-theme-alpine"></div>
@@ -999,23 +1397,25 @@
 											<div class="section2">
 												<div id="createdDiv" class="green-box">
 													<div class="green-box-heading">CREATED</div>
-													<div class="date">9-OCT-20</div>
+													<div class="date" id="createdDate"></div>
 												</div>
 											</div>
 											<div class="section3">
 												<div id="activeDiv" class="green-box">
 													<div class="green-box-heading">ACTIVE</div>
-													<!-- <div class="date">11-OCT-20</div> -->
+													<div class="date" id="activeDate"></div>
 												</div>
 											</div>
 											<div class="section4">
 												<div id="completeDiv" class="grey-box">
-													<div>COMPLETE</div>
+													<div class="green-box-heading">COMPLETE</div>
+													<div class="date" id="completeDate"></div>
 												</div>
 											</div>
 											<div class="section5">
 												<div id="onHoldDiv" class="grey-box">
-													<div>ONHOLD</div>
+													<div class="green-box-heading">ONHOLD</div>
+													<div class="date" id="onHoldDate"></div>
 												</div>
 											</div>
 
@@ -1078,7 +1478,7 @@
 											<div class="form-group">
 												<button class="btn2 putonhold" id="putOnHold"
 													onclick="putOnHold()">PUT ON HOLD</button>
-												<input type="hidden" value="0" id="isHold" />
+												<input type="hidden" value="1" id="isHold" />
 											</div>
 										</div>
 									</div>
@@ -1131,22 +1531,7 @@
 
 											</div>
 
-											<!-- <div class="butttonsec btn-hs">
-												<button class="btn1" id="newBtn">NEW</button>
-												<button class="btn2" id="copyBtn">COPY</button>
-												<button class="btn3" data-toggle="modal"
-													data-target="#delete">DELETE</button>
 
-												<div class="buttongap"></div>
-
-												<button class="btn2">APPROVE</button>
-												<button class="btn2">POST</button>
-
-												<div class="buttongap"></div>
-
-												<button class="btn2" data-toggle="modal"
-													data-target="#myModal1">ALLOCATE VENDOR</button>
-											</div> -->
 
 										</div>
 
@@ -1214,7 +1599,7 @@
 											<div class="chartbtnsec">
 												<div class="row">
 													<button class="btn4" onclick="closeNav()">CANCEL</button>
-													<button class="btn3" onclick="deleteProduct()">DELETE</button>
+													<button class="btn3" onclick="deleteProductIndConfirm()">DELETE</button>
 													<button class="btn1" onclick="saveTableData()">SAVE</button>
 												</div>
 											</div>
@@ -1231,15 +1616,11 @@
 																		class="inner_searchboxinput" placeholder="Search"
 																		onkeyup='getProductList()'>
 																</div>
-																<!-- <div class="searchicon1">
-																	<a href="#"><span class="close_i"><i class="ti-close"></i></span></a> 
-																	<a href="#"> <span class="close_i"><i class="ti-search srchicon"></i></span></a>
-																</div> -->
+
 																<div class="searchicon1">
 																	<a href="#"><span
 																		style="display: block; border-right: 1px solid rgb(204, 204, 204); padding-right: 5px;"
-																		id="closeKey"
-																		onclick="gridOptions.api.setQuickFilter(null);$('#quickFilter').val('');document.getElementById('closeKey').style.display='none';"
+																		id="closeKey" onclick="clearSearchData()"
 																		class="close_i"><i class="ti-close srchicon"></i></span></a><a
 																		href="#" style="color: #ccc; margin-top: -5px;"><i
 																		class="ti-search srchicon"></i></a>
@@ -1247,14 +1628,6 @@
 																</div>
 
 															</div>
-															<!-- <div class="input-style1 row">
-																<input type="text" placeholder="Search.." name="search"
-																	class="inner_searchboxinput" onkeyup="cancelBar();getProductList();"  id="search">
-																<div class="searchicon1">
-																	<a href="#"> <i class="ti-search srchicon"></i></a>
-																</div>
-																<div id="suggesstion-box1_"></div> 
-															</div> -->
 														</div>
 
 														<div id="suggesstion-box1_"></div>
@@ -1262,7 +1635,7 @@
 												</div>
 												<div class="col-lg-3 mrt_6">
 													<div class="form-group">
-														<button class="btn2 ">Browse</button>
+														<button id="browseBtn" class="btn2">Browse</button>
 													</div>
 												</div>
 											</div>
@@ -1284,13 +1657,9 @@
 												<div class="col-lg-8">
 													<div class="form-group">
 														<label>Item Name</label><span id="itemName" class="fetchdata"></span><input
-															type="hidden" id="itemId">
-														<!-- <div class="select">
-															<select id="itemId">
-																<option th:each="c:${productList}"
-																	th:value='${c.itemId}' th:text="${c.itemName}"></option>
-															</select>
-														</div> -->
+															type="hidden" id="itemId"> <input type="hidden"
+															id="productEdit">
+
 													</div>
 												</div>
 												<div class="col-lg-8">
@@ -1473,6 +1842,62 @@
 									<button type="button" class="btn3"
 										onclick="deleteProductOnclick()">Delete</button>
 								</div>
+							</div>
+						</div>
+					</div>
+
+
+					<!-- delete product modal start -->
+					<div id="deleteProductInd" class="modal fade show"
+						aria-modal="true">
+						<div class="modal-dialog modal-confirm">
+							<div class="modal-content">
+								<div class="modal-header flex-column">
+									<button type="button" class="close" data-dismiss="modal"
+										aria-hidden="true" onclick="cancelModalProductBtn()">
+										<i class="ti-close modal-close"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<p>Do you really want to delete these records? This process
+										cannot be undone.</p>
+								</div>
+								<div class="modal-footer justify-content-center"
+									style="margin-top: -30px;">
+
+									<button type="button" class="btn1" data-dismiss="modal"
+										onclick="cancelModalBtn();">Cancel</button>
+									<button type="button" class="btn3" onclick="deleteProductInd()">Delete</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="modal fade" id="myModal">
+						<div class="modal-dialog modal-xl" style="margin-top: 130px;">
+							<div class="modal-content">
+
+								<!-- Modal Header -->
+								<div class="modal-header">
+									<h4 class="modal-title md-color">Select Product</h4>
+									<button type="button" class="close cp" data-dismiss="modal">&times;</button>
+								</div>
+
+								<!-- Modal body -->
+								<div class="modal-body modal-cat">
+									<div class="row">
+										<div class="col-md-12" id="productCategoryCBDiv" df="0">
+
+										</div>
+									</div>
+								</div>
+
+								<!-- Modal footer -->
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary cp"
+										data-dismiss="modal">Close</button>
+								</div>
+
 							</div>
 						</div>
 					</div>

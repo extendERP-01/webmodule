@@ -42,7 +42,13 @@ public class InventoryRequisitionModel {
 	private String componentId;
 	private String subComponentId;
 	private String approveStatus;
-	
+	private String brandName;
+	private String modelName;
+	private String activeDate;
+	private String onHoldDate;
+	private String completeDate;
+	private String id;
+
 	public InventoryRequisitionModel() {
 		super();
 	}
@@ -317,6 +323,54 @@ public class InventoryRequisitionModel {
 
 	public void setApproveStatus(String approveStatus) {
 		this.approveStatus = approveStatus;
+	}
+
+	public String getBrandName() {
+		return brandName;
+	}
+
+	public void setBrandName(String brandName) {
+		this.brandName = brandName;
+	}
+
+	public String getModelName() {
+		return modelName;
+	}
+
+	public void setModelName(String modelName) {
+		this.modelName = modelName;
+	}
+
+	public String getActiveDate() {
+		return activeDate;
+	}
+
+	public void setActiveDate(String activeDate) {
+		this.activeDate = activeDate;
+	}
+
+	public String getOnHoldDate() {
+		return onHoldDate;
+	}
+
+	public void setOnHoldDate(String onHoldDate) {
+		this.onHoldDate = onHoldDate;
+	}
+
+	public String getCompleteDate() {
+		return completeDate;
+	}
+
+	public void setCompleteDate(String completeDate) {
+		this.completeDate = completeDate;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	@Override

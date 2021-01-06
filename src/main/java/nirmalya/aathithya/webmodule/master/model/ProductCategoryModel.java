@@ -1,6 +1,7 @@
 package nirmalya.aathithya.webmodule.master.model;
 
 import java.io.IOException;
+import java.math.BigInteger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -14,6 +15,7 @@ public class ProductCategoryModel {
 	private String createdBy;
 	private String catLevel;
 	private String parentName;
+	private BigInteger nodeCount;
 	
 	public ProductCategoryModel() {
 		super();
@@ -81,6 +83,14 @@ public class ProductCategoryModel {
 
 	public void setParentName(String parentName) {
 		this.parentName = parentName;
+	}
+
+	public BigInteger getNodeCount() {
+		return nodeCount;
+	}
+
+	public void setNodeCount(BigInteger nodeCount) {
+		this.nodeCount = nodeCount;
 	}
 
 	@Override

@@ -1693,7 +1693,7 @@ pre code {
 
 .form-control:disabled,
 .form-control[readonly] {
-    background-color: #f6f8f8;
+    /* background-color: #f6f8f8; */
     opacity: 1;
      padding:0px;
 }
@@ -4957,6 +4957,9 @@ button.close {
 @media (min-width:992px) {
     .modal-lg {
         max-width: 800px
+    }
+    .modal-xl {
+        max-width: 1200px
     }
 }
 

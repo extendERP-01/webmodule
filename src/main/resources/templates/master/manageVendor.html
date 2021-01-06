@@ -3,11 +3,12 @@
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{layout/master}">
+
 <head>  
 <script>
 
 
-	//ag grid
+	//ag grid for location
 	var columnDefs = [{
 		headerCheckboxSelection: true,
 		headerCheckboxSelectionFilteredOnly: true,
@@ -109,12 +110,112 @@
 		    });
 	}
 
-	//ag grid end
+	//ag grid  for location end
+
+//ag grid for contact
+	var columnContactDefs = [{
+		headerCheckboxSelection: true,
+		headerCheckboxSelectionFilteredOnly: true,
+		checkboxSelection: true,
+		width: 10,
+		sortable: false,
+		filter: false,
+		resizable: true
+	},
+	{
+		headerName: "Contact ID",
+		field: "vendorLocationId",
+		cellRenderer: function (params) {
+			return '<a onclick=editLocation("' + params.data.vendorLocationId + '") href="javascript:void(0)">' + params.data.vendorLocationId + '</a>';
+		}
+	},
+	 {
+		headerName: "Contact Name",
+		field: "vendorLocationName"
+		
+	}, 
+	{
+		headerName: "Designation",
+		field: "vendorLocationType",
+		type: "rightAligned"
+	},
+	{
+		headerName: "Function",
+		field: "vendorBillingStatus",
+		cellRenderer: function (params) {
+			if(params.data.vendorBillingStatus == "1"){
+				return '<i class="fa fa-check" aria-hidden="true"></i>';
+			}else{
+				return '';
+			}
+		}
+	},{
+		headerName: "Location",
+		field: "vendorPrimaryStatus",
+		cellRenderer: function (params) {
+			if(params.data.vendorPrimaryStatus == "1"){
+				return '<i class="fa fa-check" aria-hidden="true"></i>';
+			}else{
+				return '';
+			}
+		}
+	},{
+		headerName: "Phone",
+		field: "vendorLocAddress"
+		
+	},{
+		headerName: "Email",
+		field: "vendorCountry"
+		
+	},{
+		headerName: "Created Date",
+		field: "vendorState"
+		
+	}];
+
+	var gridContactOptions = {
+		columnDefs: columnContactDefs,
+		defaultColDef: {
+			sortable: true,
+			filter: true,
+			resizable: true,
+			width: 149,
+			height: 10
+		}
+	};
 
 
+	//setup the grid after the page has finished loading
+	document.addEventListener('DOMContentLoaded', function() {
+	var gridContactDiv = document.querySelector('#myContactGrid');
+	new agGrid.Grid(gridContactDiv, gridContactOptions);
+
+
+	/* var myVendor = document.querySelector('#myGrid');
+	new agGrid.Grid(myVendor, gridOptionsChild);  */
+
+	});
+	function agGridContact(){
+			var vendorId= $("#vendorId").val(); 
+		
+			agGrid.simpleHttpRequest({
+		    	url : "manage-vendor-master-through-ajax?id="+ vendorId
+		    }).then(function(data) {
+		    	console.log("dataa"+JSON.stringify(data))
+		    	gridOptions.api.setRowData(data);
+		    });
+	}
+
+	//ag grid  for contact end
 
 $(document).ready(function() {
-
+//hide main content
+	var vendorId=$("#vendorId").val();
+	if(vendorId){
+		$("#main").show();
+	}else{
+		$("#main").hide();
+	}
 	
 	
 	
@@ -276,6 +377,21 @@ function openNav() {
 	$("#vendorCity").empty();
 	$("#vendorCity").append("<option value=''>Select</option>");
 	document.getElementById("mySidenav").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:850px;";
+	document.getElementById("main").style.width = "82%";
+}
+function openContactNav() {
+	$("#vendorLocationId").val("");
+	$("#vendorLocationName").val("");
+	$("#vendorLocationType").val("");
+	$('#billingStatus').prop('checked', true);
+	$('#primaryStatus').prop('checked', true);
+	$("#vendorLocAddress").val("");
+	$("#vendorCountry").val("");
+	$("#vendorState").empty();
+	$("#vendorState").append("<option value=''>Select</option>");
+	$("#vendorCity").empty();
+	$("#vendorCity").append("<option value=''>Select</option>");
+	document.getElementById("mySideContactnav").style.cssText = "width: 250px; position: absolute; right:-30px; overflow: hidden; height:850px;";
 	document.getElementById("main").style.width = "82%";
 }
 
@@ -448,6 +564,7 @@ function closeNav() {
 			$(".btn-hs").hide();
 			$("#demo").show();
 			agGridLocation();
+			agGridContact();
 		})
 
 		$("#cancelBtn").click(function() {
@@ -645,6 +762,10 @@ function submitVendor(dataset) {
             if (response.message == "Success") {
             	
             	console.log(response.body)
+            	var vendorId=$("#vendorId").val();
+            	
+            	$("#main").show();
+            
             	$('#newLocation').prop('disabled', false);
             	/* $("#myUL").show(); */
             	$("#vendorText").text("");
@@ -683,7 +804,7 @@ function submitVendorLocation(dataset) {
             	
             	/* $("#myUL").show(); */
             	agGridLocation();
-
+            	closeNav();
             } else {
                 swal({
                     title: response.code,
@@ -751,6 +872,110 @@ function editLocation(id){
 		});
 	}
 }
+/* function for cancel delete location */
+function cancelModalLocationBtn() {
+		$("#deleteModalBtn").removeAttr("disabled");
+		$('#deleteLocation').modal('hide');
+	}
+/* function for cancel delete location end */
+
+/* function for delete location */
+function deleteLocationOnclick() {
+	var selectedRows = gridOptions.api.getSelectedRows();
+	var selectedRowsString = '';
+	selectedRows.forEach(function(selectedRow, index) {
+		if (index > 0) {
+			selectedRowsString += ',';
+			}
+			selectedRowsString += '"' + selectedRow.vendorLocationId + '"';
+			});
+			
+	if (selectedRowsString) {
+	alert(selectedRowsString)
+		var item = {};
+		item.vendorLocationId = selectedRowsString;
+		$.ajax({
+			type : "POST",
+			url : "manage-vendor-master-location-delete?id="+ selectedRowsString,
+			success : function(response) {
+			 if (response.message == "success") {
+				 agGridLocation();
+			} 
+			},
+			error : function(data) {
+			console.log(data);
+			}
+		})
+		
+	} else {
+		$("#alert").modal('show');
+		document.getElementById("textId").innerHTML = "Please Select Atleast one Record !";
+	}
+		cancelModalLocationBtn();
+
+	}
+function deleteVendorLocation() {
+	$('#deleteLocation').modal('show');
+}
+ function deleteLocNav(){
+	alert("hii")
+	 var id = $("#vendorLocationId").val();
+	 
+	$('#deleteLocationNav').modal('show');
+	
+	$("#deleteModalBtn").click(function(){
+		$("#deleteModalBtn").attr("disabled","disabled");
+		alert(id)
+		if(id){
+			$.ajax({
+				type : "POST",
+				url : "manage-vendor-master-location-delete?id="+ id,
+				success : function(response) {
+				 if (response.message == "success") {
+					 agGridLocation();
+				} 
+				},
+				error : function(data) {
+				console.log(data);
+				}
+			})
+		}
+		
+	})
+} 
+ function addMore1() {
+
+		var lengthOfTableRow = $("#doctbodyData").children('tr').length;
+		var cloneHtml = $("#docTbl tbody tr:first").clone();
+
+		$("#docTbl tbody").append($("#docTbl tbody tr:first").clone());
+		$("#myTable tbody tr td:last").html("");
+		var addMore = '<button type="button" class="btn btn-primary tr_clone_add" name="add" onclick="addMore1();"><span class="ti-plus"></span></button>&nbsp;'
+
+		$("#docTbl tbody tr:last").find(".documentclss").val("");
+		$("#docTbl tbody tr:last").find(".docNoclss").val("");
+		$("#docTbl tbody tr:last").find(".documentclssup").val("");
+
+		var editTr = 0;
+
+		if (lengthOfTableRow > editTr) {
+
+			$("#docTbl tbody tr").eq(lengthOfTableRow - 1).find('td:last')
+					.append(removeMore);
+		}
+		$("#docTbl > tbody > tr").each(function(i) {
+			var selectInput = $(this).find('select');
+			var textInput = $(this).find('input');
+			var fileInput = $(this).find('file');
+			var divInput = $(this).find('div');
+			selectInput.eq(0).attr('id', "docid_" + i);
+
+			textInput.eq(0).attr('id', "docnoid_" + i);
+			textInput.eq(1).attr('id', "uploadDoc_" + i);
+
+		})
+
+	}
 </script>
 </head>
 <body>
@@ -979,54 +1204,14 @@ function editLocation(id){
 											</div>
 										</div>
 
-										<!-- <div class="col-md-4">
-										<div class="form-group">
-											<label>City</label> <select class="form-control"
-												id="exampleFormControlSelect1">
-												<option>Chicago</option>
-											</select>
-										</div>
-									</div> -->
-										<!-- <div class="col-md-8">
-										<div class="form-group">
-											<label>Street Address</label> <input type="text"
-												name="Street" value="" placeholder="Street Name"
-												class="form-control">
-
-										</div>
-									</div> -->
-
-										<!-- <div class="col-md-4">
-										<div class="form-group mrt_25">
-
-											<input type="checkbox"> <label>Active</label>
-										</div>
-									</div> -->
+										
 									</div>
 								</div>
 </div>
 
-
- 
-									
-							
-							<!-- <div class="row">
-								<div class="col-md-12">
-									<div class="headingbar">
-										<a href="#" data-toggle="collapse" data-target="#demo_11"
-											style="color: #333; text-decoration: none;">Locations</a> <a
-											href="#" data-toggle="collapse" data-target="#demo_11"
-											style="float: right; color: #333; text-decoration: none;"><i
-											class="ti-angle-down"></i></a>
-									</div>
-								</div>
-							</div>
-							<div id="demo_11" class="collapse show"> -->
-							<div id="main">
-							
-							<!-- <div class="slidearrow" onclick="openNav(event)">
-											<i class="ti-arrow-left"></i>
-										</div> -->
+<!-- 	main div start here -->
+							<div id="main">		
+							<!-- 	sidenave for vendor location start here -->			
 										<div id="mySidenav" class="sidenav">
 											<div class="slidebox">
 												<div class="row">
@@ -1043,7 +1228,7 @@ function editLocation(id){
 													<div class="chartbtnsec">
 														<div class="row">
 															<button class="btn4" onclick="closeNav()" >CANCEL</button>
-															<button class="btn3">DELETE</button>
+															<!-- <button class="btn3" onclick="deleteLocNav();">DELETE</button> -->
 															<button class="btn1"  id="saveVendorLocation">SAVE</button>
 														</div>
 													</div>
@@ -1134,6 +1319,101 @@ function editLocation(id){
 												<!-- </div> -->
 											</div>
 										</div>
+									<!-- 	sidenave for vendor location end here -->
+									<!-- 	sidenave for vendor contact start here -->
+											<div id="mySideContactnav" class="sidenav">
+											<div class="slidebox">
+												<div class="row">
+													<div class="col-md-10">
+														<div class="edit">Contact</div>
+													</div>
+													<div class="col-md-2">
+														<div class="arrow">
+															<a href="javascript:void(0)" class="closebtn"
+																onclick="closeNav()"><i class="ti-arrow-right"></i></a>
+														</div>
+													</div>
+													</div>
+													<div class="chartbtnsec">
+														<div class="row">
+															<button class="btn4" onclick="closeNav()" >CANCEL</button>
+															<!-- <button class="btn3" onclick="deleteLocNav();">DELETE</button> -->
+															<button class="btn1"  id="saveVendorLocation">SAVE</button>
+														</div>
+													</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>ID </label><!-- <span  class="form-control transparenttxtbox" id="vendorLocationId"></span> --> <input type="text"
+																class="form-control transparenttxtbox"
+																placeholder="id" id="vendorLocationId" disabled>
+														</div>
+													</div>
+										<div class="col-md-12 mt-15">
+											<div class="form-group">
+												<label>Name</label> <input type="text"
+													class="form-control transparenttxtbox"
+													placeholder="Marketing" id="vendorLocationName">
+											</div>
+										</div>
+										<div class="col-md-12 mt-15">
+											<div class="form-group">
+												<label>Designation</label>
+												<div class="select">
+													<select id="vendorLocationType">
+													<option th:value="NULL">Select</option>
+														<option th:each="c,iter:${locationTypeList}"
+															th:value="${c.key}" th:text="${c.name}"></option>
+													</select>
+												</div>
+											</div>
+										</div>
+										
+										<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>Function</label> <input type="text"
+																class="form-control transparenttxtbox"
+																placeholder="Marketing" id="vendorLocAddress">
+														</div>
+													</div>
+													
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>Location</label>
+															<div class="select">
+												<select id="vendorCountry">
+													  <option th:value="NULL">Select</option>
+													    <option th:each="c:${countryList}" th:value='${c.key}'
+														 th:text="${c.name}"></option>
+													
+
+												</select> <span class="focus"></span>
+											</div> 
+														</div>
+											
+										</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>Phone</label> 	<div class="select">
+															<select id="vendorState">
+													  <option th:value="NULL">Select</option>
+												</select> <span class="focus"></span>
+														</div>
+														</div>
+													</div>
+													<div class="col-md-12 mt-15">
+														<div class="form-group">
+															<label>Email</label><div class="select"><select id="vendorCity">
+													  <option th:value="NULL">Select</option>
+												</select> <span class="focus"></span>
+														</div>
+														</div>
+													</div>
+											
+												
+												<!-- </div> -->
+											</div>
+										</div>
+									<!-- 	sidenave for vendor contact end here -->
 							<div class="wrapper center-block">
 									<div class="panel-group" id="accordion" role="tablist"
 										aria-multiselectable="true">
@@ -1169,7 +1449,7 @@ function editLocation(id){
 										<div class="row">
 											<button class="btn1" id="newLocation" onclick="openNav();" >NEW</button>
 											<button class="btn3" data-toggle="modal"
-												data-target="#delete">DELETE</button>
+												data-target="#delete" onclick="deleteVendorLocation();">DELETE</button>
 										</div>
 									</div>
 									<!-- <div class="col-md-1 btn-hs1">
@@ -1260,7 +1540,7 @@ function editLocation(id){
 									</div>
 									<div class="col-md-3 btn-hs1">
 										<div class="row">
-											<button class="btn1" id="newBtn1">NEW</button>
+											<button class="btn1"  id="newContact" onclick="openContactNav();">NEW</button>
 											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
 											<button class="btn3" data-toggle="modal"
 												data-target="#delete">DELETE</button>
@@ -1278,8 +1558,8 @@ function editLocation(id){
 									</div>
 
 								</div>
-
-								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
+						<div id="myContactGrid" style="width:100%; height:100px;" class="ag-theme-alpine"></div>
+							<!-- 	<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
 									<thead>
 										<tr>
 											<th align="center" width="20"><input type="checkbox"
@@ -1313,7 +1593,7 @@ function editLocation(id){
 											<td align="center">9-Oct-2020</td>
 										</tr>
 									</tbody>
-								</table>
+								</table> -->
 
 							</div>
 							</div>
@@ -1354,268 +1634,100 @@ function editLocation(id){
 									</div>
 									<div class="col-md-3 btn-hs1">
 										<div class="row">
-											<button class="btn1" id="newBtn1">NEW</button>
-											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
+											<!-- <button class="btn1" id="newBtn1">NEW</button>
+											 <button class="btn2" id="copyBtn">COPY</button>
 											<button class="btn3" data-toggle="modal"
-												data-target="#delete">DELETE</button>
+												data-target="#delete">DELETE</button> -->
 											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
                                  <a class="btn3 delete-record copy">DELETE</a> -->
 										</div>
 									</div>
-									<div class="col-md-1 btn-hs1">
-										<button class="btn2">Approve</button>
-									</div>
+								
 
 									<div class="col-md-3 btn-hs1 padding-7" align="right">
-										<button class="btn4">Upload</button>
 										<button class="btn4">Download</button>
+										<button class="btn3">Delete</button>
+										<button class="btn1" onclick="addMore1();">New</button>
 									</div>
 
 								</div>
-								<div class="row">
+							
+								
 
-									<div class="col-md-3">
-										<div class="form-group">
-											<label>Company Registration Number</label> <input type="text"
-												name="code" value="" class="form-control">
-										</div>
-									</div>
+								<table  id="docTbl" cellspacing="7" cellpadding="7">
+												<thead>
+													<tr class="tr_clone">
+                                                       <th align="center"></th>
+														<th width="320">Document Type</th>
+														<th width="320">Document No</th>
 
-									<div class="col-md-3">
-										<div class="form-group">
-											<label>Company License Number</label> <input type="text"
-												name="code" value="" class="form-control">
-										</div>
-									</div>
-
-									<div class="col-md-3">
-										<div class="form-group mrt_25">
-
-											<input type="checkbox"> <label>Insured</label>
-										</div>
-									</div>
-									<div class="col-md-3">
-										<div class="form-group mrt_25">
-
-											<input type="checkbox"> <label>Bonded</label>
-										</div>
-									</div>
-
-								</div>
-
-								<div class="row">
-									<div class="col-md-3">
-										<div class="form-group">
-											<label>GST</label> <input type="text" name="code" value=""
-												class="form-control">
+														<th width="280">Attachment</th>
 
 
-										</div>
-									</div>
-									<div class="col-md-3">
-										<div class="form-group">
-											<label>PAN</label> <input type="text" name="code" value=""
-												class="form-control">
+													</tr>
+												</thead>
+													<tbody id="doctbodyData">
+														<tr>
 
 
-										</div>
-									</div>
-								</div>
-
-								<div class="row">
-									<div class="col-md-3">
-										<div class="form-group">
-											<label>VAT</label> <input type="text" name="code" value=""
-												class="form-control">
+															<td align="center" class="pdb-24"><input
+																class="checkCls" type="checkbox" id="check2"><label
+																for="check2"></label></td>
+															<td><div class="form-group">
 
 
-										</div>
-									</div>
-									<div class="col-md-3">
-										<div class="form-group">
-											<label>TIN</label> <input type="text" name="code" value=""
-												class="form-control">
+																	<select class="form-control documentclss" id="docid_0">
+																		<option value="">Select</option>
+																		<option th:each="c,iter:${documenttypeList}"
+																			th:value="${c.key}" th:text="${c.name}"></option>
+																	</select>
+																</div></td>
 
+															<td><div class="form-group">
+																	<input type="text" name="status" value=""
+																		placeholder="Passport No"
+																		class="form-control docNoclss" id="docnoid_">
+																</div></td>
+															<!-- <td>
+			
 
-										</div>
-									</div>
-								</div>
+																<div class="control-group position-r">
+																	<label class="custom-file-upload" for="userImage">
+																		<i class="ti-plus"></i>
+																	</label>
+																	<div class="controls">
+																		<input id="userImage" name="userImage" type="file"
+																			class="form-control" accept="image/*" required="">
+																	</div>
+																</div>
 
+																<div class="uploadicon position-l">
+																	<i class="fa fa-file-pdf-o"></i>
+																</div>
+															</td> -->
+															<td>
+															<div class="control-group position-r">
+																<label class="custom-file-upload" for="userImage">
+																	<i class="ti-plus"></i>
+																</label>
+																<div class="controls">
+																	<input id="userImage" name="userImage" type="file" class="form-control" accept="image/*" required="">
+																</div>
+															</div>
 
-
-								<div class="row mrt_10">
-
-									<div class="col-md-5 btn-hs1">
-										<div class="font-design">Proof Of Insurance</div>
-									</div>
-									<div class="col-md-3 btn-hs1">
-										<div class="row">
-											<button class="btn1" id="newBtn1">NEW</button>
-											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-											<button class="btn3" data-toggle="modal"
-												data-target="#delete">DELETE</button>
-											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
-                                 <a class="btn3 delete-record copy">DELETE</a> -->
-										</div>
-									</div>
-									<div class="col-md-1 btn-hs1">
-										<button class="btn2">Approve</button>
-									</div>
-
-									<div class="col-md-3 btn-hs1 padding-7" align="right">
-										<button class="btn4">Upload</button>
-										<button class="btn4">Download</button>
-									</div>
-
-								</div>
-
-
-								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
-									<thead>
-										<tr>
-											<th align="center" width="20"><input type="checkbox"
-												name="" id="chk6"  onclick="allCheck3()"><label for="chk6"></label></th>
-											<th>ID</th>
-											<th>Name</th>
-											<th>Start Date</th>
-											<th>End Date</th>
-											<th>Create Date</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td align="center"><input type="checkbox"
-												name="" id="chk17" class="checkCls3" ><label for="chk17"></label></td>
-											<td align="center">
-												<div class="txt-blue">1023</div>
-											</td>
-
-											<td align="left">Pinaki Datta</td>
-
-											<td align="center">9-Oct-2020</td>
-											<td align="center">9-Oct-2020</td>
-											<td align="center">9-Oct-2020</td>
-										</tr>
-									</tbody>
-								</table>
+															<div class="uploadicon position-l">
+																<i class="fa fa-file-pdf-o"></i> 
+															</div>
+														</td>
 
 
 
 
-								<div class="row mrt_10">
-
-									<div class="col-md-5 padding-7 btn-hs1">
-										<div class="font-design">Contacts</div>
-									</div>
-									<div class="col-md-3 btn-hs1">
-										<div class="row">
-											<button class="btn1" id="newBtn1">NEW</button>
-											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-											<button class="btn3" data-toggle="modal"
-												data-target="#delete">DELETE</button>
-											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
-                                 <a class="btn3 delete-record copy">DELETE</a> -->
-										</div>
-									</div>
-									<div class="col-md-1 btn-hs1">
-										<button class="btn2">Approve</button>
-									</div>
-
-									<div class="col-md-3 btn-hs1 padding-7" align="right">
-										<button class="btn4">Upload</button>
-										<button class="btn4">Download</button>
-									</div>
-
-								</div>
 
 
-								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
-									<thead>
-										<tr>
-											<th align="center" width="20"><input type="checkbox"
-												name="" id="chk7" onclick="allCheck4()"><label for="chk7"></label></th>
-											<th>ID</th>
-											<th>Name</th>
-											<th>Start Date</th>
-											<th>End Date</th>
-
-											<th>Create Date</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td align="center"><input type="checkbox" name=""
-												id="chk8" class="checkCls4"><label for="chk8"></label></td>
-											<td align="center">
-												<div class="txt-blue">1023</div>
-											</td>
-
-											<td align="left">Pinaki Datta</td>
-
-											<td align="center">9-Oct-2020</td>
-											<td align="center">9-Oct-2020</td>
-											<td align="center">9-Oct-2020</td>
-										</tr>
-									</tbody>
-								</table>
-
-
-								<div class="row mrt_10">
-
-									<div class="col-md-5 btn-hs1">
-										<div class="font-design">Other Document</div>
-									</div>
-									<div class="col-md-3 btn-hs1">
-										<div class="row">
-											<button class="btn1" id="newBtn1">NEW</button>
-											<!--  <button class="btn2" id="copyBtn">COPY</button> -->
-											<button class="btn3" data-toggle="modal"
-												data-target="#delete">DELETE</button>
-											<!--  <a class="btn2 add-record copy" data-added="0">COPY</a>
-                                 <a class="btn3 delete-record copy">DELETE</a> -->
-										</div>
-									</div>
-									<div class="col-md-1 btn-hs1">
-										<button class="btn2">Approve</button>
-									</div>
-
-									<div class="col-md-3 btn-hs1 padding-7" align="right">
-										<button class="btn4">Upload</button>
-										<button class="btn4">Download</button>
-									</div>
-
-								</div>
-
-
-								<table class="newtbl" id="myTbl" cellpadding="1" cellspacing="1">
-									<thead>
-										<tr>
-											<th align="center" width="20"><input type="checkbox"
-												name="" id="chk9" onclick="allCheck5()"><label for="chk9"></label></th>
-											<th>ID</th>
-											<th>Name</th>
-											<th>Start Date</th>
-											<th>End Date</th>
-
-											<th>Create Date</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td align="center"><input type="checkbox" name=""
-												id="chk10"  class="checkCls5"><label for="chk10"></label></td>
-											<td align="center">
-												<div class="txt-blue">1023</div>
-											</td>
-
-											<td align="left">Pinaki Datta</td>
-
-											<td align="center">9-Oct-2020</td>
-											<td align="center">9-Oct-2020</td>
-											<td align="center">9-Oct-2020</td>
-										</tr>
-									</tbody>
-								</table>
+														</tr>
+													</tbody>
+												</table>
 
 							</div>
 							</div>
@@ -1897,7 +2009,55 @@ function editLocation(id){
 				
 			</div>
 			
-			
+	<!-- 	main div end here -->
+	<!-- delete modal start -->
+					<div id="deleteLocation" class="modal fade show" aria-modal="true">
+						<div class="modal-dialog modal-confirm">
+							<div class="modal-content">
+								<div class="modal-header flex-column">
+									<button type="button" class="close" data-dismiss="modal"
+										aria-hidden="true" onclick="cancelModalLocationBtn()">
+										<i class="ti-close modal-close"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<p>Do you really want to delete these records? This process
+										cannot be undone.</p>
+								</div>
+								<div class="modal-footer justify-content-center"
+									style="margin-top: -30px;">
+
+									<button type="button" class="btn1" data-dismiss="modal"
+										onclick="cancelModalLocationBtn();">Cancel</button>
+									<button type="button" class="btn3" onclick="deleteLocationOnclick()">Delete</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- delete vendor location through side nav -->
+						<div id="deleteLocationNav" class="modal fade show" aria-modal="true">
+						<div class="modal-dialog modal-confirm">
+							<div class="modal-content">
+								<div class="modal-header flex-column">
+									<button type="button" class="close" data-dismiss="modal"
+										aria-hidden="true" onclick="cancelModalLocationBtn()">
+										<i class="ti-close modal-close"></i>
+									</button>
+								</div>
+								<div class="modal-body">
+									<p>Do you really want to delete these records? This process
+										cannot be undone.</p>
+								</div>
+								<div class="modal-footer justify-content-center"
+									style="margin-top: -30px;">
+
+									<button type="button" class="btn1" data-dismiss="modal"
+										onclick="cancelModalLocationBtn();">Cancel</button>
+									<button type="button" class="btn3" id="deleteModalBtn">Delete</button>
+								</div>
+							</div>
+						</div>
+					</div>
 		</div>
 
 </div>
